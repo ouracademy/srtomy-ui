@@ -55,8 +55,9 @@ Rationale: small reviewed changes are easier to verify, revert and explain.
 - Runtime: Node >= 22 and pnpm (see `.nvmrc` and `packageManager`); `pnpm-lock.yaml` MUST be
   committed and CI MUST install with `--frozen-lockfile`.
 - Stack: Next.js App Router, React, TypeScript in `strict` mode, MUI, SWR, Auth0, zod.
-- API access MUST go through the shared authenticated client (`app/(api)/api.tsx`); components MUST
-  NOT build their own HTTP clients or read tokens directly.
+- API access MUST go through the services in `app/(api)/services` and the single client in
+  `app/(api)/client.ts`; components MUST NOT build URLs, create HTTP clients or read tokens directly.
+- Code lives next to what uses it (see `docs/architecture.md`); shared UI goes in `app/(components)/`.
 - GitHub Actions MUST be pinned by commit SHA.
 - `next build` MUST succeed in CI before merge.
 
@@ -76,4 +77,4 @@ Versioning follows semantic versioning: MAJOR for removed or redefined principle
 principles or materially expanded guidance, PATCH for clarifications. Compliance is reviewed on every
 PR and revisited whenever a retrospective or incident shows a principle is missing or wrong.
 
-**Version**: 1.0.0 | **Ratified**: 2026-10-17 | **Last Amended**: 2026-10-17
+**Version**: 1.1.0 | **Ratified**: 2026-10-17 | **Last Amended**: 2026-10-20

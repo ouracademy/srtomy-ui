@@ -35,6 +35,15 @@ Use spec-kit (the `speckit-*` skills) for specs, plans and task lists. Do not us
 
 Other addy skills stay available for code review, TDD, security and performance.
 
+## Architecture
+
+Read [docs/architecture.md](./docs/architecture.md) before adding code. The short version:
+
+- Code lives next to what uses it (by proximity). A component used by one screen goes beside its `page.tsx`; shared ones go in `app/(components)/`. No `features/` or `utils/` folders.
+- Every call to srtomy-api goes through `app/(api)/services` (typed functions and SWR hooks) and the single client in `app/(api)/client.ts`. Components never build URLs or use axios directly. Response types live in `app/(api)/types.ts`.
+- Screens that read data handle loading, not-found and error (`Loading`, `ResourceError`).
+- Unit tests sit next to the file they test; e2e tests are in `tests/`.
+
 ## Language
 
 Code identifiers and comments are in English. UI copy and user-facing messages are in Spanish.
