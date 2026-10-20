@@ -50,17 +50,15 @@ export default function Board({
 
   const onDragEnd = (result: DropResult): void => {
     if (result.combine) {
-      // console.log("combine"); // NOTE: unused
       if (result.type === "COLUMN") {
         const shallow: string[] = [...ordered];
         shallow.splice(result.source.index, 1);
         setOrdered(shallow);
 
-        // console.log("combine column"); // NOTE: unused
         return;
       }
 
-      const column: Author[] = columns[result.source.droppableId];
+      const column: Author[] = columns[result.source.droppableId] ?? [];
       const withPersonRemoved: Author[] = [...column];
       withPersonRemoved.splice(result.source.index, 1);
       setColumns({
@@ -94,20 +92,16 @@ export default function Board({
         destination.index,
       );
 
-      console.log("reorder column");
       setOrdered(newOrdered);
       return;
     }
 
-    console.log({ columns, source, destination });
     const data = reorderMap({
       personMap: columns,
       source,
       destination,
     });
 
-    console.log("reorder map");
-    console.log(data.personMap);
     setColumns(data.personMap);
   };
 
@@ -126,7 +120,7 @@ export default function Board({
               key={key}
               index={index}
               title={key}
-              authors={columns[key]}
+              authors={columns[key] ?? []}
               isScrollable={withScrollableColumns}
               isCombineEnabled={isCombineEnabled}
               useClone={useClone}

@@ -19,14 +19,13 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
-  Fab,
   Stack,
   Tooltip,
   Typography,
   Grid,
 } from "@mui/material";
 import { GridRowId, GridRowSelectionModel } from "@mui/x-data-grid";
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect } from "react";
 import { FormContainer, RadioButtonGroup, useForm } from "react-hook-form-mui";
 import { PersonTable, fullName } from "../../../person/PersonTable";
 import { DialogDeleteConfirmation } from "@/app/(components)/DialogDeleteConfirmation";
@@ -140,7 +139,8 @@ export default function AttendanceEvent(props: {
               <EventForm
                 locId={locId}
                 initialValues={initialValues}
-                submit={() => console.log("Hola")}
+                // Editing an event is not implemented yet.
+                submit={() => undefined}
                 editable={false}
               />
             </Box>

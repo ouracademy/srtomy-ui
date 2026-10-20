@@ -6,12 +6,11 @@ import Link from "next/link";
 import MenuIcon from "@mui/icons-material/Menu";
 
 interface HeaderProps {
-  navItems: Array<{ label: string; href: string }>;
   src: StaticImageData;
   alt: string;
 }
 
-const Header: React.FC<HeaderProps> = ({ navItems, src, alt }) => {
+const Header: React.FC<HeaderProps> = ({ src, alt }) => {
   const scrollToFooter = () => {
     const footer = document.getElementById("footer-contact");
     if (footer) {

@@ -87,7 +87,6 @@ test.describe("Grupos y Ministerios", () => {
 
     //
     await expect(page).toHaveURL(new RegExp(`/portal/${locId}/location`));
-    console.log("✅ Grupo creado y redirigido exitosamente");
   });
 
   test("error de validación", async ({ page }) => {
@@ -102,7 +101,5 @@ test.describe("Grupos y Ministerios", () => {
     ).toBeVisible();
     await expect(page.getByText(/Añada al menos un líder/i)).toBeVisible();
     await expect(page.getByText(/Añada al menos un miembro/i)).toBeVisible();
-
-    console.log("✅ validaciones de Zod verificadas");
   });
 });

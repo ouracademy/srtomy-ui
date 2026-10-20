@@ -54,7 +54,8 @@ export default function GroupDetailPage(props: {
     <GroupForm
       locId={locId}
       initialValues={initialValues}
-      submit={async (data) => console.log(data)}
+      // Editing a group is not implemented yet.
+      submit={async () => undefined}
     />
   );
 }

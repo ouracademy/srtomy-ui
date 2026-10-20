@@ -25,7 +25,6 @@ export default function LocationCreatePage() {
   const { data: roles, error: rolesError, isLoading } = usePredefinedRoles();
 
   if (!user) return <div>User must be logged in</div>;
-  // console.log(roles)
   if (isLoading) return <Loading />;
   if (!roles) return <ResourceError error={rolesError} />;
 

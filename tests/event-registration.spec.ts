@@ -92,7 +92,5 @@ test.describe("Registro de eventos", () => {
     await expect(
       page.getByRole("alert").filter({ hasText: /Guardado exitosamente/i }),
     ).toBeVisible();
-
-    console.log("✅ Evento creado");
   });
 });

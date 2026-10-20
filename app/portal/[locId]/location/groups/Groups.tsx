@@ -1,11 +1,9 @@
 "use client";
 
-import AddIcon from "@mui/icons-material/Add";
-import { Fab, Stack, Tooltip, Typography } from "@mui/material";
+import { Stack, Tooltip, Typography } from "@mui/material";
 import { DataGrid, GridActionsCellItem, GridColDef } from "@mui/x-data-grid";
 import { esES } from "@mui/x-data-grid/locales";
 import SearchIcon from "@mui/icons-material/Search";
-import Link from "next/link";
 import React from "react";
 import { withOutSorting } from "@/app/(components)/helpers/withOutSorting";
 import { useRouter } from "next/navigation";
@@ -19,7 +17,6 @@ import { DialogDeleteConfirmation } from "@/app/(components)/DialogDeleteConfirm
 import type { GroupListItem } from "@/app/(api)/types";
 import { SnackbarContext } from "@/app/(components)/SnackbarContext";
 import { pink } from "@mui/material/colors";
-import { RegisterButton } from "@/app/(components)/RegisterButton";
 import { RButton } from "@/app/(components)/RButton";
 
 type GroupsProps = {

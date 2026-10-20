@@ -76,7 +76,5 @@ test.describe("Editar Grupos y ministerios", () => {
 
     //E. Guardar
     await page.getByRole("button", { name: /Guardar/i }).click();
-
-    console.log("✅ Datos cargados y edición");
   });
 });

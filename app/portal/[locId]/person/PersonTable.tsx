@@ -1,6 +1,6 @@
 "use client";
-import React, { useState } from "react";
-import { Box, InputAdornment, TextField, Tooltip } from "@mui/material";
+import React from "react";
+import { Box, Tooltip } from "@mui/material";
 import {
   DataGrid,
   DataGridProps,
@@ -170,7 +170,8 @@ export const PersonTable = ({
       <DialogDeleteConfirmation
         open={openDialog}
         close={() => setOpenDialog(false)}
-        onDelete={() => console.log("eliminando")}
+        // Deleting people is not implemented yet: the API client has no endpoint for it.
+        onDelete={() => undefined}
       />
     </>
   );

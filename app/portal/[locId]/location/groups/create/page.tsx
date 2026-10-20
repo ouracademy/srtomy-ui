@@ -7,10 +7,10 @@ import { useRouter } from "next/navigation";
 import { SnackbarContext } from "@/app/(components)/SnackbarContext";
 
 export default function GroupCreatePage(props: {
-  params: Promise<{ id: number; locId: number }>;
+  params: Promise<{ locId: number }>;
 }) {
   const params = React.use(props.params);
-  const { id, locId } = params;
+  const { locId } = params;
 
   const router = useRouter();
   const alert = React.useContext(SnackbarContext);

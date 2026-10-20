@@ -1,7 +1,6 @@
 "use client";
 
 import { useAuth0 } from "@auth0/auth0-react";
-import AddCardIcon from "@mui/icons-material/AddCard";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import ChurchIcon from "@mui/icons-material/Church";
 import {
@@ -17,15 +16,12 @@ import {
   Stack,
   Typography,
 } from "@mui/material";
-import Image from "next/image";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useContext, useState } from "react";
 import { FormContainer, TextFieldElement, useForm } from "react-hook-form-mui";
 import { createOrganization } from "../(api)/services/organizations";
 import { SnackbarContext } from "../(components)/SnackbarContext";
 import MenuDrawer2 from "./MenuDrawer2";
-import tommyImage from "./tomy-logo.webp";
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 
 export default function PortalHome() {

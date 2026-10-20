@@ -1,13 +1,7 @@
 "use client";
 
 import { FormContainer, TextFieldElement, useForm } from "react-hook-form-mui";
-import {
-  Button,
-  Typography,
-  Grid,
-  InputLabel,
-  FormControl,
-} from "@mui/material";
+import { Button, Typography, Grid } from "@mui/material";
 import { sendComplaint } from "../(api)/services/complaints";
 import React from "react";
 import { SnackbarContext } from "../(components)/SnackbarContext";

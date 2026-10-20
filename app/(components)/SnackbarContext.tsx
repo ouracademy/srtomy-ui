@@ -1,9 +1,16 @@
+"use client";
+
 import { Snackbar } from "@mui/material";
 import React, { createContext } from "react";
 
-export const SnackbarContext = createContext({
+type SnackbarContextValue = {
+  message: string;
+  showMessage: (message: string) => void;
+};
+
+export const SnackbarContext = createContext<SnackbarContextValue>({
   message: "",
-  showMessage: (message: string) => {},
+  showMessage: () => undefined,
 });
 
 export const SnackbarProvider = ({
@@ -12,12 +19,7 @@ export const SnackbarProvider = ({
   children: React.ReactNode;
 }) => {
   const [alertMessage, setAlertMessage] = React.useState<string>("");
-  const handleClose = (
-    event: React.SyntheticEvent | Event,
-    reason?: string,
-  ) => {
-    setAlertMessage("");
-  };
+  const handleClose = () => setAlertMessage("");
 
   const ShowAlertMessage = (message: string) => setAlertMessage(message);
 

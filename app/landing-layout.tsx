@@ -16,24 +16,7 @@ export default function LandingLayout({
         justifyContent: "space-between",
       }}
     >
-      <Header
-        src={bowTie}
-        alt="Company Logo"
-        navItems={[
-          {
-            href: "#tools",
-            label: "Herramientas",
-          },
-          {
-            href: "#product",
-            label: "Producto",
-          },
-          {
-            href: "#price",
-            label: "Precio",
-          },
-        ]}
-      ></Header>
+      <Header src={bowTie} alt="Company Logo"></Header>
       <main>{children}</main>
       <Footer
         socialLinks={[

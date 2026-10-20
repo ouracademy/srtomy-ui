@@ -1,4 +1,4 @@
-import { Box, Button, Typography, Grid } from "@mui/material";
+import { Box, Typography, Grid } from "@mui/material";
 import { TimePicker } from "@mui/x-date-pickers";
 import { renderTimeViewClock } from "@mui/x-date-pickers/timeViewRenderers";
 import React from "react";
@@ -15,7 +15,6 @@ import { useDebounce } from "use-debounce";
 import { useOrganization } from "../(api)/services/organizations";
 import { usePeople } from "../(api)/services/people";
 import { DEBOUNCE_WAIT_MS } from "./helpers/debouncing";
-import { Option } from "./Option";
 import PlaceOutlinedIcon from "@mui/icons-material/PlaceOutlined";
 import { WeekChips } from "./WeekChips";
 import { ToogleButton } from "./ToogleButton";
@@ -134,7 +133,6 @@ export const EventForm = ({
                 formContext.setValue("startTime", value);
               }
             }}
-            // onChange={(value) => console.log(typeof value)}
             viewRenderers={{
               hours: renderTimeViewClock,
               minutes: renderTimeViewClock,

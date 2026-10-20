@@ -84,7 +84,6 @@ test.describe("Editar Sede", () => {
 
     //6. Snackbar
     await expect(page.getByText(/Guardado exitosamente/i)).toBeVisible();
-    console.log(`✅ Sede "${nuevoNombreSede}" actualizada con rol ${nuevoRol}`);
   });
 
   test("error de validación", async ({ page }) => {
@@ -104,6 +103,5 @@ test.describe("Editar Sede", () => {
     await expect(
       page.getByText(/Por favor ingrese el nombre de la sede/i),
     ).toBeVisible();
-    console.log("✅Error de validación de zod verificado");
   });
 });

@@ -1,13 +1,13 @@
 declare class CulqiCheckout {
-  constructor(publicKey: string, config: any);
+  constructor(publicKey: string, config: unknown);
 
   open(): void;
 
   close(): void;
 
-  order: any;
+  order: unknown;
 
-  error: any;
+  error: unknown;
 
   token?: { id: string };
 

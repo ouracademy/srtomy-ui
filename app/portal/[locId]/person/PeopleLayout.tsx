@@ -1,20 +1,11 @@
 "use client";
-import { RegisterButton } from "@/app/(components)/RegisterButton";
-import { TableChart, TableRows } from "@mui/icons-material";
-import AddIcon from "@mui/icons-material/Add";
 import {
   Box,
-  Button,
-  Fab,
   InputAdornment,
   Stack,
   TextField,
-  ToggleButton,
-  ToggleButtonGroup,
-  Tooltip,
   Typography,
 } from "@mui/material";
-import Link from "next/link";
 import React, { useState, useEffect } from "react";
 import SearchIcon from "@mui/icons-material/Search";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
@@ -24,11 +15,9 @@ import { RButton } from "@/app/(components)/RButton";
 
 export function PeopleLayout({
   children,
-  value,
   locId,
 }: {
   children: React.ReactNode;
-  value: "table" | "board";
   locId: number;
 }) {
   const router = useRouter();
