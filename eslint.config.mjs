@@ -11,6 +11,7 @@ export default defineConfig([
     rules: {
       // Use console.warn / console.error; leftover debugging logs are noise.
       "no-console": ["error", { allow: ["warn", "error"] }],
+      "@typescript-eslint/no-unused-vars": "error",
     },
   },
   {
