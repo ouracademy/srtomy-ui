@@ -3,9 +3,15 @@
 import { use } from "react";
 import { useMemberStates } from "@/app/(api)/services/organizations";
 import { PeopleLayout } from "../PeopleLayout";
-import Board from "./board";
+import dynamic from "next/dynamic";
 import { Author, PersonMap } from "./types";
 import Loading from "@/app/(components)/Loading";
+
+// The drag and drop library is only needed on this page.
+const Board = dynamic(() => import("./board"), {
+  ssr: false,
+  loading: () => <Loading />,
+});
 
 export default function PersonBoardPage({
   params,
