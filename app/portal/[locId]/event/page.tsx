@@ -1,6 +1,6 @@
 "use client";
 
-import { useAuthApi } from "@/app/(api)/api";
+import { createEvent } from "@/app/(api)/services/events";
 import { EventForm } from "@/app/(components)/EventForm";
 import { SnackbarContext } from "@/app/(components)/SnackbarContext";
 import CloseIcon from "@mui/icons-material/Close";
@@ -14,7 +14,6 @@ export default function EventListPage(props: {
 }) {
   const params = React.use(props.params);
   const { locId } = params;
-  const getApi = useAuthApi();
   const alert = useContext(SnackbarContext);
 
   const [spanSelected, setSpanSelected] = useState<DatesSelection>();
@@ -80,7 +79,7 @@ export default function EventListPage(props: {
                 isACourse: values.type === 1,
               };
 
-              await getApi().then((api) => api.post(`/events`, data));
+              await createEvent(data);
               close();
               alert.showMessage("Guardado exitosamente");
             }}

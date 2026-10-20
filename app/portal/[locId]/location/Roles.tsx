@@ -1,4 +1,4 @@
-import { RolesLocation } from "./page";
+import type { RolesLocation } from "@/app/(api)/types";
 
 export const getFixedOptions = (roles: RolesLocation[]): string[] => {
   return roles

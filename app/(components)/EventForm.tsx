@@ -11,12 +11,9 @@ import {
   useForm,
 } from "react-hook-form-mui";
 import { DatePickerElement } from "react-hook-form-mui/date-pickers";
-import useSWR from "swr";
 import { useDebounce } from "use-debounce";
-import { SpringPage } from "../(api)/pagination";
-import { LocationDetail } from "../portal/[locId]/Location";
-// import { PersonDetailWithId } from "../portal/[locId]/person/Person";
-import { PersonResponse } from "../portal/[locId]/person/Person";
+import { useOrganization } from "../(api)/services/organizations";
+import { usePeople } from "../(api)/services/people";
 import { DEBOUNCE_WAIT_MS } from "./helpers/debouncing";
 import { Option } from "./Option";
 import PlaceOutlinedIcon from "@mui/icons-material/PlaceOutlined";
@@ -88,17 +85,12 @@ export const EventForm = ({
     DEBOUNCE_WAIT_MS,
   );
 
-  const { data: Location } = useSWR<LocationDetail>(`organizations/${locId}`);
+  const { data: location } = useOrganization(locId);
 
-  const { data: people } = useSWR<SpringPage<PersonResponse>>([
-    `people`,
-    {
-      params: {
-        organizationId: locId,
-        ...(searchTextDebounced ? { searchText: searchTextDebounced } : {}),
-      },
-    },
-  ]);
+  const { data: people } = usePeople({
+    organizationId: locId,
+    searchText: searchTextDebounced,
+  });
 
   const daysOfWeek = watch("daysOfWeek");
   const type = watch("type");
@@ -229,7 +221,7 @@ export const EventForm = ({
               },
             }}
             name="address"
-            options={[Location?.address]}
+            options={[location?.address]}
           />
         </Grid>
         <Grid size={{ xs: 12 }}>

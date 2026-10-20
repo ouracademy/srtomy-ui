@@ -15,9 +15,11 @@ import {
   useFormContext,
 } from "react-hook-form-mui";
 import { DatePickerElement } from "react-hook-form-mui/date-pickers";
-import useSWR from "swr";
 import { z } from "zod";
-import { RolesLocation } from "../location/page";
+import { RolesLocation } from "@/app/(api)/types";
+import { useLocationRoles } from "@/app/(api)/services/organizations";
+import type { PersonPayload } from "@/app/(api)/services/people";
+import { formatISO } from "date-fns";
 import { toSpanish } from "../location/Roles";
 import { SaveButton } from "@/app/(components)/SaveButton";
 import Loading from "@/app/(components)/Loading";
@@ -41,7 +43,24 @@ const schema = z.object({
   ),
 });
 
-type PersonDetailFormData = z.infer<typeof schema>;
+export type PersonDetailFormData = z.infer<typeof schema>;
+
+// Form values -> body of POST/PUT /people.
+export const toPersonPayload = (
+  data: PersonDetailFormData,
+  organizationId: number,
+): PersonPayload => ({
+  firstName: data.firstName,
+  lastName: data.lastName,
+  phoneNumber: data.phoneNumber,
+  age: data.age,
+  birthdate: data.birthdate
+    ? formatISO(data.birthdate, { representation: "date" })
+    : null,
+  hasBeenBaptized: data.hasBeenBaptized === "YES",
+  organizationId,
+  roles: data.roles.map((x) => x.id),
+});
 
 type PersonFormProps = {
   initialValues: PersonDetailFormData;
@@ -58,11 +77,7 @@ export const PersonForm = ({
   submit,
   locId,
 }: PersonFormProps) => {
-  const {
-    data: roles,
-    error: rolesError,
-    isLoading,
-  } = useSWR<RolesLocation[]>(`/organizations/locations/${locId}/roles`);
+  const { data: roles, error: rolesError, isLoading } = useLocationRoles(locId);
 
   const formContext = useForm({
     defaultValues: initialValues,

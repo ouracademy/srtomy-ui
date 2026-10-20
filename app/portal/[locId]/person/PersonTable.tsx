@@ -10,16 +10,15 @@ import {
 import { esES } from "@mui/x-data-grid/locales";
 import SearchIcon from "@mui/icons-material/Search";
 import { withOutSorting } from "@/app/(components)/helpers/withOutSorting";
-import { SpringPage } from "@/app/(api)/pagination";
 import { usePagination } from "@/app/(components)/hook-customization/usePagination";
-import useSWR from "swr";
+import { usePeople } from "@/app/(api)/services/people";
 // import { useDebounce } from "use-debounce";
 // import { DEBOUNCE_WAIT_MS } from "@/app/(components)/helpers/debouncing";
 // import { useRouter } from "next/navigation";
 import { useRouter, useSearchParams } from "next/navigation";
-import { PersonListItem } from "./PersonListItem";
+import type { PersonListItem } from "@/app/(api)/types";
 // import { PersonDetailWithId } from "./Person";
-import { PersonResponse } from "./Person";
+import type { PersonResponse } from "@/app/(api)/person";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { DialogDeleteConfirmation } from "@/app/(components)/DialogDeleteConfirmation";
 import { pink } from "@mui/material/colors";
@@ -43,17 +42,12 @@ export const PersonTable = ({
   const searchParamQuery = searchParams.get("search") || "";
 
   const [openDialog, setOpenDialog] = React.useState(false);
-  const { data: people, isLoading } = useSWR<SpringPage<PersonListItem>>([
-    `people`,
-    {
-      params: {
-        organizationId: locId,
-        page: paginationModel.page,
-        size: paginationModel.pageSize,
-        ...(searchParamQuery ? { searchText: searchParamQuery } : {}),
-      },
-    },
-  ]);
+  const { data: people, isLoading } = usePeople<PersonListItem>({
+    organizationId: locId,
+    page: paginationModel.page,
+    size: paginationModel.pageSize,
+    searchText: searchParamQuery,
+  });
 
   const columns = React.useMemo(
     () =>

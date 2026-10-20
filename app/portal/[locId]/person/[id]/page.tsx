@@ -1,20 +1,22 @@
 "use client";
 
-import { useAuthApi } from "@/app/(api)/api";
+import { PersonResponseSchema } from "@/app/(api)/person";
 import Loading from "@/app/(components)/Loading";
 import { ResourceError } from "@/app/(components)/ResourceError";
 import { SnackbarContext } from "@/app/(components)/SnackbarContext";
 import {
   PersonForm,
   roleToOption,
+  toPersonPayload,
 } from "@/app/portal/[locId]/person/PersonForm";
+import {
+  usePerson,
+  usePersonRoles,
+  updatePerson,
+} from "@/app/(api)/services/people";
 import { Box } from "@mui/material";
-import { formatISO } from "date-fns";
 import { useRouter } from "next/navigation";
 import React from "react";
-import useSWR from "swr";
-import { RolesLocation } from "../../location/page";
-import { PersonResponseSchema } from "../Person";
 
 export default function PersonEdit(props: {
   params: Promise<{ id: number; locId: number }>;
@@ -22,7 +24,7 @@ export default function PersonEdit(props: {
   const params = React.use(props.params);
   const { id, locId } = params;
 
-  const { data, mutate: mutatePerson, isLoading } = useSWR(`/people/${id}`);
+  const { data, mutate: mutatePerson, isLoading } = usePerson(id);
   const person = data ? PersonResponseSchema.parse(data) : null;
 
   const {
@@ -30,11 +32,8 @@ export default function PersonEdit(props: {
     error: rolesError,
     mutate: mutateRoles,
     isLoading: rolesLoading,
-  } = useSWR<RolesLocation[]>(
-    `/organizations/locations/${locId}/person/${id}/roles`,
-  );
+  } = usePersonRoles(locId, id);
 
-  const getApi = useAuthApi();
   const alert = React.useContext(SnackbarContext);
   const router = useRouter();
 
@@ -53,19 +52,7 @@ export default function PersonEdit(props: {
             roles: roles.map(roleToOption),
           }}
           submit={async (formValues) => {
-            const api = await getApi();
-            await api.put(`/people/${id}`, {
-              firstName: formValues.firstName,
-              lastName: formValues.lastName,
-              phoneNumber: formValues.phoneNumber,
-              age: formValues.age,
-              birthdate: formValues.birthdate
-                ? formatISO(formValues.birthdate, { representation: "date" })
-                : null,
-              organizationId: locId,
-              hasBeenBaptized: formValues.hasBeenBaptized === "YES",
-              roles: formValues.roles.map((x) => x.id),
-            });
+            await updatePerson(id, toPersonPayload(formValues, locId));
             mutatePerson();
             mutateRoles();
             alert.showMessage("Guardado exitosamente");

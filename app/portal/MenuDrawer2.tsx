@@ -30,16 +30,10 @@ import { esES } from "@mui/x-data-grid/locales";
 import NextLink from "next/link";
 import { useRouter } from "next/navigation";
 import * as React from "react";
-import useSWR from "swr";
+import type { LocationListItem } from "../(api)/types";
+import { useLocations, useOrganization } from "../(api)/services/organizations";
 import Loading from "../(components)/Loading";
 import { withOutSorting } from "../(components)/helpers/withOutSorting";
-
-export type Organization = {
-  //TODO review LocationDetail
-  name: string;
-  address: string;
-  phoneNumber: string;
-};
 
 const drawerWidth = 240;
 
@@ -66,9 +60,7 @@ export default function MenuDrawer2({
 
   const orgId = user?.["https://sr-tommy.com/orgId"];
 
-  const { data: organization } = useSWR<Organization>(
-    orgId ? `/organizations/${orgId}` : null,
-  );
+  const { data: organization } = useOrganization(orgId);
 
   const handleClose = () => {
     setAnchorEl(null);
@@ -276,11 +268,6 @@ export default function MenuDrawer2({
   );
 }
 
-type LocationListItem = {
-  id: number;
-  name: string;
-};
-
 type DialogLocationProps = {
   open: boolean;
   onClose: () => void;
@@ -291,9 +278,7 @@ const LocationsDialog = ({ open, onClose }: DialogLocationProps) => {
 
   const orgId = user?.["https://sr-tommy.com/orgId"];
 
-  const { data: accounts, isLoading } = useSWR<LocationListItem[]>(
-    user && orgId ? `organizations/${orgId}/childs` : null,
-  );
+  const { data: accounts, isLoading } = useLocations(user ? orgId : undefined);
 
   const columns = React.useMemo(
     () =>

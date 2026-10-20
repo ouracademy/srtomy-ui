@@ -4,8 +4,7 @@ import FullCalendar from "@fullcalendar/react";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import esLocale from "@fullcalendar/core/locales/es";
 import { addHours, differenceInDays } from "date-fns";
-import { useAuthApi } from "@/app/(api)/api";
-import { EventInput } from "@fullcalendar/core/index.js";
+import { fetchEvents } from "@/app/(api)/services/events";
 import { useRouter } from "next/navigation";
 import { Box, Fab, useMediaQuery, useTheme } from "@mui/material";
 import listPlugin from "@fullcalendar/list";
@@ -23,7 +22,6 @@ export default function Calendar({
   organizationId: number;
   onSelect: (arg: DatesSelection) => void;
 }) {
-  const getApi = useAuthApi();
   const router = useRouter();
   const theme = useTheme();
   const isDesktop = useMediaQuery(theme.breakpoints.up("sm"));
@@ -65,25 +63,23 @@ export default function Calendar({
             router.push(`event/${event.id}/attendance`);
           }}
           events={(info, successCallback, failureCallback) => {
-            return getApi().then((api) =>
-              api
-                .get<EventInput[]>("events", {
-                  params: { organizationId, start: info.start, end: info.end },
-                })
-                .then((r) => r.data)
-                .then((events) =>
-                  successCallback(
-                    events.map((event) => {
-                      if (event.isACourse) {
-                        event.backgroundColor = "green";
-                      }
-                      event.classNames = ["cursor-pointer"];
-                      return event;
-                    }),
-                  ),
-                )
-                .catch((err) => failureCallback(err)),
-            );
+            return fetchEvents({
+              organizationId,
+              start: info.start,
+              end: info.end,
+            })
+              .then((events) =>
+                successCallback(
+                  events.map((event) => {
+                    if (event.isACourse) {
+                      event.backgroundColor = "green";
+                    }
+                    event.classNames = ["cursor-pointer"];
+                    return event;
+                  }),
+                ),
+              )
+              .catch((err) => failureCallback(err));
           }}
         />
         {!isDesktop && (

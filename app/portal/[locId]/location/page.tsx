@@ -3,20 +3,16 @@
 import { Box } from "@mui/material";
 import React from "react";
 import { LocationForm } from "./LocationForm";
-import useSWR from "swr";
-import { LocationDetail } from "../Location";
 import Loading from "@/app/(components)/Loading";
 import { ResourceError } from "@/app/(components)/ResourceError";
-import { useAuthApi } from "@/app/(api)/api";
+import {
+  updateLocation,
+  useLocationRoles,
+  useOrganization,
+} from "@/app/(api)/services/organizations";
 import { SnackbarContext } from "@/app/(components)/SnackbarContext";
 import { Groups } from "./groups/Groups";
 import { getFixedOptions } from "./Roles";
-
-export type RolesLocation = {
-  id: number;
-  name: string;
-  isPredefined: boolean;
-};
 
 export default function Location(props: {
   params: Promise<{ locId: number }>;
@@ -28,15 +24,14 @@ export default function Location(props: {
     data: location,
     error: locationError,
     isLoading,
-  } = useSWR<LocationDetail>(`/organizations/${locId}`);
+  } = useOrganization(locId);
 
   const {
     data: roles,
     error: rolesError,
     isLoading: rolesLoading,
-  } = useSWR<RolesLocation[]>(`/organizations/locations/${locId}/roles`);
+  } = useLocationRoles(locId);
 
-  const getApi = useAuthApi();
   const alert = React.useContext(SnackbarContext);
 
   if (isLoading || rolesLoading) return <Loading />;
@@ -66,8 +61,7 @@ export default function Location(props: {
             title="Datos generales de la sede"
             fixedOptions={fixedOptions}
             submit={async (formValues) => {
-              const api = await getApi();
-              await api.put(`/organizations/locations/${locId}`, {
+              await updateLocation(locId, {
                 name: formValues.name,
                 address: formValues.address,
                 phoneNumber: formValues.phoneNumber,

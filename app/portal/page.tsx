@@ -22,7 +22,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useContext, useState } from "react";
 import { FormContainer, TextFieldElement, useForm } from "react-hook-form-mui";
-import { useAuthApi } from "../(api)/api";
+import { createOrganization } from "../(api)/services/organizations";
 import { SnackbarContext } from "../(components)/SnackbarContext";
 import MenuDrawer2 from "./MenuDrawer2";
 import tommyImage from "./tomy-logo.webp";
@@ -130,20 +130,14 @@ const CreateChurchDialog = ({
   const alert = useContext(SnackbarContext);
   const { user } = useAuth0();
 
-  const getApi = useAuthApi();
-
   const formContext = useForm({
     defaultValues: {
       name: "",
     },
   });
 
-  const onCreate = async (data: any) => {
-    const api = await getApi();
-    await api.post("organizations", {
-      name: data.name,
-      userId: user?.sub,
-    });
+  const onCreate = async (data: { name: string }) => {
+    await createOrganization({ name: data.name, userId: user?.sub });
 
     onClose();
     alert.showMessage("Iglesia exitosamente registrada");

@@ -5,20 +5,18 @@ import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { es as dateFnsEs } from "date-fns/locale";
 import React from "react";
 import { SWRConfig } from "swr";
-import { useAuthApi } from "../(api)/api";
+import { apiClient } from "../(api)/client";
 import { AxiosRequestConfig } from "axios";
 import { SnackbarContext } from "../(components)/SnackbarContext";
 import { RequireAuth } from "./RequireAuth";
 
 export const Providers = ({ children }: { children: React.ReactNode }) => {
-  const getApi = useAuthApi();
   const alert = React.useContext(SnackbarContext);
 
   const fetcher = async (key: string | [string, AxiosRequestConfig]) => {
     const [url, config] = typeof key === "string" ? [key] : key;
 
-    const api = await getApi();
-    const res = await api.get(url, config);
+    const res = await apiClient.get(url, config);
     return res.data;
   };
 

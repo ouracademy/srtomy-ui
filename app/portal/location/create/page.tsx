@@ -1,32 +1,28 @@
 "use client";
 
-import { useAuthApi } from "@/app/(api)/api";
+import {
+  createLocation,
+  usePredefinedRoles,
+} from "@/app/(api)/services/organizations";
 import Loading from "@/app/(components)/Loading";
 import { ResourceError } from "@/app/(components)/ResourceError";
 import { SnackbarContext } from "@/app/(components)/SnackbarContext";
 import { useRouter } from "next/navigation";
 import React from "react";
-import useSWR from "swr";
 import MenuDrawer2 from "../../MenuDrawer2";
 import {
   LocationDetailForm,
   LocationForm,
 } from "../../[locId]/location/LocationForm";
 import { getFixedOptions } from "../../[locId]/location/Roles";
-import { RolesLocation } from "../../[locId]/location/page";
 import { useAuth0 } from "@auth0/auth0-react";
 
 export default function LocationCreatePage() {
-  const getApi = useAuthApi();
   const router = useRouter();
   const alert = React.useContext(SnackbarContext);
   const { user } = useAuth0();
 
-  const {
-    data: roles,
-    error: rolesError,
-    isLoading,
-  } = useSWR<RolesLocation[]>(`/organizations/locations/predefined-roles`);
+  const { data: roles, error: rolesError, isLoading } = usePredefinedRoles();
 
   if (!user) return <div>User must be logged in</div>;
   // console.log(roles)
@@ -36,8 +32,7 @@ export default function LocationCreatePage() {
   const fixedOptions: string[] = getFixedOptions(roles);
 
   const submit = async (data: LocationDetailForm) => {
-    const api = await getApi();
-    const response = await api.post("organizations/locations", {
+    const response = await createLocation({
       ...data,
       parentId: user["https://sr-tommy.com/orgId"],
       roles: data.roles.filter((role) => !fixedOptions.includes(role)),

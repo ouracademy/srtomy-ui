@@ -1,18 +1,11 @@
 "use client";
 
 import { use } from "react";
-import useSWR from "swr";
+import { useMemberStates } from "@/app/(api)/services/organizations";
 import { PeopleLayout } from "../PeopleLayout";
 import Board from "./board";
 import { Author, PersonMap } from "./types";
 import Loading from "@/app/(components)/Loading";
-// import { PersonDetailWithId } from "../Person";
-import { PersonResponse } from "../Person";
-
-type Accountability = {
-  child: PersonResponse;
-  type: string;
-};
 
 const emptyPersonMap: PersonMap = {
   VISITOR: [],
@@ -27,9 +20,7 @@ export default function PersonBoardPage({
 }) {
   const locId = Number(use(params).locId);
 
-  const { data: accountabilities, isLoading } = useSWR<Accountability[]>(
-    `organizations/${locId}/member-state`,
-  );
+  const { data: accountabilities, isLoading } = useMemberStates(locId);
 
   const personMap: PersonMap = accountabilities
     ? accountabilities.reduce(

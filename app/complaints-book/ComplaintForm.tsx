@@ -8,7 +8,7 @@ import {
   InputLabel,
   FormControl,
 } from "@mui/material";
-import { useAuthApi } from "../(api)/api";
+import { sendComplaint } from "../(api)/services/complaints";
 import React from "react";
 import { SnackbarContext } from "../(components)/SnackbarContext";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -32,7 +32,6 @@ type ComplaintFormProps = {
 export default function ComplaintForm({ initialValues }: ComplaintFormProps) {
   const [active, setActive] = React.useState(false);
 
-  const getApi = useAuthApi();
   const alert = React.useContext(SnackbarContext);
 
   const formContext = useForm({
@@ -44,8 +43,7 @@ export default function ComplaintForm({ initialValues }: ComplaintFormProps) {
     <FormContainer
       formContext={formContext}
       onSuccess={async (formValues) => {
-        const api = await getApi();
-        await api.post("complaints", {
+        await sendComplaint({
           firstName: formValues.firstName,
           lastName: formValues.lastName,
           dni: formValues.dni,

@@ -1,5 +1,6 @@
 import { existsSync } from "node:fs";
 import { defineConfig, devices } from "@playwright/test";
+import { APP_ORIGIN, E2E_PORT } from "./tests/e2e-env";
 
 // Local only: CI injects its own variables, and loadEnvFile never overrides
 // variables that are already set.
@@ -39,7 +40,7 @@ export default defineConfig({
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
     /* Base URL to use in actions like `await page.goto('')`. */
-    baseURL: "http://localhost:3000",
+    baseURL: APP_ORIGIN,
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: "on-first-retry",
@@ -90,8 +91,8 @@ export default defineConfig({
 
   /* Run your local dev server before starting the tests */
   webServer: {
-    command: "pnpm dev",
-    url: "http://localhost:3000",
+    command: `pnpm dev --port ${E2E_PORT}`,
+    url: APP_ORIGIN,
     reuseExistingServer: !process.env.CI,
     timeout: 120 * 1000,
     // Auth0 values are fixed on purpose: tests/fixtures.ts intercepts requests

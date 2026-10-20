@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { getFixedOptions, toSpanish } from "./Roles";
-import type { RolesLocation } from "./page";
+import type { RolesLocation } from "@/app/(api)/types";
 
 const role = (name: string, isPredefined: boolean): RolesLocation =>
   ({ id: 1, name, isPredefined }) as RolesLocation;
