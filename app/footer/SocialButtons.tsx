@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import React from "react";
 
@@ -17,10 +18,11 @@ const SocialButtons: React.FC<SocialButtonsProps> = ({ links }) => {
       <div className="social-buttons">
         {links.map((link, index) => (
           <Link href={whatsappURL} target="_blank" key={index}>
-            <img
-              loading="lazy"
+            <Image
               src={link.src}
               alt={link.alt}
+              width={41}
+              height={41}
               className="social-icon"
             />
           </Link>

@@ -11,7 +11,7 @@ import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
 import NextLink from "next/link";
 import * as React from "react";
-import MenuDrawer2 from "../MenuDrawer2";
+import MenuDrawer from "../MenuDrawer";
 import { useOrganization } from "@/app/(api)/services/organizations";
 
 const menuItems = [
@@ -32,7 +32,7 @@ export default function LocLayout(props: {
   const { data: location } = useOrganization(locId);
 
   return (
-    <MenuDrawer2
+    <MenuDrawer
       location={location}
       locId={locId}
       listDrawer={
@@ -71,6 +71,6 @@ export default function LocLayout(props: {
       }
     >
       {children}
-    </MenuDrawer2>
+    </MenuDrawer>
   );
 }

@@ -14,14 +14,11 @@ export default defineConfig([
     },
   },
   {
-    // React Compiler rules added by eslint-config-next 16. Existing code
-    // violates them (MenuDrawer2, attendance page, dnd board); fix and move
-    // back to "error" instead of adding new violations.
-    rules: {
-      "react-hooks/static-components": "warn",
-      "react-hooks/set-state-in-effect": "warn",
-      "react-hooks/refs": "warn",
-    },
+    // The board passes @hello-pangea/dnd render-prop `provided` objects to
+    // `ref`; the React Compiler rule reads that as a ref access during render
+    // (false positive, it is the documented usage of the library).
+    files: ["app/portal/[[]locId]/person/board/**"],
+    rules: { "react-hooks/refs": "off" },
   },
   {
     // Next loads its config with require().

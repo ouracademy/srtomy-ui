@@ -10,7 +10,11 @@ import { AxiosRequestConfig } from "axios";
 import { SnackbarContext } from "../(components)/SnackbarContext";
 import { RequireAuth } from "./RequireAuth";
 
-export const Providers = ({ children }: { children: React.ReactNode }) => {
+export const PortalProviders = ({
+  children,
+}: {
+  children: React.ReactNode;
+}) => {
   const alert = React.useContext(SnackbarContext);
 
   const fetcher = async (key: string | [string, AxiosRequestConfig]) => {

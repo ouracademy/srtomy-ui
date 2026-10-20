@@ -1,11 +1,11 @@
 import { Button } from "@mui/material";
 
-type ToogleButtonProps = {
+type ToggleButtonProps = {
   onChange: (eventType: number) => void;
   eventType: number;
 };
 
-export const ToogleButton = ({ onChange, eventType }: ToogleButtonProps) => {
+export const ToggleButton = ({ onChange, eventType }: ToggleButtonProps) => {
   const mainColor = "#3B82F6";
   return (
     <>

@@ -17,7 +17,7 @@ import { usePeople } from "../(api)/services/people";
 import { DEBOUNCE_WAIT_MS } from "./helpers/debouncing";
 import PlaceOutlinedIcon from "@mui/icons-material/PlaceOutlined";
 import { WeekChips } from "./WeekChips";
-import { ToogleButton } from "./ToogleButton";
+import { ToggleButton } from "./ToggleButton";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { SaveButton } from "./SaveButton";
@@ -110,7 +110,7 @@ export const EventForm = ({
           />
         </Grid>
         <Grid size={{ xs: 12 }}>
-          <ToogleButton
+          <ToggleButton
             eventType={type}
             onChange={(type) => formContext.setValue("type", type)}
           />

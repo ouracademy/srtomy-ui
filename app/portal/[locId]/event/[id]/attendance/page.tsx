@@ -25,7 +25,7 @@ import {
   Grid,
 } from "@mui/material";
 import { GridRowId, GridRowSelectionModel } from "@mui/x-data-grid";
-import React, { useContext, useEffect } from "react";
+import React, { useContext } from "react";
 import { FormContainer, RadioButtonGroup, useForm } from "react-hook-form-mui";
 import { PersonTable, fullName } from "../../../person/PersonTable";
 import { DialogDeleteConfirmation } from "@/app/(components)/DialogDeleteConfirmation";
@@ -53,20 +53,18 @@ export default function AttendanceEvent(props: {
   const [openConfirmDeleteDialog, setOpenConfirmDeleteDialog] =
     React.useState(false);
 
-  const [rowSelectionModel, setRowSelectionModel] =
-    React.useState<GridRowSelectionModel>({
-      type: "include", // or 'exclude'
-      ids: new Set<GridRowId>([]),
-    });
-
-  useEffect(() => {
-    if (eventAttendance) {
-      setRowSelectionModel({
-        type: "include", // or 'exclude'
-        ids: new Set<GridRowId>(eventAttendance.personIds),
-      });
-    }
-  }, [eventAttendance]);
+  // What the user picked, or null until they change the selection. Until
+  // then the selection is the attendance already saved in the API.
+  const [selection, setSelection] =
+    React.useState<GridRowSelectionModel | null>(null);
+  const savedSelection = React.useMemo<GridRowSelectionModel>(
+    () => ({
+      type: "include",
+      ids: new Set<GridRowId>(eventAttendance?.personIds),
+    }),
+    [eventAttendance],
+  );
+  const rowSelectionModel = selection ?? savedSelection;
 
   if (isLoading || eventLoading) return <Loading />;
   if (!event) return <ResourceError error={eventError} />;
@@ -164,7 +162,7 @@ export default function AttendanceEvent(props: {
                   checkboxSelection: true,
                   rowSelectionModel: rowSelectionModel,
                   onRowSelectionModelChange: (newSelectionModel) => {
-                    setRowSelectionModel(newSelectionModel);
+                    setSelection(newSelectionModel);
                   },
                 }}
               />

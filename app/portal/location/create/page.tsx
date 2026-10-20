@@ -9,7 +9,7 @@ import { ResourceError } from "@/app/(components)/ResourceError";
 import { SnackbarContext } from "@/app/(components)/SnackbarContext";
 import { useRouter } from "next/navigation";
 import React from "react";
-import MenuDrawer2 from "../../MenuDrawer2";
+import MenuDrawer from "../../MenuDrawer";
 import {
   LocationDetailForm,
   LocationForm,
@@ -41,7 +41,7 @@ export default function LocationCreatePage() {
   };
 
   return (
-    <MenuDrawer2>
+    <MenuDrawer>
       <LocationForm
         initialValues={{
           name: "",
@@ -53,6 +53,6 @@ export default function LocationCreatePage() {
         title="Registrar Datos de la Sede"
         submit={submit}
       />
-    </MenuDrawer2>
+    </MenuDrawer>
   );
 }

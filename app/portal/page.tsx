@@ -21,7 +21,7 @@ import { useContext, useState } from "react";
 import { FormContainer, TextFieldElement, useForm } from "react-hook-form-mui";
 import { createOrganization } from "../(api)/services/organizations";
 import { SnackbarContext } from "../(components)/SnackbarContext";
-import MenuDrawer2 from "./MenuDrawer2";
+import MenuDrawer from "./MenuDrawer";
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 
 export default function PortalHome() {
@@ -33,7 +33,7 @@ export default function PortalHome() {
   return (
     <main style={{ margin: "24px" }}>
       <Box>
-        <MenuDrawer2
+        <MenuDrawer
           listDrawer={
             <List>
               <ListItem sx={{ display: "flex", flexDirection: "column" }}>
@@ -82,7 +82,7 @@ export default function PortalHome() {
               </Box>
             </Paper>
           </Stack>
-        </MenuDrawer2>
+        </MenuDrawer>
       </Box>
       <CreateChurchDialog
         open={openCreateChurchDialog}
