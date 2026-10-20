@@ -8,7 +8,6 @@ import {
   Typography,
   Grid,
 } from "@mui/material";
-import { isArray } from "lodash";
 import { FormContainer, TextFieldElement, useForm } from "react-hook-form-mui";
 import { TelFieldElement } from "../person/PersonForm";
 import { z } from "zod";
@@ -91,7 +90,7 @@ export const LocationForm = ({
                 );
               }}
               renderValue={(tagValue, getTagProps) => {
-                return isArray(tagValue)
+                return Array.isArray(tagValue)
                   ? tagValue.map((option, index) => (
                       <Chip
                         label={option}
