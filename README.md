@@ -80,7 +80,10 @@ tests/            e2e (Playwright)
 .specify/         constitución y plantillas de spec-kit
 ```
 
-La guía completa (dónde va cada cosa, cómo se leen y escriben datos, autenticación, manejo de errores y deuda conocida) está en [docs/architecture.md](docs/architecture.md).
+Guías para escribir código:
+
+- [docs/architecture.md](docs/architecture.md): dónde va cada cosa, cómo se leen y escriben datos, autenticación, manejo de errores y deuda conocida.
+- [docs/code-style.md](docs/code-style.md): convenciones de código, componentes, estado, accesibilidad y pruebas.
 
 ## Integración continua
 
@@ -97,12 +100,12 @@ Las acciones de GitHub están fijadas por SHA con un comentario de versión; Dep
 
 ## Despliegue
 
-El repositorio no contiene configuración de despliegue (ni Dockerfile ni pipeline de publicación). Para cualquier entorno hay que tener en cuenta:
+Se despliega en **Vercel**, con integración directa con Git: cada push a `main` publica a producción. La configuración vive en Vercel, no en este repositorio (no hay `vercel.json`).
 
-- Las variables `NEXT_PUBLIC_*` se fijan en el **build**: un build por entorno.
-- En Auth0, la aplicación debe permitir como _Allowed Callback URLs_ `<origen>/portal` y como _Allowed Logout URLs_ y _Web Origins_ el `<origen>` del entorno.
-- srtomy-api debe permitir el origen del frontend en CORS.
-- Los entornos de vista previa por PR no existen todavía; cualquier proveedor sirve mientras construya con variables propias de ese entorno.
+- Las variables `NEXT_PUBLIC_*` se fijan en el **build**; se administran en Vercel (_Settings > Environment Variables_) y hay que definirlas para cada entorno que se use. Si falta una obligatoria, el build falla nombrando la variable (`app/env.ts`).
+- En Auth0, la aplicación debe permitir como _Allowed Callback URLs_ `<origen>/portal` y como _Allowed Logout URLs_ y _Web Origins_ el `<origen>` de cada entorno.
+- srtomy-api debe permitir en CORS el origen de cada entorno.
+- El CI de GitHub valida el código (tipos, pruebas, build); **no** despliega. Que un PR esté en verde no significa que esté publicado.
 
 ## Convenciones
 
