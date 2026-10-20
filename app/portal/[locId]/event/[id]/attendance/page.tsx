@@ -6,32 +6,23 @@ import {
   useEvent,
   useEventAttendance,
 } from "@/app/(api)/services/events";
-import type { DeleteEventOption } from "@/app/(api)/types";
 import { EventDetailFormData, EventForm } from "@/app/(components)/EventForm";
 import Loading from "@/app/(components)/Loading";
 import { ResourceError } from "@/app/(components)/ResourceError";
 import { SnackbarContext } from "@/app/(components)/SnackbarContext";
 import DeleteIcon from "@mui/icons-material/Delete";
-import {
-  Box,
-  Button,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-  Stack,
-  Tooltip,
-  Typography,
-  Grid,
-} from "@mui/material";
+import { Box, Stack, Tooltip, Typography, Grid } from "@mui/material";
 import { GridRowId, GridRowSelectionModel } from "@mui/x-data-grid";
 import React, { useContext } from "react";
-import { FormContainer, RadioButtonGroup, useForm } from "react-hook-form-mui";
 import { PersonTable, fullName } from "../../../person/PersonTable";
 import { DialogDeleteConfirmation } from "@/app/(components)/DialogDeleteConfirmation";
 import { useRouter } from "next/navigation";
 import { RegisterButton } from "@/app/(components)/RegisterButton";
 import { SaveButton } from "@/app/(components)/SaveButton";
+import {
+  DeleteRecurrentEventDialog,
+  type DeleteEventRecurrentForm,
+} from "./DeleteRecurrentEventDialog";
 
 export default function AttendanceEvent(props: {
   params: Promise<{ id: number; locId: number }>;
@@ -104,141 +95,77 @@ export default function AttendanceEvent(props: {
 
   return (
     <Grid container spacing={2} margin={4}>
-      {!event ? (
-        "No hay evento registrado"
-      ) : (
-        <>
-          <Grid size={{ xs: 12 }}>
-            <Box>
-              <div style={{ display: "flex", justifyContent: "flex-end" }}>
-                <Tooltip title="Eliminar">
-                  <RegisterButton
-                    icon={<DeleteIcon />}
-                    ariaLabel="delete"
-                    onClick={() =>
-                      isRecurrent
-                        ? setOpenDeleteDialog(true)
-                        : setOpenConfirmDeleteDialog(true)
-                    }
-                  />
-                </Tooltip>
-              </div>
-              <EventForm
-                locId={locId}
-                initialValues={initialValues}
-                // Editing an event is not implemented yet.
-                submit={() => undefined}
-                editable={false}
-              />
-            </Box>
-            {isRecurrent ? (
-              <DialogDelete
-                open={openDeleteDialog}
-                close={() => setOpenDeleteDialog(false)}
-                initialValues={{
-                  option: "THIS_EVENT",
-                }}
-                onDelete={deleteEventRecur}
-              />
-            ) : (
-              <DialogDeleteConfirmation
-                open={openConfirmDeleteDialog}
-                close={() => setOpenConfirmDeleteDialog(false)}
-                onDelete={deleteSingleEvent}
-              />
-            )}
-          </Grid>
-          <Grid size={{ xs: 12 }} display="flex" alignItems="center">
-            <Typography variant="h6" gutterBottom>
-              Toma de asistencia
-            </Typography>
-          </Grid>
-          <Grid size={{ xs: 12 }}>
-            <Stack spacing={2}>
-              <PersonTable
-                locId={locId}
-                dataGridProps={{
-                  keepNonExistentRowsSelected: true,
-                  checkboxSelection: true,
-                  rowSelectionModel: rowSelectionModel,
-                  onRowSelectionModelChange: (newSelectionModel) => {
-                    setSelection(newSelectionModel);
-                  },
-                }}
-              />
-            </Stack>
-          </Grid>
-          <Grid size={{ xs: 12 }}>
-            <SaveButton
-              name="Registrar asistencias"
-              onClick={async () => {
-                await saveAttendance(
-                  id,
-                  [...rowSelectionModel.ids].map(Number),
-                );
-                alert.showMessage("Asistencia guardada exitosamente");
+      <>
+        <Grid size={{ xs: 12 }}>
+          <Box>
+            <div style={{ display: "flex", justifyContent: "flex-end" }}>
+              <Tooltip title="Eliminar">
+                <RegisterButton
+                  icon={<DeleteIcon />}
+                  ariaLabel="delete"
+                  onClick={() =>
+                    isRecurrent
+                      ? setOpenDeleteDialog(true)
+                      : setOpenConfirmDeleteDialog(true)
+                  }
+                />
+              </Tooltip>
+            </div>
+            <EventForm
+              locId={locId}
+              initialValues={initialValues}
+              // Editing an event is not implemented yet.
+              submit={() => undefined}
+              editable={false}
+            />
+          </Box>
+          {isRecurrent ? (
+            <DeleteRecurrentEventDialog
+              open={openDeleteDialog}
+              close={() => setOpenDeleteDialog(false)}
+              initialValues={{
+                option: "THIS_EVENT",
+              }}
+              onDelete={deleteEventRecur}
+            />
+          ) : (
+            <DialogDeleteConfirmation
+              open={openConfirmDeleteDialog}
+              close={() => setOpenConfirmDeleteDialog(false)}
+              onDelete={deleteSingleEvent}
+            />
+          )}
+        </Grid>
+        <Grid size={{ xs: 12 }} display="flex" alignItems="center">
+          <Typography variant="h6" gutterBottom>
+            Toma de asistencia
+          </Typography>
+        </Grid>
+        <Grid size={{ xs: 12 }}>
+          <Stack spacing={2}>
+            <PersonTable
+              locId={locId}
+              dataGridProps={{
+                keepNonExistentRowsSelected: true,
+                checkboxSelection: true,
+                rowSelectionModel: rowSelectionModel,
+                onRowSelectionModelChange: (newSelectionModel) => {
+                  setSelection(newSelectionModel);
+                },
               }}
             />
-          </Grid>
-        </>
-      )}
+          </Stack>
+        </Grid>
+        <Grid size={{ xs: 12 }}>
+          <SaveButton
+            name="Registrar asistencias"
+            onClick={async () => {
+              await saveAttendance(id, [...rowSelectionModel.ids].map(Number));
+              alert.showMessage("Asistencia guardada exitosamente");
+            }}
+          />
+        </Grid>
+      </>
     </Grid>
   );
 }
-
-type DeleteEventRecurrentForm = {
-  option: DeleteEventOption;
-};
-
-type DialogDeleteProps = {
-  close: () => void;
-  open: boolean;
-  initialValues: DeleteEventRecurrentForm;
-  onDelete: (values: DeleteEventRecurrentForm) => void;
-};
-
-const DialogDelete = ({
-  close,
-  open,
-  onDelete,
-  initialValues,
-}: DialogDeleteProps) => {
-  const formContext = useForm<DeleteEventRecurrentForm>({
-    defaultValues: initialValues,
-  });
-
-  return (
-    <Dialog open={open} onClose={close}>
-      <FormContainer formContext={formContext} onSuccess={onDelete}>
-        <DialogTitle>Borrar el evento recurrente</DialogTitle>
-        <DialogContent>
-          <Typography>
-            Para eliminar seleccione una de las siguientes opciones:
-          </Typography>
-          <RadioButtonGroup
-            label=""
-            name="option"
-            options={[
-              {
-                id: "THIS_EVENT",
-                label: "Este evento",
-              },
-              {
-                id: "THIS_AND_THE_FOLLOWING_EVENTS",
-                label: "Este y los eventos siguientes",
-              },
-              {
-                id: "ALL_EVENTS",
-                label: "Todos los eventos",
-              },
-            ]}
-          />
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={close}>Cancelar</Button>
-          <Button type="submit">Eliminar</Button>
-        </DialogActions>
-      </FormContainer>
-    </Dialog>
-  );
-};

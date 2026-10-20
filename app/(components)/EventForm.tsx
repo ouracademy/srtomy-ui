@@ -4,7 +4,6 @@ import { renderTimeViewClock } from "@mui/x-date-pickers/timeViewRenderers";
 import React from "react";
 import {
   AutocompleteElement,
-  CheckboxElement,
   FormContainer,
   SubmitHandler,
   TextFieldElement,
@@ -16,7 +15,7 @@ import { useOrganization } from "../(api)/services/organizations";
 import { usePeople } from "../(api)/services/people";
 import { DEBOUNCE_WAIT_MS } from "./helpers/debouncing";
 import PlaceOutlinedIcon from "@mui/icons-material/PlaceOutlined";
-import { WeekChips } from "./WeekChips";
+import { RecurrenceFields } from "./RecurrenceFields";
 import { ToggleButton } from "./ToggleButton";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -77,7 +76,6 @@ export const EventForm = ({
   });
 
   const watch = formContext.watch;
-  const watchIsRecurrent = watch("isRecurrent");
 
   const [searchTextDebounced] = useDebounce(
     searchTextSpeaker,
@@ -91,7 +89,6 @@ export const EventForm = ({
     searchText: searchTextDebounced,
   });
 
-  const daysOfWeek = watch("daysOfWeek");
   const type = watch("type");
   const startTime = watch("startTime");
 
@@ -154,50 +151,7 @@ export const EventForm = ({
           />
         </Grid>
         <Grid size={{ xs: 12 }}>
-          <CheckboxElement
-            onChange={(e) => {
-              if (e.target.checked) {
-                const date = formContext.getValues().date;
-                formContext.setValue("daysOfWeek", date ? [date.getDay()] : []);
-              } else {
-                formContext.setValue("daysOfWeek", []);
-              }
-            }}
-            name="isRecurrent"
-            label="Se repite"
-          />
-          {watchIsRecurrent && (
-            <Box>
-              <Typography sx={{ padding: "10px 0px" }}>Repetir el</Typography>
-              <WeekChips
-                chipsValue={daysOfWeek}
-                onChange={(daysOfWeek) =>
-                  formContext.setValue("daysOfWeek", daysOfWeek)
-                }
-              />
-              <Box
-                sx={{
-                  padding: "20px 0px",
-                  display: { xs: "block", sm: "flex" },
-                  alignItems: "center",
-                }}
-              >
-                <Typography sx={{ paddingRight: "10px" }}>
-                  Finaliza el:
-                </Typography>
-                <Grid size={{ xs: 12, sm: 4 }}>
-                  <DatePickerElement
-                    name="endRecur"
-                    inputProps={{
-                      sx: {
-                        width: "100%",
-                      },
-                    }}
-                  />
-                </Grid>
-              </Box>
-            </Box>
-          )}
+          <RecurrenceFields />
         </Grid>
         <Grid size={{ xs: 12 }}>
           <AutocompleteElement
