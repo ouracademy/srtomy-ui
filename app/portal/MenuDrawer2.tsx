@@ -70,11 +70,6 @@ export default function MenuDrawer2({
     setMobileOpen(!mobileOpen);
   };
 
-  // const handleProfile = () => {
-  //   router.push("/profile");
-  //   setAnchorEl(null);
-  // };
-
   const onClose = () => {
     setOpenDialog(false);
   };
@@ -107,7 +102,6 @@ export default function MenuDrawer2({
           ml: { sm: `${drawerWidth}px` },
           background: "#fff",
           color: "#000",
-          // boxShadow: "none",
         }}
       >
         <Toolbar>
@@ -167,9 +161,6 @@ export default function MenuDrawer2({
                   "aria-labelledby": "basic-button",
                 },
               }}
-              // MenuListProps={{
-              //   "aria-labelledby": "basic-button",
-              // }}
             >
               <MenuItem
                 onClick={() =>

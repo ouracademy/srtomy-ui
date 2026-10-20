@@ -123,17 +123,6 @@ export default function AttendanceEvent(props: {
                         : setOpenConfirmDeleteDialog(true)
                     }
                   />
-                  {/* <Fab
-                    aria-labelledby="delete"
-                    color="primary"
-                    onClick={() =>
-                      isRecurrent
-                        ? setOpenDeleteDialog(true)
-                        : setOpenConfirmDeleteDialog(true)
-                    }
-                  >
-                    <DeleteIcon />
-                  </Fab> */}
                 </Tooltip>
               </div>
               <EventForm
@@ -192,19 +181,6 @@ export default function AttendanceEvent(props: {
                 alert.showMessage("Asistencia guardada exitosamente");
               }}
             />
-            {/* <Button
-              type="submit"
-              variant="contained"
-              onClick={async () => {
-                const api = await getApi();
-                await api.put(`/events/${id}/attendance`, {
-                  personIds: rowSelectionModel,
-                });
-                alert.showMessage("Asistencia guardada exitosamente");
-              }}
-            >
-              Registrar asistencias
-            </Button> */}
           </Grid>
         </>
       )}

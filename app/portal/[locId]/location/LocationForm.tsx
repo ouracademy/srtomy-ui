@@ -106,9 +106,6 @@ export const LocationForm = ({
         </Grid>
         <Grid size={{ xs: 12 }}>
           <SaveButton name="Guardar" />
-          {/* <Button type="submit" variant="contained">
-            Guardar
-          </Button> */}
         </Grid>
       </Grid>
     </FormContainer>

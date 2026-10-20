@@ -35,9 +35,6 @@ export default function Calendar({
           "& .fc-header-toolbar > .fc-toolbar-chunk:nth-child(3)": {
             display: "flex",
           },
-          // '& .fc .fc-view-harness': {
-          //   xs: {height: "50vh !important"}
-          // }
         }}
       >
         <FullCalendar

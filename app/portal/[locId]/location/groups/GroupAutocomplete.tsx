@@ -3,7 +3,6 @@ import React from "react";
 import { AutocompleteElement } from "react-hook-form-mui";
 import { usePeople } from "@/app/(api)/services/people";
 import { useDebounce } from "use-debounce";
-// import { PersonDetailWithId  } from "../../person/Person";
 
 type GroupAutocompleteProps = {
   name: string;

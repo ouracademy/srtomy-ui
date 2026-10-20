@@ -37,16 +37,6 @@ export default function PortalHome() {
           listDrawer={
             <List>
               <ListItem sx={{ display: "flex", flexDirection: "column" }}>
-                {/* <Image
-                  src={tommyImage}
-                  alt="Sr Tommy"
-                  style={{ width: "100%", height: "100%" }}
-                /> */}
-                {/* <Typography gutterBottom>
-                  Soy el sr. Tommy, seré su fiel ayudante, aquí el versiculo del
-                  día:
-                </Typography> */}
-                {/* TODO: randomize versicles?*/}
                 <blockquote style={{ margin: ".5rem", color: "#fff" }}>
                   Mejores son dos que uno; porque tienen mejor paga de su
                   trabajo. Porque si caen, el uno levantará a su compañero; pero
@@ -91,19 +81,6 @@ export default function PortalHome() {
                 )}
               </Box>
             </Paper>
-            {/* <Paper sx={{ display: "flex", padding: 4 }}>
-              <AddCardIcon fontSize="large" />
-              <Box pl={2}>
-                <Box pl={1}>Suscríbase a un plan de pago</Box>
-                <Button
-                  endIcon={<ArrowForwardIcon />}
-                  LinkComponent={Link}
-                  href="/portal/profile#payment"
-                >
-                  Subscribirse
-                </Button>
-              </Box>
-            </Paper> */}
           </Stack>
         </MenuDrawer2>
       </Box>

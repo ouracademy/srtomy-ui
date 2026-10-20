@@ -165,15 +165,11 @@ export const PersonForm = ({
             multiple
             name="roles"
             label="Escriba o seleccione el rol(es)"
-            // isOptionEqualToValue={(option, value)=> option.id === value.id}
             options={roles.map(roleToOption)}
           />
         </Grid>
         <Grid size={{ xs: 12 }}>
           <SaveButton name="Guardar" />
-          {/* <Button type="submit" variant="contained">
-            Guardar
-          </Button> */}
         </Grid>
       </Grid>
     </FormContainer>
@@ -197,19 +193,8 @@ export const TelFieldElement = ({ name }: { name: string }) => {
           onChange={(value) => {
             field.onChange(value.replace(/\s+/g, ""));
           }}
-          // required
-          // TODO: error and helper
-          error={
-            Boolean(errors[name])
-            // touched.phoneNumber &&
-            // Boolean(errors.phoneNumber)
-          }
-          // helperText={
-          //   (errors[name]?.message as string) || ""
-          //   // (touched.phoneNumber &&
-          //   // 	errors.phoneNumber) ||
-          //   // ""
-          // }
+          error={Boolean(errors[name])}
+          helperText={errors[name]?.message as string | undefined}
           fullWidth
           label="Teléfono"
           onlyCountries={["PE", "CO"]}

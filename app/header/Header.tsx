@@ -51,7 +51,6 @@ const Header: React.FC<HeaderProps> = ({ src, alt }) => {
         .header-box {
           box-sizing: border-box;
           padding: 8px 20px 8px 20px;
-          // box-shadow: 1px 2px 8px 1px rgba(0, 0, 0, 0.12);
         }
 
         .header {

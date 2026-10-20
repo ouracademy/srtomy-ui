@@ -146,7 +146,6 @@ export const EventForm = ({
             minTime={startTime}
             sx={{ width: "100%" }}
             value={formContext.getValues().endTime}
-            // onChange={(value) => formContext.setValue("endTime", value)}
             viewRenderers={{
               hours: renderTimeViewClock,
               minutes: renderTimeViewClock,
@@ -223,7 +222,6 @@ export const EventForm = ({
           />
         </Grid>
         <Grid size={{ xs: 12 }}>
-          {/* TODO: make creatable */}
           <AutocompleteElement
             multiple
             autocompleteProps={{
@@ -263,12 +261,7 @@ export const EventForm = ({
           />
         </Grid>
         <Grid size={{ xs: 6 }}>
-          {editable && (
-            <SaveButton name="Guardar" />
-            /* <Button type="submit" variant="contained">
-              Guardar
-            </Button> */
-          )}
+          {editable && <SaveButton name="Guardar" />}
         </Grid>
       </Grid>
     </FormContainer>

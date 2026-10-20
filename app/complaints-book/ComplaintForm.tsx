@@ -110,12 +110,7 @@ export default function ComplaintForm({ initialValues }: ComplaintFormProps) {
           />
         </Grid>
         <Grid size={{ xs: 6 }}>
-          <Button
-            type="submit"
-            variant="contained"
-            disabled={active}
-            // style={{ background: "#000" }}
-          >
+          <Button type="submit" variant="contained" disabled={active}>
             Enviar Mensaje
           </Button>
         </Grid>

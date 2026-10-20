@@ -12,12 +12,8 @@ import SearchIcon from "@mui/icons-material/Search";
 import { withOutSorting } from "@/app/(components)/helpers/withOutSorting";
 import { usePagination } from "@/app/(components)/hook-customization/usePagination";
 import { usePeople } from "@/app/(api)/services/people";
-// import { useDebounce } from "use-debounce";
-// import { DEBOUNCE_WAIT_MS } from "@/app/(components)/helpers/debouncing";
-// import { useRouter } from "next/navigation";
 import { useRouter, useSearchParams } from "next/navigation";
 import type { PersonListItem } from "@/app/(api)/types";
-// import { PersonDetailWithId } from "./Person";
 import type { PersonResponse } from "@/app/(api)/person";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { DialogDeleteConfirmation } from "@/app/(components)/DialogDeleteConfirmation";
@@ -36,8 +32,6 @@ export const PersonTable = ({
 }: PersonTableProps) => {
   const { paginationModel, setPaginationModel } = usePagination();
   const router = useRouter();
-  // const [searchText, setSearchText] = useState("");
-  // const [searchTextDebounced] = useDebounce(searchText, DEBOUNCE_WAIT_MS);
   const searchParams = useSearchParams();
   const searchParamQuery = searchParams.get("search") || "";
 
@@ -90,40 +84,15 @@ export const PersonTable = ({
 
   return (
     <>
-      {/* <TextField
-        placeholder="Buscar"
-        variant="outlined"
-        slotProps={{
-          input: {
-            startAdornment: (
-              <InputAdornment position="start">
-                <SearchIcon />
-              </InputAdornment>
-            )
-          }
-        }}
-        fullWidth
-        value={searchText}
-        onChange={(event) => setSearchText(event.target.value)}
-      /> */}
-
       <Box
         sx={{
-          // height: "70vw",
           height: "70vh",
           width: "100%",
-          // width: {
-          //   //xs: "50vh",
-          //   xs: "99%",
-          //   sm: "100%",
-          //   // sm: "100%",
-          // },
         }}
       >
         <DataGrid
           loading={isLoading}
           columns={columns}
-          // rowHeight={65}
           sx={{
             "& .MuiDataGrid-columnHeaders": {
               borderBottom: "1px solid #dbdbdb !important",

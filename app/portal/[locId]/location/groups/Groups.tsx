@@ -105,13 +105,6 @@ export function Groups({ locId }: GroupsProps) {
             padding="10px 40px"
           />
         </div>
-
-        {/* <Tooltip title="Registrar">
-          <Link href="location/groups/create">
-            <RegisterButton icon={<AddIcon />} ariaLabel="create" />
-          </Link>
-
-        </Tooltip> */}
       </Stack>
       <div style={{ width: "100%", height: "70vh" }}>
         <DataGrid

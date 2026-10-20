@@ -24,10 +24,6 @@ export default function LandingLayout({
             src: "https://cdn.builder.io/api/v1/image/assets%2F8bcc86290bcc406f950f314bd3e91ce3%2F9d2b20fa291c4acaad0f27aa6a18cd81",
             alt: "Whatsapp",
           },
-          // {
-          //   src: "https://cdn.builder.io/api/v1/image/assets%2F8bcc86290bcc406f950f314bd3e91ce3%2F99024afd4dab4fb881d161a933589f86",
-          //   alt: "Facebook",
-          // },
         ]}
         legalLinks={[
           { href: "/terms-conditions", text: "Términos y condiciones" },
