@@ -1,6 +1,6 @@
 "use client";
 
-import { createPerson } from "@/app/(api)/services/people";
+import { postPeople } from "@/app/(api)/generated";
 import { useRouter } from "next/navigation";
 import {
   PersonForm,
@@ -26,7 +26,7 @@ export default function CreatePerson(props: {
         roles: [],
       }}
       submit={async (data) => {
-        await createPerson(toPersonPayload(data, locId));
+        await postPeople(toPersonPayload(data, locId));
         alert.showMessage("Guardado exitosamente");
         router.push(`/portal/${locId}/person`);
       }}

@@ -16,9 +16,11 @@ import {
 } from "react-hook-form-mui";
 import { DatePickerElement } from "react-hook-form-mui/date-pickers";
 import { z } from "zod";
-import { RolesLocation } from "@/app/(api)/types";
-import { useLocationRoles } from "@/app/(api)/services/organizations";
-import type { PersonPayload } from "@/app/(api)/services/people";
+import { useGetOrganizationsLocationsByIdRoles } from "@/app/(api)/generated";
+import type {
+  AccountabilityTypeDto,
+  CreatePersonRequest,
+} from "@/app/(api)/generated/aPISrTommy.schemas";
 import { formatISO } from "date-fns";
 import { toSpanish } from "../location/Roles";
 import { SaveButton } from "@/app/(components)/SaveButton";
@@ -49,14 +51,14 @@ export type PersonDetailFormData = z.infer<typeof schema>;
 export const toPersonPayload = (
   data: PersonDetailFormData,
   organizationId: string,
-): PersonPayload => ({
+): CreatePersonRequest => ({
   firstName: data.firstName,
   lastName: data.lastName,
   phoneNumber: data.phoneNumber,
   age: data.age,
   birthdate: data.birthdate
     ? formatISO(data.birthdate, { representation: "date" })
-    : null,
+    : undefined,
   hasBeenBaptized: data.hasBeenBaptized === "YES",
   organizationId,
   roles: data.roles.map((x) => x.id),
@@ -77,7 +79,11 @@ export const PersonForm = ({
   submit,
   locId,
 }: PersonFormProps) => {
-  const { data: roles, error: rolesError, isLoading } = useLocationRoles(locId);
+  const {
+    data: roles,
+    error: rolesError,
+    isLoading,
+  } = useGetOrganizationsLocationsByIdRoles(locId);
 
   const formContext = useForm({
     defaultValues: initialValues,
@@ -204,9 +210,9 @@ export const TelFieldElement = ({ name }: { name: string }) => {
   );
 };
 
-export function roleToOption(x: RolesLocation): Option {
+export function roleToOption(x: AccountabilityTypeDto): Option {
   return {
-    id: x.id,
-    label: x.isPredefined ? toSpanish(x.name) : x.name,
+    id: x.id ?? "",
+    label: x.isPredefined ? toSpanish(x.name ?? "") : (x.name ?? ""),
   };
 }

@@ -12,7 +12,7 @@ import ListItemText from "@mui/material/ListItemText";
 import NextLink from "next/link";
 import * as React from "react";
 import MenuDrawer from "../MenuDrawer";
-import { useOrganization } from "@/app/(api)/services/organizations";
+import { useGetOrganizationsById } from "@/app/(api)/generated";
 
 const menuItems = [
   { label: "Dashboard", path: "", Icon: DashboardOutlinedIcon },
@@ -29,7 +29,7 @@ export default function LocLayout(props: {
   const params = React.use(props.params);
   const locId = params.locId;
 
-  const { data: location } = useOrganization(locId);
+  const { data: location } = useGetOrganizationsById(locId);
 
   return (
     <MenuDrawer

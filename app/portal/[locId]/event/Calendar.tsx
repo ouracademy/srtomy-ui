@@ -4,7 +4,7 @@ import FullCalendar from "@fullcalendar/react";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import esLocale from "@fullcalendar/core/locales/es";
 import { addHours, differenceInDays } from "date-fns";
-import { fetchEvents } from "@/app/(api)/services/events";
+import { getEvents } from "@/app/(api)/generated";
 import { useRouter } from "next/navigation";
 import { Box, Fab, useMediaQuery, useTheme } from "@mui/material";
 import listPlugin from "@fullcalendar/list";
@@ -60,20 +60,18 @@ export default function Calendar({
             router.push(`event/${event.id}/attendance`);
           }}
           events={(info, successCallback, failureCallback) => {
-            return fetchEvents({
+            return getEvents({
               organizationId,
               start: info.start,
               end: info.end,
             })
               .then((events) =>
                 successCallback(
-                  events.map((event) => {
-                    if (event.isACourse) {
-                      event.backgroundColor = "green";
-                    }
-                    event.classNames = ["cursor-pointer"];
-                    return event;
-                  }),
+                  events.map((event) => ({
+                    ...event,
+                    backgroundColor: event.isACourse ? "green" : undefined,
+                    classNames: ["cursor-pointer"],
+                  })),
                 ),
               )
               .catch((err) => failureCallback(err));

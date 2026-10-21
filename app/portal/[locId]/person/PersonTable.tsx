@@ -11,10 +11,9 @@ import { esES } from "@mui/x-data-grid/locales";
 import SearchIcon from "@mui/icons-material/Search";
 import { withOutSorting } from "@/app/(components)/helpers/withOutSorting";
 import { usePagination } from "@/app/(components)/hook-customization/usePagination";
-import { usePeople } from "@/app/(api)/services/people";
+import { useGetPeople } from "@/app/(api)/generated";
+import type { PersonResponse } from "@/app/(api)/generated/aPISrTommy.schemas";
 import { useRouter, useSearchParams } from "next/navigation";
-import type { PersonListItem } from "@/app/(api)/types";
-import type { PersonResponse } from "@/app/(api)/person";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { DialogDeleteConfirmation } from "@/app/(components)/DialogDeleteConfirmation";
 import { pink } from "@mui/material/colors";
@@ -36,7 +35,7 @@ export const PersonTable = ({
   const searchParamQuery = searchParams.get("search") || "";
 
   const [openDialog, setOpenDialog] = React.useState(false);
-  const { data: people, isLoading } = usePeople<PersonListItem>({
+  const { data: people, isLoading } = useGetPeople({
     organizationId: locId,
     page: paginationModel.page,
     size: paginationModel.pageSize,
@@ -77,7 +76,7 @@ export const PersonTable = ({
               ];
             },
           },
-        ] as GridColDef<PersonListItem>[]
+        ] as GridColDef<PersonResponse>[]
       ).map(withOutSorting),
     [router, locId],
   );

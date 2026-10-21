@@ -1,14 +1,15 @@
 "use client";
 
 import {
-  deleteEvent,
-  saveAttendance,
-  useEvent,
-  useEventAttendance,
-} from "@/app/(api)/services/events";
+  deleteEventsById,
+  putEventsByIdAttendance,
+  useGetEventsById,
+  useGetEventsByIdAttendance,
+} from "@/app/(api)/generated";
 import { EventDetailFormData, EventForm } from "@/app/(components)/EventForm";
 import Loading from "@/app/(components)/Loading";
 import { ResourceError } from "@/app/(components)/ResourceError";
+import { parseISO } from "date-fns";
 import { SnackbarContext } from "@/app/(components)/SnackbarContext";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { Box, Stack, Tooltip, Typography, Grid } from "@mui/material";
@@ -37,8 +38,8 @@ export default function AttendanceEvent(props: {
     data: event,
     error: eventError,
     isLoading: eventLoading,
-  } = useEvent(id);
-  const { data: eventAttendance, isLoading } = useEventAttendance(id);
+  } = useGetEventsById(id);
+  const { data: eventAttendance, isLoading } = useGetEventsByIdAttendance(id);
 
   const [openDeleteDialog, setOpenDeleteDialog] = React.useState(false);
   const [openConfirmDeleteDialog, setOpenConfirmDeleteDialog] =
@@ -60,34 +61,35 @@ export default function AttendanceEvent(props: {
   if (isLoading || eventLoading) return <Loading />;
   if (!event) return <ResourceError error={eventError} />;
 
-  const recurrentEvent = event.recurrentEvent || event;
   const isRecurrent = Boolean(event.recurrentEvent);
 
   const deleteEventRecur = async (values: DeleteEventRecurrentForm) => {
-    await deleteEvent(id, values.option);
+    await deleteEventsById(id, { option: values.option });
     setOpenDeleteDialog(false);
     alert.showMessage("Eliminado");
     router.push(`/portal/${locId}/event`);
   };
 
   const deleteSingleEvent = async () => {
-    await deleteEvent(id, "THIS_EVENT");
+    await deleteEventsById(id, { option: "THIS_EVENT" });
     alert.showMessage("Eliminado");
     router.push(`/portal/${locId}/event`);
   };
 
   const initialValues: EventDetailFormData = {
-    name: event.title,
-    date: event.start,
-    startTime: event.start,
-    endTime: event.end,
+    name: event.title ?? "",
+    date: event.start ?? new Date(),
+    startTime: event.start ?? new Date(),
+    endTime: event.end ?? new Date(),
     isRecurrent,
-    daysOfWeek: isRecurrent ? recurrentEvent.daysOfWeek : [],
-    endRecur: isRecurrent ? recurrentEvent.endRecur : undefined,
+    daysOfWeek: event.recurrentEvent?.daysOfWeek ?? [],
+    endRecur: event.recurrentEvent?.endRecur
+      ? parseISO(event.recurrentEvent.endRecur)
+      : undefined,
     type: event.isACourse ? 1 : 0,
     address: event.address,
-    speakers: event.speakers.map((speaker) => ({
-      id: speaker.id,
+    speakers: (event.speakers ?? []).map((speaker) => ({
+      id: speaker.id ?? "",
       label: fullName(speaker),
     })),
     description: event.description,
@@ -160,7 +162,9 @@ export default function AttendanceEvent(props: {
           <SaveButton
             name="Registrar asistencias"
             onClick={async () => {
-              await saveAttendance(id, [...rowSelectionModel.ids].map(String));
+              await putEventsByIdAttendance(id, {
+                personIds: [...rowSelectionModel.ids].map(String),
+              });
               alert.showMessage("Asistencia guardada exitosamente");
             }}
           />

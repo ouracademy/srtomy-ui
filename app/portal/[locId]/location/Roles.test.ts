@@ -1,13 +1,13 @@
 import { describe, expect, it } from "vitest";
 import { getFixedOptions, toSpanish } from "./Roles";
-import type { RolesLocation } from "@/app/(api)/types";
+import type { AccountabilityTypeDto } from "@/app/(api)/generated/aPISrTommy.schemas";
 
-const role = (name: string, isPredefined: boolean): RolesLocation =>
+const role = (name: string, isPredefined: boolean): AccountabilityTypeDto =>
   ({
     id: "11111111-1111-1111-1111-111111111111",
     name,
     isPredefined,
-  }) as RolesLocation;
+  }) as AccountabilityTypeDto;
 
 describe("toSpanish", () => {
   it.each([

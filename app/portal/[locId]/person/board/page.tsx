@@ -1,7 +1,7 @@
 "use client";
 
 import { use } from "react";
-import { useMemberStates } from "@/app/(api)/services/organizations";
+import { useGetOrganizationsByIdMemberState } from "@/app/(api)/generated";
 import { PeopleLayout } from "../PeopleLayout";
 import dynamic from "next/dynamic";
 import { Author, PersonMap } from "./types";
@@ -20,7 +20,8 @@ export default function PersonBoardPage({
 }) {
   const locId = use(params).locId;
 
-  const { data: accountabilities, isLoading } = useMemberStates(locId);
+  const { data: accountabilities, isLoading } =
+    useGetOrganizationsByIdMemberState(locId);
 
   // A fresh map on every render: the arrays below are mutated while grouping.
   const personMap: PersonMap = {
@@ -29,10 +30,11 @@ export default function PersonBoardPage({
     MEMBER: [],
   };
   for (const { child, type } of accountabilities ?? []) {
-    const column = (personMap[type] ??= []);
+    if (!child || !type) continue;
+    const column = (personMap[type.name ?? ""] ??= []);
     const author: Author = {
       id: String(child.id),
-      name: child.firstName + " " + child.lastName,
+      name: `${child.firstName ?? ""} ${child.lastName ?? ""}`,
     };
 
     if (!column.some((x) => x.id === author.id)) column.push(author);

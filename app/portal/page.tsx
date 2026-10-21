@@ -19,7 +19,7 @@ import {
 import { useRouter } from "next/navigation";
 import { useContext, useState } from "react";
 import { FormContainer, TextFieldElement, useForm } from "react-hook-form-mui";
-import { createOrganization } from "../(api)/services/organizations";
+import { postOrganizations } from "@/app/(api)/generated";
 import { SnackbarContext } from "../(components)/SnackbarContext";
 import MenuDrawer from "./MenuDrawer";
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
@@ -110,7 +110,7 @@ const CreateChurchDialog = ({
   });
 
   const onCreate = async (data: { name: string }) => {
-    await createOrganization({ name: data.name, userId: user?.sub });
+    await postOrganizations({ name: data.name, userId: user?.sub });
 
     onClose();
     alert.showMessage("Iglesia exitosamente registrada");

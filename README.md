@@ -48,18 +48,28 @@ Solo `.env.example` se versiona. `.env` y `.env.local` están en `.gitignore`.
 
 ## Scripts
 
-| Comando              | Qué hace                                                                 |
-| -------------------- | ------------------------------------------------------------------------ |
-| `pnpm dev`           | Servidor de desarrollo.                                                  |
-| `pnpm build`         | Compilación de producción (`pnpm start` la sirve).                       |
-| `pnpm check:fast`    | Tipos, lint, formato y pruebas unitarias. **Córrelo antes de terminar.** |
-| `pnpm typecheck`     | `tsc --noEmit`.                                                          |
-| `pnpm lint`          | ESLint (config plana en `eslint.config.mjs`).                            |
-| `pnpm format`        | Prettier sobre todo el repo (`format:check` solo verifica).              |
-| `pnpm test`          | Pruebas unitarias (Vitest).                                              |
-| `pnpm test:coverage` | Igual, con cobertura y umbral del 80 %.                                  |
-| `pnpm test:e2e`      | Playwright (ver abajo).                                                  |
-| `pnpm analyze`       | Analizador de bundles de Next (interactivo, solo Turbopack).             |
+| Comando              | Qué hace                                                                                                     |
+| -------------------- | ------------------------------------------------------------------------------------------------------------ |
+| `pnpm dev`           | Servidor de desarrollo.                                                                                      |
+| `pnpm build`         | Compilación de producción (`pnpm start` la sirve).                                                           |
+| `pnpm check:fast`    | Tipos, lint, formato y pruebas unitarias. **Córrelo antes de terminar.**                                     |
+| `pnpm typecheck`     | `tsc --noEmit`.                                                                                              |
+| `pnpm lint`          | ESLint (config plana en `eslint.config.mjs`).                                                                |
+| `pnpm format`        | Prettier sobre todo el repo (`format:check` solo verifica).                                                  |
+| `pnpm test`          | Pruebas unitarias (Vitest).                                                                                  |
+| `pnpm test:coverage` | Igual, con cobertura y umbral del 80 %.                                                                      |
+| `pnpm test:e2e`      | Playwright (ver abajo).                                                                                      |
+| `pnpm analyze`       | Analizador de bundles de Next (interactivo, solo Turbopack).                                                 |
+| `pnpm api:sync`      | Descarga la especificación de srtomy-api a `app/(api)/openapi/`.                                             |
+| `pnpm api:generate`  | Regenera el cliente de `app/(api)/generated/` (lo hacen solos `dev`, `build`, `test`, `lint` y `typecheck`). |
+
+## Generación de la API
+
+El cliente HTTP y sus tipos **se generan** desde la especificación OpenAPI de srtomy-api, no se escriben a mano.
+
+- `app/(api)/openapi/srtomy-api.json` es la fuente, y va versionada. Cuando cambie la API, actualízala con `pnpm api:sync` (por defecto desde `http://localhost:8080/v3/api-docs`; con `API_DOCS_URL` y `API_DOCS_TOKEN` se usa otra URL o un token). El diff del JSON va en el PR.
+- `app/(api)/generated/` lo produce `pnpm api:generate` con orval. **No se versiona ni se edita.** No tienes que acordarte de ejecutarlo: `pnpm install`, `dev`, `build`, `test`, `lint` y `typecheck` lo regeneran.
+- Lo escrito a mano es `app/(api)/client.ts` (token, fechas y el mutator que usa lo generado).
 
 ## Pruebas
 

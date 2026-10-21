@@ -1,6 +1,6 @@
 "use client";
 
-import { createEvent } from "@/app/(api)/services/events";
+import { postEvents } from "@/app/(api)/generated";
 import { EventForm } from "@/app/(components)/EventForm";
 import { SnackbarContext } from "@/app/(components)/SnackbarContext";
 import CloseIcon from "@mui/icons-material/Close";
@@ -80,14 +80,16 @@ export default function EventListPage(props: {
                 organizationId: locId,
                 startTime: format(values.startTime, "yyyy-MM-dd'T'HH:mm:ssXXX"),
                 endTime: format(values.endTime, "yyyy-MM-dd'T'HH:mm:ssXXX"),
-                endRecur: values.endRecur,
+                endRecur: values.endRecur
+                  ? format(values.endRecur, "yyyy-MM-dd")
+                  : undefined,
                 speakerIds: values.speakers.map((x) => x.id),
                 description: values.description,
                 daysOfWeek: values.daysOfWeek,
                 isACourse: values.type === 1,
               };
 
-              await createEvent(data);
+              await postEvents(data);
               close();
               alert.showMessage("Guardado exitosamente");
             }}
