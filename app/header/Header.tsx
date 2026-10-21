@@ -6,12 +6,11 @@ import Link from "next/link";
 import MenuIcon from "@mui/icons-material/Menu";
 
 interface HeaderProps {
-  navItems: Array<{ label: string; href: string }>;
   src: StaticImageData;
   alt: string;
 }
 
-const Header: React.FC<HeaderProps> = ({ navItems, src, alt }) => {
+const Header: React.FC<HeaderProps> = ({ src, alt }) => {
   const scrollToFooter = () => {
     const footer = document.getElementById("footer-contact");
     if (footer) {
@@ -52,7 +51,6 @@ const Header: React.FC<HeaderProps> = ({ navItems, src, alt }) => {
         .header-box {
           box-sizing: border-box;
           padding: 8px 20px 8px 20px;
-          // box-shadow: 1px 2px 8px 1px rgba(0, 0, 0, 0.12);
         }
 
         .header {

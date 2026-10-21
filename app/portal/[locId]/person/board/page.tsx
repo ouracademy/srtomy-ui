@@ -1,24 +1,17 @@
 "use client";
 
 import { use } from "react";
-import useSWR from "swr";
+import { useMemberStates } from "@/app/(api)/services/organizations";
 import { PeopleLayout } from "../PeopleLayout";
-import Board from "./board";
+import dynamic from "next/dynamic";
 import { Author, PersonMap } from "./types";
 import Loading from "@/app/(components)/Loading";
-// import { PersonDetailWithId } from "../Person";
-import { PersonResponse } from "../Person";
 
-type Accountability = {
-  child: PersonResponse;
-  type: string;
-};
-
-const emptyPersonMap: PersonMap = {
-  VISITOR: [],
-  MEMBERSHIP_IN_PROGRESS: [],
-  MEMBER: [],
-};
+// The drag and drop library is only needed on this page.
+const Board = dynamic(() => import("./board"), {
+  ssr: false,
+  loading: () => <Loading />,
+});
 
 export default function PersonBoardPage({
   params,
@@ -27,32 +20,27 @@ export default function PersonBoardPage({
 }) {
   const locId = Number(use(params).locId);
 
-  const { data: accountabilities, isLoading } = useSWR<Accountability[]>(
-    `organizations/${locId}/member-state`,
-  );
+  const { data: accountabilities, isLoading } = useMemberStates(locId);
 
-  const personMap: PersonMap = accountabilities
-    ? accountabilities.reduce(
-        (prev, currentValue) => {
-          const author: Author = {
-            id: String(currentValue.child.id),
-            name:
-              currentValue.child.firstName + " " + currentValue.child.lastName,
-          };
+  // A fresh map on every render: the arrays below are mutated while grouping.
+  const personMap: PersonMap = {
+    VISITOR: [],
+    MEMBERSHIP_IN_PROGRESS: [],
+    MEMBER: [],
+  };
+  for (const { child, type } of accountabilities ?? []) {
+    const column = (personMap[type] ??= []);
+    const author: Author = {
+      id: String(child.id),
+      name: child.firstName + " " + child.lastName,
+    };
 
-          if (!prev[currentValue.type].map((x) => x.id).includes(author.id)) {
-            prev[currentValue.type].push(author);
-          }
-
-          return prev;
-        },
-        { ...emptyPersonMap },
-      )
-    : { ...emptyPersonMap };
+    if (!column.some((x) => x.id === author.id)) column.push(author);
+  }
 
   if (isLoading) return <Loading></Loading>;
   return (
-    <PeopleLayout value="board" locId={locId}>
+    <PeopleLayout locId={locId}>
       <Board initial={personMap}></Board>
     </PeopleLayout>
   );

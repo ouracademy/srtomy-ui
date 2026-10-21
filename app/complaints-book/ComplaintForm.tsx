@@ -1,14 +1,8 @@
 "use client";
 
 import { FormContainer, TextFieldElement, useForm } from "react-hook-form-mui";
-import {
-  Button,
-  Typography,
-  Grid,
-  InputLabel,
-  FormControl,
-} from "@mui/material";
-import { useAuthApi } from "../(api)/api";
+import { Button, Typography, Grid } from "@mui/material";
+import { sendComplaint } from "../(api)/services/complaints";
 import React from "react";
 import { SnackbarContext } from "../(components)/SnackbarContext";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -32,7 +26,6 @@ type ComplaintFormProps = {
 export default function ComplaintForm({ initialValues }: ComplaintFormProps) {
   const [active, setActive] = React.useState(false);
 
-  const getApi = useAuthApi();
   const alert = React.useContext(SnackbarContext);
 
   const formContext = useForm({
@@ -44,8 +37,7 @@ export default function ComplaintForm({ initialValues }: ComplaintFormProps) {
     <FormContainer
       formContext={formContext}
       onSuccess={async (formValues) => {
-        const api = await getApi();
-        await api.post("complaints", {
+        await sendComplaint({
           firstName: formValues.firstName,
           lastName: formValues.lastName,
           dni: formValues.dni,
@@ -118,12 +110,7 @@ export default function ComplaintForm({ initialValues }: ComplaintFormProps) {
           />
         </Grid>
         <Grid size={{ xs: 6 }}>
-          <Button
-            type="submit"
-            variant="contained"
-            disabled={active}
-            // style={{ background: "#000" }}
-          >
+          <Button type="submit" variant="contained" disabled={active}>
             Enviar Mensaje
           </Button>
         </Grid>

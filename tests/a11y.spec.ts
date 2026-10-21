@@ -26,11 +26,11 @@ test.describe("Accesibilidad", () => {
   });
 
   const pages = [
-    ["Crear grupo", `/portal/${locId}/location/groups/create`],
-    ["Registrar persona", `/portal/${locId}/person/create`],
+    { name: "Crear grupo", path: `/portal/${locId}/location/groups/create` },
+    { name: "Registrar persona", path: `/portal/${locId}/person/create` },
   ];
 
-  for (const [name, path] of pages) {
+  for (const { name, path } of pages) {
     test(`${name} no tiene violaciones graves`, async ({ page }) => {
       await page.goto(path);
       await page.getByRole("main").waitFor();

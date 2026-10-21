@@ -25,6 +25,10 @@ const nextConfig = withBuilderDevTools({
   // config that Turbopack ignores (it only matters inside Builder's local visual
   // editor); the empty object acknowledges that. Remove with Builder.
   turbopack: {},
+  images: {
+    // Footer icons are hosted on Builder's CDN. Remove with Builder.
+    remotePatterns: [{ protocol: "https", hostname: "cdn.builder.io" }],
+  },
   async headers() {
     return [{ source: "/:path*", headers: securityHeaders }];
   },

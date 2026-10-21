@@ -94,6 +94,5 @@ test.describe("Registro de persona", () => {
 
     //8. Envío final
     await page.getByRole("button", { name: /Guardar/i }).click();
-    console.log("✅ Formulario enviado con éxito");
   });
 });

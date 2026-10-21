@@ -1,40 +1,28 @@
 "use client";
 
-import { useAuthApi } from "@/app/(api)/api";
+import {
+  deleteEvent,
+  saveAttendance,
+  useEvent,
+  useEventAttendance,
+} from "@/app/(api)/services/events";
 import { EventDetailFormData, EventForm } from "@/app/(components)/EventForm";
 import Loading from "@/app/(components)/Loading";
 import { ResourceError } from "@/app/(components)/ResourceError";
 import { SnackbarContext } from "@/app/(components)/SnackbarContext";
 import DeleteIcon from "@mui/icons-material/Delete";
-import {
-  Box,
-  Button,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-  Fab,
-  Stack,
-  Tooltip,
-  Typography,
-  Grid,
-} from "@mui/material";
+import { Box, Stack, Tooltip, Typography, Grid } from "@mui/material";
 import { GridRowId, GridRowSelectionModel } from "@mui/x-data-grid";
-import React, { useContext, useEffect, useState } from "react";
-import { FormContainer, RadioButtonGroup, useForm } from "react-hook-form-mui";
-import useSWR from "swr";
+import React, { useContext } from "react";
 import { PersonTable, fullName } from "../../../person/PersonTable";
-import { EventDetail } from "../EventDetail";
 import { DialogDeleteConfirmation } from "@/app/(components)/DialogDeleteConfirmation";
 import { useRouter } from "next/navigation";
 import { RegisterButton } from "@/app/(components)/RegisterButton";
 import { SaveButton } from "@/app/(components)/SaveButton";
-
-type EventAttendance = {
-  numberOfVisitors: number;
-  visitorsDescription: string;
-  personIds: number[];
-};
+import {
+  DeleteRecurrentEventDialog,
+  type DeleteEventRecurrentForm,
+} from "./DeleteRecurrentEventDialog";
 
 export default function AttendanceEvent(props: {
   params: Promise<{ id: number; locId: number }>;
@@ -43,36 +31,31 @@ export default function AttendanceEvent(props: {
   const { id, locId } = params;
 
   const alert = useContext(SnackbarContext);
-  const getApi = useAuthApi();
   const router = useRouter();
 
   const {
     data: event,
     error: eventError,
     isLoading: eventLoading,
-  } = useSWR<EventDetail>(`/events/${id}`);
-  const { data: eventAttendance, isLoading } = useSWR<EventAttendance>(
-    `/events/${id}/attendance`,
-  );
+  } = useEvent(id);
+  const { data: eventAttendance, isLoading } = useEventAttendance(id);
 
   const [openDeleteDialog, setOpenDeleteDialog] = React.useState(false);
   const [openConfirmDeleteDialog, setOpenConfirmDeleteDialog] =
     React.useState(false);
 
-  const [rowSelectionModel, setRowSelectionModel] =
-    React.useState<GridRowSelectionModel>({
-      type: "include", // or 'exclude'
-      ids: new Set<GridRowId>([]),
-    });
-
-  useEffect(() => {
-    if (eventAttendance) {
-      setRowSelectionModel({
-        type: "include", // or 'exclude'
-        ids: new Set<GridRowId>(eventAttendance.personIds),
-      });
-    }
-  }, [eventAttendance]);
+  // What the user picked, or null until they change the selection. Until
+  // then the selection is the attendance already saved in the API.
+  const [selection, setSelection] =
+    React.useState<GridRowSelectionModel | null>(null);
+  const savedSelection = React.useMemo<GridRowSelectionModel>(
+    () => ({
+      type: "include",
+      ids: new Set<GridRowId>(eventAttendance?.personIds),
+    }),
+    [eventAttendance],
+  );
+  const rowSelectionModel = selection ?? savedSelection;
 
   if (isLoading || eventLoading) return <Loading />;
   if (!event) return <ResourceError error={eventError} />;
@@ -81,26 +64,14 @@ export default function AttendanceEvent(props: {
   const isRecurrent = Boolean(event.recurrentEvent);
 
   const deleteEventRecur = async (values: DeleteEventRecurrentForm) => {
-    await getApi().then((api) =>
-      api.delete(`/events/${id}`, {
-        data: {
-          option: values.option,
-        },
-      }),
-    );
+    await deleteEvent(id, values.option);
     setOpenDeleteDialog(false);
     alert.showMessage("Eliminado");
     router.push(`/portal/${locId}/event`);
   };
 
-  const deleteEvent = async () => {
-    await getApi().then((api) =>
-      api.delete(`/events/${id}`, {
-        data: {
-          option: "THIS_EVENT",
-        },
-      }),
-    );
+  const deleteSingleEvent = async () => {
+    await deleteEvent(id, "THIS_EVENT");
     alert.showMessage("Eliminado");
     router.push(`/portal/${locId}/event`);
   };
@@ -124,164 +95,77 @@ export default function AttendanceEvent(props: {
 
   return (
     <Grid container spacing={2} margin={4}>
-      {!event ? (
-        "No hay evento registrado"
-      ) : (
-        <>
-          <Grid size={{ xs: 12 }}>
-            <Box>
-              <div style={{ display: "flex", justifyContent: "flex-end" }}>
-                <Tooltip title="Eliminar">
-                  <RegisterButton
-                    icon={<DeleteIcon />}
-                    ariaLabel="delete"
-                    onClick={() =>
-                      isRecurrent
-                        ? setOpenDeleteDialog(true)
-                        : setOpenConfirmDeleteDialog(true)
-                    }
-                  />
-                  {/* <Fab
-                    aria-labelledby="delete"
-                    color="primary"
-                    onClick={() =>
-                      isRecurrent
-                        ? setOpenDeleteDialog(true)
-                        : setOpenConfirmDeleteDialog(true)
-                    }
-                  >
-                    <DeleteIcon />
-                  </Fab> */}
-                </Tooltip>
-              </div>
-              <EventForm
-                locId={locId}
-                initialValues={initialValues}
-                submit={() => console.log("Hola")}
-                editable={false}
-              />
-            </Box>
-            {isRecurrent ? (
-              <DialogDelete
-                open={openDeleteDialog}
-                close={() => setOpenDeleteDialog(false)}
-                initialValues={{
-                  option: "THIS_EVENT",
-                }}
-                onDelete={deleteEventRecur}
-              />
-            ) : (
-              <DialogDeleteConfirmation
-                open={openConfirmDeleteDialog}
-                close={() => setOpenConfirmDeleteDialog(false)}
-                onDelete={deleteEvent}
-              />
-            )}
-          </Grid>
-          <Grid size={{ xs: 12 }} display="flex" alignItems="center">
-            <Typography variant="h6" gutterBottom>
-              Toma de asistencia
-            </Typography>
-          </Grid>
-          <Grid size={{ xs: 12 }}>
-            <Stack spacing={2}>
-              <PersonTable
-                locId={locId}
-                dataGridProps={{
-                  keepNonExistentRowsSelected: true,
-                  checkboxSelection: true,
-                  rowSelectionModel: rowSelectionModel,
-                  onRowSelectionModelChange: (newSelectionModel) => {
-                    setRowSelectionModel(newSelectionModel);
-                  },
-                }}
-              />
-            </Stack>
-          </Grid>
-          <Grid size={{ xs: 12 }}>
-            <SaveButton
-              name="Registrar asistencias"
-              onClick={async () => {
-                const api = await getApi();
-                await api.put(`/events/${id}/attendance`, {
-                  personIds: rowSelectionModel,
-                });
-                alert.showMessage("Asistencia guardada exitosamente");
+      <>
+        <Grid size={{ xs: 12 }}>
+          <Box>
+            <div style={{ display: "flex", justifyContent: "flex-end" }}>
+              <Tooltip title="Eliminar">
+                <RegisterButton
+                  icon={<DeleteIcon />}
+                  ariaLabel="delete"
+                  onClick={() =>
+                    isRecurrent
+                      ? setOpenDeleteDialog(true)
+                      : setOpenConfirmDeleteDialog(true)
+                  }
+                />
+              </Tooltip>
+            </div>
+            <EventForm
+              locId={locId}
+              initialValues={initialValues}
+              // Editing an event is not implemented yet.
+              submit={() => undefined}
+              editable={false}
+            />
+          </Box>
+          {isRecurrent ? (
+            <DeleteRecurrentEventDialog
+              open={openDeleteDialog}
+              close={() => setOpenDeleteDialog(false)}
+              initialValues={{
+                option: "THIS_EVENT",
+              }}
+              onDelete={deleteEventRecur}
+            />
+          ) : (
+            <DialogDeleteConfirmation
+              open={openConfirmDeleteDialog}
+              close={() => setOpenConfirmDeleteDialog(false)}
+              onDelete={deleteSingleEvent}
+            />
+          )}
+        </Grid>
+        <Grid size={{ xs: 12 }} display="flex" alignItems="center">
+          <Typography variant="h6" gutterBottom>
+            Toma de asistencia
+          </Typography>
+        </Grid>
+        <Grid size={{ xs: 12 }}>
+          <Stack spacing={2}>
+            <PersonTable
+              locId={locId}
+              dataGridProps={{
+                keepNonExistentRowsSelected: true,
+                checkboxSelection: true,
+                rowSelectionModel: rowSelectionModel,
+                onRowSelectionModelChange: (newSelectionModel) => {
+                  setSelection(newSelectionModel);
+                },
               }}
             />
-            {/* <Button
-              type="submit"
-              variant="contained"
-              onClick={async () => {
-                const api = await getApi();
-                await api.put(`/events/${id}/attendance`, {
-                  personIds: rowSelectionModel,
-                });
-                alert.showMessage("Asistencia guardada exitosamente");
-              }}
-            >
-              Registrar asistencias
-            </Button> */}
-          </Grid>
-        </>
-      )}
+          </Stack>
+        </Grid>
+        <Grid size={{ xs: 12 }}>
+          <SaveButton
+            name="Registrar asistencias"
+            onClick={async () => {
+              await saveAttendance(id, [...rowSelectionModel.ids].map(Number));
+              alert.showMessage("Asistencia guardada exitosamente");
+            }}
+          />
+        </Grid>
+      </>
     </Grid>
   );
 }
-
-type DeleteEventRecurrentForm = {
-  option: "THIS_EVENT" | "THIS_AND_THE_FOLLOWING_EVENTS" | "ALL_EVENTS";
-};
-
-type DialogDeleteProps = {
-  close: () => void;
-  open: boolean;
-  initialValues: DeleteEventRecurrentForm;
-  onDelete: (values: DeleteEventRecurrentForm) => void;
-};
-
-const DialogDelete = ({
-  close,
-  open,
-  onDelete,
-  initialValues,
-}: DialogDeleteProps) => {
-  const formContext = useForm<DeleteEventRecurrentForm>({
-    defaultValues: initialValues,
-  });
-
-  return (
-    <Dialog open={open} onClose={close}>
-      <FormContainer formContext={formContext} onSuccess={onDelete}>
-        <DialogTitle>Borrar el evento recurrente</DialogTitle>
-        <DialogContent>
-          <Typography>
-            Para eliminar seleccione una de las siguientes opciones:
-          </Typography>
-          <RadioButtonGroup
-            label=""
-            name="option"
-            options={[
-              {
-                id: "THIS_EVENT",
-                label: "Este evento",
-              },
-              {
-                id: "THIS_AND_THE_FOLLOWING_EVENTS",
-                label: "Este y los eventos siguientes",
-              },
-              {
-                id: "ALL_EVENTS",
-                label: "Todos los eventos",
-              },
-            ]}
-          />
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={close}>Cancelar</Button>
-          <Button type="submit">Eliminar</Button>
-        </DialogActions>
-      </FormContainer>
-    </Dialog>
-  );
-};

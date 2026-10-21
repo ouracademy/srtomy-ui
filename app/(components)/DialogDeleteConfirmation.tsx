@@ -34,10 +34,6 @@ export const DialogDeleteConfirmation = ({
           sx={{
             color: "#fff",
             background: "#ff385c",
-
-            // "&:hover": {
-            //   color: "#fff", background: "#ff385c"
-            // }
           }}
         >
           Eliminar

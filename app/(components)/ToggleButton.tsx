@@ -1,11 +1,11 @@
 import { Button } from "@mui/material";
 
-type ToogleButtonProps = {
+type ToggleButtonProps = {
   onChange: (eventType: number) => void;
   eventType: number;
 };
 
-export const ToogleButton = ({ onChange, eventType }: ToogleButtonProps) => {
+export const ToggleButton = ({ onChange, eventType }: ToggleButtonProps) => {
   const mainColor = "#3B82F6";
   return (
     <>
@@ -18,10 +18,7 @@ export const ToogleButton = ({ onChange, eventType }: ToogleButtonProps) => {
           //Texto
           color: eventType === 0 ? "#fff" : mainColor,
           border: `1px solid ${mainColor}`,
-          // background: "#7C2BED",
-          // color: "#fff",
         }}
-        // variant={eventType === 0 ? "contained" : "outlined"}
         onClick={() => onChange(0)}
       >
         Evento
@@ -35,7 +32,6 @@ export const ToogleButton = ({ onChange, eventType }: ToogleButtonProps) => {
           color: eventType === 1 ? "#fff" : mainColor,
           border: `1px solid ${mainColor}`,
         }}
-        // variant={eventType === 1 ? "contained" : "outlined"}
         onClick={() => onChange(1)}
       >
         Curso

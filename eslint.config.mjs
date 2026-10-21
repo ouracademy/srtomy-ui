@@ -1,19 +1,30 @@
 import { defineConfig, globalIgnores } from "eslint/config";
 import nextCoreWebVitals from "eslint-config-next/core-web-vitals";
+import nextTypescript from "eslint-config-next/typescript";
 import prettier from "eslint-config-prettier/flat";
 
 export default defineConfig([
   ...nextCoreWebVitals,
+  ...nextTypescript,
   prettier,
   {
-    // React Compiler rules added by eslint-config-next 16. Existing code
-    // violates them (MenuDrawer2, attendance page, dnd board); fix and move
-    // back to "error" instead of adding new violations.
     rules: {
-      "react-hooks/static-components": "warn",
-      "react-hooks/set-state-in-effect": "warn",
-      "react-hooks/refs": "warn",
+      // Use console.warn / console.error; leftover debugging logs are noise.
+      "no-console": ["error", { allow: ["warn", "error"] }],
+      "@typescript-eslint/no-unused-vars": "error",
     },
+  },
+  {
+    // The board passes @hello-pangea/dnd render-prop `provided` objects to
+    // `ref`; the React Compiler rule reads that as a ref access during render
+    // (false positive, it is the documented usage of the library).
+    files: ["app/portal/[[]locId]/person/board/**"],
+    rules: { "react-hooks/refs": "off" },
+  },
+  {
+    // Next loads its config with require().
+    files: ["*.config.js"],
+    rules: { "@typescript-eslint/no-require-imports": "off" },
   },
   {
     // Playwright fixtures expose `use`, which is not React's hook.

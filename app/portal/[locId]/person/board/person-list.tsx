@@ -155,14 +155,19 @@ export default function PersonList(props: Props): ReactElement {
       isCombineEnabled={isCombineEnabled}
       renderClone={
         useClone
-          ? (provided, snapshot, descriptor) => (
-              <PersonItem
-                author={authors[descriptor.source.index]}
-                provided={provided}
-                isDragging={snapshot.isDragging}
-                isClone
-              />
-            )
+          ? (provided, snapshot, descriptor) => {
+              const author = authors[descriptor.source.index];
+              return author ? (
+                <PersonItem
+                  author={author}
+                  provided={provided}
+                  isDragging={snapshot.isDragging}
+                  isClone
+                />
+              ) : (
+                <div ref={provided.innerRef} />
+              );
+            }
           : undefined
       }
     >

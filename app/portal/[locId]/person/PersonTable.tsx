@@ -1,6 +1,6 @@
 "use client";
-import React, { useState } from "react";
-import { Box, InputAdornment, TextField, Tooltip } from "@mui/material";
+import React from "react";
+import { Box, Tooltip } from "@mui/material";
 import {
   DataGrid,
   DataGridProps,
@@ -10,16 +10,11 @@ import {
 import { esES } from "@mui/x-data-grid/locales";
 import SearchIcon from "@mui/icons-material/Search";
 import { withOutSorting } from "@/app/(components)/helpers/withOutSorting";
-import { SpringPage } from "@/app/(api)/pagination";
 import { usePagination } from "@/app/(components)/hook-customization/usePagination";
-import useSWR from "swr";
-// import { useDebounce } from "use-debounce";
-// import { DEBOUNCE_WAIT_MS } from "@/app/(components)/helpers/debouncing";
-// import { useRouter } from "next/navigation";
+import { usePeople } from "@/app/(api)/services/people";
 import { useRouter, useSearchParams } from "next/navigation";
-import { PersonListItem } from "./PersonListItem";
-// import { PersonDetailWithId } from "./Person";
-import { PersonResponse } from "./Person";
+import type { PersonListItem } from "@/app/(api)/types";
+import type { PersonResponse } from "@/app/(api)/person";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { DialogDeleteConfirmation } from "@/app/(components)/DialogDeleteConfirmation";
 import { pink } from "@mui/material/colors";
@@ -37,23 +32,16 @@ export const PersonTable = ({
 }: PersonTableProps) => {
   const { paginationModel, setPaginationModel } = usePagination();
   const router = useRouter();
-  // const [searchText, setSearchText] = useState("");
-  // const [searchTextDebounced] = useDebounce(searchText, DEBOUNCE_WAIT_MS);
   const searchParams = useSearchParams();
   const searchParamQuery = searchParams.get("search") || "";
 
   const [openDialog, setOpenDialog] = React.useState(false);
-  const { data: people, isLoading } = useSWR<SpringPage<PersonListItem>>([
-    `people`,
-    {
-      params: {
-        organizationId: locId,
-        page: paginationModel.page,
-        size: paginationModel.pageSize,
-        ...(searchParamQuery ? { searchText: searchParamQuery } : {}),
-      },
-    },
-  ]);
+  const { data: people, isLoading } = usePeople<PersonListItem>({
+    organizationId: locId,
+    page: paginationModel.page,
+    size: paginationModel.pageSize,
+    searchText: searchParamQuery,
+  });
 
   const columns = React.useMemo(
     () =>
@@ -96,40 +84,15 @@ export const PersonTable = ({
 
   return (
     <>
-      {/* <TextField
-        placeholder="Buscar"
-        variant="outlined"
-        slotProps={{
-          input: {
-            startAdornment: (
-              <InputAdornment position="start">
-                <SearchIcon />
-              </InputAdornment>
-            )
-          }
-        }}
-        fullWidth
-        value={searchText}
-        onChange={(event) => setSearchText(event.target.value)}
-      /> */}
-
       <Box
         sx={{
-          // height: "70vw",
           height: "70vh",
           width: "100%",
-          // width: {
-          //   //xs: "50vh",
-          //   xs: "99%",
-          //   sm: "100%",
-          //   // sm: "100%",
-          // },
         }}
       >
         <DataGrid
           loading={isLoading}
           columns={columns}
-          // rowHeight={65}
           sx={{
             "& .MuiDataGrid-columnHeaders": {
               borderBottom: "1px solid #dbdbdb !important",
@@ -176,7 +139,8 @@ export const PersonTable = ({
       <DialogDeleteConfirmation
         open={openDialog}
         close={() => setOpenDialog(false)}
-        onDelete={() => console.log("eliminando")}
+        // Deleting people is not implemented yet: the API client has no endpoint for it.
+        onDelete={() => undefined}
       />
     </>
   );

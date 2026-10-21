@@ -1,12 +1,12 @@
 "use client";
 
 import { ProfileForm } from "@/app/(components)/ProfileForm";
-import MenuDrawer2 from "../MenuDrawer2";
+import MenuDrawer from "../MenuDrawer";
 
 export default function ProfilePage() {
   return (
-    <MenuDrawer2>
+    <MenuDrawer>
       <ProfileForm />
-    </MenuDrawer2>
+    </MenuDrawer>
   );
 }

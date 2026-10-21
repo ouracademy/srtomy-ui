@@ -1,20 +1,11 @@
 "use client";
-import { RegisterButton } from "@/app/(components)/RegisterButton";
-import { TableChart, TableRows } from "@mui/icons-material";
-import AddIcon from "@mui/icons-material/Add";
 import {
   Box,
-  Button,
-  Fab,
   InputAdornment,
   Stack,
   TextField,
-  ToggleButton,
-  ToggleButtonGroup,
-  Tooltip,
   Typography,
 } from "@mui/material";
-import Link from "next/link";
 import React, { useState, useEffect } from "react";
 import SearchIcon from "@mui/icons-material/Search";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
@@ -24,11 +15,9 @@ import { RButton } from "@/app/(components)/RButton";
 
 export function PeopleLayout({
   children,
-  value,
   locId,
 }: {
   children: React.ReactNode;
-  value: "table" | "board";
   locId: number;
 }) {
   const router = useRouter();
@@ -57,30 +46,9 @@ export function PeopleLayout({
       <Box display="flex" justifyContent="space-between">
         <Stack direction="row" alignItems="center" spacing={2}>
           <Typography variant="h4">Personas</Typography>
-
-          {/* <Tooltip title="Registrar">
-            <Link href={`/portal/${locId}/person/create`}>
-              <RegisterButton icon={<AddIcon />} ariaLabel="create" />
-            </Link>
-          </Tooltip> */}
         </Stack>
         <div style={{ display: "flex" }}>
           <RButton name="Registrar" href={`/portal/${locId}/person/create`} />
-          {/* <Button
-            variant="outlined"
-            component={Link}
-            href={`/portal/${locId}/person/create`}
-            color="inherit"
-            sx={{
-              fontSize: "12px",
-              marginRight: "20px",
-              padding: "0px 40px",
-              background: "#3B82F6",
-              color: "#fff",
-            }}
-          >
-            Registrar
-          </Button> */}
           <TextField
             placeholder="Buscar"
             variant="outlined"
@@ -91,12 +59,6 @@ export function PeopleLayout({
                     <SearchIcon />
                   </InputAdornment>
                 ),
-
-                // sx: {
-                //   "MuiOutlinedInput-input": {
-                //     padding: "16.5px 10px 16.5px 10px"
-                //   }
-                // }
               },
               htmlInput: {
                 style: {
@@ -109,29 +71,6 @@ export function PeopleLayout({
             onChange={(event) => setSearchText(event.target.value)}
           />
         </div>
-
-        {/* <ToggleButtonGroup value={value} exclusive aria-label="text alignment">
-          <Tooltip title="Lista de personas">
-            <ToggleButton
-              value="table"
-              aria-label="table"
-              LinkComponent={Link}
-              href={`/portal/${locId}/person`}
-            >
-              <TableRows />
-            </ToggleButton>
-          </Tooltip>
-          <Tooltip title="Board de personas">
-            <ToggleButton
-              value="board"
-              aria-label="kanban board"
-              LinkComponent={Link}
-              href={`/portal/${locId}/person/board`}
-            >
-              <TableChart />
-            </ToggleButton>
-          </Tooltip>
-        </ToggleButtonGroup> */}
       </Box>
 
       {children}

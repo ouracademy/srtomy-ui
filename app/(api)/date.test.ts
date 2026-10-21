@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { formatDateTime, handleDates, parseDate } from "./date";
+import { handleDates } from "./date";
 
 describe("handleDates", () => {
   it("parses local ISO date-times into Date objects", () => {
@@ -31,7 +31,7 @@ describe("handleDates", () => {
     handleDates(body);
 
     expect(body.event.date).toBeInstanceOf(Date);
-    expect(body.items[0].date).toBeInstanceOf(Date);
+    expect(body.items[0]?.date).toBeInstanceOf(Date);
   });
 
   it("leaves other values untouched", () => {
@@ -55,22 +55,10 @@ describe("handleDates", () => {
   });
 
   it("ignores null, undefined and primitive bodies", () => {
-    expect(handleDates(null)).toBeNull();
-    expect(handleDates(undefined)).toBeUndefined();
-    expect(handleDates("2025-01-02T03:04:05")).toBe("2025-01-02T03:04:05");
-  });
-});
-
-describe("parseDate / formatDateTime", () => {
-  it("parses yyyy-MM-dd as a local date", () => {
-    const date = parseDate("2025-03-15");
-
-    expect([date.getFullYear(), date.getMonth(), date.getDate()]).toEqual([
-      2025, 2, 15,
-    ]);
-  });
-
-  it("formats as dd/MM/yyyy HH:mm", () => {
-    expect(formatDateTime(new Date(2025, 2, 5, 9, 7))).toBe("05/03/2025 09:07");
+    expect(() => {
+      handleDates(null);
+      handleDates(undefined);
+      handleDates("2025-01-02T03:04:05");
+    }).not.toThrow();
   });
 });

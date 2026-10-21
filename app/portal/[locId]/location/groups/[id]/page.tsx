@@ -1,18 +1,14 @@
 "use client";
 
-import useSWR from "swr";
+import {
+  useGroupMembers,
+  useOrganization,
+} from "@/app/(api)/services/organizations";
 import { GroupInitialValues, GroupForm } from "../GroupForm";
 import Loading from "@/app/(components)/Loading";
 import { ResourceError } from "@/app/(components)/ResourceError";
-// import { PersonDetailWithId  } from "../../../person/Person";
-import { PersonResponse } from "../../../person/Person";
 import { fullName } from "../../../person/PersonTable";
 import React from "react";
-
-export type GroupMembers = {
-  LEADER: PersonResponse[];
-  IS_PART_OF: PersonResponse[];
-};
 
 export default function GroupDetailPage(props: {
   params: Promise<{ id: number; locId: number }>;
@@ -24,13 +20,13 @@ export default function GroupDetailPage(props: {
     data: group,
     error: groupError,
     isLoading,
-  } = useSWR<GroupInitialValues>(`/organizations/${id}`);
+  } = useOrganization<GroupInitialValues>(id);
 
   const {
     data: members,
     error: membersError,
     isLoading: membersLoading,
-  } = useSWR<GroupMembers>(`/organizations/locations/childs/${id}/members`);
+  } = useGroupMembers(id);
 
   if (isLoading || membersLoading) return <Loading />;
   if (!group || !members)
@@ -58,7 +54,8 @@ export default function GroupDetailPage(props: {
     <GroupForm
       locId={locId}
       initialValues={initialValues}
-      submit={async (data) => console.log(data)}
+      // Editing a group is not implemented yet.
+      submit={async () => undefined}
     />
   );
 }

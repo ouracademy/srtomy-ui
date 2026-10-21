@@ -1,9 +1,9 @@
-import { Providers } from "./Providers";
+import { PortalProviders } from "./PortalProviders";
 
 export default function PortalLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  return <Providers>{children}</Providers>;
+  return <PortalProviders>{children}</PortalProviders>;
 }

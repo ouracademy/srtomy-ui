@@ -1,27 +1,22 @@
-import { Box, Button, Typography, Grid } from "@mui/material";
+import { Grid } from "@mui/material";
 import { TimePicker } from "@mui/x-date-pickers";
 import { renderTimeViewClock } from "@mui/x-date-pickers/timeViewRenderers";
 import React from "react";
 import {
   AutocompleteElement,
-  CheckboxElement,
   FormContainer,
   SubmitHandler,
   TextFieldElement,
   useForm,
 } from "react-hook-form-mui";
 import { DatePickerElement } from "react-hook-form-mui/date-pickers";
-import useSWR from "swr";
 import { useDebounce } from "use-debounce";
-import { SpringPage } from "../(api)/pagination";
-import { LocationDetail } from "../portal/[locId]/Location";
-// import { PersonDetailWithId } from "../portal/[locId]/person/Person";
-import { PersonResponse } from "../portal/[locId]/person/Person";
+import { useOrganization } from "../(api)/services/organizations";
+import { usePeople } from "../(api)/services/people";
 import { DEBOUNCE_WAIT_MS } from "./helpers/debouncing";
-import { Option } from "./Option";
 import PlaceOutlinedIcon from "@mui/icons-material/PlaceOutlined";
-import { WeekChips } from "./WeekChips";
-import { ToogleButton } from "./ToogleButton";
+import { RecurrenceFields } from "./RecurrenceFields";
+import { ToggleButton } from "./ToggleButton";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { SaveButton } from "./SaveButton";
@@ -81,26 +76,19 @@ export const EventForm = ({
   });
 
   const watch = formContext.watch;
-  const watchIsRecurrent = watch("isRecurrent");
 
   const [searchTextDebounced] = useDebounce(
     searchTextSpeaker,
     DEBOUNCE_WAIT_MS,
   );
 
-  const { data: Location } = useSWR<LocationDetail>(`organizations/${locId}`);
+  const { data: location } = useOrganization(locId);
 
-  const { data: people } = useSWR<SpringPage<PersonResponse>>([
-    `people`,
-    {
-      params: {
-        organizationId: locId,
-        ...(searchTextDebounced ? { searchText: searchTextDebounced } : {}),
-      },
-    },
-  ]);
+  const { data: people } = usePeople({
+    organizationId: locId,
+    searchText: searchTextDebounced,
+  });
 
-  const daysOfWeek = watch("daysOfWeek");
   const type = watch("type");
   const startTime = watch("startTime");
 
@@ -119,7 +107,7 @@ export const EventForm = ({
           />
         </Grid>
         <Grid size={{ xs: 12 }}>
-          <ToogleButton
+          <ToggleButton
             eventType={type}
             onChange={(type) => formContext.setValue("type", type)}
           />
@@ -142,7 +130,6 @@ export const EventForm = ({
                 formContext.setValue("startTime", value);
               }
             }}
-            // onChange={(value) => console.log(typeof value)}
             viewRenderers={{
               hours: renderTimeViewClock,
               minutes: renderTimeViewClock,
@@ -156,7 +143,6 @@ export const EventForm = ({
             minTime={startTime}
             sx={{ width: "100%" }}
             value={formContext.getValues().endTime}
-            // onChange={(value) => formContext.setValue("endTime", value)}
             viewRenderers={{
               hours: renderTimeViewClock,
               minutes: renderTimeViewClock,
@@ -165,50 +151,7 @@ export const EventForm = ({
           />
         </Grid>
         <Grid size={{ xs: 12 }}>
-          <CheckboxElement
-            onChange={(e) => {
-              if (e.target.checked) {
-                const date = formContext.getValues().date;
-                formContext.setValue("daysOfWeek", date ? [date.getDay()] : []);
-              } else {
-                formContext.setValue("daysOfWeek", []);
-              }
-            }}
-            name="isRecurrent"
-            label="Se repite"
-          />
-          {watchIsRecurrent && (
-            <Box>
-              <Typography sx={{ padding: "10px 0px" }}>Repetir el</Typography>
-              <WeekChips
-                chipsValue={daysOfWeek}
-                onChange={(daysOfWeek) =>
-                  formContext.setValue("daysOfWeek", daysOfWeek)
-                }
-              />
-              <Box
-                sx={{
-                  padding: "20px 0px",
-                  display: { xs: "block", sm: "flex" },
-                  alignItems: "center",
-                }}
-              >
-                <Typography sx={{ paddingRight: "10px" }}>
-                  Finaliza el:
-                </Typography>
-                <Grid size={{ xs: 12, sm: 4 }}>
-                  <DatePickerElement
-                    name="endRecur"
-                    inputProps={{
-                      sx: {
-                        width: "100%",
-                      },
-                    }}
-                  />
-                </Grid>
-              </Box>
-            </Box>
-          )}
+          <RecurrenceFields />
         </Grid>
         <Grid size={{ xs: 12 }}>
           <AutocompleteElement
@@ -229,11 +172,10 @@ export const EventForm = ({
               },
             }}
             name="address"
-            options={[Location?.address]}
+            options={[location?.address]}
           />
         </Grid>
         <Grid size={{ xs: 12 }}>
-          {/* TODO: make creatable */}
           <AutocompleteElement
             multiple
             autocompleteProps={{
@@ -273,12 +215,7 @@ export const EventForm = ({
           />
         </Grid>
         <Grid size={{ xs: 6 }}>
-          {editable && (
-            <SaveButton name="Guardar" />
-            /* <Button type="submit" variant="contained">
-              Guardar
-            </Button> */
-          )}
+          {editable && <SaveButton name="Guardar" />}
         </Grid>
       </Grid>
     </FormContainer>

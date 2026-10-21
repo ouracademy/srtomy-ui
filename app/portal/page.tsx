@@ -1,7 +1,6 @@
 "use client";
 
 import { useAuth0 } from "@auth0/auth0-react";
-import AddCardIcon from "@mui/icons-material/AddCard";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import ChurchIcon from "@mui/icons-material/Church";
 import {
@@ -17,15 +16,12 @@ import {
   Stack,
   Typography,
 } from "@mui/material";
-import Image from "next/image";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useContext, useState } from "react";
 import { FormContainer, TextFieldElement, useForm } from "react-hook-form-mui";
-import { useAuthApi } from "../(api)/api";
+import { createOrganization } from "../(api)/services/organizations";
 import { SnackbarContext } from "../(components)/SnackbarContext";
-import MenuDrawer2 from "./MenuDrawer2";
-import tommyImage from "./tomy-logo.webp";
+import MenuDrawer from "./MenuDrawer";
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 
 export default function PortalHome() {
@@ -37,20 +33,10 @@ export default function PortalHome() {
   return (
     <main style={{ margin: "24px" }}>
       <Box>
-        <MenuDrawer2
+        <MenuDrawer
           listDrawer={
             <List>
               <ListItem sx={{ display: "flex", flexDirection: "column" }}>
-                {/* <Image
-                  src={tommyImage}
-                  alt="Sr Tommy"
-                  style={{ width: "100%", height: "100%" }}
-                /> */}
-                {/* <Typography gutterBottom>
-                  Soy el sr. Tommy, seré su fiel ayudante, aquí el versiculo del
-                  día:
-                </Typography> */}
-                {/* TODO: randomize versicles?*/}
                 <blockquote style={{ margin: ".5rem", color: "#fff" }}>
                   Mejores son dos que uno; porque tienen mejor paga de su
                   trabajo. Porque si caen, el uno levantará a su compañero; pero
@@ -95,21 +81,8 @@ export default function PortalHome() {
                 )}
               </Box>
             </Paper>
-            {/* <Paper sx={{ display: "flex", padding: 4 }}>
-              <AddCardIcon fontSize="large" />
-              <Box pl={2}>
-                <Box pl={1}>Suscríbase a un plan de pago</Box>
-                <Button
-                  endIcon={<ArrowForwardIcon />}
-                  LinkComponent={Link}
-                  href="/portal/profile#payment"
-                >
-                  Subscribirse
-                </Button>
-              </Box>
-            </Paper> */}
           </Stack>
-        </MenuDrawer2>
+        </MenuDrawer>
       </Box>
       <CreateChurchDialog
         open={openCreateChurchDialog}
@@ -130,20 +103,14 @@ const CreateChurchDialog = ({
   const alert = useContext(SnackbarContext);
   const { user } = useAuth0();
 
-  const getApi = useAuthApi();
-
   const formContext = useForm({
     defaultValues: {
       name: "",
     },
   });
 
-  const onCreate = async (data: any) => {
-    const api = await getApi();
-    await api.post("organizations", {
-      name: data.name,
-      userId: user?.sub,
-    });
+  const onCreate = async (data: { name: string }) => {
+    await createOrganization({ name: data.name, userId: user?.sub });
 
     onClose();
     alert.showMessage("Iglesia exitosamente registrada");

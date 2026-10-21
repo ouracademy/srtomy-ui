@@ -2,10 +2,10 @@ import type { Author, PersonMap } from "./types";
 import type { DraggableLocation } from "@hello-pangea/dnd";
 
 // a little function to help us with reordering the result
-const reorder = (list: any[], startIndex: number, endIndex: number): any[] => {
+const reorder = <T,>(list: T[], startIndex: number, endIndex: number): T[] => {
   const result = Array.from(list);
   const [removed] = result.splice(startIndex, 1);
-  result.splice(endIndex, 0, removed);
+  if (removed !== undefined) result.splice(endIndex, 0, removed);
 
   return result;
 };
@@ -27,9 +27,10 @@ export const reorderMap = ({
   source,
   destination,
 }: ReorderPersonMapArgs): ReorderPersonMapResult => {
-  const current: Author[] = [...personMap[source.droppableId]];
-  const next: Author[] = [...personMap[destination.droppableId]];
-  const target: Author = current[source.index];
+  const current: Author[] = [...(personMap[source.droppableId] ?? [])];
+  const next: Author[] = [...(personMap[destination.droppableId] ?? [])];
+  const target = current[source.index];
+  if (!target) return { personMap };
 
   // moving to same list
   if (source.droppableId === destination.droppableId) {
@@ -95,7 +96,7 @@ export function moveBetween<T>({
   const moveTo = moveFrom === newFirst ? newSecond : newFirst;
 
   const [moved] = moveFrom.splice(source.index, 1);
-  moveTo.splice(destination.index, 0, moved);
+  if (moved !== undefined) moveTo.splice(destination.index, 0, moved);
 
   return {
     list1: {

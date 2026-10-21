@@ -1,16 +1,17 @@
 "use client";
 
-import { useAuthApi } from "@/app/(api)/api";
+import { createPerson } from "@/app/(api)/services/people";
 import { useRouter } from "next/navigation";
-import { PersonForm } from "@/app/portal/[locId]/person/PersonForm";
+import {
+  PersonForm,
+  toPersonPayload,
+} from "@/app/portal/[locId]/person/PersonForm";
 import React from "react";
 import { SnackbarContext } from "@/app/(components)/SnackbarContext";
-import { formatISO } from "date-fns";
 
 export default function CreatePerson(props: {
   params: Promise<{ locId: number }>;
 }) {
-  const getApi = useAuthApi();
   const router = useRouter();
   const alert = React.useContext(SnackbarContext);
   const params = React.use(props.params);
@@ -25,16 +26,7 @@ export default function CreatePerson(props: {
         roles: [],
       }}
       submit={async (data) => {
-        const api = await getApi();
-        await api.post("people", {
-          ...data,
-          birthdate: data.birthdate
-            ? formatISO(data.birthdate, { representation: "date" })
-            : null,
-          hasBeenBaptized: data.hasBeenBaptized === "YES",
-          organizationId: locId,
-          roles: data.roles.map((x) => x.id),
-        });
+        await createPerson(toPersonPayload(data, locId));
         alert.showMessage("Guardado exitosamente");
         router.push(`/portal/${locId}/person`);
       }}

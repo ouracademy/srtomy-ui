@@ -2,17 +2,16 @@
 
 import React from "react";
 import { GroupForm } from "../GroupForm";
-import { useAuthApi } from "@/app/(api)/api";
+import { createGroup } from "@/app/(api)/services/organizations";
 import { useRouter } from "next/navigation";
 import { SnackbarContext } from "@/app/(components)/SnackbarContext";
 
 export default function GroupCreatePage(props: {
-  params: Promise<{ id: number; locId: number }>;
+  params: Promise<{ locId: number }>;
 }) {
   const params = React.use(props.params);
-  const { id, locId } = params;
+  const { locId } = params;
 
-  const getApi = useAuthApi();
   const router = useRouter();
   const alert = React.useContext(SnackbarContext);
 
@@ -36,9 +35,7 @@ export default function GroupCreatePage(props: {
           memberIds: values.members.map((x) => x.id),
         };
 
-        const response = await getApi().then((api) =>
-          api.post("/organizations/locations/childs", data),
-        );
+        await createGroup(data);
         alert.showMessage("Guardado exitosamente");
         router.push(`/portal/${locId}/location`);
       }}

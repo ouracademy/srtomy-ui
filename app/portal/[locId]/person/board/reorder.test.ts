@@ -32,7 +32,7 @@ describe("reorderMap", () => {
       destination: location("VISITOR", 2),
     });
 
-    expect(result.VISITOR.map((x) => x.id)).toEqual(["2", "3", "1"]);
+    expect(result.VISITOR?.map((x) => x.id)).toEqual(["2", "3", "1"]);
   });
 
   it("moves a person to another column", () => {
@@ -44,8 +44,8 @@ describe("reorderMap", () => {
       destination: location("MEMBER", 0),
     });
 
-    expect(result.VISITOR.map((x) => x.id)).toEqual(["1", "3"]);
-    expect(result.MEMBER.map((x) => x.id)).toEqual(["2"]);
+    expect(result.VISITOR?.map((x) => x.id)).toEqual(["1", "3"]);
+    expect(result.MEMBER?.map((x) => x.id)).toEqual(["2"]);
     expect(original.VISITOR).toHaveLength(3);
   });
 });

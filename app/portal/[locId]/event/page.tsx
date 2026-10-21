@@ -1,20 +1,27 @@
 "use client";
 
-import { useAuthApi } from "@/app/(api)/api";
+import { createEvent } from "@/app/(api)/services/events";
 import { EventForm } from "@/app/(components)/EventForm";
 import { SnackbarContext } from "@/app/(components)/SnackbarContext";
 import CloseIcon from "@mui/icons-material/Close";
 import { Dialog, IconButton, Stack, Typography } from "@mui/material";
 import React, { useContext, useState } from "react";
-import Calendar, { DatesSelection } from "./Calendar";
+import dynamic from "next/dynamic";
+import Loading from "@/app/(components)/Loading";
+import type { DatesSelection } from "./Calendar";
 import { format } from "date-fns";
+
+// FullCalendar and its plugins are heavy and only this page uses them.
+const Calendar = dynamic(() => import("./Calendar"), {
+  ssr: false,
+  loading: () => <Loading />,
+});
 
 export default function EventListPage(props: {
   params: Promise<{ locId: number }>;
 }) {
   const params = React.use(props.params);
   const { locId } = params;
-  const getApi = useAuthApi();
   const alert = useContext(SnackbarContext);
 
   const [spanSelected, setSpanSelected] = useState<DatesSelection>();
@@ -80,7 +87,7 @@ export default function EventListPage(props: {
                 isACourse: values.type === 1,
               };
 
-              await getApi().then((api) => api.post(`/events`, data));
+              await createEvent(data);
               close();
               alert.showMessage("Guardado exitosamente");
             }}

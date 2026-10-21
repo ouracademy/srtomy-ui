@@ -104,8 +104,6 @@ test.describe("Registro de Eventos y cursos", () => {
       await expect(
         page.getByRole("alert").filter({ hasText: /Guardado exitosamente/i }),
       ).toBeVisible();
-
-      console.log(`✅ ${caso.nombre} creado con éxito`);
     });
   }
 });

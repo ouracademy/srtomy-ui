@@ -1,4 +1,4 @@
-import { Box, Button, Grid, Stack, Typography } from "@mui/material";
+import { Box, Grid, Stack, Typography } from "@mui/material";
 import {
   FormContainer,
   RadioButtonGroup,
@@ -59,7 +59,6 @@ export const GroupForm = ({
   return (
     <FormContainer formContext={formContext} onSuccess={submit}>
       <Box sx={{ maxWidth: 1200, margin: 4 }}>
-        {/* <Stack spacing={2} margin={4}> */}
         <Grid container spacing={6}>
           <Grid size={{ xs: 12, md: 6 }}>
             <Stack spacing={3}>
@@ -130,48 +129,7 @@ export const GroupForm = ({
             <SaveButton name="Guardar" />
           </Box>
         </Grid>
-
-        {/* <Stack
-            direction={{ xs: "column", sm: "row" }}
-            spacing={{ xs: 2, sm: 5 }}
-            alignItems="center"
-            sx={{ display: { xs: "flex" } }}
-          >
-            <Typography variant="h6">Lider(es):</Typography>
-            <div style={{ width: "100%" }}>
-              <GroupAutocomplete
-                locId={locId}
-                name="leaders"
-                label="Escriba/seleccione el lider o lideres"
-              />
-            </div>
-          </Stack> */}
-        {/* <Stack
-            direction={{ xs: "column", sm: "row" }}
-            spacing={2}
-            alignItems="center"
-            sx={{ display: { xs: "flex" } }}
-          >
-            <Typography variant="h6">Miembro(s):</Typography>
-            <div style={{ width: "100%" }}>
-              <GroupAutocomplete
-                locId={locId}
-                name="members"
-                label="Escriba/seleccione los miembros"
-              />
-            </div>
-
-          </Stack> */}
-        {/* <Grid>
-          <SaveButton name="Guardar" />
-          
-        </Grid> */}
-
-        {/* </Stack> */}
       </Box>
-      {/* <Button type="submit" variant="contained">
-            Guardar
-          </Button> */}
     </FormContainer>
   );
 };

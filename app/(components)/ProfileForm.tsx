@@ -24,18 +24,6 @@ export const ProfileForm = () => {
         <Grid size={{ xs: 6 }}>
           <TextFieldElement name="email" label="Email" type="email" fullWidth />
         </Grid>
-        {/* <Grid xs={12} id="payment">
-          <Typography variant="h5">Subscripción: </Typography>
-          <button
-            onClick={(e) => {
-              Culqi.open();
-              e.preventDefault();
-            }}
-          >
-            Proceder pago
-          </button>
-          <div id="culqi-container" style={{ height: "50vw" }}></div>
-        </Grid> */}
       </Grid>
       <Script
         src="https://js.culqi.com/checkout-js"
@@ -45,8 +33,6 @@ export const ProfileForm = () => {
             currency: "PEN", // Este parámetro es requerido para realizar pagos yape
             amount: 120 * 100, // Este parámetro es requerido para realizar pagos yape(80.00)
             order: "ord_live_d1P0Tu1n7Od4nZdp", // Este parámetro es requerido para realizar pagos con pagoEfectivo, billeteras y Cuotéalo
-            // xculqirsaid: "Inserta aquí el id de tu llave pública RSA",
-            // rsapublickey: "Inserta aquí tu llave pública RSA",
           };
 
           const client = {
@@ -81,14 +67,6 @@ export const ProfileForm = () => {
             menuType: "sidebar", // sidebar / sliderTop / select
             buttonCardPayText: "Pagar monto", //
             logo: null, // 'http://www.childrensociety.ms/wp-content/uploads/2019/11/MCS-Logo-2019-no-text.jpg',
-            // defaultStyle: {
-            //   bannerColor: "blue", // hexadecimal
-            //   buttonBackground: "yellow", // hexadecimal
-            //   menuColor: "pink", // hexadecimal
-            //   linksColor: "green", // hexadecimal
-            //   buttonTextColor: "blue", // hexadecimal
-            //   priceColor: "red",
-            // },
           };
 
           const config = {
@@ -103,19 +81,12 @@ export const ProfileForm = () => {
 
           const handleCulqiAction = () => {
             if (Culqi.token) {
-              const token = Culqi.token.id;
+              // The token is not sent to the API yet (payments are not wired).
               Culqi.close();
-              console.log("Se ha creado un Token: ", token);
-              //En esta linea de codigo debemos enviar el "Culqi.token.id"
-              //hacia tu servidor con Ajax
             } else if (Culqi.order) {
-              // ¡Objeto Order creado exitosamente!
               Culqi.close();
-              const order = Culqi.order;
-              console.log("Se ha creado el objeto Order: ", order);
             } else {
-              // Mostramos JSON de objeto error en consola
-              console.log("Error : ", Culqi.error);
+              console.error("Culqi error", Culqi.error);
             }
           };
 

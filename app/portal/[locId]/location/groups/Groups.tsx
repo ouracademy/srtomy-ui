@@ -1,32 +1,26 @@
 "use client";
 
-import AddIcon from "@mui/icons-material/Add";
-import { Fab, Stack, Tooltip, Typography } from "@mui/material";
+import { Stack, Tooltip, Typography } from "@mui/material";
 import { DataGrid, GridActionsCellItem, GridColDef } from "@mui/x-data-grid";
 import { esES } from "@mui/x-data-grid/locales";
 import SearchIcon from "@mui/icons-material/Search";
-import Link from "next/link";
 import React from "react";
 import { withOutSorting } from "@/app/(components)/helpers/withOutSorting";
 import { useRouter } from "next/navigation";
-import useSWR from "swr";
+import {
+  deleteOrganization,
+  useGroups,
+} from "@/app/(api)/services/organizations";
 import { GroupTypeLabels } from "./Group";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { DialogDeleteConfirmation } from "@/app/(components)/DialogDeleteConfirmation";
-import { useAuthApi } from "@/app/(api)/api";
+import type { GroupListItem } from "@/app/(api)/types";
 import { SnackbarContext } from "@/app/(components)/SnackbarContext";
 import { pink } from "@mui/material/colors";
-import { RegisterButton } from "@/app/(components)/RegisterButton";
 import { RButton } from "@/app/(components)/RButton";
 
 type GroupsProps = {
   locId: number;
-};
-
-type GroupListItem = {
-  id: number;
-  name: string;
-  type: "GROUP" | "MINISTRY";
 };
 
 export function Groups({ locId }: GroupsProps) {
@@ -35,17 +29,12 @@ export function Groups({ locId }: GroupsProps) {
   );
   const router = useRouter();
 
-  const {
-    data: groups,
-    isLoading,
-    mutate,
-  } = useSWR(`/organizations/${locId}/childs`);
-  const getApi = useAuthApi();
+  const { data: groups, isLoading, mutate } = useGroups(locId);
   const alert = React.useContext(SnackbarContext);
 
   const deleteGroup = async (id: number | null) => {
     if (!id) return;
-    await getApi().then((api) => api.delete(`/organizations/${id}`));
+    await deleteOrganization(id);
     setGroupToDeleteId(null);
     alert.showMessage("Eliminado exitosamente");
     mutate();
@@ -116,13 +105,6 @@ export function Groups({ locId }: GroupsProps) {
             padding="10px 40px"
           />
         </div>
-
-        {/* <Tooltip title="Registrar">
-          <Link href="location/groups/create">
-            <RegisterButton icon={<AddIcon />} ariaLabel="create" />
-          </Link>
-
-        </Tooltip> */}
       </Stack>
       <div style={{ width: "100%", height: "70vh" }}>
         <DataGrid

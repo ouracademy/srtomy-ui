@@ -28,16 +28,3 @@ export const PersonResponseSchema = z.object({
 });
 
 export type PersonResponse = z.infer<typeof PersonResponseSchema>;
-
-/**
- * @deprecated Use this with caution. It may be removed in future releases.
- */
-export type PersonDetailWithId = {
-  id: number;
-  firstName: string;
-  lastName: string;
-  phoneNumber: string;
-  age?: number;
-  birthdate?: Date | null;
-  hasBeenBaptized?: boolean;
-};

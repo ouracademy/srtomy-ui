@@ -1,14 +1,6 @@
 "use client";
 
-import {
-  Autocomplete,
-  Button,
-  Chip,
-  TextField,
-  Typography,
-  Grid,
-} from "@mui/material";
-import { isArray } from "lodash";
+import { Autocomplete, Chip, TextField, Typography, Grid } from "@mui/material";
 import { FormContainer, TextFieldElement, useForm } from "react-hook-form-mui";
 import { TelFieldElement } from "../person/PersonForm";
 import { z } from "zod";
@@ -91,7 +83,7 @@ export const LocationForm = ({
                 );
               }}
               renderValue={(tagValue, getTagProps) => {
-                return isArray(tagValue)
+                return Array.isArray(tagValue)
                   ? tagValue.map((option, index) => (
                       <Chip
                         label={option}
@@ -114,9 +106,6 @@ export const LocationForm = ({
         </Grid>
         <Grid size={{ xs: 12 }}>
           <SaveButton name="Guardar" />
-          {/* <Button type="submit" variant="contained">
-            Guardar
-          </Button> */}
         </Grid>
       </Grid>
     </FormContainer>
