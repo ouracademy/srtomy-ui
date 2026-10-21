@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation";
 import { SnackbarContext } from "@/app/(components)/SnackbarContext";
 
 export default function GroupCreatePage(props: {
-  params: Promise<{ locId: number }>;
+  params: Promise<{ locId: string }>;
 }) {
   const params = React.use(props.params);
   const { locId } = params;

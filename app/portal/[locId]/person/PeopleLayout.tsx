@@ -18,7 +18,7 @@ export function PeopleLayout({
   locId,
 }: {
   children: React.ReactNode;
-  locId: number;
+  locId: string;
 }) {
   const router = useRouter();
   const pathname = usePathname();

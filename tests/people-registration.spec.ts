@@ -2,7 +2,7 @@ import { test, expect } from "./fixtures";
 // import {faker } from "@faker-js/faker";
 
 test.describe("Registro de persona", () => {
-  const mLocId = 12;
+  const mLocId = "11111111-1111-1111-1111-111111111111";
 
   test("formulario de registro", async ({ page }) => {
     //Importación dinámica de faker
@@ -14,9 +14,21 @@ test.describe("Registro de persona", () => {
         status: 200,
         contentType: "application/json",
         body: JSON.stringify([
-          { id: 1, name: "Pastor", isPredefined: false },
-          { id: 2, name: "Líder de alabanza", isPredefined: false },
-          { id: 3, name: "Ujier", isPredefined: true },
+          {
+            id: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+            name: "Pastor",
+            isPredefined: false,
+          },
+          {
+            id: "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+            name: "Líder de alabanza",
+            isPredefined: false,
+          },
+          {
+            id: "cccccccc-cccc-cccc-cccc-cccccccccccc",
+            name: "Ujier",
+            isPredefined: true,
+          },
         ]),
       });
     });

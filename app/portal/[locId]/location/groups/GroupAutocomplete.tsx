@@ -7,7 +7,7 @@ import { useDebounce } from "use-debounce";
 type GroupAutocompleteProps = {
   name: string;
   label: string;
-  locId: number;
+  locId: string;
 };
 
 export const GroupAutocomplete = ({

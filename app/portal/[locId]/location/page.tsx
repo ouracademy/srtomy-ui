@@ -15,7 +15,7 @@ import { Groups } from "./groups/Groups";
 import { getFixedOptions } from "./Roles";
 
 export default function Location(props: {
-  params: Promise<{ locId: number }>;
+  params: Promise<{ locId: string }>;
 }) {
   const params = React.use(props.params);
   const { locId } = params;

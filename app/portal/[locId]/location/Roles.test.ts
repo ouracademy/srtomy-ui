@@ -3,7 +3,11 @@ import { getFixedOptions, toSpanish } from "./Roles";
 import type { RolesLocation } from "@/app/(api)/types";
 
 const role = (name: string, isPredefined: boolean): RolesLocation =>
-  ({ id: 1, name, isPredefined }) as RolesLocation;
+  ({
+    id: "11111111-1111-1111-1111-111111111111",
+    name,
+    isPredefined,
+  }) as RolesLocation;
 
 describe("toSpanish", () => {
   it.each([

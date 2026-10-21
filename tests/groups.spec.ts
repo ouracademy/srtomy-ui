@@ -1,7 +1,7 @@
 import { test, expect } from "./fixtures";
 
 test.describe("Grupos y Ministerios", () => {
-  const locId = 12;
+  const locId = "11111111-1111-1111-1111-111111111111";
 
   //1. Mocks
   test.beforeEach(async ({ page }) => {
@@ -11,7 +11,11 @@ test.describe("Grupos y Ministerios", () => {
         status: 200,
         contentType: "application/json",
         body: JSON.stringify([
-          { id: 101, name: "Grupo de oración", type: "GROUP" },
+          {
+            id: "ffffffff-ffff-ffff-ffff-ffffffffffff",
+            name: "Grupo de oración",
+            type: "GROUP",
+          },
         ]),
       });
     });
@@ -22,8 +26,16 @@ test.describe("Grupos y Ministerios", () => {
         contentType: "application/json",
         body: JSON.stringify({
           content: [
-            { id: 1, firstName: "Juan", lastName: "Perez" },
-            { id: 2, firstName: "Maria", lastName: "Garcia" },
+            {
+              id: "11111111-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+              firstName: "Juan",
+              lastName: "Perez",
+            },
+            {
+              id: "22222222-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+              firstName: "Maria",
+              lastName: "Garcia",
+            },
           ],
         }),
       });

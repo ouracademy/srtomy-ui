@@ -11,7 +11,7 @@ import { fullName } from "../../../person/PersonTable";
 import React from "react";
 
 export default function GroupDetailPage(props: {
-  params: Promise<{ id: number; locId: number }>;
+  params: Promise<{ id: string; locId: string }>;
 }) {
   const params = React.use(props.params);
   const { id, locId } = params;

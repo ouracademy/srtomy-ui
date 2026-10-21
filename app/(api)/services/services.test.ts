@@ -26,14 +26,25 @@ beforeEach(() => {
 const last = () => requests[requests.length - 1];
 const body = () => JSON.parse(String(last()?.data));
 
+const organizationId = "11111111-1111-1111-1111-111111111111";
+const personId = "22222222-2222-2222-2222-222222222222";
+const eventId = "33333333-3333-3333-3333-333333333333";
+const parentId = "44444444-4444-4444-4444-444444444444";
+const locationId = "55555555-5555-5555-5555-555555555555";
+const organizationToDeleteId = "66666666-6666-6666-6666-666666666666";
+const roleIds = [
+  "77777777-7777-7777-7777-777777777777",
+  "88888888-8888-8888-8888-888888888888",
+];
+
 describe("people service", () => {
   const payload = {
     firstName: "Ana",
     lastName: "Pérez",
     birthdate: null,
     hasBeenBaptized: true,
-    organizationId: 12,
-    roles: [1, 2],
+    organizationId,
+    roles: roleIds,
   };
 
   it("creates a person", async () => {
@@ -44,9 +55,12 @@ describe("people service", () => {
   });
 
   it("updates a person", async () => {
-    await updatePerson(7, payload);
+    await updatePerson(personId, payload);
 
-    expect([last()?.method, last()?.url]).toEqual(["put", "/people/7"]);
+    expect([last()?.method, last()?.url]).toEqual([
+      "put",
+      `/people/${personId}`,
+    ]);
   });
 });
 
@@ -55,16 +69,16 @@ describe("events service", () => {
     const start = new Date(2025, 0, 1);
     const end = new Date(2025, 0, 8);
 
-    await fetchEvents({ organizationId: 12, start, end });
+    await fetchEvents({ organizationId, start, end });
 
     expect(last()?.url).toBe("/events");
-    expect(last()?.params).toEqual({ organizationId: 12, start, end });
+    expect(last()?.params).toEqual({ organizationId, start, end });
   });
 
   it("creates an event", async () => {
     await createEvent({
       name: "Culto",
-      organizationId: 12,
+      organizationId,
       startTime: "2025-01-01T10:00:00-05:00",
       endTime: "2025-01-01T12:00:00-05:00",
       speakerIds: [],
@@ -76,17 +90,20 @@ describe("events service", () => {
   });
 
   it("sends the delete option in the request body", async () => {
-    await deleteEvent(3, "ALL_EVENTS");
+    await deleteEvent(eventId, "ALL_EVENTS");
 
-    expect([last()?.method, last()?.url]).toEqual(["delete", "/events/3"]);
+    expect([last()?.method, last()?.url]).toEqual([
+      "delete",
+      `/events/${eventId}`,
+    ]);
     expect(body()).toEqual({ option: "ALL_EVENTS" });
   });
 
   it("saves the attendance as a list of person ids", async () => {
-    await saveAttendance(3, [1, 2]);
+    await saveAttendance(eventId, roleIds);
 
-    expect(last()?.url).toBe("/events/3/attendance");
-    expect(body()).toEqual({ personIds: [1, 2] });
+    expect(last()?.url).toBe(`/events/${eventId}/attendance`);
+    expect(body()).toEqual({ personIds: roleIds });
   });
 });
 
@@ -99,16 +116,16 @@ describe("organizations service", () => {
   };
 
   it("creates and updates locations", async () => {
-    await createLocation({ ...location, parentId: 1 });
+    await createLocation({ ...location, parentId });
     expect([last()?.method, last()?.url]).toEqual([
       "post",
       "/organizations/locations",
     ]);
 
-    await updateLocation(5, location);
+    await updateLocation(locationId, location);
     expect([last()?.method, last()?.url]).toEqual([
       "put",
-      "/organizations/locations/5",
+      `/organizations/locations/${locationId}`,
     ]);
   });
 
@@ -116,16 +133,16 @@ describe("organizations service", () => {
     await createGroup({
       name: "Jóvenes",
       type: "GROUP",
-      parentId: 12,
+      parentId: organizationId,
       leaderIds: [],
       memberIds: [],
     });
     expect(last()?.url).toBe("/organizations/locations/childs");
 
-    await deleteOrganization(9);
+    await deleteOrganization(organizationToDeleteId);
     expect([last()?.method, last()?.url]).toEqual([
       "delete",
-      "/organizations/9",
+      `/organizations/${organizationToDeleteId}`,
     ]);
   });
 });

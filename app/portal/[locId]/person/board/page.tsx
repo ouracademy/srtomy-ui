@@ -18,7 +18,7 @@ export default function PersonBoardPage({
 }: {
   params: Promise<{ locId: string }>;
 }) {
-  const locId = Number(use(params).locId);
+  const locId = use(params).locId;
 
   const { data: accountabilities, isLoading } = useMemberStates(locId);
 

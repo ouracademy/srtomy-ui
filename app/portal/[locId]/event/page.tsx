@@ -18,7 +18,7 @@ const Calendar = dynamic(() => import("./Calendar"), {
 });
 
 export default function EventListPage(props: {
-  params: Promise<{ locId: number }>;
+  params: Promise<{ locId: string }>;
 }) {
   const params = React.use(props.params);
   const { locId } = params;

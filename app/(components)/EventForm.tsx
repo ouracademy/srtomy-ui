@@ -35,7 +35,7 @@ const schema = z
     type: z.number(),
     speakers: z.array(
       z.object({
-        id: z.number(),
+        id: z.string(),
         label: z.string(),
       }),
     ),
@@ -56,7 +56,7 @@ const schema = z
 export type EventDetailFormData = z.infer<typeof schema>;
 
 type EventFormProps = {
-  locId: number;
+  locId: string;
   initialValues: EventDetailFormData;
   submit: SubmitHandler<EventDetailFormData>;
   editable: boolean;

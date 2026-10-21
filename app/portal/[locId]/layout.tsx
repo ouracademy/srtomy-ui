@@ -27,7 +27,7 @@ export default function LocLayout(props: {
 }) {
   const children = props.children;
   const params = React.use(props.params);
-  const locId = Number(params.locId);
+  const locId = params.locId;
 
   const { data: location } = useOrganization(locId);
 

@@ -5,7 +5,7 @@ import type { SpringPage } from "../pagination";
 import type { RolesLocation } from "../types";
 
 export type PeopleParams = {
-  organizationId: number;
+  organizationId: string;
   page?: number;
   size?: number;
   searchText?: string;
@@ -18,8 +18,8 @@ export type PersonPayload = {
   age?: number;
   birthdate: string | null;
   hasBeenBaptized: boolean;
-  organizationId: number;
-  roles: number[];
+  organizationId: string;
+  roles: string[];
 };
 
 // `T` lets a screen ask for the shape it renders (e.g. the table rows).
@@ -29,9 +29,9 @@ export const usePeople = <T = PersonResponse>(params: PeopleParams) =>
     { params: { ...params, searchText: params.searchText || undefined } },
   ]);
 
-export const usePerson = (id: number | string) => useSWR(`/people/${id}`);
+export const usePerson = (id: string) => useSWR(`/people/${id}`);
 
-export const usePersonRoles = (locId: number | string, id: number | string) =>
+export const usePersonRoles = (locId: string, id: string) =>
   useSWR<RolesLocation[]>(
     `/organizations/locations/${locId}/person/${id}/roles`,
   );
@@ -39,5 +39,5 @@ export const usePersonRoles = (locId: number | string, id: number | string) =>
 export const createPerson = (payload: PersonPayload) =>
   apiClient.post("/people", payload);
 
-export const updatePerson = (id: number | string, payload: PersonPayload) =>
+export const updatePerson = (id: string, payload: PersonPayload) =>
   apiClient.put(`/people/${id}`, payload);

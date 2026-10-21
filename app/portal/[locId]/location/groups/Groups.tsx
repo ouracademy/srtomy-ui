@@ -20,11 +20,11 @@ import { pink } from "@mui/material/colors";
 import { RButton } from "@/app/(components)/RButton";
 
 type GroupsProps = {
-  locId: number;
+  locId: string;
 };
 
 export function Groups({ locId }: GroupsProps) {
-  const [groupToDeleteId, setGroupToDeleteId] = React.useState<number | null>(
+  const [groupToDeleteId, setGroupToDeleteId] = React.useState<string | null>(
     null,
   );
   const router = useRouter();
@@ -32,7 +32,7 @@ export function Groups({ locId }: GroupsProps) {
   const { data: groups, isLoading, mutate } = useGroups(locId);
   const alert = React.useContext(SnackbarContext);
 
-  const deleteGroup = async (id: number | null) => {
+  const deleteGroup = async (id: string | null) => {
     if (!id) return;
     await deleteOrganization(id);
     setGroupToDeleteId(null);

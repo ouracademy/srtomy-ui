@@ -23,7 +23,7 @@ export type MyDataGridProps = Omit<DataGridProps, "columns" | "rows">;
 
 export type PersonTableProps = {
   dataGridProps?: MyDataGridProps;
-  locId: number;
+  locId: string;
 };
 
 export const PersonTable = ({

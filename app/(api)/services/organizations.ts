@@ -9,7 +9,7 @@ import type {
   RolesLocation,
 } from "../types";
 
-type Id = number | string;
+type Id = string;
 
 export type LocationPayload = {
   name: string;
@@ -22,9 +22,9 @@ export type GroupPayload = {
   name: string;
   description?: string;
   type: "GROUP" | "MINISTRY";
-  parentId: number;
-  leaderIds: number[];
-  memberIds: number[];
+  parentId: string;
+  leaderIds: string[];
+  memberIds: string[];
 };
 
 // Churches ("organizations"), their locations (sedes) and groups/ministries.
@@ -59,8 +59,8 @@ export const createOrganization = (payload: {
 }) => apiClient.post("/organizations", payload);
 
 export const createLocation = (
-  payload: LocationPayload & { parentId: number },
-) => apiClient.post<{ id: number }>("/organizations/locations", payload);
+  payload: LocationPayload & { parentId: string },
+) => apiClient.post<{ id: string }>("/organizations/locations", payload);
 
 export const updateLocation = (locId: Id, payload: LocationPayload) =>
   apiClient.put(`/organizations/locations/${locId}`, payload);

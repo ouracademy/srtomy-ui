@@ -10,7 +10,7 @@ import React from "react";
 import { SnackbarContext } from "@/app/(components)/SnackbarContext";
 
 export default function CreatePerson(props: {
-  params: Promise<{ locId: number }>;
+  params: Promise<{ locId: string }>;
 }) {
   const router = useRouter();
   const alert = React.useContext(SnackbarContext);

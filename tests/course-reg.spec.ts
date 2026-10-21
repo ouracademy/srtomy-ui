@@ -1,7 +1,7 @@
 import { test, expect } from "./fixtures";
 
 test.describe("Registro de Eventos y cursos", () => {
-  const locId = 12;
+  const locId = "11111111-1111-1111-1111-111111111111";
 
   const casos = [
     { nombre: "Evento", boton: "Evento", valorType: 0 },
@@ -30,8 +30,16 @@ test.describe("Registro de Eventos y cursos", () => {
           contentType: "application/json",
           body: JSON.stringify({
             content: [
-              { id: 101, firstName: "Paul", lastName: "Ricoeur" },
-              { id: 102, firstName: "Hans", lastName: "Gadamer" },
+              {
+                id: "dddddddd-dddd-dddd-dddd-dddddddddddd",
+                firstName: "Paul",
+                lastName: "Ricoeur",
+              },
+              {
+                id: "eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee",
+                firstName: "Hans",
+                lastName: "Gadamer",
+              },
             ],
           }),
         });

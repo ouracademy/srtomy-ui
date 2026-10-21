@@ -5,7 +5,7 @@ import { PeopleLayout } from "./PeopleLayout";
 import { PersonTable } from "./PersonTable";
 
 export default function PersonListPage(props: {
-  params: Promise<{ locId: number }>;
+  params: Promise<{ locId: string }>;
 }) {
   const params = React.use(props.params);
   const { locId } = params;
