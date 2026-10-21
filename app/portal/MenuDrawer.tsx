@@ -39,7 +39,7 @@ export default function MenuDrawer({
 }: React.PropsWithChildren<{
   listDrawer?: React.ReactNode;
   location?: { name: string };
-  locId?: number;
+  locId?: string;
 }>) {
   const { user, isLoading } = useAuth0();
   const [mobileOpen, setMobileOpen] = React.useState(false);

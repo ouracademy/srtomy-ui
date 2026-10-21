@@ -3,16 +3,16 @@ import useSWR from "swr";
 import { apiClient } from "../client";
 import type { DeleteEventOption, EventAttendance, EventDetail } from "../types";
 
-type Id = number | string;
+type Id = string;
 
 export type EventPayload = {
   name: string;
   address?: string;
-  organizationId: number;
+  organizationId: string;
   startTime: string;
   endTime: string;
   endRecur?: Date | null;
-  speakerIds: number[];
+  speakerIds: string[];
   description?: string;
   daysOfWeek: number[];
   isACourse: boolean;
@@ -25,7 +25,7 @@ export const useEventAttendance = (id: Id) =>
 
 // Not a SWR hook: FullCalendar asks for events itself on every range change.
 export const fetchEvents = (params: {
-  organizationId: number;
+  organizationId: string;
   start: Date;
   end: Date;
 }) =>
@@ -39,5 +39,5 @@ export const createEvent = (payload: EventPayload) =>
 export const deleteEvent = (id: Id, option: DeleteEventOption) =>
   apiClient.delete(`/events/${id}`, { data: { option } });
 
-export const saveAttendance = (id: Id, personIds: number[]) =>
+export const saveAttendance = (id: Id, personIds: string[]) =>
   apiClient.put(`/events/${id}/attendance`, { personIds });

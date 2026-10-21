@@ -12,7 +12,7 @@ export const LocalDateSchema = z
   });
 
 export const PersonResponseSchema = z.object({
-  id: z.number(),
+  id: z.string(),
   firstName: z.string(),
   lastName: z.string(),
   phoneNumber: z.string(),

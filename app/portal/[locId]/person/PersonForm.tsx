@@ -37,7 +37,7 @@ const schema = z.object({
   hasBeenBaptized: z.enum(["YES", "NO"]).optional(),
   roles: z.array(
     z.object({
-      id: z.number(),
+      id: z.string(),
       label: z.string(),
     }),
   ),
@@ -48,7 +48,7 @@ export type PersonDetailFormData = z.infer<typeof schema>;
 // Form values -> body of POST/PUT /people.
 export const toPersonPayload = (
   data: PersonDetailFormData,
-  organizationId: number,
+  organizationId: string,
 ): PersonPayload => ({
   firstName: data.firstName,
   lastName: data.lastName,
@@ -65,7 +65,7 @@ export const toPersonPayload = (
 type PersonFormProps = {
   initialValues: PersonDetailFormData;
   submit: (data: PersonDetailFormData) => Promise<void>;
-  locId: number;
+  locId: string;
 };
 
 function isValidDate(date: Date) {

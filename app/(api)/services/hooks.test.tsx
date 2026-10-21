@@ -27,35 +27,35 @@ const requestedKeys = async (useHook: () => unknown) => {
 
 describe("SWR hooks request the documented endpoints", () => {
   it.each([
-    ["usePerson", () => people.usePerson(7), "/people/7"],
+    ["usePerson", () => people.usePerson("7"), "/people/7"],
     [
       "usePersonRoles",
-      () => people.usePersonRoles(12, 7),
+      () => people.usePersonRoles("12", "7"),
       "/organizations/locations/12/person/7/roles",
     ],
     [
       "useOrganization",
-      () => organizations.useOrganization(12),
+      () => organizations.useOrganization("12"),
       "/organizations/12",
     ],
     [
       "useLocations",
-      () => organizations.useLocations(12),
+      () => organizations.useLocations("12"),
       "/organizations/12/childs",
     ],
     [
       "useGroups",
-      () => organizations.useGroups(12),
+      () => organizations.useGroups("12"),
       "/organizations/12/childs",
     ],
     [
       "useGroupMembers",
-      () => organizations.useGroupMembers(4),
+      () => organizations.useGroupMembers("4"),
       "/organizations/locations/childs/4/members",
     ],
     [
       "useLocationRoles",
-      () => organizations.useLocationRoles(12),
+      () => organizations.useLocationRoles("12"),
       "/organizations/locations/12/roles",
     ],
     [
@@ -65,13 +65,13 @@ describe("SWR hooks request the documented endpoints", () => {
     ],
     [
       "useMemberStates",
-      () => organizations.useMemberStates(12),
+      () => organizations.useMemberStates("12"),
       "/organizations/12/member-state",
     ],
-    ["useEvent", () => events.useEvent(3), "/events/3"],
+    ["useEvent", () => events.useEvent("3"), "/events/3"],
     [
       "useEventAttendance",
-      () => events.useEventAttendance(3),
+      () => events.useEventAttendance("3"),
       "/events/3/attendance",
     ],
   ])("%s", async (_name, useHook, expectedKey) => {
@@ -81,7 +81,7 @@ describe("SWR hooks request the documented endpoints", () => {
   it("usePeople sends the filters as query params and drops an empty search", async () => {
     const keys = await requestedKeys(() =>
       people.usePeople({
-        organizationId: 12,
+        organizationId: "12",
         page: 1,
         size: 25,
         searchText: "",
@@ -93,7 +93,7 @@ describe("SWR hooks request the documented endpoints", () => {
         "/people",
         {
           params: {
-            organizationId: 12,
+            organizationId: "12",
             page: 1,
             size: 25,
             searchText: undefined,

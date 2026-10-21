@@ -9,7 +9,7 @@ import { useRouter } from "next/navigation";
 import * as React from "react";
 
 type UserMenuProps = Readonly<{
-  locId?: number;
+  locId?: string;
 }>;
 
 // Name of the signed-in user with a menu to open the profile or log out.

@@ -1,7 +1,7 @@
 import { test, expect } from "./fixtures";
 import { AUTH0_DOMAIN } from "./e2e-env";
 
-const locId = 12;
+const locId = "11111111-1111-1111-1111-111111111111";
 
 test.describe("Sesión", () => {
   test("un visitante anónimo es enviado a Auth0 sin llamar a la API", async ({

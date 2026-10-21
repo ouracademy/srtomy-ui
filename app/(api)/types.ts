@@ -9,12 +9,12 @@ export type LocationDetail = {
 };
 
 export type LocationListItem = {
-  id: number;
+  id: string;
   name: string;
 };
 
 export type GroupListItem = {
-  id: number;
+  id: string;
   name: string;
   type: "GROUP" | "MINISTRY";
 };
@@ -25,13 +25,13 @@ export type GroupMembers = {
 };
 
 export type RolesLocation = {
-  id: number;
+  id: string;
   name: string;
   isPredefined: boolean;
 };
 
 export type PersonListItem = {
-  id: number;
+  id: string;
   name: string;
 };
 
@@ -41,7 +41,7 @@ export type Accountability = {
 };
 
 export type EventDetail = {
-  id: number;
+  id: string;
   title: string;
   daysOfWeek: number[];
   start: Date;
@@ -57,7 +57,7 @@ export type EventDetail = {
 export type EventAttendance = {
   numberOfVisitors: number;
   visitorsDescription: string;
-  personIds: number[];
+  personIds: string[];
 };
 
 export type DeleteEventOption =

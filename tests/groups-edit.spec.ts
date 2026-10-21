@@ -1,8 +1,8 @@
 import { expect, test } from "./fixtures";
 
 test.describe("Editar Grupos y ministerios", () => {
-  const locId = 12;
-  const groupId = 13;
+  const locId = "11111111-1111-1111-1111-111111111111";
+  const groupId = "33333333-3333-3333-3333-333333333333";
 
   test.beforeEach(async ({ page }) => {
     //1.
@@ -25,8 +25,20 @@ test.describe("Editar Grupos y ministerios", () => {
           status: 200,
           contentType: "application/json",
           body: JSON.stringify({
-            LEADER: [{ id: 1, firstName: "Juan", LastName: "Perez" }],
-            IS_PART_OF: [{ id: 2, firstName: "Maria", lastName: "Garcia" }],
+            LEADER: [
+              {
+                id: "11111111-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+                firstName: "Juan",
+                LastName: "Perez",
+              },
+            ],
+            IS_PART_OF: [
+              {
+                id: "22222222-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+                firstName: "Maria",
+                lastName: "Garcia",
+              },
+            ],
           }),
         });
       },
@@ -38,9 +50,21 @@ test.describe("Editar Grupos y ministerios", () => {
         contentType: "application/json",
         body: JSON.stringify({
           content: [
-            { id: 1, firstName: "Juan", lastName: "Perez" },
-            { id: 2, firstName: "Maria", lastName: "Garcia" },
-            { id: 3, firstName: "Pedro", lastName: "Picapiedra" },
+            {
+              id: "11111111-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+              firstName: "Juan",
+              lastName: "Perez",
+            },
+            {
+              id: "22222222-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+              firstName: "Maria",
+              lastName: "Garcia",
+            },
+            {
+              id: "33333333-cccc-cccc-cccc-cccccccccccc",
+              firstName: "Pedro",
+              lastName: "Picapiedra",
+            },
           ],
         }),
       });

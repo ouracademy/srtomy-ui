@@ -21,7 +21,7 @@ const baseSchema = z.object({
   members: z
     .array(
       z.object({
-        id: z.number(),
+        id: z.string(),
         label: z.string(),
       }),
     )
@@ -29,7 +29,7 @@ const baseSchema = z.object({
   leaders: z
     .array(
       z.object({
-        id: z.number(),
+        id: z.string(),
         label: z.string(),
       }),
     )
@@ -41,7 +41,7 @@ export const initialValuesSchema = baseSchema;
 export type GroupInitialValues = z.infer<typeof initialValuesSchema>;
 
 type GroupFormContext = {
-  locId: number;
+  locId: string;
   initialValues: GroupInitialValues;
   submit: (data: GroupInitialValues) => Promise<void>;
 };

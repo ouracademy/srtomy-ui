@@ -19,7 +19,7 @@ export default function Calendar({
   organizationId,
   onSelect,
 }: {
-  organizationId: number;
+  organizationId: string;
   onSelect: (arg: DatesSelection) => void;
 }) {
   const router = useRouter();

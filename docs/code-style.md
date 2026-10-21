@@ -21,6 +21,7 @@ Reglas para escribir código en este repo. Lo que una herramienta puede hacer cu
 - No uses `!` (aserción de no nulo) para callar un posible `undefined`: maneja el caso.
 - Los tipos de la API viven en `app/(api)/types.ts`; los de un formulario salen de su esquema (`z.infer`).
 - Importa con `@/` entre carpetas distintas y con ruta relativa dentro de la misma carpeta.
+- El id de cualquier entidad de srtomy-api (persona, organización/sede/grupo, evento, rol) es siempre `string` (UUID), nunca `number`. No lo conviertas con `Number(...)`/`parseInt(...)` ni lo valides con `z.number()`; tampoco lo tipes como `number | string` "por si acaso". Esto aplica a los tipos en `types.ts`, los esquemas zod que validan ids seleccionados en un formulario (roles, ponentes, miembros, líderes) y los `params` de una ruta `[id]`/`[locId]`.
 
 ## Componentes
 

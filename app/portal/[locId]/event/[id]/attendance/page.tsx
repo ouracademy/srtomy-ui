@@ -25,7 +25,7 @@ import {
 } from "./DeleteRecurrentEventDialog";
 
 export default function AttendanceEvent(props: {
-  params: Promise<{ id: number; locId: number }>;
+  params: Promise<{ id: string; locId: string }>;
 }) {
   const params = React.use(props.params);
   const { id, locId } = params;
@@ -160,7 +160,7 @@ export default function AttendanceEvent(props: {
           <SaveButton
             name="Registrar asistencias"
             onClick={async () => {
-              await saveAttendance(id, [...rowSelectionModel.ids].map(Number));
+              await saveAttendance(id, [...rowSelectionModel.ids].map(String));
               alert.showMessage("Asistencia guardada exitosamente");
             }}
           />

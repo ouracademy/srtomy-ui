@@ -1,7 +1,7 @@
 import { test, expect } from "./fixtures";
 
 test.describe("Editar Sede", () => {
-  const locId = 12;
+  const locId = "11111111-1111-1111-1111-111111111111";
 
   //1. Se ejecutan antes de cada test
   test.beforeEach(async ({ page }) => {
@@ -27,8 +27,16 @@ test.describe("Editar Sede", () => {
           status: 200,
           contentType: "application/json",
           body: JSON.stringify([
-            { id: 1, name: "PASTOR", isPredefined: true },
-            { id: 2, name: "VOLUNTARIO", isPredefined: false },
+            {
+              id: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+              name: "PASTOR",
+              isPredefined: true,
+            },
+            {
+              id: "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+              name: "VOLUNTARIO",
+              isPredefined: false,
+            },
           ]),
         });
       },

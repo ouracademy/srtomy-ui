@@ -1,7 +1,7 @@
 import AxeBuilder from "@axe-core/playwright";
 import { test, expect } from "./fixtures";
 
-const locId = 12;
+const locId = "11111111-1111-1111-1111-111111111111";
 
 const json = (body: unknown) => ({
   status: 200,

@@ -19,7 +19,7 @@ import { useRouter } from "next/navigation";
 import React from "react";
 
 export default function PersonEdit(props: {
-  params: Promise<{ id: number; locId: number }>;
+  params: Promise<{ id: string; locId: string }>;
 }) {
   const params = React.use(props.params);
   const { id, locId } = params;
