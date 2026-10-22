@@ -13,7 +13,7 @@ import IconButton from "@mui/material/IconButton";
 import Toolbar from "@mui/material/Toolbar";
 import { styled } from "@mui/material/styles";
 import * as React from "react";
-import { useOrganization } from "../(api)/services/organizations";
+import { useGetOrganizationsById } from "@/app/(api)/generated";
 import Loading from "../(components)/Loading";
 import { LocationsDialog } from "./LocationsDialog";
 import { UserMenu } from "./UserMenu";
@@ -38,7 +38,7 @@ export default function MenuDrawer({
   locId,
 }: React.PropsWithChildren<{
   listDrawer?: React.ReactNode;
-  location?: { name: string };
+  location?: { name?: string };
   locId?: string;
 }>) {
   const { user, isLoading } = useAuth0();
@@ -46,7 +46,9 @@ export default function MenuDrawer({
   const [openLocations, setOpenLocations] = React.useState(false);
 
   const orgId = user?.["https://sr-tommy.com/orgId"];
-  const { data: organization } = useOrganization(orgId);
+  const { data: organization } = useGetOrganizationsById(orgId ?? "", {
+    swr: { enabled: !!orgId },
+  });
 
   if (isLoading) return <Loading />;
 

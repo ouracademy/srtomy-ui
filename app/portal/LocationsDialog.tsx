@@ -12,8 +12,8 @@ import { DataGrid, GridColDef } from "@mui/x-data-grid";
 import { esES } from "@mui/x-data-grid/locales";
 import NextLink from "next/link";
 import * as React from "react";
-import { useLocations } from "../(api)/services/organizations";
-import type { LocationListItem } from "../(api)/types";
+import { useGetOrganizationsByIdChilds } from "@/app/(api)/generated";
+import type { OrganizationResponse } from "@/app/(api)/generated/aPISrTommy.schemas";
 import { withOutSorting } from "../(components)/helpers/withOutSorting";
 
 type LocationsDialogProps = Readonly<{
@@ -27,7 +27,10 @@ export const LocationsDialog = ({ open, onClose }: LocationsDialogProps) => {
 
   const orgId = user?.["https://sr-tommy.com/orgId"];
 
-  const { data: accounts, isLoading } = useLocations(user ? orgId : undefined);
+  const { data: accounts, isLoading } = useGetOrganizationsByIdChilds(
+    orgId ?? "",
+    { swr: { enabled: !!user && !!orgId } },
+  );
 
   const columns = React.useMemo(
     () =>
@@ -47,7 +50,7 @@ export const LocationsDialog = ({ open, onClose }: LocationsDialogProps) => {
             ),
             flex: 1,
           },
-        ] as GridColDef<LocationListItem>[]
+        ] as GridColDef<OrganizationResponse>[]
       ).map(withOutSorting),
     [],
   );

@@ -11,8 +11,8 @@ import {
 } from "react-hook-form-mui";
 import { DatePickerElement } from "react-hook-form-mui/date-pickers";
 import { useDebounce } from "use-debounce";
-import { useOrganization } from "../(api)/services/organizations";
-import { usePeople } from "../(api)/services/people";
+import { useGetOrganizationsById } from "@/app/(api)/generated";
+import { useGetPeople } from "@/app/(api)/generated";
 import { DEBOUNCE_WAIT_MS } from "./helpers/debouncing";
 import PlaceOutlinedIcon from "@mui/icons-material/PlaceOutlined";
 import { RecurrenceFields } from "./RecurrenceFields";
@@ -82,9 +82,9 @@ export const EventForm = ({
     DEBOUNCE_WAIT_MS,
   );
 
-  const { data: location } = useOrganization(locId);
+  const { data: location } = useGetOrganizationsById(locId);
 
-  const { data: people } = usePeople({
+  const { data: people } = useGetPeople({
     organizationId: locId,
     searchText: searchTextDebounced,
   });
@@ -193,9 +193,9 @@ export const EventForm = ({
             }}
             name="speakers"
             options={
-              people?.content.map((x) => ({
+              people?.content?.map((x) => ({
                 id: x.id,
-                label: x.firstName + " " + x.lastName,
+                label: `${x.firstName ?? ""} ${x.lastName ?? ""}`,
               })) || []
             }
           />

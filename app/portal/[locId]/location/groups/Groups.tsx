@@ -8,13 +8,13 @@ import React from "react";
 import { withOutSorting } from "@/app/(components)/helpers/withOutSorting";
 import { useRouter } from "next/navigation";
 import {
-  deleteOrganization,
-  useGroups,
-} from "@/app/(api)/services/organizations";
+  deleteOrganizationsById,
+  useGetOrganizationsByIdChilds,
+} from "@/app/(api)/generated";
+import type { OrganizationResponse } from "@/app/(api)/generated/aPISrTommy.schemas";
 import { GroupTypeLabels } from "./Group";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { DialogDeleteConfirmation } from "@/app/(components)/DialogDeleteConfirmation";
-import type { GroupListItem } from "@/app/(api)/types";
 import { SnackbarContext } from "@/app/(components)/SnackbarContext";
 import { pink } from "@mui/material/colors";
 import { RButton } from "@/app/(components)/RButton";
@@ -29,12 +29,16 @@ export function Groups({ locId }: GroupsProps) {
   );
   const router = useRouter();
 
-  const { data: groups, isLoading, mutate } = useGroups(locId);
+  const {
+    data: groups,
+    isLoading,
+    mutate,
+  } = useGetOrganizationsByIdChilds(locId);
   const alert = React.useContext(SnackbarContext);
 
   const deleteGroup = async (id: string | null) => {
     if (!id) return;
-    await deleteOrganization(id);
+    await deleteOrganizationsById(id);
     setGroupToDeleteId(null);
     alert.showMessage("Eliminado exitosamente");
     mutate();
@@ -77,13 +81,13 @@ export function Groups({ locId }: GroupsProps) {
                     icon={
                       <DeleteIcon sx={{ "&:hover": { color: pink[500] } }} />
                     }
-                    onClick={() => setGroupToDeleteId(params.row.id)}
+                    onClick={() => setGroupToDeleteId(params.row.id ?? null)}
                   />
                 </Tooltip>,
               ];
             },
           },
-        ] as GridColDef<GroupListItem>[]
+        ] as GridColDef<OrganizationResponse>[]
       ).map(withOutSorting),
     [router],
   );

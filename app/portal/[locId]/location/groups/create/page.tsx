@@ -2,7 +2,7 @@
 
 import React from "react";
 import { GroupForm } from "../GroupForm";
-import { createGroup } from "@/app/(api)/services/organizations";
+import { postOrganizationsLocationsChilds } from "@/app/(api)/generated";
 import { useRouter } from "next/navigation";
 import { SnackbarContext } from "@/app/(components)/SnackbarContext";
 
@@ -35,7 +35,7 @@ export default function GroupCreatePage(props: {
           memberIds: values.members.map((x) => x.id),
         };
 
-        await createGroup(data);
+        await postOrganizationsLocationsChilds(data);
         alert.showMessage("Guardado exitosamente");
         router.push(`/portal/${locId}/location`);
       }}

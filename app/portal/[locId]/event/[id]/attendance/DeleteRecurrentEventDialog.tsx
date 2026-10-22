@@ -1,6 +1,8 @@
 "use client";
 
-import type { DeleteEventOption } from "@/app/(api)/types";
+import type { EventDeleteRequest } from "@/app/(api)/generated/aPISrTommy.schemas";
+
+type DeleteEventOption = NonNullable<EventDeleteRequest["option"]>;
 import {
   Button,
   Dialog,

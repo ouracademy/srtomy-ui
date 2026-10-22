@@ -6,10 +6,10 @@ import { LocationForm } from "./LocationForm";
 import Loading from "@/app/(components)/Loading";
 import { ResourceError } from "@/app/(components)/ResourceError";
 import {
-  updateLocation,
-  useLocationRoles,
-  useOrganization,
-} from "@/app/(api)/services/organizations";
+  putOrganizationsLocationsById,
+  useGetOrganizationsById,
+  useGetOrganizationsLocationsByIdRoles,
+} from "@/app/(api)/generated";
 import { SnackbarContext } from "@/app/(components)/SnackbarContext";
 import { Groups } from "./groups/Groups";
 import { getFixedOptions } from "./Roles";
@@ -24,13 +24,13 @@ export default function Location(props: {
     data: location,
     error: locationError,
     isLoading,
-  } = useOrganization(locId);
+  } = useGetOrganizationsById(locId);
 
   const {
     data: roles,
     error: rolesError,
     isLoading: rolesLoading,
-  } = useLocationRoles(locId);
+  } = useGetOrganizationsLocationsByIdRoles(locId);
 
   const alert = React.useContext(SnackbarContext);
 
@@ -41,12 +41,12 @@ export default function Location(props: {
   const fixedOptions: string[] = getFixedOptions(roles);
 
   const initialValues = {
-    name: location.name,
-    address: location.address,
-    phoneNumber: location.phoneNumber,
+    name: location.name ?? "",
+    address: location.address ?? "",
+    phoneNumber: location.phoneNumber ?? "",
     roles: [
       ...fixedOptions,
-      ...roles.filter((x) => !x.isPredefined).map((x) => x.name),
+      ...roles.filter((x) => !x.isPredefined).map((x) => x.name ?? ""),
     ],
   };
 
@@ -61,7 +61,7 @@ export default function Location(props: {
             title="Datos generales de la sede"
             fixedOptions={fixedOptions}
             submit={async (formValues) => {
-              await updateLocation(locId, {
+              await putOrganizationsLocationsById(locId, {
                 name: formValues.name,
                 address: formValues.address,
                 phoneNumber: formValues.phoneNumber,

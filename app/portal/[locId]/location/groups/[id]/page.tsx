@@ -1,9 +1,9 @@
 "use client";
 
 import {
-  useGroupMembers,
-  useOrganization,
-} from "@/app/(api)/services/organizations";
+  useGetOrganizationsById,
+  useGetOrganizationsLocationsChildsByIdMembers,
+} from "@/app/(api)/generated";
 import { GroupInitialValues, GroupForm } from "../GroupForm";
 import Loading from "@/app/(components)/Loading";
 import { ResourceError } from "@/app/(components)/ResourceError";
@@ -20,31 +20,31 @@ export default function GroupDetailPage(props: {
     data: group,
     error: groupError,
     isLoading,
-  } = useOrganization<GroupInitialValues>(id);
+  } = useGetOrganizationsById(id);
 
   const {
     data: members,
     error: membersError,
     isLoading: membersLoading,
-  } = useGroupMembers(id);
+  } = useGetOrganizationsLocationsChildsByIdMembers(id);
 
   if (isLoading || membersLoading) return <Loading />;
   if (!group || !members)
     return <ResourceError error={groupError ?? membersError} />;
 
   const initialValues: GroupInitialValues = {
-    name: group.name,
+    name: group.name ?? "",
     description: group.description,
-    type: group.type,
-    members: members.IS_PART_OF?.map((x) => {
+    type: group.type === "MINISTRY" ? "MINISTRY" : "GROUP",
+    members: (members.IS_PART_OF ?? []).map((x) => {
       return {
-        id: x.id,
+        id: x.id ?? "",
         label: fullName(x),
       };
     }),
-    leaders: members.LEADER?.map((x) => {
+    leaders: (members.LEADER ?? []).map((x) => {
       return {
-        id: x.id,
+        id: x.id ?? "",
         label: fullName(x),
       };
     }),

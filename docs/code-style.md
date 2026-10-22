@@ -2,6 +2,20 @@
 
 Reglas para escribir código en este repo. Lo que una herramienta puede hacer cumplir (Prettier, ESLint, TypeScript) está en `pnpm check:fast`; aquí está lo demás y el porqué. Para saber **dónde** va el código, ver [architecture.md](architecture.md).
 
+## Estructura
+
+Dos reglas: **proximidad** para lo que usa una sola pantalla, y **globales con nombre de tipo** solo para lo que usan varias.
+
+- Una pantalla y todo lo que solo ella usa (componentes, formularios, helpers, pruebas) vive en su carpeta, junto a su `page.tsx`.
+- Lo compartido va en carpetas globales dentro de `app/`: `app/(components)/` para componentes y `app/(hooks)/` para hooks de interfaz. No crees `utils/`, `features/` ni `lib/`.
+- Un componente o hook se mueve a global cuando lo usa una **segunda** pantalla. Antes de eso, se queda junto a la primera.
+- `app/(api)/` es la única frontera con srtomy-api:
+  - `openapi/srtomy-api.json`: la especificación OpenAPI, versionada. Es la fuente de verdad de la API. Cambiarla forma parte del PR que cambia la API (`pnpm api:sync`).
+  - `generated/`: generado por orval a partir de la especificación. **No se versiona ni se edita.** Contiene tipos, funciones y hooks SWR por cada tag de OpenAPI. Cambios en él se hacen regenerando, nunca a mano.
+  - `client.ts`, `date.ts` y `AuthTokenBridge.tsx`: a mano. El mutator de axios vive en `client.ts`.
+- Si un endpoint que necesitas no existe en la especificación, no lo escribas a mano en `(api)`: pídelo a srtomy-api y resincroniza la especificación.
+- La lógica de negocio no va en `generated/` ni en `(api)/`. Por ejemplo, convertir valores de un formulario en el cuerpo de una petición se escribe junto al formulario.
+
 ## Lo hace la herramienta, no lo discutas
 
 - **Formato**: Prettier. Tu editor lo aplica al guardar (`.vscode/settings.json`), Claude Code lo aplica al editar y `pnpm format` lo aplica a todo. No pelees con él.
@@ -19,9 +33,9 @@ Reglas para escribir código en este repo. Lo que una herramienta puede hacer cu
 - Prefiere `type` a `interface`, salvo que necesites extender una declaración existente.
 - `unknown` en lugar de `any`. Si vas a leer algo `unknown`, acótalo (`isAxiosError(error)`, un esquema de zod).
 - No uses `!` (aserción de no nulo) para callar un posible `undefined`: maneja el caso.
-- Los tipos de la API viven en `app/(api)/types.ts`; los de un formulario salen de su esquema (`z.infer`).
+- Los tipos de la API vienen de `app/(api)/generated/`; no los escribas a mano ni los copies a otro archivo. Los de un formulario salen de su esquema (`z.infer`).
 - Importa con `@/` entre carpetas distintas y con ruta relativa dentro de la misma carpeta.
-- El id de cualquier entidad de srtomy-api (persona, organización/sede/grupo, evento, rol) es siempre `string` (UUID), nunca `number`. No lo conviertas con `Number(...)`/`parseInt(...)` ni lo valides con `z.number()`; tampoco lo tipes como `number | string` "por si acaso". Esto aplica a los tipos en `types.ts`, los esquemas zod que validan ids seleccionados en un formulario (roles, ponentes, miembros, líderes) y los `params` de una ruta `[id]`/`[locId]`.
+- El id de cualquier entidad de srtomy-api (persona, organización/sede/grupo, evento, rol) es siempre `string` (UUID), nunca `number`. No lo conviertas con `Number(...)`/`parseInt(...)` ni lo valides con `z.number()`; tampoco lo tipes como `number | string` "por si acaso". Esto aplica a los tipos del frontend, los esquemas zod que validan ids seleccionados en un formulario (roles, ponentes, miembros, líderes) y los `params` de una ruta `[id]`/`[locId]`.
 
 ## Componentes
 
@@ -40,7 +54,7 @@ Reglas para escribir código en este repo. Lo que una herramienta puede hacer cu
 
 ## Datos
 
-- Toda llamada a la API pasa por `app/(api)/services`. Nada de `axios`, `fetch` ni URLs sueltas en componentes.
+- Toda llamada a la API pasa por `app/(api)/generated/` (hooks y funciones generados). Nada de `axios`, `fetch` ni URLs sueltas en componentes ni en código a mano fuera de `(api)`.
 - Toda pantalla que lee datos maneja **carga, error y no encontrado** (`Loading` y `ResourceError`). Un `if (!data) return <div>Not found</div>` es un error: mientras carga `data` también es `undefined`.
 - Tras una escritura: avisa al usuario (`alert.showMessage`) y revalida con el `mutate` del hook correspondiente.
 
@@ -60,7 +74,7 @@ Reglas para escribir código en este repo. Lo que una herramienta puede hacer cu
 
 ## Pruebas
 
-- Lógica pura, hooks y servicios: prueba unitaria al lado del archivo (`foo.ts` y `foo.test.ts`).
+- Lógica pura y hooks: prueba unitaria al lado del archivo (`foo.ts` y `foo.test.ts`). El código generado no se prueba; sí el mutator de `client.ts`.
 - Un flujo de usuario nuevo o modificado: prueba e2e en `tests/`, con la API interceptada.
 - Un bug corregido lleva una prueba que falla sin la corrección.
 

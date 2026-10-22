@@ -1,11 +1,10 @@
-import axios from "axios";
+import axios, { type AxiosRequestConfig } from "axios";
 import { env } from "../env";
 import { handleDates } from "./date";
 
-// srtomy-api versions its endpoints under /v1 (see srtomy-api#23); kept out of
-// NEXT_PUBLIC_API_URL itself so every environment's env var only has to name
-// the API's origin, not repeat the version suffix.
-export const apiUrl = `${env.NEXT_PUBLIC_API_URL}/v1`;
+// Only the origin: the paths in openapi/srtomy-api.json already carry the /v1
+// prefix (srtomy-api#23), so adding it here would duplicate it.
+export const apiUrl = env.NEXT_PUBLIC_API_URL;
 
 type AccessTokenProvider = () => Promise<string | undefined>;
 
@@ -37,3 +36,19 @@ apiClient.interceptors.response.use((response) => {
   handleDates(response.data);
   return response;
 });
+
+// Mutator for the generated code (orval.config.ts). Generated functions call
+// it with a fetch-style (url, init) pair and get back only the body.
+export const customInstance = <T>(
+  url: string,
+  { method, headers, body, signal }: RequestInit,
+): Promise<T> =>
+  apiClient
+    .request<T>({
+      url,
+      method,
+      headers: headers as AxiosRequestConfig["headers"],
+      data: body,
+      signal: signal ?? undefined,
+    })
+    .then(({ data }) => data);

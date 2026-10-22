@@ -29,11 +29,11 @@ describe("apiClient", () => {
   beforeEach(() => vi.unstubAllEnvs());
   afterEach(() => vi.unstubAllEnvs());
 
-  it("targets the /v1 base path of the API", async () => {
+  it("targets the origin of the API", async () => {
     const { apiClient, apiUrl } = await load();
 
-    expect(apiUrl).toBe("http://api.test/v1");
-    expect(apiClient.defaults.baseURL).toBe("http://api.test/v1");
+    expect(apiUrl).toBe("http://api.test");
+    expect(apiClient.defaults.baseURL).toBe("http://api.test");
   });
 
   it("sends the access token as a bearer header", async () => {
@@ -66,6 +66,22 @@ describe("apiClient", () => {
 
     expect(requests).toHaveLength(1);
     expect(authorization(requests[0])).toBeUndefined();
+  });
+
+  it("customInstance sends the generated request and returns only the body", async () => {
+    const { apiClient, customInstance } = await load();
+    const requests = fakeNetwork(apiClient, { id: "p-1" });
+
+    const body = await customInstance<{ id: string }>("/v1/people", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ firstName: "Ana" }),
+    });
+
+    expect(body).toEqual({ id: "p-1" });
+    expect(requests[0]?.url).toBe("/v1/people");
+    expect(requests[0]?.method).toBe("post");
+    expect(requests[0]?.data).toBe('{"firstName":"Ana"}');
   });
 
   it("turns ISO date-times in responses into Date objects", async () => {

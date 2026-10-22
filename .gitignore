@@ -45,3 +45,6 @@ node_modules/
 /playwright/.auth/
 # Claude Code
 .claude/settings.local.json
+
+# generated API client (orval): rebuilt from app/(api)/openapi by `pnpm api:generate`
+/app/(api)/generated/

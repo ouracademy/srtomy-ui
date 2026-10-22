@@ -2,7 +2,7 @@
 
 import { FormContainer, TextFieldElement, useForm } from "react-hook-form-mui";
 import { Button, Typography, Grid } from "@mui/material";
-import { sendComplaint } from "../(api)/services/complaints";
+import { postComplaints } from "@/app/(api)/generated";
 import React from "react";
 import { SnackbarContext } from "../(components)/SnackbarContext";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -37,7 +37,7 @@ export default function ComplaintForm({ initialValues }: ComplaintFormProps) {
     <FormContainer
       formContext={formContext}
       onSuccess={async (formValues) => {
-        await sendComplaint({
+        await postComplaints({
           firstName: formValues.firstName,
           lastName: formValues.lastName,
           dni: formValues.dni,

@@ -1,9 +1,9 @@
-import type { RolesLocation } from "@/app/(api)/types";
+import type { AccountabilityTypeDto } from "@/app/(api)/generated/aPISrTommy.schemas";
 
-export const getFixedOptions = (roles: RolesLocation[]): string[] => {
+export const getFixedOptions = (roles: AccountabilityTypeDto[]): string[] => {
   return roles
     .filter((x) => x.isPredefined === true)
-    .map((x) => toSpanish(x.name));
+    .map((x) => toSpanish(x.name ?? ""));
 };
 
 export const toSpanish = (x: string) => {

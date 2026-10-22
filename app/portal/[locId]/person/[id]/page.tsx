@@ -10,10 +10,10 @@ import {
   toPersonPayload,
 } from "@/app/portal/[locId]/person/PersonForm";
 import {
-  usePerson,
-  usePersonRoles,
-  updatePerson,
-} from "@/app/(api)/services/people";
+  useGetOrganizationsLocationsByIdPersonByPersonIdRoles,
+  useGetPeopleById,
+  putPeopleById,
+} from "@/app/(api)/generated";
 import { Box } from "@mui/material";
 import { useRouter } from "next/navigation";
 import React from "react";
@@ -24,7 +24,7 @@ export default function PersonEdit(props: {
   const params = React.use(props.params);
   const { id, locId } = params;
 
-  const { data, mutate: mutatePerson, isLoading } = usePerson(id);
+  const { data, mutate: mutatePerson, isLoading } = useGetPeopleById(id);
   const person = data ? PersonResponseSchema.parse(data) : null;
 
   const {
@@ -32,7 +32,7 @@ export default function PersonEdit(props: {
     error: rolesError,
     mutate: mutateRoles,
     isLoading: rolesLoading,
-  } = usePersonRoles(locId, id);
+  } = useGetOrganizationsLocationsByIdPersonByPersonIdRoles(locId, id);
 
   const alert = React.useContext(SnackbarContext);
   const router = useRouter();
@@ -52,7 +52,7 @@ export default function PersonEdit(props: {
             roles: roles.map(roleToOption),
           }}
           submit={async (formValues) => {
-            await updatePerson(id, toPersonPayload(formValues, locId));
+            await putPeopleById(id, toPersonPayload(formValues, locId));
             mutatePerson();
             mutateRoles();
             alert.showMessage("Guardado exitosamente");

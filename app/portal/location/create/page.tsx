@@ -1,9 +1,9 @@
 "use client";
 
 import {
-  createLocation,
-  usePredefinedRoles,
-} from "@/app/(api)/services/organizations";
+  postOrganizationsLocations,
+  useGetOrganizationsLocationsPredefinedRoles,
+} from "@/app/(api)/generated";
 import Loading from "@/app/(components)/Loading";
 import { ResourceError } from "@/app/(components)/ResourceError";
 import { SnackbarContext } from "@/app/(components)/SnackbarContext";
@@ -22,7 +22,11 @@ export default function LocationCreatePage() {
   const alert = React.useContext(SnackbarContext);
   const { user } = useAuth0();
 
-  const { data: roles, error: rolesError, isLoading } = usePredefinedRoles();
+  const {
+    data: roles,
+    error: rolesError,
+    isLoading,
+  } = useGetOrganizationsLocationsPredefinedRoles();
 
   if (!user) return <div>User must be logged in</div>;
   if (isLoading) return <Loading />;
@@ -31,13 +35,13 @@ export default function LocationCreatePage() {
   const fixedOptions: string[] = getFixedOptions(roles);
 
   const submit = async (data: LocationDetailForm) => {
-    const response = await createLocation({
+    const response = await postOrganizationsLocations({
       ...data,
       parentId: user["https://sr-tommy.com/orgId"],
       roles: data.roles.filter((role) => !fixedOptions.includes(role)),
     });
     alert.showMessage("Guardado exitosamente");
-    router.push("/portal/" + response.data.id);
+    router.push("/portal/" + response.id);
   };
 
   return (

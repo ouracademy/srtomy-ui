@@ -1,7 +1,7 @@
 import { DEBOUNCE_WAIT_MS } from "@/app/(components)/helpers/debouncing";
 import React from "react";
 import { AutocompleteElement } from "react-hook-form-mui";
-import { usePeople } from "@/app/(api)/services/people";
+import { useGetPeople } from "@/app/(api)/generated";
 import { useDebounce } from "use-debounce";
 
 type GroupAutocompleteProps = {
@@ -18,7 +18,7 @@ export const GroupAutocomplete = ({
   const [searchMember, setSearchMember] = React.useState("");
   const [searchTextDebounced] = useDebounce(searchMember, DEBOUNCE_WAIT_MS);
 
-  const { data: people } = usePeople({
+  const { data: people } = useGetPeople({
     organizationId: locId,
     searchText: searchTextDebounced,
   });
@@ -34,9 +34,9 @@ export const GroupAutocomplete = ({
       name={name}
       label={label}
       options={
-        people?.content.map((x) => ({
+        people?.content?.map((x) => ({
           id: x.id,
-          label: x.firstName + " " + x.lastName,
+          label: `${x.firstName ?? ""} ${x.lastName ?? ""}`,
         })) || []
       }
     />
