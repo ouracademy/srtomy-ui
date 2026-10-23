@@ -3,20 +3,9 @@
 import { Autocomplete, Chip, TextField, Typography, Grid } from "@mui/material";
 import { FormContainer, TextFieldElement, useForm } from "react-hook-form-mui";
 import { TelFieldElement } from "../person/PersonForm";
-import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { SaveButton } from "@/app/(components)/SaveButton";
-
-const schema = z.object({
-  name: z
-    .string()
-    .min(1, { message: "Por favor ingrese el nombre de la sede" }),
-  address: z.string().min(1, { message: "Por favor ingrese la dirección" }),
-  phoneNumber: z.string(),
-  roles: z.array(z.string()),
-});
-
-export type LocationDetailForm = z.infer<typeof schema>;
+import { locationSchema, type LocationDetailForm } from "./LocationSchema";
 
 type LocationFormProps = {
   title: string;
@@ -33,7 +22,7 @@ export const LocationForm = ({
 }: LocationFormProps) => {
   const formContext = useForm({
     defaultValues: initialValues,
-    resolver: zodResolver(schema),
+    resolver: zodResolver(locationSchema(fixedOptions)),
   });
 
   return (
@@ -98,6 +87,8 @@ export const LocationForm = ({
                 <TextField
                   required
                   placeholder="Si desea añada otros roles, luego presione enter"
+                  error={Boolean(formContext.formState.errors.roles)}
+                  helperText={formContext.formState.errors.roles?.message}
                   {...params}
                 />
               )}

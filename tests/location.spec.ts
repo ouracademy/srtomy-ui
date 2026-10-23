@@ -158,4 +158,44 @@ test.describe("Editar Sede", () => {
     });
     await expect(page.getByText("Sede Norte").first()).toBeVisible();
   });
+
+  test("una sede solo con roles predefinidos no se guarda", async ({
+    page,
+  }) => {
+    let guardado = false;
+
+    await page.route(
+      `**/organizations/locations/${locId}/roles`,
+      async (route) => {
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify([
+            {
+              id: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+              name: "PASTOR",
+              isPredefined: true,
+            },
+          ]),
+        });
+      },
+    );
+
+    await page.route(`**/organizations/locations/${locId}`, async (route) => {
+      if (route.request().method() === "PUT") guardado = true;
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: "{}",
+      });
+    });
+
+    await page.goto(`/portal/${locId}/location`);
+    await page.getByRole("button", { name: /Guardar/i }).click();
+
+    await expect(
+      page.getByText("Agregue al menos un rol propio de la sede"),
+    ).toBeVisible();
+    expect(guardado).toBe(false);
+  });
 });
