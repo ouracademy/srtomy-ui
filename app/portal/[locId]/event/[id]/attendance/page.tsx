@@ -41,6 +41,7 @@ export default function AttendanceEvent(props: {
   } = useGetEventsById(id);
   const { data: eventAttendance, isLoading } = useGetEventsByIdAttendance(id);
 
+  const [saving, setSaving] = React.useState(false);
   const [openDeleteDialog, setOpenDeleteDialog] = React.useState(false);
   const [openConfirmDeleteDialog, setOpenConfirmDeleteDialog] =
     React.useState(false);
@@ -171,11 +172,17 @@ export default function AttendanceEvent(props: {
         <Grid size={{ xs: 12 }}>
           <SaveButton
             name="Registrar asistencias"
+            loading={saving}
             onClick={async () => {
-              await putEventsByIdAttendance(id, {
-                personIds: [...rowSelectionModel.ids].map(String),
-              });
-              alert.showMessage("Asistencia guardada exitosamente");
+              setSaving(true);
+              try {
+                await putEventsByIdAttendance(id, {
+                  personIds: [...rowSelectionModel.ids].map(String),
+                });
+                alert.showMessage("Asistencia guardada exitosamente");
+              } finally {
+                setSaving(false);
+              }
             }}
           />
         </Grid>

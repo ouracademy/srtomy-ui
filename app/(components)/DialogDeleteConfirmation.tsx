@@ -5,18 +5,32 @@ import {
   DialogContent,
   DialogTitle,
 } from "@mui/material";
+import LoadingButton from "@mui/lab/LoadingButton";
+import { useState } from "react";
 
-type DialogDeleteConfirmationProps = {
+type DialogDeleteConfirmationProps = Readonly<{
   open: boolean;
   close: () => void;
-  onDelete: () => void;
-};
+  // The dialog shows a spinner until the returned promise settles.
+  onDelete: () => Promise<void> | void;
+}>;
 
 export const DialogDeleteConfirmation = ({
   open,
   close,
   onDelete,
 }: DialogDeleteConfirmationProps) => {
+  const [deleting, setDeleting] = useState(false);
+
+  const handleDelete = async () => {
+    setDeleting(true);
+    try {
+      await onDelete();
+    } finally {
+      setDeleting(false);
+    }
+  };
+
   return (
     <Dialog
       open={open}
@@ -28,16 +42,19 @@ export const DialogDeleteConfirmation = ({
         Recuerda que una vez eliminado no podrás recuperarlo
       </DialogContent>
       <DialogActions sx={{ padding: "20px" }}>
-        <Button onClick={close}>Cancelar</Button>
-        <Button
-          onClick={onDelete}
+        <Button onClick={close} disabled={deleting}>
+          Cancelar
+        </Button>
+        <LoadingButton
+          onClick={handleDelete}
+          loading={deleting}
           sx={{
             color: "#fff",
             background: "#ff385c",
           }}
         >
           Eliminar
-        </Button>
+        </LoadingButton>
       </DialogActions>
     </Dialog>
   );

@@ -16,6 +16,7 @@ import {
   Stack,
   Typography,
 } from "@mui/material";
+import LoadingButton from "@mui/lab/LoadingButton";
 import { useRouter } from "next/navigation";
 import { useContext, useState } from "react";
 import { FormContainer, TextFieldElement, useForm } from "react-hook-form-mui";
@@ -126,9 +127,13 @@ const CreateChurchDialog = ({
         </DialogContent>
         <DialogActions>
           <Button onClick={onClose}>Cancelar</Button>
-          <Button type="submit" variant="contained">
+          <LoadingButton
+            type="submit"
+            variant="contained"
+            loading={formContext.formState.isSubmitting}
+          >
             Registrar
-          </Button>
+          </LoadingButton>
         </DialogActions>
       </FormContainer>
     </Dialog>

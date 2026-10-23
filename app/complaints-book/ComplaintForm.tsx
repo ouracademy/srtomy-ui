@@ -1,7 +1,8 @@
 "use client";
 
 import { FormContainer, TextFieldElement, useForm } from "react-hook-form-mui";
-import { Button, Typography, Grid } from "@mui/material";
+import { Typography, Grid } from "@mui/material";
+import LoadingButton from "@mui/lab/LoadingButton";
 import { postComplaints } from "@/app/(api)/generated";
 import React from "react";
 import { SnackbarContext } from "../(components)/SnackbarContext";
@@ -110,9 +111,14 @@ export default function ComplaintForm({ initialValues }: ComplaintFormProps) {
           />
         </Grid>
         <Grid size={{ xs: 6 }}>
-          <Button type="submit" variant="contained" disabled={active}>
+          <LoadingButton
+            type="submit"
+            variant="contained"
+            loading={formContext.formState.isSubmitting}
+            disabled={active}
+          >
             Enviar Mensaje
-          </Button>
+          </LoadingButton>
         </Grid>
       </Grid>
     </FormContainer>
