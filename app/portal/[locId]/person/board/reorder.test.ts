@@ -48,6 +48,30 @@ describe("reorderMap", () => {
     expect(result.MEMBER?.map((x) => x.id)).toEqual(["2"]);
     expect(original.VISITOR).toHaveLength(3);
   });
+
+  it("returns the same map when there is no item at the source", () => {
+    const original = personMap();
+
+    const { personMap: result } = reorderMap({
+      personMap: original,
+      source: location("VISITOR", 9),
+      destination: location("MEMBER", 0),
+    });
+
+    expect(result).toBe(original);
+  });
+
+  it("returns the same map when the source column does not exist", () => {
+    const original = personMap();
+
+    const { personMap: result } = reorderMap({
+      personMap: original,
+      source: location("UNKNOWN", 0),
+      destination: location("MEMBER", 0),
+    });
+
+    expect(result).toBe(original);
+  });
 });
 
 describe("moveBetween", () => {
@@ -77,5 +101,17 @@ describe("moveBetween", () => {
     expect(result.list1.values).toEqual([9, 1, 2, 3]);
     expect(result.list2.values).toEqual([]);
     expect(list2.values).toEqual([9]);
+  });
+
+  it("leaves both lists unchanged when the source index is out of range", () => {
+    const result = moveBetween({
+      list1,
+      list2,
+      source: location("a", 9),
+      destination: location("b", 0),
+    });
+
+    expect(result.list1.values).toEqual([1, 2, 3]);
+    expect(result.list2.values).toEqual([9]);
   });
 });

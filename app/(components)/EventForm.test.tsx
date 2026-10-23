@@ -67,4 +67,26 @@ describe("EventForm", () => {
     expect(values?.endTime.getHours()).toBe(19);
     expect(values?.startTime.getHours()).toBe(17);
   });
+
+  it("saves the event as a course when Curso is chosen", async () => {
+    const submit = vi.fn();
+    renderForm(submit);
+
+    fireEvent.change(screen.getByPlaceholderText("Agregar título"), {
+      target: { value: "Discipulado" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Curso" }));
+    fireEvent.click(screen.getByRole("button", { name: "Guardar" }));
+
+    await waitFor(() => expect(submit).toHaveBeenCalledOnce());
+    expect(submit.mock.calls[0]?.[0]?.type).toBe(1);
+  });
+
+  it("shows the recurrence fields when the event repeats", () => {
+    renderForm(vi.fn());
+
+    fireEvent.click(screen.getByRole("checkbox", { name: "Se repite" }));
+
+    expect(screen.getByText("Repetir el")).toBeInTheDocument();
+  });
 });

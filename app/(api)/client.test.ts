@@ -55,6 +55,16 @@ describe("apiClient", () => {
     expect(authorization(requests[0])).toBeUndefined();
   });
 
+  it("sends no authorization header when the provider returns no token", async () => {
+    const { apiClient, setAccessTokenProvider } = await load();
+    const requests = fakeNetwork(apiClient);
+    setAccessTokenProvider(async () => undefined);
+
+    await apiClient.get("/people");
+
+    expect(authorization(requests[0])).toBeUndefined();
+  });
+
   it("still sends the request when the token cannot be obtained", async () => {
     const { apiClient, setAccessTokenProvider } = await load();
     const requests = fakeNetwork(apiClient);
