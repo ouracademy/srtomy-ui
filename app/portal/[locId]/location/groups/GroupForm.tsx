@@ -126,7 +126,10 @@ export const GroupForm = ({
             </Stack>
           </Grid>
           <Box>
-            <SaveButton name="Guardar" />
+            <SaveButton
+              name="Guardar"
+              loading={formContext.formState.isSubmitting}
+            />
           </Box>
         </Grid>
       </Box>

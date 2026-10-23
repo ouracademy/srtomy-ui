@@ -215,7 +215,12 @@ export const EventForm = ({
           />
         </Grid>
         <Grid size={{ xs: 6 }}>
-          {editable && <SaveButton name="Guardar" />}
+          {editable && (
+            <SaveButton
+              name="Guardar"
+              loading={formContext.formState.isSubmitting}
+            />
+          )}
         </Grid>
       </Grid>
     </FormContainer>

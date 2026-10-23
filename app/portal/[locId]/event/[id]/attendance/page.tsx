@@ -41,9 +41,13 @@ export default function AttendanceEvent(props: {
   } = useGetEventsById(id);
   const { data: eventAttendance, isLoading } = useGetEventsByIdAttendance(id);
 
+  const [saving, setSaving] = React.useState(false);
   const [openDeleteDialog, setOpenDeleteDialog] = React.useState(false);
   const [openConfirmDeleteDialog, setOpenConfirmDeleteDialog] =
     React.useState(false);
+  // Which occurrences the confirmed deletion applies to.
+  const [deleteOption, setDeleteOption] =
+    React.useState<DeleteEventRecurrentForm["option"]>("THIS_EVENT");
 
   // What the user picked, or null until they change the selection. Until
   // then the selection is the attendance already saved in the API.
@@ -63,15 +67,20 @@ export default function AttendanceEvent(props: {
 
   const isRecurrent = Boolean(event.recurrentEvent);
 
-  const deleteEventRecur = async (values: DeleteEventRecurrentForm) => {
-    await deleteEventsById(id, { option: values.option });
+  const chooseDeleteOption = (values: DeleteEventRecurrentForm) => {
+    setDeleteOption(values.option);
     setOpenDeleteDialog(false);
-    alert.showMessage("Eliminado");
-    router.push(`/portal/${locId}/event`);
+    setOpenConfirmDeleteDialog(true);
   };
 
-  const deleteSingleEvent = async () => {
-    await deleteEventsById(id, { option: "THIS_EVENT" });
+  const deleteEvent = async () => {
+    try {
+      await deleteEventsById(id, { option: deleteOption });
+    } catch {
+      setOpenConfirmDeleteDialog(false);
+      alert.showMessage("No se pudo eliminar el evento. Intenta de nuevo.");
+      return;
+    }
     alert.showMessage("Eliminado");
     router.push(`/portal/${locId}/event`);
   };
@@ -105,11 +114,14 @@ export default function AttendanceEvent(props: {
                 <RegisterButton
                   icon={<DeleteIcon />}
                   ariaLabel="delete"
-                  onClick={() =>
-                    isRecurrent
-                      ? setOpenDeleteDialog(true)
-                      : setOpenConfirmDeleteDialog(true)
-                  }
+                  onClick={() => {
+                    if (isRecurrent) {
+                      setOpenDeleteDialog(true);
+                      return;
+                    }
+                    setDeleteOption("THIS_EVENT");
+                    setOpenConfirmDeleteDialog(true);
+                  }}
                 />
               </Tooltip>
             </div>
@@ -121,22 +133,21 @@ export default function AttendanceEvent(props: {
               editable={false}
             />
           </Box>
-          {isRecurrent ? (
+          {isRecurrent && (
             <DeleteRecurrentEventDialog
               open={openDeleteDialog}
               close={() => setOpenDeleteDialog(false)}
               initialValues={{
                 option: "THIS_EVENT",
               }}
-              onDelete={deleteEventRecur}
-            />
-          ) : (
-            <DialogDeleteConfirmation
-              open={openConfirmDeleteDialog}
-              close={() => setOpenConfirmDeleteDialog(false)}
-              onDelete={deleteSingleEvent}
+              onDelete={chooseDeleteOption}
             />
           )}
+          <DialogDeleteConfirmation
+            open={openConfirmDeleteDialog}
+            close={() => setOpenConfirmDeleteDialog(false)}
+            onDelete={deleteEvent}
+          />
         </Grid>
         <Grid size={{ xs: 12 }} display="flex" alignItems="center">
           <Typography variant="h6" gutterBottom>
@@ -161,11 +172,17 @@ export default function AttendanceEvent(props: {
         <Grid size={{ xs: 12 }}>
           <SaveButton
             name="Registrar asistencias"
+            loading={saving}
             onClick={async () => {
-              await putEventsByIdAttendance(id, {
-                personIds: [...rowSelectionModel.ids].map(String),
-              });
-              alert.showMessage("Asistencia guardada exitosamente");
+              setSaving(true);
+              try {
+                await putEventsByIdAttendance(id, {
+                  personIds: [...rowSelectionModel.ids].map(String),
+                });
+                alert.showMessage("Asistencia guardada exitosamente");
+              } finally {
+                setSaving(false);
+              }
             }}
           />
         </Grid>

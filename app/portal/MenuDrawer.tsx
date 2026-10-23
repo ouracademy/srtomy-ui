@@ -165,6 +165,7 @@ export default function MenuDrawer({
         component="main"
         sx={{
           flexGrow: 1,
+          minWidth: 0,
           width: { sm: `calc(100% - ${drawerWidth}px)` },
         }}
       >

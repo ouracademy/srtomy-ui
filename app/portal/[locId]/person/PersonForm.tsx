@@ -175,7 +175,10 @@ export const PersonForm = ({
           />
         </Grid>
         <Grid size={{ xs: 12 }}>
-          <SaveButton name="Guardar" />
+          <SaveButton
+            name="Guardar"
+            loading={formContext.formState.isSubmitting}
+          />
         </Grid>
       </Grid>
     </FormContainer>
