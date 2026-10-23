@@ -112,4 +112,90 @@ test.describe("Editar Sede", () => {
       page.getByText(/Por favor ingrese el nombre de la sede/i),
     ).toBeVisible();
   });
+
+  test("tras guardar, la cabecera muestra el nombre nuevo y se envía la descripción", async ({
+    page,
+  }) => {
+    let nombre = "Sede Central Antigua";
+    let cuerpoPut: unknown;
+
+    await page.route(`**/organizations/${locId}`, async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({
+          id: locId,
+          name: nombre,
+          address: "Av. Siempre Viva 123",
+          phoneNumber: "987654321",
+          description: "Sede principal",
+        }),
+      });
+    });
+
+    await page.route(`**/organizations/locations/${locId}`, async (route) => {
+      if (route.request().method() === "PUT") {
+        cuerpoPut = route.request().postDataJSON();
+        nombre = (cuerpoPut as { name: string }).name;
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify({ id: locId, name: nombre }),
+        });
+      }
+    });
+
+    await page.goto(`/portal/${locId}/location`);
+    await page
+      .getByRole("textbox", { name: "Nombre", exact: true })
+      .fill("Sede Norte");
+    await page.getByRole("button", { name: /Guardar/i }).click();
+
+    await expect(page.getByText(/Guardado exitosamente/i)).toBeVisible();
+    expect(cuerpoPut).toMatchObject({
+      name: "Sede Norte",
+      description: "Sede principal",
+    });
+    await expect(page.getByText("Sede Norte").first()).toBeVisible();
+  });
+
+  test("una sede solo con roles predefinidos no se guarda", async ({
+    page,
+  }) => {
+    let guardado = false;
+
+    await page.route(
+      `**/organizations/locations/${locId}/roles`,
+      async (route) => {
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify([
+            {
+              id: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+              name: "PASTOR",
+              isPredefined: true,
+            },
+          ]),
+        });
+      },
+    );
+
+    await page.route(`**/organizations/locations/${locId}`, async (route) => {
+      if (route.request().method() === "PUT") guardado = true;
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: "{}",
+      });
+    });
+
+    await page.goto(`/portal/${locId}/location`);
+    await page.getByRole("button", { name: /Guardar/i }).click();
+
+    await expect(
+      page.getByText("Agregue al menos un rol propio de la sede"),
+    ).toBeVisible();
+    expect(guardado).toBe(false);
+  });
 });

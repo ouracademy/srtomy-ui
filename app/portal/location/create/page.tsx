@@ -10,10 +10,8 @@ import { SnackbarContext } from "@/app/(components)/SnackbarContext";
 import { useRouter } from "next/navigation";
 import React from "react";
 import MenuDrawer from "../../MenuDrawer";
-import {
-  LocationDetailForm,
-  LocationForm,
-} from "../../[locId]/location/LocationForm";
+import { LocationForm } from "../../[locId]/location/LocationForm";
+import type { LocationDetailForm } from "../../[locId]/location/LocationSchema";
 import { getFixedOptions } from "../../[locId]/location/Roles";
 import { useAuth0 } from "@auth0/auth0-react";
 
