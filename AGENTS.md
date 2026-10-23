@@ -12,6 +12,12 @@ Node >= 22 and pnpm (see `.nvmrc` and `packageManager`). Run `nvm use` and `pnpm
 - `pnpm test:e2e` (Playwright) needs the app's env vars and a backend; see the Playwright workflow.
 - Never weaken a check to make a change pass: no new `@ts-ignore`/`eslint-disable`, no skipped tests, no lowered thresholds.
 
+## Tests
+
+- Every code change ships with unit tests. New or changed logic, hooks and components get a `*.test.ts(x)` next to the file; do not finish a task without them.
+- A bug fix includes a test that fails without the fix and passes with it.
+- Use `@testing-library/react` with `fireEvent` (no `user-event` in this repo). Mock `@/app/(api)/generated` when a component calls the API.
+
 ## Commit messages
 
 Use [Conventional Commits](https://www.conventionalcommits.org/): `<type>: <subject>`, subject in lowercase and imperative mood.
