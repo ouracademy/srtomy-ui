@@ -10,15 +10,19 @@ const valid = {
   roles: ["Pastor", "Líder de jóvenes"],
 };
 
-const schema = locationSchema(fixedOptions);
+const creating = locationSchema(fixedOptions, { requireOwnRole: true });
+const editing = locationSchema(fixedOptions, { requireOwnRole: false });
 
-describe("locationSchema", () => {
+describe("locationSchema when creating", () => {
   it("accepts a location with at least one role of its own", () => {
-    expect(schema.safeParse(valid).success).toBe(true);
+    expect(creating.safeParse(valid).success).toBe(true);
   });
 
   it("rejects a location with only predefined roles", () => {
-    const result = schema.safeParse({ ...valid, roles: ["Pastor", "Ujier"] });
+    const result = creating.safeParse({
+      ...valid,
+      roles: ["Pastor", "Ujier"],
+    });
 
     expect(result.success).toBe(false);
     expect(result.error?.issues[0]?.message).toBe(
@@ -27,10 +31,18 @@ describe("locationSchema", () => {
   });
 
   it("rejects a location with no roles at all", () => {
-    expect(schema.safeParse({ ...valid, roles: [] }).success).toBe(false);
+    expect(creating.safeParse({ ...valid, roles: [] }).success).toBe(false);
+  });
+});
+
+describe("locationSchema when editing", () => {
+  it("accepts a location whose only roles are predefined", () => {
+    expect(
+      editing.safeParse({ ...valid, roles: ["Pastor", "Ujier"] }).success,
+    ).toBe(true);
   });
 
   it("still requires a name", () => {
-    expect(schema.safeParse({ ...valid, name: "" }).success).toBe(false);
+    expect(editing.safeParse({ ...valid, name: "" }).success).toBe(false);
   });
 });

@@ -68,6 +68,7 @@ export default function Location(props: {
       <LocationForm
         initialValues={initialValues}
         title="Datos generales de la sede"
+        requireOwnRole={false}
         fixedOptions={fixedOptions}
         submit={async (formValues) => {
           await putOrganizationsLocationsById(

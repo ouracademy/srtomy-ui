@@ -12,6 +12,7 @@ type LocationFormProps = {
   initialValues: LocationDetailForm;
   submit: (data: LocationDetailForm) => Promise<void>;
   fixedOptions: string[];
+  requireOwnRole: boolean;
 };
 
 export const LocationForm = ({
@@ -19,10 +20,11 @@ export const LocationForm = ({
   submit,
   initialValues,
   fixedOptions,
+  requireOwnRole,
 }: LocationFormProps) => {
   const formContext = useForm({
     defaultValues: initialValues,
-    resolver: zodResolver(locationSchema(fixedOptions)),
+    resolver: zodResolver(locationSchema(fixedOptions, { requireOwnRole })),
   });
 
   return (
