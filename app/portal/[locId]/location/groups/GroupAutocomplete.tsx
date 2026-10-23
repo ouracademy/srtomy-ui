@@ -27,6 +27,7 @@ export const GroupAutocomplete = ({
     <AutocompleteElement
       multiple
       autocompleteProps={{
+        isOptionEqualToValue: (option, value) => option.id === value.id,
         onInputChange: (_event, newInputValue) => {
           setSearchMember(newInputValue);
         },

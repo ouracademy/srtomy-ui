@@ -1,20 +1,31 @@
 "use client";
 
 import {
+  getGetOrganizationsByIdChildsKey,
+  getGetOrganizationsByIdKey,
+  getGetOrganizationsLocationsChildsByIdMembersKey,
+  putOrganizationsLocationsChildsById,
   useGetOrganizationsById,
   useGetOrganizationsLocationsChildsByIdMembers,
 } from "@/app/(api)/generated";
 import { GroupInitialValues, GroupForm } from "../GroupForm";
 import Loading from "@/app/(components)/Loading";
 import { ResourceError } from "@/app/(components)/ResourceError";
+import { SnackbarContext } from "@/app/(components)/SnackbarContext";
 import { fullName } from "../../../person/PersonTable";
 import React from "react";
+import { useRouter } from "next/navigation";
+import { useSWRConfig } from "swr";
 
 export default function GroupDetailPage(props: {
   params: Promise<{ id: string; locId: string }>;
 }) {
   const params = React.use(props.params);
   const { id, locId } = params;
+
+  const router = useRouter();
+  const alert = React.useContext(SnackbarContext);
+  const { mutate } = useSWRConfig();
 
   const {
     data: group,
@@ -54,8 +65,28 @@ export default function GroupDetailPage(props: {
     <GroupForm
       locId={locId}
       initialValues={initialValues}
-      // Editing a group is not implemented yet.
-      submit={async () => undefined}
+      submit={async (values) => {
+        try {
+          await putOrganizationsLocationsChildsById(id, {
+            name: values.name,
+            description: values.description,
+            type: values.type,
+            leaderIds: values.leaders.map((x) => x.id),
+            memberIds: values.members.map((x) => x.id),
+          });
+        } catch {
+          alert.showMessage("No se pudo guardar. Intente nuevamente");
+          return;
+        }
+
+        await Promise.all([
+          mutate(getGetOrganizationsByIdKey(id)),
+          mutate(getGetOrganizationsLocationsChildsByIdMembersKey(id)),
+          mutate(getGetOrganizationsByIdChildsKey(locId)),
+        ]);
+        alert.showMessage("Guardado exitosamente");
+        router.push(`/portal/${locId}/location`);
+      }}
     />
   );
 }
