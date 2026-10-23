@@ -159,7 +159,7 @@ test.describe("Editar Sede", () => {
     await expect(page.getByText("Sede Norte").first()).toBeVisible();
   });
 
-  test("una sede solo con roles predefinidos no se guarda", async ({
+  test("una sede solo con roles predefinidos se puede editar", async ({
     page,
   }) => {
     let guardado = false;
@@ -191,11 +191,12 @@ test.describe("Editar Sede", () => {
     });
 
     await page.goto(`/portal/${locId}/location`);
+    await page
+      .getByRole("textbox", { name: "Nombre", exact: true })
+      .fill("Sede Sur");
     await page.getByRole("button", { name: /Guardar/i }).click();
 
-    await expect(
-      page.getByText("Agregue al menos un rol propio de la sede"),
-    ).toBeVisible();
-    expect(guardado).toBe(false);
+    await expect(page.getByText(/Guardado exitosamente/i)).toBeVisible();
+    expect(guardado).toBe(true);
   });
 });

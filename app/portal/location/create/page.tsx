@@ -53,6 +53,7 @@ export default function LocationCreatePage() {
         }}
         fixedOptions={fixedOptions}
         title="Registrar Datos de la Sede"
+        requireOwnRole
         submit={submit}
       />
     </MenuDrawer>
