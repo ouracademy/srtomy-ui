@@ -20,6 +20,15 @@ import { UserMenu } from "./UserMenu";
 
 const drawerWidth = 240;
 
+// The menu items are white, so both drawers need the dark paper. The
+// temporary (mobile) drawer does not inherit the background of the permanent one.
+const drawerPaperSx = {
+  boxSizing: "border-box",
+  width: drawerWidth,
+  background: "#2a2b36",
+  color: "#fff",
+};
+
 const DrawerHeader = styled("div")(({ theme }) => ({
   display: "flex",
   alignItems: "center",
@@ -114,10 +123,7 @@ export default function MenuDrawer({
           }}
           sx={{
             display: { xs: "block", sm: "none" },
-            "& .MuiDrawer-paper": {
-              boxSizing: "border-box",
-              width: drawerWidth,
-            },
+            "& .MuiDrawer-paper": drawerPaperSx,
           }}
         >
           {listDrawer}
@@ -127,10 +133,7 @@ export default function MenuDrawer({
           variant="permanent"
           sx={{
             display: { xs: "none", sm: "block" },
-            "& .MuiDrawer-paper": {
-              boxSizing: "border-box",
-              width: drawerWidth,
-            },
+            "& .MuiDrawer-paper": drawerPaperSx,
           }}
           open
         >
