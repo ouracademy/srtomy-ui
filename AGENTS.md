@@ -17,8 +17,14 @@ Node >= 22 and pnpm (see `.nvmrc` and `packageManager`). Run `nvm use` and `pnpm
 - Every code change ships with unit tests. New or changed logic, hooks and components get a `*.test.ts(x)` next to the file; do not finish a task without them.
 - A bug fix includes a test that fails without the fix and passes with it.
 - Query elements by what the user sees: `getByRole`, `getByLabelText`, `getByText`. Use test ids only when nothing else works.
-- Simulate user interactions (clicks, typing, selecting) with `@testing-library/user-event`. It fires the same event sequence a browser would, including focus, and respects disabled elements. Always `await` its calls.
-- Use `fireEvent` only for events `user-event` does not model, or to dispatch one low-level event on purpose. Don't mix both for the same interaction.
+- Prefer `@testing-library/user-event` as the first choice for user interactions. It simulates what a person does: `user.type` fires `pointerdown`, `focus`, `keydown`, `keypress`, `input` and `keyup`, and `user.click` respects disabled elements and focus. Always `await` its calls.
+- `fireEvent.change` fires only the single `input`/`change` event, so it does not replicate typing. Don't use it to test typing behavior.
+- Use `fireEvent` only when `user-event` cannot do the job:
+  - The interaction or event is not implemented in `user-event`.
+  - You must dispatch an event directly on an internal or composed component, where `user-event` does not reach or does not propagate the event as needed.
+  - You only need the minimal check that an event fires (a direct `dispatchEvent`), without replaying the browser's behavior chain.
+  - The environment delivers events directly to specific elements, such as React Native, with no sequence of human interactions.
+- Don't mix both for the same interaction.
 - The choice depends on the interaction, not the test level: a unit test and an integration test both use `user-event` for user actions.
 - The repo does not have `user-event` yet. Add it as a devDependency, with `@testing-library/dom` as its peer, in the PR that first needs it.
 - Mock `@/app/(api)/generated` when a component calls the API, so unit tests make no network calls.
