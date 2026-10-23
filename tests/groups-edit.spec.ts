@@ -43,6 +43,18 @@ test.describe("Editar Grupos y ministerios", () => {
         });
       },
     );
+    //2b. Mock del guardado (PUT)
+    await page.route(
+      `**/organizations/locations/childs/${groupId}`,
+      async (route) => {
+        if (route.request().method() !== "PUT") return route.fallback();
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify({ id: groupId, name: "Grupo de Jóvenes" }),
+        });
+      },
+    );
     //3. Mock para el Autocomplete
     await page.route("**/people**", async (route) => {
       await route.fulfill({
@@ -98,7 +110,24 @@ test.describe("Editar Grupos y ministerios", () => {
     await expect(optionPedro).toBeVisible();
     await optionPedro.click();
 
-    //E. Guardar
+    //E. Guardar y verificar lo que se envía a la API
+    const saved = page.waitForRequest(
+      (request) =>
+        request.method() === "PUT" &&
+        request.url().endsWith(`/organizations/locations/childs/${groupId}`),
+    );
     await page.getByRole("button", { name: /Guardar/i }).click();
+
+    expect((await saved).postDataJSON()).toEqual({
+      name: "Grupo de Jóvenes - Editado",
+      description: "Reunión de los sábados",
+      type: "GROUP",
+      leaderIds: [
+        "11111111-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+        "33333333-cccc-cccc-cccc-cccccccccccc",
+      ],
+      memberIds: ["22222222-bbbb-bbbb-bbbb-bbbbbbbbbbbb"],
+    });
+    await expect(page.getByText("Guardado exitosamente")).toBeVisible();
   });
 });
