@@ -91,6 +91,7 @@ export const EventForm = ({
 
   const type = watch("type");
   const startTime = watch("startTime");
+  const endTime = watch("endTime");
 
   return (
     <FormContainer formContext={formContext} onSuccess={submit}>
@@ -124,7 +125,7 @@ export const EventForm = ({
           <TimePicker
             ampm
             sx={{ width: "100%" }}
-            value={formContext.getValues().startTime}
+            value={startTime}
             onChange={(value) => {
               if (value !== null) {
                 formContext.setValue("startTime", value);
@@ -142,7 +143,12 @@ export const EventForm = ({
             ampm
             minTime={startTime}
             sx={{ width: "100%" }}
-            value={formContext.getValues().endTime}
+            value={endTime}
+            onChange={(value) => {
+              if (value !== null) {
+                formContext.setValue("endTime", value);
+              }
+            }}
             viewRenderers={{
               hours: renderTimeViewClock,
               minutes: renderTimeViewClock,
