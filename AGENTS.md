@@ -16,7 +16,12 @@ Node >= 22 and pnpm (see `.nvmrc` and `packageManager`). Run `nvm use` and `pnpm
 
 - Every code change ships with unit tests. New or changed logic, hooks and components get a `*.test.ts(x)` next to the file; do not finish a task without them.
 - A bug fix includes a test that fails without the fix and passes with it.
-- Use `@testing-library/react` with `fireEvent` (no `user-event` in this repo). Mock `@/app/(api)/generated` when a component calls the API.
+- Query elements by what the user sees: `getByRole`, `getByLabelText`, `getByText`. Use test ids only when nothing else works.
+- Simulate user interactions (clicks, typing, selecting) with `@testing-library/user-event`. It fires the same event sequence a browser would, including focus, and respects disabled elements. Always `await` its calls.
+- Use `fireEvent` only for events `user-event` does not model, or to dispatch one low-level event on purpose. Don't mix both for the same interaction.
+- The choice depends on the interaction, not the test level: a unit test and an integration test both use `user-event` for user actions.
+- The repo does not have `user-event` yet. Add it as a devDependency, with `@testing-library/dom` as its peer, in the PR that first needs it.
+- Mock `@/app/(api)/generated` when a component calls the API, so unit tests make no network calls.
 
 ## Commit messages
 
