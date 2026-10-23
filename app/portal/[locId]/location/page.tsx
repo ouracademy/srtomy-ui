@@ -15,6 +15,7 @@ import {
 import { SnackbarContext } from "@/app/(components)/SnackbarContext";
 import { Groups } from "./groups/Groups";
 import { getFixedOptions } from "./Roles";
+import { toLocationPayload } from "./LocationPayload";
 
 export default function Location(props: {
   params: Promise<{ locId: string }>;
@@ -69,15 +70,13 @@ export default function Location(props: {
         title="Datos generales de la sede"
         fixedOptions={fixedOptions}
         submit={async (formValues) => {
-          await putOrganizationsLocationsById(locId, {
-            name: formValues.name,
-            description: location.description ?? "",
-            address: formValues.address,
-            phoneNumber: formValues.phoneNumber,
-            roles: formValues.roles.filter(
-              (role) => !fixedOptions.includes(role),
-            ),
-          });
+          await putOrganizationsLocationsById(
+            locId,
+            toLocationPayload(formValues, {
+              description: location.description,
+              fixedOptions,
+            }),
+          );
           await Promise.all([
             mutateLocation(),
             mutateRoles(),
