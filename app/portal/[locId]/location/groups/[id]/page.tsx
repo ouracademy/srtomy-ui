@@ -8,11 +8,14 @@ import {
   useGetOrganizationsById,
   useGetOrganizationsLocationsChildsByIdMembers,
 } from "@/app/(api)/generated";
-import { GroupInitialValues, GroupForm } from "../GroupForm";
+import { GroupForm } from "../GroupForm";
+import {
+  toGroupInitialValues,
+  toUpdateLocationChildRequest,
+} from "../groupEdit";
 import Loading from "@/app/(components)/Loading";
 import { ResourceError } from "@/app/(components)/ResourceError";
 import { SnackbarContext } from "@/app/(components)/SnackbarContext";
-import { fullName } from "../../../person/PersonTable";
 import React from "react";
 import { useRouter } from "next/navigation";
 import { useSWRConfig } from "swr";
@@ -43,23 +46,7 @@ export default function GroupDetailPage(props: {
   if (!group || !members)
     return <ResourceError error={groupError ?? membersError} />;
 
-  const initialValues: GroupInitialValues = {
-    name: group.name ?? "",
-    description: group.description,
-    type: group.type === "MINISTRY" ? "MINISTRY" : "GROUP",
-    members: (members.IS_PART_OF ?? []).map((x) => {
-      return {
-        id: x.id ?? "",
-        label: fullName(x),
-      };
-    }),
-    leaders: (members.LEADER ?? []).map((x) => {
-      return {
-        id: x.id ?? "",
-        label: fullName(x),
-      };
-    }),
-  };
+  const initialValues = toGroupInitialValues(group, members);
 
   return (
     <GroupForm
@@ -67,13 +54,10 @@ export default function GroupDetailPage(props: {
       initialValues={initialValues}
       submit={async (values) => {
         try {
-          await putOrganizationsLocationsChildsById(id, {
-            name: values.name,
-            description: values.description,
-            type: values.type,
-            leaderIds: values.leaders.map((x) => x.id),
-            memberIds: values.members.map((x) => x.id),
-          });
+          await putOrganizationsLocationsChildsById(
+            id,
+            toUpdateLocationChildRequest(values),
+          );
         } catch {
           alert.showMessage("No se pudo guardar. Intente nuevamente");
           return;
