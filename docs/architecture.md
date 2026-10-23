@@ -115,6 +115,8 @@ if (!data) return <ResourceError error={error} />;
 
 `react-hook-form` con `zod` como resolver, a través de `react-hook-form-mui`. El esquema de zod es la fuente de verdad del tipo de los valores (`z.infer`) y de los mensajes de validación, que están en español.
 
+El botón de envío muestra el estado de carga con `formState.isSubmitting`, que `FormContainer` mantiene mientras espera a `onSuccess`. Por eso el `onSuccess` debe hacer `await` de la llamada a la API.
+
 ## Pruebas
 
 | Qué                               | Cómo                                                                                            |
