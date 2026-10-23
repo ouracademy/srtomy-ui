@@ -42,14 +42,21 @@ export function PeopleLayout({
   }, [searchTextDebounced, pathname, router, searchParams]);
 
   return (
-    <Stack direction="column" spacing={2} p={4}>
-      <Box display="flex" justifyContent="space-between">
+    <Stack direction="column" spacing={2} p={{ xs: 2, sm: 4 }}>
+      <Box
+        display="flex"
+        justifyContent="space-between"
+        alignItems="center"
+        flexWrap="wrap"
+        gap={2}
+      >
         <Stack direction="row" alignItems="center" spacing={2}>
           <Typography variant="h4">Personas</Typography>
         </Stack>
-        <div style={{ display: "flex" }}>
+        <Box sx={{ display: "flex", width: { xs: "100%", sm: "auto" } }}>
           <RButton name="Registrar" href={`/portal/${locId}/person/create`} />
           <TextField
+            sx={{ minWidth: 0 }}
             placeholder="Buscar"
             variant="outlined"
             slotProps={{
@@ -70,7 +77,7 @@ export function PeopleLayout({
             value={searchText}
             onChange={(event) => setSearchText(event.target.value)}
           />
-        </div>
+        </Box>
       </Box>
 
       {children}
