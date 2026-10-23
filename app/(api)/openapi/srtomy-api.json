@@ -223,6 +223,47 @@
         }
       }
     },
+    "/v1/organizations/locations/childs/{id}": {
+      "put": {
+        "tags": [
+          "organizations"
+        ],
+        "operationId": "updateLocationChild",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateLocationChildRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrganizationResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/events/{id}": {
       "get": {
         "tags": [
@@ -577,53 +618,6 @@
                 }
               }
             }
-          }
-        }
-      }
-    },
-    "/v1/organizations/locations/childs/{id}": {
-      "put": {
-        "tags": [
-          "organizations"
-        ],
-        "operationId": "updateLocationChild",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/UpdateLocationChildRequest"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "*/*": {
-                "schema": {
-                  "$ref": "#/components/schemas/OrganizationResponse"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request"
-          },
-          "404": {
-            "description": "Not Found"
           }
         }
       }
@@ -1095,6 +1089,62 @@
           "roles"
         ]
       },
+      "UpdateLocationChildRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "description": {
+            "type": "string"
+          },
+          "address": {
+            "type": "string"
+          },
+          "phoneNumber": {
+            "type": "string"
+          },
+          "parentId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "userId": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "CHURCH",
+              "LOCATION",
+              "GROUP",
+              "MINISTRY"
+            ]
+          },
+          "leaderIds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "minItems": 1
+          },
+          "memberIds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "minItems": 1
+          }
+        },
+        "required": [
+          "leaderIds",
+          "memberIds",
+          "name",
+          "type"
+        ]
+      },
       "EditEventRequest": {
         "type": "object",
         "properties": {
@@ -1147,10 +1197,10 @@
               "ALL_EVENTS"
             ]
           },
-          "recurrent": {
+          "validDaysOfWeek": {
             "type": "boolean"
           },
-          "validDaysOfWeek": {
+          "recurrent": {
             "type": "boolean"
           }
         },
@@ -1314,62 +1364,6 @@
           "type"
         ]
       },
-      "UpdateLocationChildRequest": {
-        "type": "object",
-        "properties": {
-          "name": {
-            "type": "string",
-            "minLength": 1
-          },
-          "description": {
-            "type": "string"
-          },
-          "address": {
-            "type": "string"
-          },
-          "phoneNumber": {
-            "type": "string"
-          },
-          "parentId": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "userId": {
-            "type": "string"
-          },
-          "type": {
-            "type": "string",
-            "enum": [
-              "CHURCH",
-              "LOCATION",
-              "GROUP",
-              "MINISTRY"
-            ]
-          },
-          "leaderIds": {
-            "type": "array",
-            "items": {
-              "type": "string",
-              "format": "uuid"
-            },
-            "minItems": 1
-          },
-          "memberIds": {
-            "type": "array",
-            "items": {
-              "type": "string",
-              "format": "uuid"
-            },
-            "minItems": 1
-          }
-        },
-        "required": [
-          "leaderIds",
-          "memberIds",
-          "name",
-          "type"
-        ]
-      },
       "EventRequest": {
         "type": "object",
         "properties": {
@@ -1414,10 +1408,10 @@
             "type": "string",
             "format": "date"
           },
-          "recurrent": {
+          "validDaysOfWeek": {
             "type": "boolean"
           },
-          "validDaysOfWeek": {
+          "recurrent": {
             "type": "boolean"
           }
         },
