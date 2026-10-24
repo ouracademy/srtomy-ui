@@ -12,6 +12,7 @@ import {
   toSocialLinksRequest,
 } from "@/app/(components)/SocialLinks";
 import { SnackbarContext } from "@/app/(components)/SnackbarContext";
+import { nodeTypeLabels } from "@/app/portal/organizationTree";
 import { GroupForm } from "../GroupForm";
 
 // A group or ministry under the current node (a location, group or ministry).
@@ -35,7 +36,7 @@ export default function GroupCreatePage(props: {
         socialLinks: emptySocialLinks,
       }}
       submit={async (values) => {
-        await postOrganizationsLocationsChilds({
+        const created = await postOrganizationsLocationsChilds({
           name: values.name,
           description: values.description,
           type: values.type,
@@ -45,7 +46,14 @@ export default function GroupCreatePage(props: {
           socialLinks: toSocialLinksRequest(values.socialLinks),
         });
         await mutate(getGetMeOrganizationsKey());
-        alert.showMessage("Guardado exitosamente");
+        const kind = nodeTypeLabels[values.type] ?? "Grupo";
+        alert.showMessage(
+          `${kind} "${values.name.trim()}" registrado. Para verlo, cámbiese desde el selector de arriba.`,
+          {
+            label: `Ir al ${kind.toLowerCase()}`,
+            onClick: () => router.push(`/portal/${created.id}`),
+          },
+        );
         router.push(`/portal/${nodeId}/location`);
       }}
     />

@@ -18,11 +18,14 @@ import { DialogDeleteConfirmation } from "@/app/(components)/DialogDeleteConfirm
 import { SnackbarContext } from "@/app/(components)/SnackbarContext";
 import { pink } from "@mui/material/colors";
 import { RButton } from "@/app/(components)/RButton";
+import { childrenLabels } from "./childrenLabels";
 
 type GroupsProps = {
   nodeId: string;
   // A church lists its locations; any other node its groups and ministries.
   isChurch?: boolean;
+  // Inside a group or ministry they are simply "grupos".
+  insideGroup?: boolean;
   canCreate?: boolean;
   canDelete?: boolean;
 };
@@ -32,6 +35,7 @@ type GroupsProps = {
 export function Groups({
   nodeId,
   isChurch = false,
+  insideGroup = false,
   canCreate = false,
   canDelete = false,
 }: GroupsProps) {
@@ -115,11 +119,11 @@ export function Groups({
           }}
         >
           <Typography variant="h6">
-            {isChurch ? "Sedes" : "Grupos y ministerios"}
+            {childrenLabels(isChurch, insideGroup).title}
           </Typography>
           {canCreate && (
             <RButton
-              name={isChurch ? "Registrar sede" : "Registrar"}
+              name={childrenLabels(isChurch, insideGroup).create}
               href={`/portal/${nodeId}/location/${isChurch ? "new" : "groups/create"}`}
               padding="10px 40px"
             />

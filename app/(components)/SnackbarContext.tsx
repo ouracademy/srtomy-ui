@@ -1,11 +1,14 @@
 "use client";
 
-import { Snackbar } from "@mui/material";
+import { Button, Snackbar } from "@mui/material";
 import React, { createContext } from "react";
+
+// A button next to the message, e.g. "Ir a la sede" after creating one.
+export type SnackbarAction = { label: string; onClick: () => void };
 
 type SnackbarContextValue = {
   message: string;
-  showMessage: (message: string) => void;
+  showMessage: (message: string, action?: SnackbarAction) => void;
 };
 
 export const SnackbarContext = createContext<SnackbarContextValue>({
@@ -19,9 +22,13 @@ export const SnackbarProvider = ({
   children: React.ReactNode;
 }) => {
   const [alertMessage, setAlertMessage] = React.useState<string>("");
+  const [action, setAction] = React.useState<SnackbarAction | undefined>();
   const handleClose = () => setAlertMessage("");
 
-  const ShowAlertMessage = (message: string) => setAlertMessage(message);
+  const ShowAlertMessage = (message: string, next?: SnackbarAction) => {
+    setAction(next);
+    setAlertMessage(message);
+  };
 
   return (
     <SnackbarContext.Provider
@@ -36,6 +43,20 @@ export const SnackbarProvider = ({
         autoHideDuration={6000}
         onClose={handleClose}
         message={alertMessage}
+        action={
+          action && (
+            <Button
+              color="inherit"
+              size="small"
+              onClick={() => {
+                handleClose();
+                action.onClick();
+              }}
+            >
+              {action.label}
+            </Button>
+          )
+        }
       />
     </SnackbarContext.Provider>
   );

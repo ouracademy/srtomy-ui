@@ -57,6 +57,7 @@ export default function NodeDetails(props: {
       <Groups
         nodeId={nodeId}
         isChurch={node.type === "CHURCH"}
+        insideGroup={node.type === "GROUP" || node.type === "MINISTRY"}
         canCreate={can("org.create_child")}
         canDelete={can("org.delete")}
       />

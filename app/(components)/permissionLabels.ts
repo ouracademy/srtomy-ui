@@ -42,8 +42,8 @@ const scopes: Record<NodeType, { self: string; contents: string }> = {
     contents: "todas sus sedes, grupos y ministerios",
   },
   LOCATION: { self: "esta sede", contents: "sus grupos y ministerios" },
-  GROUP: { self: "este grupo", contents: "sus subgrupos" },
-  MINISTRY: { self: "este ministerio", contents: "sus subgrupos" },
+  GROUP: { self: "este grupo", contents: "los grupos que contiene" },
+  MINISTRY: { self: "este ministerio", contents: "los grupos que contiene" },
 };
 
 const nodePermissionLabels: Record<
@@ -58,8 +58,8 @@ const nodePermissionLabels: Record<
     ({
       CHURCH: "Crear sedes, grupos y ministerios",
       LOCATION: "Crear grupos y ministerios",
-      GROUP: "Crear subgrupos",
-      MINISTRY: "Crear subgrupos",
+      GROUP: "Crear grupos dentro de este grupo",
+      MINISTRY: "Crear grupos dentro de este ministerio",
     })[type],
   // Churches and locations cannot be deleted: only what hangs from them.
   "org.delete": (type) =>
