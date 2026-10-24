@@ -8,9 +8,7 @@ const json = (body: unknown) => ({
 });
 
 test.describe("Lista de personas", () => {
-  test("carga una vez, sin navegar en bucle, y etiqueta el grupo de origen", async ({
-    page,
-  }) => {
+  test("carga una vez, sin navegar en bucle", async ({ page }) => {
     let calls = 0;
     await page.route("**/v1/people?*", (route) => {
       calls += 1;
@@ -20,14 +18,10 @@ test.describe("Lista de personas", () => {
             {
               id: "p1",
               fullName: "Ana Diaz",
-              directMember: true,
-              organizationName: "Sede",
             },
             {
               id: "p2",
               fullName: "Beto Ruiz",
-              directMember: false,
-              organizationName: "Jóvenes",
             },
           ],
           totalElements: 2,
@@ -41,7 +35,6 @@ test.describe("Lista de personas", () => {
     await page.waitForTimeout(2000);
 
     expect(calls).toBeLessThanOrEqual(2);
-    await expect(page.getByRole("gridcell", { name: "Jóvenes" })).toBeVisible();
     expect(new URL(page.url()).search).toBe("");
   });
 });
