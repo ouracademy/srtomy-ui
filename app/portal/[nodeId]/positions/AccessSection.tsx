@@ -14,10 +14,7 @@ import { usePermissions } from "@/app/(hooks)/usePermissions";
 import { AccessManager } from "./AccessManager";
 import { apiErrorMessage } from "./apiErrorMessage";
 
-export default function AccessPage(props: {
-  params: Promise<{ nodeId: string }>;
-}) {
-  const { nodeId } = React.use(props.params);
+export function AccessSection({ nodeId }: Readonly<{ nodeId: string }>) {
   const alert = React.useContext(SnackbarContext);
   const { can } = usePermissions(nodeId);
   const {
@@ -47,7 +44,6 @@ export default function AccessPage(props: {
       entries={entries}
       roles={roles ?? []}
       canManage={can("iam.manage")}
-      rolesHref={`/portal/${nodeId}/access/roles`}
       onGrant={(email, roleId) =>
         run(
           () => postOrganizationsByIdAccess(nodeId, { email, roleId }),

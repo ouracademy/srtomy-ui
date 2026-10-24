@@ -34,7 +34,6 @@ const setup = (canManage = true) => {
       entries={entries}
       roles={roles}
       canManage={canManage}
-      rolesHref="/portal/n1/access/roles"
       onGrant={onGrant}
       onRevoke={onRevoke}
     />,
@@ -95,8 +94,5 @@ describe("AccessManager", () => {
     expect(
       screen.queryByRole("button", { name: /quitar acceso/i }),
     ).not.toBeInTheDocument();
-    expect(
-      screen.getByRole("link", { name: "Administrar roles" }),
-    ).toHaveAttribute("href", "/portal/n1/access/roles");
   });
 });

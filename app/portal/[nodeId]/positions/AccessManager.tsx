@@ -1,7 +1,6 @@
 "use client";
 
 import {
-  Button,
   Chip,
   MenuItem,
   Paper,
@@ -18,7 +17,6 @@ import {
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import IconButton from "@mui/material/IconButton";
 import LoadingButton from "@mui/lab/LoadingButton";
-import NextLink from "next/link";
 import React from "react";
 import type {
   AccessEntryResponse,
@@ -30,7 +28,6 @@ type AccessManagerProps = Readonly<{
   entries: AccessEntryResponse[];
   roles: RoleResponse[];
   canManage: boolean;
-  rolesHref: string;
   onGrant: (email: string, roleId: string) => Promise<void>;
   onRevoke: (bindingId: string) => Promise<void>;
 }>;
@@ -41,7 +38,6 @@ export const AccessManager = ({
   entries,
   roles,
   canManage,
-  rolesHref,
   onGrant,
   onRevoke,
 }: AccessManagerProps) => {
@@ -63,21 +59,10 @@ export const AccessManager = ({
   };
 
   return (
-    <Stack spacing={2} sx={{ m: { xs: 2, sm: 4 }, maxWidth: 900 }}>
-      <Stack
-        direction="row"
-        justifyContent="space-between"
-        alignItems="center"
-        flexWrap="wrap"
-        gap={1}
-      >
-        <Typography variant="h5" component="h1">
-          Accesos
-        </Typography>
-        <Button component={NextLink} href={rolesHref} variant="outlined">
-          Administrar roles
-        </Button>
-      </Stack>
+    <Stack spacing={2} sx={{ maxWidth: 900 }}>
+      <Typography variant="h6" component="h2">
+        Accesos
+      </Typography>
       <Typography color="text.secondary">
         Un rol vale para este lugar y para todo lo que cuelga de él. Los accesos
         heredados se quitan en el lugar donde se otorgaron.

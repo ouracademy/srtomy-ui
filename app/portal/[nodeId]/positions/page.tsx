@@ -1,69 +1,66 @@
 "use client";
 
+import { Box, Stack, Tab, Tabs, Typography } from "@mui/material";
 import React from "react";
-import {
-  deletePositionsById,
-  postOrganizationsByIdPositions,
-  putPositionsById,
-  useGetMeOrganizations,
-  useGetOrganizationsByIdPositions,
-  useGetPositionsSuggestions,
-} from "@/app/(api)/generated";
-import Loading from "@/app/(components)/Loading";
-import { ResourceError } from "@/app/(components)/ResourceError";
-import { SnackbarContext } from "@/app/(components)/SnackbarContext";
+import { useGetMeOrganizations } from "@/app/(api)/generated";
 import { usePermissions } from "@/app/(hooks)/usePermissions";
 import { churchOf, withIds } from "../../organizationTree";
-import { PositionsManager } from "./PositionsManager";
+import { AccessSection } from "./AccessSection";
+import { PositionsSection } from "./PositionsSection";
+import { RolesSection } from "./RolesSection";
 
-// Positions belong to the church, so every node of a church shows the same list.
-export default function PositionsPage(props: {
+// One screen for who people are (positions) and what they can do (access and
+// roles). The last two need iam.read, like the old "Accesos" menu item.
+export default function PositionsAndAccessPage(props: {
   params: Promise<{ nodeId: string }>;
 }) {
   const { nodeId } = React.use(props.params);
-  const alert = React.useContext(SnackbarContext);
   const { data: nodes } = useGetMeOrganizations();
   const church = churchOf(withIds(nodes), nodeId);
-  const { can } = usePermissions(church?.id);
-  const {
-    data: positions,
-    error,
-    isLoading,
-    mutate,
-  } = useGetOrganizationsByIdPositions(nodeId);
-  const { data: suggestions } = useGetPositionsSuggestions();
+  const { can } = usePermissions(nodeId);
+  const { can: canOnChurch } = usePermissions(church?.id);
+  const [tab, setTab] = React.useState("positions");
 
-  if (isLoading) return <Loading />;
-  if (!positions) return <ResourceError error={error} />;
-
-  const run = async (action: () => Promise<unknown>, message: string) => {
-    try {
-      await action();
-    } catch {
-      alert.showMessage(
-        "No se pudo guardar. ¿Ya existe un cargo con ese nombre?",
-      );
-      return;
-    }
-    await mutate();
-    alert.showMessage(message);
-  };
+  const sections = [
+    { id: "positions", label: "Cargos", visible: true },
+    { id: "access", label: "Accesos", visible: can("iam.read") },
+    { id: "roles", label: "Roles", visible: canOnChurch("iam.read") },
+  ].filter((section) => section.visible);
+  const current = sections.some((section) => section.id === tab)
+    ? tab
+    : "positions";
 
   return (
-    <PositionsManager
-      positions={positions}
-      suggestions={suggestions ?? []}
-      canManage={can("positions.manage")}
-      onCreate={(name) =>
-        run(
-          () => postOrganizationsByIdPositions(nodeId, { name }),
-          "Cargo agregado",
-        )
-      }
-      onRename={(id, name) =>
-        run(() => putPositionsById(id, { name }), "Cargo renombrado")
-      }
-      onDelete={(id) => run(() => deletePositionsById(id), "Cargo eliminado")}
-    />
+    <Stack spacing={2} sx={{ m: { xs: 2, sm: 4 } }}>
+      <Typography variant="h5" component="h1">
+        Cargos y accesos
+      </Typography>
+      <Tabs
+        value={current}
+        onChange={(_event, value: string) => setTab(value)}
+        aria-label="Secciones"
+        variant="scrollable"
+        scrollButtons="auto"
+      >
+        {sections.map((section) => (
+          <Tab
+            key={section.id}
+            value={section.id}
+            label={section.label}
+            id={`tab-${section.id}`}
+            aria-controls={`panel-${section.id}`}
+          />
+        ))}
+      </Tabs>
+      <Box
+        role="tabpanel"
+        id={`panel-${current}`}
+        aria-labelledby={`tab-${current}`}
+      >
+        {current === "positions" && <PositionsSection nodeId={nodeId} />}
+        {current === "access" && <AccessSection nodeId={nodeId} />}
+        {current === "roles" && <RolesSection nodeId={nodeId} />}
+      </Box>
+    </Stack>
   );
 }

@@ -19,7 +19,7 @@ import type {
   RoleResponse,
 } from "@/app/(api)/generated/aPISrTommy.schemas";
 import { DialogDeleteConfirmation } from "@/app/(components)/DialogDeleteConfirmation";
-import { permissionLabel } from "../permissionLabels";
+import { permissionLabel } from "./permissionLabels";
 import { RoleDialog, type RoleInput } from "./RoleDialog";
 
 type RolesManagerProps = Readonly<{
@@ -49,9 +49,9 @@ export const RolesManager = ({
   const predefinedRoles = roles.filter((role) => role.predefined);
 
   return (
-    <Stack spacing={2} sx={{ m: { xs: 2, sm: 4 }, maxWidth: 800 }}>
+    <Stack spacing={2} sx={{ maxWidth: 800 }}>
       <Stack direction="row" justifyContent="space-between" alignItems="center">
-        <Typography variant="h5" component="h1">
+        <Typography variant="h6" component="h2">
           Roles de la iglesia
         </Typography>
         {canManage && (

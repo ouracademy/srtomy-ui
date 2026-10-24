@@ -13,16 +13,13 @@ import Loading from "@/app/(components)/Loading";
 import { ResourceError } from "@/app/(components)/ResourceError";
 import { SnackbarContext } from "@/app/(components)/SnackbarContext";
 import { usePermissions } from "@/app/(hooks)/usePermissions";
-import { churchOf, withIds } from "../../../organizationTree";
-import { apiErrorMessage } from "../apiErrorMessage";
+import { churchOf, withIds } from "../../organizationTree";
+import { apiErrorMessage } from "./apiErrorMessage";
 import { RolesManager } from "./RolesManager";
 
 // Roles belong to the church, so every node of a church shows the same list
 // and managing them needs iam.manage on the church itself.
-export default function RolesPage(props: {
-  params: Promise<{ nodeId: string }>;
-}) {
-  const { nodeId } = React.use(props.params);
+export function RolesSection({ nodeId }: Readonly<{ nodeId: string }>) {
   const alert = React.useContext(SnackbarContext);
   const { data: nodes } = useGetMeOrganizations();
   const church = churchOf(withIds(nodes), nodeId);
