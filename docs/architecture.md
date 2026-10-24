@@ -33,7 +33,9 @@ app/
     CreateChurchForm.tsx       Alta de iglesia con su primera sede y sus cargos (página /portal)
     UserMenu.tsx               Perfil y cerrar sesión (lo usa MenuDrawer)
     [nodeId]/                  Un nodo: iglesia, sede, grupo o ministerio (anidables)
-      person/ location/ event/ Una carpeta por sección, con sus componentes, formularios y tablas
+      person/ location/ event/ positions/ access/
+                               Una carpeta por sección, con sus componentes, formularios y tablas
+                               (access/roles/ edita los roles personalizados de la iglesia)
   error.tsx global-error.tsx not-found.tsx    Límites de error de Next
 ```
 
@@ -100,7 +102,7 @@ Las iglesias del usuario **no** vienen en el token: `GET /me/organizations` devu
 
 ### Permisos
 
-Los accesos funcionan como IAM de GCP: un rol (Propietario, Administrador, Líder, Colaborador, Miembro) se otorga sobre un nodo y vale para todo lo que cuelga de él. `usePermissions(nodeId)` (`app/(hooks)/`) pide `GET /me/permissions` y responde `can("members.write")`, etc. La UI solo **oculta** lo que el usuario no puede hacer (menú, botones de guardar, crear o borrar); la API rechaza con 403 cualquier petición sin permiso. Los **cargos** (Pastor, Diácono, Catequista...) son etiquetas de cada iglesia y no dan acceso. Diseño completo: [redesign.md](redesign.md).
+Los accesos funcionan como IAM de GCP: un rol (Propietario, Administrador, Líder, Colaborador, Miembro) se otorga sobre un nodo y vale para todo lo que cuelga de él. `usePermissions(nodeId)` (`app/(hooks)/`) pide `GET /me/permissions` y responde `can("members.write")`, etc. La UI solo **oculta** lo que el usuario no puede hacer (menú, botones de guardar, crear o borrar); la API rechaza con 403 cualquier petición sin permiso. Los **cargos** (Pastor, Diácono, Catequista...) son etiquetas de cada iglesia y no dan acceso. La sección **Accesos** (`access/`) muestra los roles de un nodo, heredados y directos, y permite otorgarlos por correo o quitarlos; en `access/roles/` cada iglesia crea sus propios roles eligiendo permisos. Los mensajes de error de la API (`detail`) se muestran tal cual con `apiErrorMessage`. Diseño completo: [redesign.md](redesign.md).
 
 ## Carga, vacío y error
 
