@@ -12,6 +12,7 @@ import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { useDebounce } from "use-debounce";
 import { DEBOUNCE_WAIT_MS } from "@/app/(components)/helpers/debouncing";
 import { RButton } from "@/app/(components)/RButton";
+import { searchQueryFor } from "./searchQuery";
 
 export function PeopleLayout({
   children,
@@ -30,15 +31,10 @@ export function PeopleLayout({
   const [searchTextDebounced] = useDebounce(searchText, DEBOUNCE_WAIT_MS);
 
   useEffect(() => {
-    const params = new URLSearchParams(searchParams.toString());
-    if (searchTextDebounced) {
-      params.set("search", searchTextDebounced);
-    } else {
-      params.delete("search");
+    const query = searchQueryFor(searchParams.toString(), searchTextDebounced);
+    if (query !== null) {
+      router.replace(`${pathname}?${query}`);
     }
-    params.set("page", "0");
-
-    router.push(`${pathname}?${params.toString()}`);
   }, [searchTextDebounced, pathname, router, searchParams]);
 
   return (
