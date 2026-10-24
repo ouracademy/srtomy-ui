@@ -43,7 +43,7 @@ const positions = [
   },
 ];
 
-const setup = (canManage = true) => {
+const setup = (canManage = true, currentEmail?: string) => {
   const handlers = {
     onCreate: vi.fn().mockResolvedValue(undefined),
     onRename: vi.fn().mockResolvedValue(undefined),
@@ -60,6 +60,7 @@ const setup = (canManage = true) => {
       ]}
       catalog={catalog}
       canManage={canManage}
+      currentEmail={currentEmail}
       {...handlers}
     />,
   );
@@ -108,6 +109,15 @@ describe("PositionsManager", () => {
     expect(
       screen.getByText(/Luis Rojas · Sede Norte · sin cuenta/),
     ).toBeInTheDocument();
+  });
+
+  it("marks the signed-in user among the people who hold a position", async () => {
+    const { user } = setup(true, "ana@x.org");
+
+    await user.click(screen.getByRole("button", { name: "Abrir Pastor" }));
+
+    expect(screen.getByText(/ana@x.org \(tú\)/)).toBeInTheDocument();
+    expect(screen.queryByText(/sin cuenta \(tú\)/)).not.toBeInTheDocument();
   });
 
   it("saves the permissions marked, asking first when people with an account hold it", async () => {

@@ -39,8 +39,11 @@ import {
 // church without a place where people meet.
 export const CreateChurchForm = ({
   submit,
+  creatorName,
 }: {
   submit: (values: CreateChurchValues) => Promise<void>;
+  // Proposed from the sign-in profile; the user can change it.
+  creatorName?: { firstName: string; lastName: string };
 }) => {
   const { data: suggestions } = useGetPositionsSuggestions();
   const { data: catalog } = useGetIamPermissions();
@@ -50,6 +53,7 @@ export const CreateChurchForm = ({
     <CreateChurchFields
       suggestions={suggestions}
       catalog={catalog}
+      creatorName={creatorName}
       submit={submit}
     />
   );
@@ -58,14 +62,16 @@ export const CreateChurchForm = ({
 const CreateChurchFields = ({
   suggestions,
   catalog,
+  creatorName,
   submit,
 }: {
   suggestions: PositionSuggestionResponse[];
   catalog: PermissionGroupResponse[];
+  creatorName?: { firstName: string; lastName: string };
   submit: (values: CreateChurchValues) => Promise<void>;
 }) => {
   const formContext = useForm<CreateChurchValues>({
-    defaultValues: initialCreateChurchForm(suggestions),
+    defaultValues: initialCreateChurchForm(suggestions, creatorName),
     resolver: zodResolver(createChurchSchema),
   });
   const positions = useWatch({

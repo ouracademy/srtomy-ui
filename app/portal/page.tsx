@@ -1,5 +1,6 @@
 "use client";
 
+import { useAuth0 } from "@auth0/auth0-react";
 import { Box, List, ListItem, Typography } from "@mui/material";
 import { useRouter } from "next/navigation";
 import React from "react";
@@ -17,12 +18,14 @@ import { toCreateChurchRequest } from "./CreateChurchSchema";
 import { readLastNode } from "./lastNode";
 import MenuDrawer from "./MenuDrawer";
 import { pickLandingNode, withIds } from "./organizationTree";
+import { suggestedNames } from "./userNames";
 
 // Entry point of the portal. Someone who already belongs to a church goes
 // straight to the node they last used; someone new creates their church.
 // `?nueva=1` shows the form even to members, to create another church.
 export default function PortalHome() {
   const router = useRouter();
+  const { user } = useAuth0();
   const alert = React.useContext(SnackbarContext);
   // Registers the user on first sign-in (and refreshes their email).
   const { error: meError } = useGetMe();
@@ -82,7 +85,10 @@ export default function PortalHome() {
           Registre su iglesia y su primera sede para empezar. Si su iglesia ya
           usa Sr. Tommy, pida a su pastor o líder que lo invite.
         </Typography>
-        <CreateChurchForm submit={createChurch} />
+        <CreateChurchForm
+          submit={createChurch}
+          creatorName={suggestedNames(user)}
+        />
       </Box>
     </MenuDrawer>
   );

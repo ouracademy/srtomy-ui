@@ -10,6 +10,7 @@ import {
   putPositionsById,
   putPositionsByIdAccess,
   useGetIamPermissions,
+  useGetMe,
   useGetMeOrganizations,
   useGetOrganizationsById,
   useGetOrganizationsByIdAccess,
@@ -37,6 +38,7 @@ export default function PositionsPage(props: {
   const alert = React.useContext(SnackbarContext);
   const [tab, setTab] = React.useState<TabName>("positions");
   const { data: nodes } = useGetMeOrganizations();
+  const { data: me } = useGetMe();
   const church = churchOf(withIds(nodes), nodeId);
   const { can: canInChurch } = usePermissions(church?.id);
   const { can } = usePermissions(nodeId);
@@ -104,6 +106,7 @@ export default function PositionsPage(props: {
             suggestions={suggestions ?? []}
             catalog={catalog ?? []}
             canManage={canInChurch("positions.manage")}
+            currentEmail={me?.email}
             onCreate={(name, permissions) =>
               run(
                 () =>
@@ -125,7 +128,9 @@ export default function PositionsPage(props: {
             }
           />
         )}
-        {current === "access" && <AccessList entries={access ?? []} />}
+        {current === "access" && (
+          <AccessList entries={access ?? []} currentUserId={me?.id} />
+        )}
         {current === "owners" && (
           <OwnersPanel
             entries={access ?? []}

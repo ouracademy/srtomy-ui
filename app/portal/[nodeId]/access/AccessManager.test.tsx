@@ -4,6 +4,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import type { AccessEntryResponse } from "@/app/(api)/generated/aPISrTommy.schemas";
 import {
   AccessList,
+  groupByPerson,
   OwnersPanel,
   accessLabel,
   originLabel,
@@ -63,6 +64,31 @@ describe("originLabel and accessLabel", () => {
   });
 });
 
+// Ana is also a Pastor: two accesses of the same person.
+const anaAlso: AccessEntryResponse = {
+  userId: "u1",
+  email: "ana@x.org",
+  organizationId: "church",
+  organizationName: "Iglesia Central",
+  inherited: false,
+  source: "POSITION",
+  positionName: "Servidor",
+  permissionCount: 2,
+};
+
+describe("groupByPerson", () => {
+  it("joins the accesses of the same person", () => {
+    const people = groupByPerson([...entries, anaAlso]);
+
+    expect(people.map((p) => p.email)).toEqual([
+      "ana@x.org",
+      "luis@x.org",
+      "eva@x.org",
+    ]);
+    expect(people[0]!.entries).toHaveLength(2);
+  });
+});
+
 describe("AccessList", () => {
   it("lists who has access, what it allows and why", () => {
     render(<AccessList entries={entries} />);
@@ -76,6 +102,28 @@ describe("AccessList", () => {
       within(rows[2]!).getByText("Cargo Pastor en Sede Centro"),
     ).toBeInTheDocument();
     expect(within(rows[3]!).getByText("Líder de Jóvenes")).toBeInTheDocument();
+  });
+
+  it("shows a person with several accesses in one row", () => {
+    render(<AccessList entries={[...entries, anaAlso]} />);
+
+    const rows = within(
+      screen.getByRole("table", { name: "Personas con acceso" }),
+    ).getAllByRole("row");
+    expect(rows).toHaveLength(4);
+    expect(
+      within(rows[1]!).getByText("Propietario de la iglesia"),
+    ).toBeInTheDocument();
+    expect(within(rows[1]!).getByText("Cargo Servidor")).toBeInTheDocument();
+    expect(within(rows[1]!).getByText("2 permisos")).toBeInTheDocument();
+  });
+
+  it("marks the signed-in user", () => {
+    render(<AccessList entries={entries} currentUserId="u2" />);
+
+    const rows = screen.getAllByRole("row");
+    expect(within(rows[2]!).getByText("Tú")).toBeInTheDocument();
+    expect(within(rows[1]!).queryByText("Tú")).not.toBeInTheDocument();
   });
 
   it("filters by email, position or permissions", async () => {

@@ -128,6 +128,29 @@ describe("CreateChurchForm", () => {
     });
   });
 
+  it("proposes the creator's name, still editable and required", async () => {
+    ready();
+    const user = userEvent.setup();
+    const submit = vi.fn().mockResolvedValue(undefined);
+    render(
+      <CreateChurchForm
+        submit={submit}
+        creatorName={{ firstName: "Ana", lastName: "Díaz" }}
+      />,
+    );
+
+    const first = screen.getByRole("textbox", { name: /sus nombres/i });
+    expect(first).toHaveValue("Ana");
+    expect(screen.getByRole("textbox", { name: /sus apellidos/i })).toHaveValue(
+      "Díaz",
+    );
+    await user.clear(first);
+    await user.click(screen.getByRole("button", { name: "Crear iglesia" }));
+
+    expect(await screen.findByText("Ingrese su nombre")).toBeInTheDocument();
+    expect(submit).not.toHaveBeenCalled();
+  });
+
   it("does not submit without a church name or the creator's names", async () => {
     ready();
     const user = userEvent.setup();
