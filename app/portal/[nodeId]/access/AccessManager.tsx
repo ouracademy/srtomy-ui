@@ -1,7 +1,6 @@
 "use client";
 
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
-import LoadingButton from "@mui/lab/LoadingButton";
 import {
   Chip,
   IconButton,
@@ -15,6 +14,7 @@ import {
   TableRow,
   TextField,
   Typography,
+  Button,
 } from "@mui/material";
 import React from "react";
 import type { AccessEntryResponse } from "@/app/(api)/generated/aPISrTommy.schemas";
@@ -185,14 +185,14 @@ export const OwnersPanel = ({
             helperText="La persona debe haber iniciado sesión antes. Solo un Propietario puede agregar Propietarios."
             sx={{ flex: 1 }}
           />
-          <LoadingButton
+          <Button
             variant="contained"
             loading={adding}
             disabled={!email.trim()}
             onClick={addOwner}
           >
             Agregar Propietario
-          </LoadingButton>
+          </Button>
         </Stack>
       )}
       <DialogDeleteConfirmation
