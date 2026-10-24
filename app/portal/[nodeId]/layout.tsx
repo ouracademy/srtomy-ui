@@ -4,6 +4,7 @@ import ChurchOutlinedIcon from "@mui/icons-material/ChurchOutlined";
 import DashboardOutlinedIcon from "@mui/icons-material/DashboardOutlined";
 import EventOutlinedIcon from "@mui/icons-material/EventOutlined";
 import BadgeOutlinedIcon from "@mui/icons-material/BadgeOutlined";
+import AdminPanelSettingsOutlinedIcon from "@mui/icons-material/AdminPanelSettingsOutlined";
 import PersonOutlinedIcon from "@mui/icons-material/PersonOutlined";
 import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
@@ -40,6 +41,12 @@ const menuItems = (type: string | undefined) => [
     needs: "events.read" as Permission,
   },
   { label: "Cargos", path: "/positions", Icon: BadgeOutlinedIcon },
+  {
+    label: "Accesos",
+    path: "/access",
+    Icon: AdminPanelSettingsOutlinedIcon,
+    needs: "iam.read" as Permission,
+  },
 ];
 
 export default function NodeLayout(props: {
