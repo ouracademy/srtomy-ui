@@ -3,6 +3,7 @@
 import ChurchOutlinedIcon from "@mui/icons-material/ChurchOutlined";
 import DashboardOutlinedIcon from "@mui/icons-material/DashboardOutlined";
 import EventOutlinedIcon from "@mui/icons-material/EventOutlined";
+import BadgeOutlinedIcon from "@mui/icons-material/BadgeOutlined";
 import PersonOutlinedIcon from "@mui/icons-material/PersonOutlined";
 import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
@@ -13,28 +14,54 @@ import NextLink from "next/link";
 import * as React from "react";
 import MenuDrawer from "../MenuDrawer";
 import { useGetOrganizationsById } from "@/app/(api)/generated";
+import { usePermissions, type Permission } from "@/app/(hooks)/usePermissions";
+import { saveLastNode } from "../lastNode";
+import { nodeTypeLabels } from "../organizationTree";
 
-const menuItems = [
+// `needs` hides an item the user could not use on this node; the API still
+// rejects the requests if they navigate there anyway.
+const menuItems = (type: string | undefined) => [
   { label: "Dashboard", path: "", Icon: DashboardOutlinedIcon },
-  { label: "Sede", path: "/location", Icon: ChurchOutlinedIcon },
-  { label: "Personas", path: "/person", Icon: PersonOutlinedIcon },
-  { label: "Eventos y cursos", path: "/event", Icon: EventOutlinedIcon },
+  {
+    label: nodeTypeLabels[type ?? ""] ?? "Datos",
+    path: "/location",
+    Icon: ChurchOutlinedIcon,
+  },
+  {
+    label: "Personas",
+    path: "/person",
+    Icon: PersonOutlinedIcon,
+    needs: "members.read" as Permission,
+  },
+  {
+    label: "Eventos y cursos",
+    path: "/event",
+    Icon: EventOutlinedIcon,
+    needs: "events.read" as Permission,
+  },
+  { label: "Cargos", path: "/positions", Icon: BadgeOutlinedIcon },
 ];
 
-export default function LocLayout(props: {
+export default function NodeLayout(props: {
   children: React.ReactNode;
-  params: Promise<{ locId: string }>;
+  params: Promise<{ nodeId: string }>;
 }) {
   const children = props.children;
   const params = React.use(props.params);
-  const locId = params.locId;
+  const nodeId = params.nodeId;
 
-  const { data: location } = useGetOrganizationsById(locId);
+  const { data: node } = useGetOrganizationsById(nodeId);
+  const { can } = usePermissions(nodeId);
+
+  React.useEffect(() => saveLastNode(nodeId), [nodeId]);
+
+  const items = menuItems(node?.type).filter(
+    (item) => !item.needs || can(item.needs),
+  );
 
   return (
     <MenuDrawer
-      location={location}
-      locId={locId}
+      nodeId={nodeId}
       listDrawer={
         <List
           aria-label="Menú principal"
@@ -53,11 +80,11 @@ export default function LocLayout(props: {
             },
           }}
         >
-          {menuItems.map(({ label, path, Icon }) => (
+          {items.map(({ label, path, Icon }) => (
             <ListItem key={label} disablePadding>
               <ListItemButton
                 component={NextLink}
-                href={`/portal/${locId}${path}`}
+                href={`/portal/${nodeId}${path}`}
                 sx={{ color: "inherit", textDecoration: "none" }}
               >
                 <ListItemIcon>

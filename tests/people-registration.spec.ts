@@ -8,27 +8,29 @@ test.describe("Registro de persona", () => {
     //Importación dinámica de faker
     const { faker } = await import("@faker-js/faker");
 
-    //1. Mocks de red (Roles y post)
-    await page.route("**/organizations/locations/*/roles", async (route) => {
+    //1. Mocks de red (cargos de la iglesia, creación de cargo y persona)
+    await page.route("**/organizations/*/positions", async (route) => {
+      if (route.request().method() === "POST") {
+        await route.fulfill({
+          status: 201,
+          contentType: "application/json",
+          body: JSON.stringify({
+            id: "dddddddd-dddd-dddd-dddd-dddddddddddd",
+            name: "Catequista",
+          }),
+        });
+        return;
+      }
       await route.fulfill({
         status: 200,
         contentType: "application/json",
         body: JSON.stringify([
-          {
-            id: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
-            name: "Pastor",
-            isPredefined: false,
-          },
+          { id: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", name: "Pastor" },
           {
             id: "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
             name: "Líder de alabanza",
-            isPredefined: false,
           },
-          {
-            id: "cccccccc-cccc-cccc-cccc-cccccccccccc",
-            name: "Ujier",
-            isPredefined: true,
-          },
+          { id: "cccccccc-cccc-cccc-cccc-cccccccccccc", name: "Ujier" },
         ]),
       });
     });
@@ -38,7 +40,7 @@ test.describe("Registro de persona", () => {
         await route.fulfill({
           status: 201,
           contentType: "application/json",
-          body: JSON.stringify({ message: "Persona registrada" }),
+          body: JSON.stringify("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee"),
         });
       } else {
         await route.continue();
@@ -82,8 +84,8 @@ test.describe("Registro de persona", () => {
     const ageValue = await page.getByLabel(/Edad/i).inputValue();
     expect(Number(ageValue)).toBeGreaterThan(0);
 
-    //7. Bautismo y Roles
-    await page.getByLabel("Si").check();
+    //7. Bautismo y cargos
+    await page.getByRole("radio", { name: "Si" }).check();
     // const rolesInput = page.getByLabel(/Escriba o seleccione/i);
     const rolesInput = page.getByRole("combobox", {
       name: /Escriba o seleccione/i,
@@ -100,11 +102,23 @@ test.describe("Registro de persona", () => {
     await opcionUjier.waitFor({ state: "visible" });
     await opcionUjier.click();
     // await page.getByRole("option", {  name: /Ujier/i }).click();
+    // A position the church does not have yet is created on save.
+    await rolesInput.fill("Catequista");
+    await rolesInput.press("Enter");
     await page.keyboard.press("Escape");
     await expect(page.getByText("Líder de alabanza")).toBeVisible();
     await expect(page.getByText("Ujier")).toBeVisible();
 
     //8. Envío final
+    const saved = page.waitForRequest(
+      (request) =>
+        request.method() === "POST" && request.url().endsWith("/v1/people"),
+    );
     await page.getByRole("button", { name: /Guardar/i }).click();
+    expect((await saved).postDataJSON().positionIds).toEqual([
+      "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+      "cccccccc-cccc-cccc-cccc-cccccccccccc",
+      "dddddddd-dddd-dddd-dddd-dddddddddddd",
+    ]);
   });
 });

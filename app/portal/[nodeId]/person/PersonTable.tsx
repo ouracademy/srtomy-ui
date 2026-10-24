@@ -22,12 +22,12 @@ export type MyDataGridProps = Omit<DataGridProps, "columns" | "rows">;
 
 export type PersonTableProps = {
   dataGridProps?: MyDataGridProps;
-  locId: string;
+  nodeId: string;
 };
 
 export const PersonTable = ({
   dataGridProps = {},
-  locId,
+  nodeId,
 }: PersonTableProps) => {
   const { paginationModel, setPaginationModel } = usePagination();
   const router = useRouter();
@@ -36,7 +36,7 @@ export const PersonTable = ({
 
   const [openDialog, setOpenDialog] = React.useState(false);
   const { data: people, isLoading } = useGetPeople({
-    organizationId: locId,
+    organizationId: nodeId,
     page: paginationModel.page,
     size: paginationModel.pageSize,
     searchText: searchParamQuery,
@@ -60,7 +60,7 @@ export const PersonTable = ({
                     }
                     label="Ver"
                     onClick={() =>
-                      router.push(`/portal/${locId}/person/${params.id}`)
+                      router.push(`/portal/${nodeId}/person/${params.id}`)
                     }
                   />
                 </Tooltip>,
@@ -78,7 +78,7 @@ export const PersonTable = ({
           },
         ] as GridColDef<PersonResponse>[]
       ).map(withOutSorting),
-    [router, locId],
+    [router, nodeId],
   );
 
   return (

@@ -1,5 +1,11 @@
 import { test as base } from "@playwright/test";
-import { AUTH0_CLIENT_ID, AUTH0_DOMAIN, APP_ORIGIN, ORG_ID } from "./e2e-env";
+import {
+  AUTH0_CLIENT_ID,
+  AUTH0_DOMAIN,
+  APP_ORIGIN,
+  CHURCH_ID,
+  NODE_ID,
+} from "./e2e-env";
 
 // Auth0 silent login (prompt=none, response_mode=web_message) answers in an
 // iframe with a postMessage. The token request then returns an id_token whose
@@ -45,7 +51,6 @@ async function mockAuth0(page: import("@playwright/test").Page) {
         nonce,
         name: "E2E User",
         email: "e2e@example.com",
-        "https://sr-tommy.com/orgId": ORG_ID,
       });
       await route.fulfill({
         status: 200,
@@ -68,11 +73,72 @@ async function mockAuth0(page: import("@playwright/test").Page) {
   });
 }
 
+const json = (body: unknown) => ({
+  status: 200,
+  contentType: "application/json",
+  body: JSON.stringify(body),
+});
+
+// Who the e2e user is: an Administrator of a church with one location
+// (NODE_ID), so every screen and action is available unless a test overrides
+// these routes.
+async function mockCurrentUser(page: import("@playwright/test").Page) {
+  await page.route("**/v1/me", (route) =>
+    route.fulfill(json({ id: "e2e-user", email: "e2e@example.com" })),
+  );
+  await page.route("**/v1/me/organizations", (route) =>
+    route.fulfill(
+      json([
+        {
+          id: CHURCH_ID,
+          name: "Iglesia E2E",
+          type: "CHURCH",
+          accessible: true,
+          roles: ["Administrador"],
+        },
+        {
+          id: NODE_ID,
+          name: "Sede Central",
+          type: "LOCATION",
+          parentId: CHURCH_ID,
+          accessible: true,
+          roles: [],
+        },
+      ]),
+    ),
+  );
+  await page.route("**/v1/me/permissions**", (route) =>
+    route.fulfill(
+      json([
+        "org.read",
+        "org.update",
+        "org.create_child",
+        "org.delete",
+        "members.read",
+        "members.write",
+        "events.read",
+        "events.write",
+        "attendance.write",
+        "positions.manage",
+        "iam.read",
+        "iam.manage",
+      ]),
+    ),
+  );
+  await page.route("**/v1/positions/suggestions", (route) =>
+    route.fulfill(json(["Pastor", "Diácono", "Catequista"])),
+  );
+  await page.route("**/v1/organizations/*/positions", (route) =>
+    route.fulfill(json([{ id: "p-pastor", name: "Pastor" }])),
+  );
+}
+
 // Every test starts logged in. Register API mocks after this fixture runs so
 // they take precedence (Playwright matches the most recent route first).
 export const test = base.extend({
   page: async ({ page }, use) => {
     await mockAuth0(page);
+    await mockCurrentUser(page);
     await use(page);
   },
 });

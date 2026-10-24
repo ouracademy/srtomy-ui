@@ -1,7 +1,7 @@
 import { expect, test } from "./fixtures";
 
 test.describe("Editar Grupos y ministerios", () => {
-  const locId = "11111111-1111-1111-1111-111111111111";
+  const nodeId = "11111111-1111-1111-1111-111111111111";
   const groupId = "33333333-3333-3333-3333-333333333333";
 
   test.beforeEach(async ({ page }) => {
@@ -11,12 +11,21 @@ test.describe("Editar Grupos y ministerios", () => {
         status: 200,
         contentType: "application/json",
         body: JSON.stringify({
+          id: groupId,
           name: "Grupo de Jóvenes",
           description: "Reunión de los sábados",
           type: "GROUP",
+          parentId: nodeId,
         }),
       });
     });
+    await page.route(`**/organizations/${groupId}/childs**`, (route) =>
+      route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: "[]",
+      }),
+    );
     //2. Mocks de miembros y líderes
     await page.route(
       `**/organizations/locations/childs/${groupId}/members`,
@@ -84,8 +93,8 @@ test.describe("Editar Grupos y ministerios", () => {
   });
 
   test("Cargar los datos y editar", async ({ page }) => {
-    // Navegar directamente a la URL
-    await page.goto(`/portal/${locId}/location/groups/${groupId}`);
+    // A group is a node of its own: its page edits it and lists its subgroups.
+    await page.goto(`/portal/${groupId}/location`);
 
     //A. Verificar que los datos se cargaron correctamente
     const nameInput = page.getByRole("textbox", { name: /nombre/i });
@@ -127,6 +136,7 @@ test.describe("Editar Grupos y ministerios", () => {
         "33333333-cccc-cccc-cccc-cccccccccccc",
       ],
       memberIds: ["22222222-bbbb-bbbb-bbbb-bbbbbbbbbbbb"],
+      socialLinks: {},
     });
     await expect(page.getByText("Guardado exitosamente")).toBeVisible();
   });

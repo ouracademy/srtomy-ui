@@ -9,11 +9,11 @@ import { useRouter } from "next/navigation";
 import * as React from "react";
 
 type UserMenuProps = Readonly<{
-  locId?: string;
+  nodeId?: string;
 }>;
 
 // Name of the signed-in user with a menu to open the profile or log out.
-export const UserMenu = ({ locId }: UserMenuProps) => {
+export const UserMenu = ({ nodeId }: UserMenuProps) => {
   const { user, logout } = useAuth0();
   const router = useRouter();
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
@@ -44,7 +44,9 @@ export const UserMenu = ({ locId }: UserMenuProps) => {
       >
         <MenuItem
           onClick={() =>
-            router.push(locId ? `/portal/${locId}/profile` : "/portal/profile")
+            router.push(
+              nodeId ? `/portal/${nodeId}/profile` : "/portal/profile",
+            )
           }
         >
           <ListItemIcon>

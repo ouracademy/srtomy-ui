@@ -5,14 +5,14 @@ import { PeopleLayout } from "./PeopleLayout";
 import { PersonTable } from "./PersonTable";
 
 export default function PersonListPage(props: {
-  params: Promise<{ locId: string }>;
+  params: Promise<{ nodeId: string }>;
 }) {
   const params = React.use(props.params);
-  const { locId } = params;
+  const { nodeId } = params;
 
   return (
-    <PeopleLayout locId={locId}>
-      <PersonTable locId={locId} />
+    <PeopleLayout nodeId={nodeId}>
+      <PersonTable nodeId={nodeId} />
     </PeopleLayout>
   );
 }

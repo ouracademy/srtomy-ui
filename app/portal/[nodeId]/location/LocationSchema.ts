@@ -1,26 +1,44 @@
 import { z } from "zod";
+import type {
+  OrganizationRequest,
+  OrganizationResponse,
+} from "@/app/(api)/generated/aPISrTommy.schemas";
+import {
+  socialLinksSchema,
+  toSocialLinksForm,
+  toSocialLinksRequest,
+} from "@/app/(components)/SocialLinks";
 
-// A new location needs at least one role of its own. Predefined roles are fixed
-// options the API already offers, so they do not count toward that requirement.
-// Editing does not require it: locations created before the rule must stay editable.
-export const locationSchema = (
-  fixedOptions: string[],
-  { requireOwnRole }: { requireOwnRole: boolean },
-) =>
-  z.object({
-    name: z
-      .string()
-      .min(1, { message: "Por favor ingrese el nombre de la sede" }),
-    address: z.string().min(1, { message: "Por favor ingrese la dirección" }),
-    phoneNumber: z.string(),
-    roles: requireOwnRole
-      ? z
-          .array(z.string())
-          .refine(
-            (roles) => roles.some((role) => !fixedOptions.includes(role)),
-            { message: "Agregue al menos un rol propio de la sede" },
-          )
-      : z.array(z.string()),
-  });
+// Details of a church or a location. Positions (cargos) are no longer edited
+// here: they belong to the church and have their own section.
+export const organizationSchema = z.object({
+  name: z.string().trim().min(1, { message: "Por favor ingrese el nombre" }),
+  address: z.string(),
+  phoneNumber: z.string(),
+  socialLinks: socialLinksSchema,
+});
 
-export type LocationDetailForm = z.infer<ReturnType<typeof locationSchema>>;
+export type OrganizationDetailForm = z.infer<typeof organizationSchema>;
+
+export const toOrganizationForm = (
+  organization: OrganizationResponse,
+): OrganizationDetailForm => ({
+  name: organization.name ?? "",
+  address: organization.address ?? "",
+  phoneNumber: organization.phoneNumber ?? "",
+  socialLinks: toSocialLinksForm(organization.socialLinks),
+});
+
+// The API overwrites the whole node on update, so the description the form
+// does not edit must travel with the request or it would be cleared on save.
+export const toOrganizationPayload = (
+  values: OrganizationDetailForm,
+  { description, parentId }: { description?: string; parentId?: string },
+): OrganizationRequest => ({
+  name: values.name.trim(),
+  description: description ?? "",
+  address: values.address,
+  phoneNumber: values.phoneNumber,
+  socialLinks: toSocialLinksRequest(values.socialLinks),
+  parentId,
+});

@@ -1,12 +1,9 @@
 "use client";
 
-import { Option } from "@/app/(components)/Option";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Typography, Grid } from "@mui/material";
+import { Autocomplete, Chip, Grid, TextField, Typography } from "@mui/material";
 import { differenceInYears } from "date-fns";
-import { MuiTelInput } from "mui-tel-input";
 import {
-  AutocompleteElement,
   Controller,
   FormContainer,
   RadioButtonGroup,
@@ -16,14 +13,19 @@ import {
 } from "react-hook-form-mui";
 import { DatePickerElement } from "react-hook-form-mui/date-pickers";
 import { z } from "zod";
-import { useGetOrganizationsLocationsByIdRoles } from "@/app/(api)/generated";
+import { useGetOrganizationsByIdPositions } from "@/app/(api)/generated";
 import type {
-  AccountabilityTypeDto,
   CreatePersonRequest,
+  PositionResponse,
 } from "@/app/(api)/generated/aPISrTommy.schemas";
 import { formatISO } from "date-fns";
-import { toSpanish } from "../location/Roles";
+import {
+  toChoice,
+  toPositionChoice,
+  type PositionChoice,
+} from "./positionSelection";
 import { SaveButton } from "@/app/(components)/SaveButton";
+import { TelFieldElement } from "@/app/(components)/TelFieldElement";
 import Loading from "@/app/(components)/Loading";
 import { ResourceError } from "@/app/(components)/ResourceError";
 
@@ -37,9 +39,9 @@ const schema = z.object({
   age: z.number().optional(),
   birthdate: z.date().optional().nullable(),
   hasBeenBaptized: z.enum(["YES", "NO"]).optional(),
-  roles: z.array(
+  positions: z.array(
     z.object({
-      id: z.string(),
+      id: z.string().optional(),
       label: z.string(),
     }),
   ),
@@ -47,10 +49,12 @@ const schema = z.object({
 
 export type PersonDetailFormData = z.infer<typeof schema>;
 
-// Form values -> body of POST/PUT /people.
+// Form values -> body of POST/PUT /people. New positions must be created
+// first (see resolvePositionIds), so their ids come separately.
 export const toPersonPayload = (
   data: PersonDetailFormData,
   organizationId: string,
+  positionIds: string[],
 ): CreatePersonRequest => ({
   firstName: data.firstName,
   lastName: data.lastName,
@@ -61,13 +65,13 @@ export const toPersonPayload = (
     : undefined,
   hasBeenBaptized: data.hasBeenBaptized === "YES",
   organizationId,
-  roles: data.roles.map((x) => x.id),
+  positionIds,
 });
 
 type PersonFormProps = {
   initialValues: PersonDetailFormData;
   submit: (data: PersonDetailFormData) => Promise<void>;
-  locId: string;
+  nodeId: string;
 };
 
 function isValidDate(date: Date) {
@@ -77,13 +81,13 @@ function isValidDate(date: Date) {
 export const PersonForm = ({
   initialValues,
   submit,
-  locId,
+  nodeId,
 }: PersonFormProps) => {
   const {
-    data: roles,
-    error: rolesError,
+    data: positions,
+    error: positionsError,
     isLoading,
-  } = useGetOrganizationsLocationsByIdRoles(locId);
+  } = useGetOrganizationsByIdPositions(nodeId);
 
   const formContext = useForm({
     defaultValues: initialValues,
@@ -91,7 +95,7 @@ export const PersonForm = ({
   });
 
   if (isLoading) return <Loading />;
-  if (!roles) return <ResourceError error={rolesError} />;
+  if (!positions) return <ResourceError error={positionsError} />;
 
   const handleChange = (birthdate: Date | null) => {
     formContext.setValue("birthdate", birthdate);
@@ -165,14 +169,9 @@ export const PersonForm = ({
         </Grid>
         <Grid size={{ xs: 12 }}>
           <Grid sx={{ paddingBottom: "10px" }}>
-            <Typography variant="h6">Roles:</Typography>
+            <Typography variant="h6">Cargos:</Typography>
           </Grid>
-          <AutocompleteElement
-            multiple
-            name="roles"
-            label="Escriba o seleccione el rol(es)"
-            options={roles.map(roleToOption)}
-          />
+          <PositionsField positions={positions} />
         </Grid>
         <Grid size={{ xs: 12 }}>
           <SaveButton
@@ -185,37 +184,51 @@ export const PersonForm = ({
   );
 };
 
-export const TelFieldElement = ({ name }: { name: string }) => {
-  const {
-    control,
-    formState: { errors },
-  } = useFormContext();
-
+// Positions of the church, or any new name: it is created when saving.
+const PositionsField = ({ positions }: { positions: PositionResponse[] }) => {
+  const { control } = useFormContext<PersonDetailFormData>();
   return (
     <Controller
       control={control}
-      name={name}
+      name="positions"
       render={({ field }) => (
-        <MuiTelInput
-          name={field.name}
+        <Autocomplete<PositionChoice, true, false, true>
+          multiple
+          freeSolo
+          options={positions.map(toPositionChoice)}
           value={field.value}
-          onChange={(value) => {
-            field.onChange(value.replace(/\s+/g, ""));
-          }}
-          error={Boolean(errors[name])}
-          helperText={errors[name]?.message as string | undefined}
-          fullWidth
-          label="Teléfono"
-          onlyCountries={["PE", "CO"]}
+          getOptionLabel={(option) =>
+            typeof option === "string" ? option : option.label
+          }
+          isOptionEqualToValue={(option, value) => option.label === value.label}
+          onChange={(_event, values) =>
+            field.onChange(
+              values
+                .map((value) => toChoice(value, positions))
+                .filter(
+                  (choice, index, all) =>
+                    choice.label &&
+                    all.findIndex((other) => other.label === choice.label) ===
+                      index,
+                ),
+            )
+          }
+          renderValue={(values, getItemProps) =>
+            values.map((option, index) => {
+              const { key, ...itemProps } = getItemProps({ index });
+              const label = typeof option === "string" ? option : option.label;
+              return <Chip key={key} label={label} {...itemProps} />;
+            })
+          }
+          renderInput={(params) => (
+            <TextField
+              {...params}
+              label="Escriba o seleccione los cargos"
+              helperText="Si escribe un cargo nuevo, se agregará a los cargos de la iglesia."
+            />
+          )}
         />
       )}
     />
   );
 };
-
-export function roleToOption(x: AccountabilityTypeDto): Option {
-  return {
-    id: x.id ?? "",
-    label: x.isPredefined ? toSpanish(x.name ?? "") : (x.name ?? ""),
-  };
-}

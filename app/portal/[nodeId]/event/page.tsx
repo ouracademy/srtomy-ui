@@ -18,10 +18,10 @@ const Calendar = dynamic(() => import("./Calendar"), {
 });
 
 export default function EventListPage(props: {
-  params: Promise<{ locId: string }>;
+  params: Promise<{ nodeId: string }>;
 }) {
   const params = React.use(props.params);
-  const { locId } = params;
+  const { nodeId } = params;
   const alert = useContext(SnackbarContext);
 
   const [spanSelected, setSpanSelected] = useState<DatesSelection>();
@@ -34,7 +34,7 @@ export default function EventListPage(props: {
         <Typography variant="h4">Eventos y cursos</Typography>
       </Stack>
       <Calendar
-        organizationId={locId}
+        organizationId={nodeId}
         onSelect={(x) => {
           setSpanSelected(x);
         }}
@@ -57,7 +57,7 @@ export default function EventListPage(props: {
         </IconButton>
         {spanSelected && (
           <EventForm
-            locId={locId}
+            nodeId={nodeId}
             initialValues={{
               name: "",
               date: spanSelected.start,
@@ -77,7 +77,7 @@ export default function EventListPage(props: {
               const data = {
                 name: values.name,
                 address: values.address,
-                organizationId: locId,
+                organizationId: nodeId,
                 startTime: format(values.startTime, "yyyy-MM-dd'T'HH:mm:ssXXX"),
                 endTime: format(values.endTime, "yyyy-MM-dd'T'HH:mm:ssXXX"),
                 endRecur: values.endRecur

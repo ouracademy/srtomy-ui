@@ -4,6 +4,10 @@ import type {
   UpdateLocationChildRequest,
 } from "@/app/(api)/generated/aPISrTommy.schemas";
 import type { GroupInitialValues } from "./GroupForm";
+import {
+  toSocialLinksForm,
+  toSocialLinksRequest,
+} from "@/app/(components)/SocialLinks";
 
 const personLabel = (person: { firstName?: string; lastName?: string }) =>
   [person.firstName, person.lastName].filter(Boolean).join(" ");
@@ -24,6 +28,7 @@ export const toGroupInitialValues = (
     id: x.id ?? "",
     label: personLabel(x),
   })),
+  socialLinks: toSocialLinksForm(group.socialLinks),
 });
 
 // Builds the body of PUT /organizations/locations/childs/{id} from the form values.
@@ -35,4 +40,5 @@ export const toUpdateLocationChildRequest = (
   type: values.type,
   leaderIds: values.leaders.map((x) => x.id),
   memberIds: values.members.map((x) => x.id),
+  socialLinks: toSocialLinksRequest(values.socialLinks),
 });

@@ -7,19 +7,19 @@ import { useDebounce } from "use-debounce";
 type GroupAutocompleteProps = {
   name: string;
   label: string;
-  locId: string;
+  nodeId: string;
 };
 
 export const GroupAutocomplete = ({
   name,
   label,
-  locId,
+  nodeId,
 }: GroupAutocompleteProps) => {
   const [searchMember, setSearchMember] = React.useState("");
   const [searchTextDebounced] = useDebounce(searchMember, DEBOUNCE_WAIT_MS);
 
   const { data: people } = useGetPeople({
-    organizationId: locId,
+    organizationId: nodeId,
     searchText: searchTextDebounced,
   });
 

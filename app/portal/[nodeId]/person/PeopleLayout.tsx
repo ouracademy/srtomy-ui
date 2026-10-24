@@ -15,10 +15,10 @@ import { RButton } from "@/app/(components)/RButton";
 
 export function PeopleLayout({
   children,
-  locId,
+  nodeId,
 }: {
   children: React.ReactNode;
-  locId: string;
+  nodeId: string;
 }) {
   const router = useRouter();
   const pathname = usePathname();
@@ -54,7 +54,7 @@ export function PeopleLayout({
           <Typography variant="h4">Personas</Typography>
         </Stack>
         <Box sx={{ display: "flex", width: { xs: "100%", sm: "auto" } }}>
-          <RButton name="Registrar" href={`/portal/${locId}/person/create`} />
+          <RButton name="Registrar" href={`/portal/${nodeId}/person/create`} />
           <TextField
             sx={{ minWidth: 0 }}
             placeholder="Buscar"

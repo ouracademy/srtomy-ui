@@ -1,21 +1,25 @@
 "use client";
 
-import { postPeople } from "@/app/(api)/generated";
+import {
+  postOrganizationsByIdPositions,
+  postPeople,
+} from "@/app/(api)/generated";
+import { resolvePositionIds } from "../positionSelection";
 import { useRouter } from "next/navigation";
 import {
   PersonForm,
   toPersonPayload,
-} from "@/app/portal/[locId]/person/PersonForm";
+} from "@/app/portal/[nodeId]/person/PersonForm";
 import React from "react";
 import { SnackbarContext } from "@/app/(components)/SnackbarContext";
 
 export default function CreatePerson(props: {
-  params: Promise<{ locId: string }>;
+  params: Promise<{ nodeId: string }>;
 }) {
   const router = useRouter();
   const alert = React.useContext(SnackbarContext);
   const params = React.use(props.params);
-  const { locId } = params;
+  const { nodeId } = params;
 
   return (
     <PersonForm
@@ -23,14 +27,17 @@ export default function CreatePerson(props: {
         firstName: "",
         lastName: "",
         phoneNumber: "+51",
-        roles: [],
+        positions: [],
       }}
       submit={async (data) => {
-        await postPeople(toPersonPayload(data, locId));
+        const positionIds = await resolvePositionIds(data.positions, (name) =>
+          postOrganizationsByIdPositions(nodeId, { name }),
+        );
+        await postPeople(toPersonPayload(data, nodeId, positionIds));
         alert.showMessage("Guardado exitosamente");
-        router.push(`/portal/${locId}/person`);
+        router.push(`/portal/${nodeId}/person`);
       }}
-      locId={locId}
+      nodeId={nodeId}
     />
   );
 }

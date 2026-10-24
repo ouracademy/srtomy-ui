@@ -4,6 +4,7 @@ import {
   toUpdateLocationChildRequest,
 } from "./groupEdit";
 import type { GroupInitialValues } from "./GroupForm";
+import { emptySocialLinks } from "@/app/(components)/SocialLinks";
 
 const LEADER_ID = "11111111-aaaa-aaaa-aaaa-aaaaaaaaaaaa";
 const MEMBER_ID = "22222222-bbbb-bbbb-bbbb-bbbbbbbbbbbb";
@@ -24,6 +25,7 @@ describe("toGroupInitialValues", () => {
       type: "GROUP",
       leaders: [{ id: LEADER_ID, label: "Juan Perez" }],
       members: [{ id: MEMBER_ID, label: "Maria Garcia" }],
+      socialLinks: emptySocialLinks,
     });
   });
 
@@ -61,6 +63,7 @@ describe("toUpdateLocationChildRequest", () => {
         { id: MEMBER_ID, label: "Maria Garcia" },
       ],
       members: [{ id: MEMBER_ID, label: "Maria Garcia" }],
+      socialLinks: { ...emptySocialLinks, instagramUrl: "https://ig.com/j" },
     };
 
     expect(toUpdateLocationChildRequest(values)).toEqual({
@@ -69,6 +72,7 @@ describe("toUpdateLocationChildRequest", () => {
       type: "MINISTRY",
       leaderIds: [LEADER_ID, MEMBER_ID],
       memberIds: [MEMBER_ID],
+      socialLinks: { instagramUrl: "https://ig.com/j" },
     });
   });
 });

@@ -6,39 +6,43 @@ import { ResourceError } from "@/app/(components)/ResourceError";
 import { SnackbarContext } from "@/app/(components)/SnackbarContext";
 import {
   PersonForm,
-  roleToOption,
   toPersonPayload,
-} from "@/app/portal/[locId]/person/PersonForm";
+} from "@/app/portal/[nodeId]/person/PersonForm";
 import {
-  useGetOrganizationsLocationsByIdPersonByPersonIdRoles,
+  postOrganizationsByIdPositions,
+  useGetOrganizationsByIdPeopleByPersonIdPositions,
   useGetPeopleById,
   putPeopleById,
 } from "@/app/(api)/generated";
+import {
+  resolvePositionIds,
+  toPositionChoice,
+} from "@/app/portal/[nodeId]/person/positionSelection";
 import { Box } from "@mui/material";
 import { useRouter } from "next/navigation";
 import React from "react";
 
 export default function PersonEdit(props: {
-  params: Promise<{ id: string; locId: string }>;
+  params: Promise<{ id: string; nodeId: string }>;
 }) {
   const params = React.use(props.params);
-  const { id, locId } = params;
+  const { id, nodeId } = params;
 
   const { data, mutate: mutatePerson, isLoading } = useGetPeopleById(id);
   const person = data ? PersonResponseSchema.parse(data) : null;
 
   const {
-    data: roles,
-    error: rolesError,
-    mutate: mutateRoles,
-    isLoading: rolesLoading,
-  } = useGetOrganizationsLocationsByIdPersonByPersonIdRoles(locId, id);
+    data: positions,
+    error: positionsError,
+    mutate: mutatePositions,
+    isLoading: positionsLoading,
+  } = useGetOrganizationsByIdPeopleByPersonIdPositions(nodeId, id);
 
   const alert = React.useContext(SnackbarContext);
   const router = useRouter();
 
-  if (isLoading || rolesLoading) return <Loading />;
-  if (!roles) return <ResourceError error={rolesError} />;
+  if (isLoading || positionsLoading) return <Loading />;
+  if (!positions) return <ResourceError error={positionsError} />;
 
   return (
     <Box>
@@ -49,16 +53,23 @@ export default function PersonEdit(props: {
           initialValues={{
             ...person,
             hasBeenBaptized: person.hasBeenBaptized ? "YES" : "NO",
-            roles: roles.map(roleToOption),
+            positions: positions.map(toPositionChoice),
           }}
           submit={async (formValues) => {
-            await putPeopleById(id, toPersonPayload(formValues, locId));
+            const positionIds = await resolvePositionIds(
+              formValues.positions,
+              (name) => postOrganizationsByIdPositions(nodeId, { name }),
+            );
+            await putPeopleById(
+              id,
+              toPersonPayload(formValues, nodeId, positionIds),
+            );
             mutatePerson();
-            mutateRoles();
+            mutatePositions();
             alert.showMessage("Guardado exitosamente");
-            router.push(`/portal/${locId}/person`);
+            router.push(`/portal/${nodeId}/person`);
           }}
-          locId={locId}
+          nodeId={nodeId}
         />
       )}
     </Box>

@@ -1,92 +1,139 @@
 "use client";
 
 import { Box } from "@mui/material";
-import { useAuth0 } from "@auth0/auth0-react";
 import React from "react";
-import { LocationForm } from "./LocationForm";
+import { useSWRConfig } from "swr";
+import {
+  getGetMeOrganizationsKey,
+  putOrganizationsById,
+  putOrganizationsLocationsChildsById,
+  useGetOrganizationsById,
+  useGetOrganizationsLocationsChildsByIdMembers,
+} from "@/app/(api)/generated";
+import type { OrganizationResponse } from "@/app/(api)/generated/aPISrTommy.schemas";
 import Loading from "@/app/(components)/Loading";
 import { ResourceError } from "@/app/(components)/ResourceError";
-import {
-  putOrganizationsLocationsById,
-  useGetOrganizationsById,
-  useGetOrganizationsByIdChilds,
-  useGetOrganizationsLocationsByIdRoles,
-} from "@/app/(api)/generated";
 import { SnackbarContext } from "@/app/(components)/SnackbarContext";
+import { usePermissions } from "@/app/(hooks)/usePermissions";
+import { nodeTypeLabels } from "@/app/portal/organizationTree";
+import { LocationForm } from "./LocationForm";
+import { toOrganizationForm, toOrganizationPayload } from "./LocationSchema";
+import { GroupForm } from "./groups/GroupForm";
 import { Groups } from "./groups/Groups";
-import { getFixedOptions } from "./Roles";
-import { toLocationPayload } from "./LocationPayload";
+import {
+  toGroupInitialValues,
+  toUpdateLocationChildRequest,
+} from "./groups/groupEdit";
 
-export default function Location(props: {
-  params: Promise<{ locId: string }>;
+// Details of the current node, whatever its type, and the nodes under it.
+export default function NodeDetails(props: {
+  params: Promise<{ nodeId: string }>;
 }) {
-  const params = React.use(props.params);
-  const { locId } = params;
-
-  const { user } = useAuth0();
-  const orgId = user?.["https://sr-tommy.com/orgId"] ?? "";
-
+  const { nodeId } = React.use(props.params);
   const {
-    data: location,
-    error: locationError,
+    data: node,
+    error,
     isLoading,
-    mutate: mutateLocation,
-  } = useGetOrganizationsById(locId);
+    mutate,
+  } = useGetOrganizationsById(nodeId);
+  const { can } = usePermissions(nodeId);
 
-  const {
-    data: roles,
-    error: rolesError,
-    isLoading: rolesLoading,
-    mutate: mutateRoles,
-  } = useGetOrganizationsLocationsByIdRoles(locId);
+  if (isLoading) return <Loading />;
+  if (!node) return <ResourceError error={error} />;
 
-  // Same key as the locations dialog, so revalidating it refreshes the switcher.
-  const { mutate: mutateLocations } = useGetOrganizationsByIdChilds(orgId, {
-    swr: { enabled: !!user && !!orgId },
-  });
-
-  const alert = React.useContext(SnackbarContext);
-
-  if (isLoading || rolesLoading) return <Loading />;
-  if (!location || !roles)
-    return <ResourceError error={locationError ?? rolesError} />;
-
-  const fixedOptions: string[] = getFixedOptions(roles);
-
-  const initialValues = {
-    name: location.name ?? "",
-    address: location.address ?? "",
-    phoneNumber: location.phoneNumber ?? "",
-    roles: [
-      ...fixedOptions,
-      ...roles.filter((x) => !x.isPredefined).map((x) => x.name ?? ""),
-    ],
-  };
+  const isGroup = node.type === "GROUP" || node.type === "MINISTRY";
 
   return (
     <Box>
-      <LocationForm
-        initialValues={initialValues}
-        title="Datos generales de la sede"
-        requireOwnRole={false}
-        fixedOptions={fixedOptions}
-        submit={async (formValues) => {
-          await putOrganizationsLocationsById(
-            locId,
-            toLocationPayload(formValues, {
-              description: location.description,
-              fixedOptions,
-            }),
-          );
-          await Promise.all([
-            mutateLocation(),
-            mutateRoles(),
-            mutateLocations(),
-          ]);
-          alert.showMessage("Guardado exitosamente");
-        }}
+      {isGroup ? (
+        <GroupDetails node={node} canSave={can("org.update")} />
+      ) : (
+        <ChurchOrLocationDetails
+          node={node}
+          canSave={can("org.update")}
+          onSaved={() => mutate()}
+        />
+      )}
+      <Groups
+        nodeId={nodeId}
+        isChurch={node.type === "CHURCH"}
+        canCreate={can("org.create_child")}
+        canDelete={can("org.delete")}
       />
-      <Groups locId={locId} />
     </Box>
   );
 }
+
+const ChurchOrLocationDetails = ({
+  node,
+  canSave,
+  onSaved,
+}: {
+  node: OrganizationResponse;
+  canSave: boolean;
+  onSaved: () => void;
+}) => {
+  const alert = React.useContext(SnackbarContext);
+  const { mutate } = useSWRConfig();
+  return (
+    <LocationForm
+      title={`Datos de la ${nodeTypeLabels[node.type ?? ""]?.toLowerCase() ?? "organización"}`}
+      initialValues={toOrganizationForm(node)}
+      canSave={canSave}
+      submit={async (values) => {
+        await putOrganizationsById(
+          node.id ?? "",
+          toOrganizationPayload(values, { description: node.description }),
+        );
+        onSaved();
+        // The breadcrumb and the picker show node names.
+        await mutate(getGetMeOrganizationsKey());
+        alert.showMessage("Guardado exitosamente");
+      }}
+    />
+  );
+};
+
+const GroupDetails = ({
+  node,
+  canSave,
+}: {
+  node: OrganizationResponse;
+  canSave: boolean;
+}) => {
+  const alert = React.useContext(SnackbarContext);
+  const { mutate } = useSWRConfig();
+  const {
+    data: members,
+    error,
+    isLoading,
+    mutate: mutateMembers,
+  } = useGetOrganizationsLocationsChildsByIdMembers(node.id ?? "");
+
+  if (isLoading) return <Loading />;
+  if (!members) return <ResourceError error={error} />;
+
+  return (
+    <GroupForm
+      nodeId={node.parentId ?? node.id ?? ""}
+      initialValues={toGroupInitialValues(node, members)}
+      canSave={canSave}
+      submit={async (values) => {
+        try {
+          await putOrganizationsLocationsChildsById(
+            node.id ?? "",
+            toUpdateLocationChildRequest(values),
+          );
+        } catch {
+          alert.showMessage("No se pudo guardar. Intente nuevamente");
+          return;
+        }
+        await Promise.all([
+          mutateMembers(),
+          mutate(getGetMeOrganizationsKey()),
+        ]);
+        alert.showMessage("Guardado exitosamente");
+      }}
+    />
+  );
+};

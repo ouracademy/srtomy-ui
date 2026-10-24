@@ -12,7 +12,7 @@ import {
   useGetOrganizationsByIdChilds,
 } from "@/app/(api)/generated";
 import type { OrganizationResponse } from "@/app/(api)/generated/aPISrTommy.schemas";
-import { GroupTypeLabels } from "./Group";
+import { nodeTypeLabels } from "@/app/portal/organizationTree";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { DialogDeleteConfirmation } from "@/app/(components)/DialogDeleteConfirmation";
 import { SnackbarContext } from "@/app/(components)/SnackbarContext";
@@ -20,10 +20,21 @@ import { pink } from "@mui/material/colors";
 import { RButton } from "@/app/(components)/RButton";
 
 type GroupsProps = {
-  locId: string;
+  nodeId: string;
+  // A church lists its locations; any other node its groups and ministries.
+  isChurch?: boolean;
+  canCreate?: boolean;
+  canDelete?: boolean;
 };
 
-export function Groups({ locId }: GroupsProps) {
+// Children of a node. Opening a child makes it the current node, so groups
+// and ministries can nest as deep as the church needs.
+export function Groups({
+  nodeId,
+  isChurch = false,
+  canCreate = false,
+  canDelete = false,
+}: GroupsProps) {
   const [groupToDeleteId, setGroupToDeleteId] = React.useState<string | null>(
     null,
   );
@@ -33,7 +44,7 @@ export function Groups({ locId }: GroupsProps) {
     data: groups,
     isLoading,
     mutate,
-  } = useGetOrganizationsByIdChilds(locId);
+  } = useGetOrganizationsByIdChilds(nodeId);
   const alert = React.useContext(SnackbarContext);
 
   const deleteGroup = async (id: string | null) => {
@@ -53,28 +64,29 @@ export function Groups({ locId }: GroupsProps) {
             field: "type",
             headerName: "Tipo",
             flex: 1,
-            valueGetter: (value) =>
-              value === "GROUP"
-                ? GroupTypeLabels.GROUP
-                : GroupTypeLabels.MINISTRY,
+            valueGetter: (value) => nodeTypeLabels[value ?? ""] ?? "",
           },
           {
             field: "actions",
             type: "actions",
             width: 80,
             getActions: (params) => {
-              return [
-                <Tooltip title="Ver / editar" key="see">
+              const actions = [
+                <Tooltip title="Abrir" key="see">
                   <GridActionsCellItem
-                    label="Ver"
+                    label="Abrir"
                     icon={
                       <SearchIcon sx={{ "&:hover": { color: "#1976D2" } }} />
                     }
                     onClick={() =>
-                      router.push(`location/groups/${params.row.id}`)
+                      router.push(`/portal/${params.row.id}/location`)
                     }
                   />
                 </Tooltip>,
+              ];
+              if (!canDelete || isChurch) return actions;
+              return [
+                ...actions,
                 <Tooltip title="Eliminar" key="delete">
                   <GridActionsCellItem
                     label="Eliminar"
@@ -89,7 +101,7 @@ export function Groups({ locId }: GroupsProps) {
           },
         ] as GridColDef<OrganizationResponse>[]
       ).map(withOutSorting),
-    [router],
+    [router, canDelete, isChurch],
   );
 
   return (
@@ -102,12 +114,16 @@ export function Groups({ locId }: GroupsProps) {
             width: "100%",
           }}
         >
-          <Typography variant="h6">Grupos y Ministerios</Typography>
-          <RButton
-            name="Registrar"
-            href={`location/groups/create`}
-            padding="10px 40px"
-          />
+          <Typography variant="h6">
+            {isChurch ? "Sedes" : "Grupos y ministerios"}
+          </Typography>
+          {canCreate && (
+            <RButton
+              name={isChurch ? "Registrar sede" : "Registrar"}
+              href={`/portal/${nodeId}/location/${isChurch ? "new" : "groups/create"}`}
+              padding="10px 40px"
+            />
+          )}
         </div>
       </Stack>
       <div style={{ width: "100%", height: "70vh" }}>

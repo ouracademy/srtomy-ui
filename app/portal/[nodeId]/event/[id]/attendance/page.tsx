@@ -26,10 +26,10 @@ import {
 } from "./DeleteRecurrentEventDialog";
 
 export default function AttendanceEvent(props: {
-  params: Promise<{ id: string; locId: string }>;
+  params: Promise<{ id: string; nodeId: string }>;
 }) {
   const params = React.use(props.params);
-  const { id, locId } = params;
+  const { id, nodeId } = params;
 
   const alert = useContext(SnackbarContext);
   const router = useRouter();
@@ -82,7 +82,7 @@ export default function AttendanceEvent(props: {
       return;
     }
     alert.showMessage("Eliminado");
-    router.push(`/portal/${locId}/event`);
+    router.push(`/portal/${nodeId}/event`);
   };
 
   const initialValues: EventDetailFormData = {
@@ -126,7 +126,7 @@ export default function AttendanceEvent(props: {
               </Tooltip>
             </div>
             <EventForm
-              locId={locId}
+              nodeId={nodeId}
               initialValues={initialValues}
               // Editing an event is not implemented yet.
               submit={() => undefined}
@@ -157,7 +157,7 @@ export default function AttendanceEvent(props: {
         <Grid size={{ xs: 12 }}>
           <Stack spacing={2}>
             <PersonTable
-              locId={locId}
+              nodeId={nodeId}
               dataGridProps={{
                 keepNonExistentRowsSelected: true,
                 checkboxSelection: true,

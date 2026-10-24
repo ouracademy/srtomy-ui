@@ -19,6 +19,69 @@
     }
   ],
   "paths": {
+    "/v1/positions/{id}": {
+      "put": {
+        "tags": [
+          "positions"
+        ],
+        "operationId": "rename",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PositionRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/PositionResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "positions"
+        ],
+        "operationId": "delete",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/v1/people/{id}": {
       "get": {
         "tags": [
@@ -163,7 +226,7 @@
         "tags": [
           "organizations"
         ],
-        "operationId": "delete",
+        "operationId": "delete_1",
         "parameters": [
           {
             "name": "id",
@@ -203,7 +266,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/UpdateLocationRequest"
+                "$ref": "#/components/schemas/OrganizationRequest"
               }
             }
           },
@@ -338,7 +401,7 @@
         "tags": [
           "events"
         ],
-        "operationId": "delete_1",
+        "operationId": "delete_2",
         "parameters": [
           {
             "name": "id",
@@ -542,7 +605,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/OrganizationRequest"
+                "$ref": "#/components/schemas/CreateChurchRequest"
               }
             }
           },
@@ -555,6 +618,79 @@
               "*/*": {
                 "schema": {
                   "$ref": "#/components/schemas/OrganizationResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/organizations/{id}/positions": {
+      "get": {
+        "tags": [
+          "positions"
+        ],
+        "operationId": "findAll_1",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PositionResponse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "positions"
+        ],
+        "operationId": "create_2",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PositionRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/PositionResponse"
                 }
               }
             }
@@ -627,7 +763,7 @@
         "tags": [
           "events"
         ],
-        "operationId": "findAll_1",
+        "operationId": "findAll_2",
         "parameters": [
           {
             "name": "organizationId",
@@ -677,7 +813,7 @@
         "tags": [
           "events"
         ],
-        "operationId": "create_2",
+        "operationId": "create_3",
         "requestBody": {
           "content": {
             "application/json": {
@@ -708,7 +844,7 @@
         "tags": [
           "complaints"
         ],
-        "operationId": "create_3",
+        "operationId": "create_4",
         "requestBody": {
           "content": {
             "application/json": {
@@ -726,6 +862,72 @@
               "*/*": {
                 "schema": {
                   "$ref": "#/components/schemas/ComplaintResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/positions/suggestions": {
+      "get": {
+        "tags": [
+          "positions"
+        ],
+        "operationId": "suggestions",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/organizations/{id}/people/{personId}/positions": {
+      "get": {
+        "tags": [
+          "positions"
+        ],
+        "operationId": "findOfPerson",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "personId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PositionResponse"
+                  }
                 }
               }
             }
@@ -772,7 +974,7 @@
         "tags": [
           "organizations"
         ],
-        "operationId": "findAll_2",
+        "operationId": "findAll_3",
         "parameters": [
           {
             "name": "id",
@@ -793,106 +995,6 @@
                   "type": "array",
                   "items": {
                     "$ref": "#/components/schemas/OrganizationResponse"
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v1/organizations/locations/{id}/roles": {
-      "get": {
-        "tags": [
-          "organizations"
-        ],
-        "operationId": "getRolesOfLocation",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "*/*": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/AccountabilityTypeDto"
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v1/organizations/locations/{id}/person/{personId}/roles": {
-      "get": {
-        "tags": [
-          "organizations"
-        ],
-        "operationId": "getRolesOfPerson",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          },
-          {
-            "name": "personId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "*/*": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/AccountabilityTypeDto"
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v1/organizations/locations/predefined-roles": {
-      "get": {
-        "tags": [
-          "organizations"
-        ],
-        "operationId": "getPredefinedRoles",
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "*/*": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/AccountabilityTypeDto"
                   }
                 }
               }
@@ -937,10 +1039,112 @@
           }
         }
       }
+    },
+    "/v1/me": {
+      "get": {
+        "tags": [
+          "me"
+        ],
+        "operationId": "me",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/MeResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/me/permissions": {
+      "get": {
+        "tags": [
+          "me"
+        ],
+        "operationId": "permissions",
+        "parameters": [
+          {
+            "name": "organizationId",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/me/organizations": {
+      "get": {
+        "tags": [
+          "me"
+        ],
+        "operationId": "organizations",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/MyOrganizationResponse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
     "schemas": {
+      "PositionRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 255,
+            "minLength": 0
+          }
+        },
+        "required": [
+          "name"
+        ]
+      },
+      "PositionResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          }
+        }
+      },
       "UpdatePersonRequest": {
         "type": "object",
         "properties": {
@@ -967,7 +1171,7 @@
           "hasBeenBaptized": {
             "type": "boolean"
           },
-          "roles": {
+          "positionIds": {
             "type": "array",
             "items": {
               "type": "string",
@@ -1002,17 +1206,42 @@
           "phoneNumber": {
             "type": "string"
           },
+          "socialLinks": {
+            "$ref": "#/components/schemas/SocialLinksRequest"
+          },
           "parentId": {
             "type": "string",
             "format": "uuid"
-          },
-          "userId": {
-            "type": "string"
           }
         },
         "required": [
           "name"
         ]
+      },
+      "SocialLinksRequest": {
+        "type": "object",
+        "properties": {
+          "website": {
+            "type": "string",
+            "pattern": "^(\\s*|https?://\\S+)$"
+          },
+          "facebookUrl": {
+            "type": "string",
+            "pattern": "^(\\s*|https?://\\S+)$"
+          },
+          "instagramUrl": {
+            "type": "string",
+            "pattern": "^(\\s*|https?://\\S+)$"
+          },
+          "youtubeUrl": {
+            "type": "string",
+            "pattern": "^(\\s*|https?://\\S+)$"
+          },
+          "tiktokUrl": {
+            "type": "string",
+            "pattern": "^(\\s*|https?://\\S+)$"
+          }
+        }
       },
       "OrganizationResponse": {
         "type": "object",
@@ -1042,6 +1271,13 @@
               "MINISTRY"
             ]
           },
+          "parentId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "socialLinks": {
+            "$ref": "#/components/schemas/SocialLinks"
+          },
           "createDate": {
             "type": "string",
             "format": "date-time"
@@ -1052,42 +1288,25 @@
           }
         }
       },
-      "UpdateLocationRequest": {
+      "SocialLinks": {
         "type": "object",
         "properties": {
-          "name": {
-            "type": "string",
-            "minLength": 1
-          },
-          "description": {
+          "website": {
             "type": "string"
           },
-          "address": {
+          "facebookUrl": {
             "type": "string"
           },
-          "phoneNumber": {
+          "instagramUrl": {
             "type": "string"
           },
-          "parentId": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "userId": {
+          "youtubeUrl": {
             "type": "string"
           },
-          "roles": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            },
-            "minItems": 1,
-            "uniqueItems": true
+          "tiktokUrl": {
+            "type": "string"
           }
-        },
-        "required": [
-          "name",
-          "roles"
-        ]
+        }
       },
       "UpdateLocationChildRequest": {
         "type": "object",
@@ -1105,12 +1324,12 @@
           "phoneNumber": {
             "type": "string"
           },
+          "socialLinks": {
+            "$ref": "#/components/schemas/SocialLinksRequest"
+          },
           "parentId": {
             "type": "string",
             "format": "uuid"
-          },
-          "userId": {
-            "type": "string"
           },
           "type": {
             "type": "string",
@@ -1126,16 +1345,14 @@
             "items": {
               "type": "string",
               "format": "uuid"
-            },
-            "minItems": 1
+            }
           },
           "memberIds": {
             "type": "array",
             "items": {
               "type": "string",
               "format": "uuid"
-            },
-            "minItems": 1
+            }
           }
         },
         "required": [
@@ -1197,10 +1414,10 @@
               "ALL_EVENTS"
             ]
           },
-          "validDaysOfWeek": {
+          "recurrent": {
             "type": "boolean"
           },
-          "recurrent": {
+          "validDaysOfWeek": {
             "type": "boolean"
           }
         },
@@ -1252,7 +1469,7 @@
           "hasBeenBaptized": {
             "type": "boolean"
           },
-          "roles": {
+          "positionIds": {
             "type": "array",
             "items": {
               "type": "string",
@@ -1271,6 +1488,65 @@
           "organizationId"
         ]
       },
+      "CreateChurchRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "description": {
+            "type": "string"
+          },
+          "address": {
+            "type": "string"
+          },
+          "phoneNumber": {
+            "type": "string"
+          },
+          "socialLinks": {
+            "$ref": "#/components/schemas/SocialLinksRequest"
+          },
+          "location": {
+            "$ref": "#/components/schemas/LocationInfoRequest"
+          },
+          "positions": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "location",
+          "name",
+          "positions"
+        ]
+      },
+      "LocationInfoRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "description": {
+            "type": "string"
+          },
+          "address": {
+            "type": "string"
+          },
+          "phoneNumber": {
+            "type": "string"
+          },
+          "socialLinks": {
+            "$ref": "#/components/schemas/SocialLinksRequest"
+          }
+        },
+        "required": [
+          "name"
+        ]
+      },
       "CreateLocationRequest": {
         "type": "object",
         "properties": {
@@ -1287,19 +1563,12 @@
           "phoneNumber": {
             "type": "string"
           },
+          "socialLinks": {
+            "$ref": "#/components/schemas/SocialLinksRequest"
+          },
           "parentId": {
             "type": "string",
             "format": "uuid"
-          },
-          "userId": {
-            "type": "string"
-          },
-          "roles": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            },
-            "uniqueItems": true
           }
         },
         "required": [
@@ -1323,12 +1592,12 @@
           "phoneNumber": {
             "type": "string"
           },
+          "socialLinks": {
+            "$ref": "#/components/schemas/SocialLinksRequest"
+          },
           "parentId": {
             "type": "string",
             "format": "uuid"
-          },
-          "userId": {
-            "type": "string"
           },
           "type": {
             "type": "string",
@@ -1344,16 +1613,14 @@
             "items": {
               "type": "string",
               "format": "uuid"
-            },
-            "minItems": 1
+            }
           },
           "memberIds": {
             "type": "array",
             "items": {
               "type": "string",
               "format": "uuid"
-            },
-            "minItems": 1
+            }
           }
         },
         "required": [
@@ -1408,10 +1675,10 @@
             "type": "string",
             "format": "date"
           },
-          "validDaysOfWeek": {
+          "recurrent": {
             "type": "boolean"
           },
-          "recurrent": {
+          "validDaysOfWeek": {
             "type": "boolean"
           }
         },
@@ -1692,21 +1959,6 @@
           }
         }
       },
-      "AccountabilityTypeDto": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "name": {
-            "type": "string"
-          },
-          "isPredefined": {
-            "type": "boolean"
-          }
-        }
-      },
       "LocationChildMemberResponse": {
         "type": "object",
         "properties": {
@@ -1746,6 +1998,55 @@
           },
           "hasBeenBaptized": {
             "type": "boolean"
+          }
+        }
+      },
+      "MeResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "email": {
+            "type": "string"
+          },
+          "emailVerified": {
+            "type": "boolean"
+          }
+        }
+      },
+      "MyOrganizationResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "CHURCH",
+              "LOCATION",
+              "GROUP",
+              "MINISTRY"
+            ]
+          },
+          "parentId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "accessible": {
+            "type": "boolean"
+          },
+          "roles": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
           }
         }
       },

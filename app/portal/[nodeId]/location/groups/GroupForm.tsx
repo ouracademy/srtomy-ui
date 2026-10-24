@@ -11,6 +11,8 @@ import { GroupAutocomplete } from "./GroupAutocomplete";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { SaveButton } from "@/app/(components)/SaveButton";
+import { socialLinksSchema } from "@/app/(components)/SocialLinks";
+import { SocialLinksFields } from "@/app/(components)/SocialLinksFields";
 
 const baseSchema = z.object({
   name: z
@@ -18,22 +20,19 @@ const baseSchema = z.object({
     .min(1, { message: "Por favor ingrese el nombre del Grupo o ministerio" }),
   description: z.string().optional(),
   type: z.enum(["GROUP", "MINISTRY"]),
-  members: z
-    .array(
-      z.object({
-        id: z.string(),
-        label: z.string(),
-      }),
-    )
-    .nonempty({ error: "Añada al menos un miembro" }),
-  leaders: z
-    .array(
-      z.object({
-        id: z.string(),
-        label: z.string(),
-      }),
-    )
-    .nonempty({ error: "Añada al menos un líder" }),
+  members: z.array(
+    z.object({
+      id: z.string(),
+      label: z.string(),
+    }),
+  ),
+  leaders: z.array(
+    z.object({
+      id: z.string(),
+      label: z.string(),
+    }),
+  ),
+  socialLinks: socialLinksSchema,
 });
 
 export const initialValuesSchema = baseSchema;
@@ -41,15 +40,18 @@ export const initialValuesSchema = baseSchema;
 export type GroupInitialValues = z.infer<typeof initialValuesSchema>;
 
 type GroupFormContext = {
-  locId: string;
+  // Node whose people can be picked as leaders and members (the parent).
+  nodeId: string;
   initialValues: GroupInitialValues;
   submit: (data: GroupInitialValues) => Promise<void>;
+  canSave?: boolean;
 };
 
 export const GroupForm = ({
-  locId,
+  nodeId,
   submit,
   initialValues,
+  canSave = true,
 }: GroupFormContext) => {
   const formContext = useForm({
     defaultValues: initialValues,
@@ -88,6 +90,7 @@ export const GroupForm = ({
                 ]}
                 row
               />
+              <SocialLinksFields prefix="socialLinks" />
             </Stack>
           </Grid>
           <Grid size={{ xs: 12, md: 6 }}>
@@ -107,7 +110,7 @@ export const GroupForm = ({
                 </Grid>
                 <Grid size={{ xs: 12, sm: 9 }}>
                   <GroupAutocomplete
-                    locId={locId}
+                    nodeId={nodeId}
                     name="leaders"
                     label="Escriba/seleccione el lider o lideres"
                   />
@@ -117,7 +120,7 @@ export const GroupForm = ({
                 </Grid>
                 <Grid size={{ xs: 12, sm: 9 }}>
                   <GroupAutocomplete
-                    locId={locId}
+                    nodeId={nodeId}
                     name="members"
                     label="Escriba/seleccione los miembros"
                   />
@@ -125,12 +128,14 @@ export const GroupForm = ({
               </Grid>
             </Stack>
           </Grid>
-          <Box>
-            <SaveButton
-              name="Guardar"
-              loading={formContext.formState.isSubmitting}
-            />
-          </Box>
+          {canSave && (
+            <Box>
+              <SaveButton
+                name="Guardar"
+                loading={formContext.formState.isSubmitting}
+              />
+            </Box>
+          )}
         </Grid>
       </Box>
     </FormContainer>

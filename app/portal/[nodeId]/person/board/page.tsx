@@ -16,12 +16,12 @@ const Board = dynamic(() => import("./board"), {
 export default function PersonBoardPage({
   params,
 }: {
-  params: Promise<{ locId: string }>;
+  params: Promise<{ nodeId: string }>;
 }) {
-  const locId = use(params).locId;
+  const nodeId = use(params).nodeId;
 
   const { data: accountabilities, isLoading } =
-    useGetOrganizationsByIdMemberState(locId);
+    useGetOrganizationsByIdMemberState(nodeId);
 
   // A fresh map on every render: the arrays below are mutated while grouping.
   const personMap: PersonMap = {
@@ -42,7 +42,7 @@ export default function PersonBoardPage({
 
   if (isLoading) return <Loading></Loading>;
   return (
-    <PeopleLayout locId={locId}>
+    <PeopleLayout nodeId={nodeId}>
       <Board initial={personMap}></Board>
     </PeopleLayout>
   );

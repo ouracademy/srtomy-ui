@@ -1,7 +1,7 @@
 import { test, expect } from "./fixtures";
 
 test.describe("Eliminar un evento con asistencia", () => {
-  const locId = "11111111-1111-1111-1111-111111111111";
+  const nodeId = "11111111-1111-1111-1111-111111111111";
   const eventId = "33333333-3333-3333-3333-333333333333";
   let deleteStatus = 200;
 
@@ -54,7 +54,7 @@ test.describe("Eliminar un evento con asistencia", () => {
         request.method() === "DELETE" &&
         request.url().endsWith(`/events/${eventId}`),
     );
-    await page.goto(`/portal/${locId}/event/${eventId}/attendance`);
+    await page.goto(`/portal/${nodeId}/event/${eventId}/attendance`);
     await page.getByRole("button", { name: "Eliminar", exact: true }).click();
     await page.getByLabel("Todos los eventos").check();
     await page
@@ -76,7 +76,7 @@ test.describe("Eliminar un evento con asistencia", () => {
   }) => {
     deleteStatus = 500;
 
-    await page.goto(`/portal/${locId}/event/${eventId}/attendance`);
+    await page.goto(`/portal/${nodeId}/event/${eventId}/attendance`);
     await page.getByRole("button", { name: "Eliminar", exact: true }).click();
     await page
       .getByRole("dialog", { name: "Borrar el evento recurrente" })
