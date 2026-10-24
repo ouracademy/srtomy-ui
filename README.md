@@ -35,14 +35,15 @@ La app queda en <http://localhost:3000>.
 
 Todas son públicas (`NEXT_PUBLIC_*`): Next las incrusta en el bundle **al compilar**, así que cambiarlas exige volver a compilar. `app/env.ts` las valida con zod y la app falla al arrancar, nombrando la variable, si falta una obligatoria.
 
-| Variable                      | Obligatoria | Para qué sirve                                                                                     |
-| ----------------------------- | ----------- | -------------------------------------------------------------------------------------------------- |
-| `NEXT_PUBLIC_API_URL`         | Sí          | Origen de srtomy-api (sin `/v1`; el cliente lo agrega).                                            |
-| `NEXT_PUBLIC_AUTH0_DOMAIN`    | Sí          | Dominio del tenant de Auth0.                                                                       |
-| `NEXT_PUBLIC_AUTH0_CLIENT_ID` | Sí          | Client ID de la aplicación SPA en Auth0.                                                           |
-| `NEXT_PUBLIC_AUTH0_AUDIENCE`  | No          | Audience de la API; sin él Auth0 no emite un token para srtomy-api.                                |
-| `NEXT_PUBLIC_BUILDER_API_KEY` | Sí\*        | Key de Builder.io. \*Las páginas de landing, políticas y términos la usan; sin ella responden 404. |
-| `NEXT_PUBLIC_CULQI_API_KEY`   | No          | Llave pública de Culqi (pagos, aún no conectados al backend).                                      |
+| Variable                      | Obligatoria | Para qué sirve                                                                                                             |
+| ----------------------------- | ----------- | -------------------------------------------------------------------------------------------------------------------------- |
+| `NEXT_PUBLIC_API_URL`         | Sí          | Origen de srtomy-api (sin `/v1`; el cliente lo agrega).                                                                    |
+| `NEXT_PUBLIC_AUTH0_DOMAIN`    | Sí          | Dominio del tenant de Auth0.                                                                                               |
+| `NEXT_PUBLIC_AUTH0_CLIENT_ID` | Sí          | Client ID de la aplicación SPA en Auth0.                                                                                   |
+| `NEXT_PUBLIC_AUTH0_AUDIENCE`  | No          | Audience de la API; sin él Auth0 no emite un token para srtomy-api.                                                        |
+| `NEXT_PUBLIC_BUILDER_API_KEY` | Sí\*        | Key de Builder.io. \*Las páginas de landing, políticas y términos la usan; sin ella responden 404.                         |
+| `NEXT_PUBLIC_SITE_URL`        | No          | Origen público (sin `/` final) para canonical, sitemap y vistas previas; por defecto `https://srtommy-ui-test.vercel.app`. |
+| `NEXT_PUBLIC_CULQI_API_KEY`   | No          | Llave pública de Culqi (pagos, aún no conectados al backend).                                                              |
 
 Solo `.env.example` se versiona. `.env` y `.env.local` están en `.gitignore`.
 
