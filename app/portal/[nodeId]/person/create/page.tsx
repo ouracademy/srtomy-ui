@@ -27,6 +27,7 @@ export default function CreatePerson(props: {
         firstName: "",
         lastName: "",
         phoneNumber: "+51",
+        email: "",
         positions: [],
       }}
       submit={async (data) => {

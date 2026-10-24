@@ -10,6 +10,10 @@ describe("permission labels", () => {
   it("translates the known permissions and resources", () => {
     expect(permissionLabel("members.read")).toBe("Ver personas");
     expect(resourceLabel("iam")).toBe("Accesos");
+    expect(permissionLabel("invitations.send")).toBe(
+      "Invitar a usar la aplicación",
+    );
+    expect(resourceLabel("invitations")).toBe("Invitaciones");
     expect(resourceLabel("org")).toBe("Iglesia, sedes y grupos");
   });
 

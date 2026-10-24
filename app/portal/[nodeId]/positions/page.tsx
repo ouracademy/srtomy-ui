@@ -3,8 +3,10 @@
 import { Box, Stack, Tab, Tabs, Typography } from "@mui/material";
 import React from "react";
 import {
+  deleteInvitationsById,
   deleteOrganizationsByIdOwnersByBindingId,
   deletePositionsById,
+  postOrganizationsByIdInvitations,
   postOrganizationsByIdOwners,
   postOrganizationsByIdPositions,
   putPositionsById,
@@ -14,6 +16,7 @@ import {
   useGetMeOrganizations,
   useGetOrganizationsById,
   useGetOrganizationsByIdAccess,
+  useGetOrganizationsByIdInvitations,
   useGetOrganizationsByIdPositions,
   useGetPositionsSuggestions,
 } from "@/app/(api)/generated";
@@ -24,9 +27,10 @@ import { SnackbarContext } from "@/app/(components)/SnackbarContext";
 import { usePermissions } from "@/app/(hooks)/usePermissions";
 import { churchOf, withIds } from "../../organizationTree";
 import { AccessList, OwnersPanel } from "../access/AccessManager";
+import { InvitationsPanel } from "./InvitationsPanel";
 import { PositionsManager } from "./PositionsManager";
 
-type TabName = "positions" | "access" | "owners";
+type TabName = "positions" | "access" | "owners" | "invitations";
 
 // Positions belong to the church, so every node of a church shows the same
 // list. The screen has everything about who can do what: the positions and
@@ -43,6 +47,7 @@ export default function PositionsPage(props: {
   const { can: canInChurch } = usePermissions(church?.id);
   const { can } = usePermissions(nodeId);
   const canReadAccess = can("iam.read");
+  const canInvite = can("invitations.send");
   const { data: node } = useGetOrganizationsById(nodeId);
   const {
     data: positions,
@@ -56,6 +61,11 @@ export default function PositionsPage(props: {
     nodeId,
     { swr: { enabled: canReadAccess } },
   );
+
+  const { data: invitations, mutate: mutateInvitations } =
+    useGetOrganizationsByIdInvitations(nodeId, {
+      swr: { enabled: canInvite },
+    });
 
   if (isLoading) return <Loading />;
   if (!positions) return <ResourceError error={error} />;
@@ -76,9 +86,32 @@ export default function PositionsPage(props: {
     alert.showMessage(message);
   };
 
+  // Sends the invitation. Resolves to whether the email went out; a refusal
+  // (for example a position with more permissions than the user has) is
+  // shown and rethrown so the form keeps what was typed.
+  const invite = async (
+    request: Parameters<typeof postOrganizationsByIdInvitations>[1],
+  ) => {
+    try {
+      const result = await postOrganizationsByIdInvitations(nodeId, request);
+      await mutateInvitations();
+      alert.showMessage(
+        result.emailSent ? "Invitación enviada" : "Invitación guardada",
+      );
+      return result.emailSent;
+    } catch (failure) {
+      alert.showMessage(
+        apiErrorMessage(failure, "No se pudo invitar. Intente nuevamente"),
+      );
+      throw failure;
+    }
+  };
+
   const isChurch = node?.type === "CHURCH";
   const current: TabName =
-    (tab === "access" && !canReadAccess) || (tab === "owners" && !isChurch)
+    (tab === "access" && !canReadAccess) ||
+    (tab === "owners" && !isChurch) ||
+    (tab === "invitations" && !canInvite)
       ? "positions"
       : tab;
 
@@ -98,6 +131,7 @@ export default function PositionsPage(props: {
         {canReadAccess && isChurch && (
           <Tab value="owners" label="Propietarios" />
         )}
+        {canInvite && <Tab value="invitations" label="Invitaciones" />}
       </Tabs>
       <Box role="tabpanel">
         {current === "positions" && (
@@ -130,6 +164,18 @@ export default function PositionsPage(props: {
         )}
         {current === "access" && (
           <AccessList entries={access ?? []} currentUserId={me?.id} />
+        )}
+        {current === "invitations" && (
+          <InvitationsPanel
+            invitations={invitations ?? []}
+            positions={positions}
+            onInvite={invite}
+            onRevoke={(id) =>
+              run(() => deleteInvitationsById(id), "Invitación cancelada").then(
+                () => mutateInvitations().then(() => undefined),
+              )
+            }
+          />
         )}
         {current === "owners" && (
           <OwnersPanel

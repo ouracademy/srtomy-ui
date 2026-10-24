@@ -25,6 +25,7 @@ app/
   (components)/                Compartidos por 2+ pantallas: Loading, ErrorMessage,
                                NotFoundMessage, ResourceError, SaveButton, ...
   (hooks)/                     Hooks de interfaz compartidos: useDebounce, usePagination, ...
+  invitacion/[token]/          Página pública de una invitación (aceptarla); returnTo.ts decide a dónde volver tras el login
   portal/                      Área autenticada
     layout.tsx                 PortalProviders (SWR, fechas en español, RequireAuth)
     MenuDrawer.tsx             Marco: barra superior, menú lateral y contenido
@@ -111,6 +112,8 @@ Una sola pantalla, **Cargos y accesos** (`positions/`), con pestañas:
 - **Propietarios** (`OwnersPanel`): solo en la iglesia; se agregan y quitan por correo.
 
 El formulario de persona muestra, al elegir un cargo, cuántos permisos da.
+
+**Invitaciones.** Quien tiene `invitations.send` invita por correo desde la pestaña **Invitaciones** de «Cargos y accesos» (`InvitationsPanel`) y, al guardar un grupo o ministerio, a los líderes con correo (`leaderInvitations.ts`). El enlace del correo abre `/invitacion/{token}` (pública): quien lo abre inicia sesión con ese correo (Auth0 vuelve a la misma página gracias a `appState.returnTo`, que `returnToFrom` limita a rutas del sitio) y acepta; el API compara su correo **verificado** con el invitado. Quien ya tiene la sesión y un correo con invitaciones las ve en `/portal` (`PendingInvitations`).
 
 **Cómo se nombran los permisos.** `app/(components)/permissionLabels.ts` traduce el catálogo del API al español, y `permissionLabel(permiso, tipoDeNodo?)` tiene dos redacciones, porque un permiso vale para el nodo donde se otorga **y para todo lo que cuelga de él**:
 

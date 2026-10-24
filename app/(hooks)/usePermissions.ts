@@ -14,7 +14,8 @@ export type Permission =
   | "attendance.write"
   | "positions.manage"
   | "iam.read"
-  | "iam.manage";
+  | "iam.manage"
+  | "invitations.send";
 
 export const usePermissions = (organizationId: string | undefined) => {
   const { data, isLoading } = useGetMePermissions(

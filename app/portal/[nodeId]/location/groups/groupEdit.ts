@@ -29,6 +29,7 @@ export const toGroupInitialValues = (
     label: personLabel(x),
   })),
   socialLinks: toSocialLinksForm(group.socialLinks),
+  inviteLeaders: true,
 });
 
 // Builds the body of PUT /organizations/locations/childs/{id} from the form values.

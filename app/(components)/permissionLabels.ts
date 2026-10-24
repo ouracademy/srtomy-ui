@@ -17,6 +17,7 @@ const resourceLabels: Record<string, string> = {
   attendance: "Asistencia",
   positions: "Cargos",
   iam: "Accesos",
+  invitations: "Invitaciones",
 };
 
 const permissionLabels: Record<string, string> = {
@@ -33,6 +34,7 @@ const permissionLabels: Record<string, string> = {
   "positions.manage": "Administrar cargos",
   "iam.read": "Ver quién tiene acceso",
   "iam.manage": "Dar y quitar acceso a otras personas",
+  "invitations.send": "Invitar a usar la aplicación",
 };
 
 // What the node is called and what hangs from it.

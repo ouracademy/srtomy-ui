@@ -26,6 +26,7 @@ describe("toGroupInitialValues", () => {
       leaders: [{ id: LEADER_ID, label: "Juan Perez" }],
       members: [{ id: MEMBER_ID, label: "Maria Garcia" }],
       socialLinks: emptySocialLinks,
+      inviteLeaders: true,
     });
   });
 
@@ -58,8 +59,9 @@ describe("toUpdateLocationChildRequest", () => {
       name: "Jóvenes - Editado",
       description: "Sábados",
       type: "MINISTRY",
+      inviteLeaders: true,
       leaders: [
-        { id: LEADER_ID, label: "Juan Perez" },
+        { id: LEADER_ID, label: "Juan Perez", email: "juan@x.org" },
         { id: MEMBER_ID, label: "Maria Garcia" },
       ],
       members: [{ id: MEMBER_ID, label: "Maria Garcia" }],

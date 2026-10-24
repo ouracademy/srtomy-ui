@@ -5,6 +5,7 @@ import React from "react";
 import { useSWRConfig } from "swr";
 import {
   getGetMeOrganizationsKey,
+  postOrganizationsByIdInvitations,
   putOrganizationsById,
   putOrganizationsLocationsChildsById,
   useGetOrganizationsById,
@@ -19,6 +20,7 @@ import { nodeTypeLabels } from "@/app/portal/organizationTree";
 import { LocationForm } from "./LocationForm";
 import { toOrganizationForm, toOrganizationPayload } from "./LocationSchema";
 import { GroupForm } from "./groups/GroupForm";
+import { invitationSummary, inviteLeaders } from "./groups/leaderInvitations";
 import { Groups } from "./groups/Groups";
 import {
   toGroupInitialValues,
@@ -46,7 +48,11 @@ export default function NodeDetails(props: {
   return (
     <Box>
       {isGroup ? (
-        <GroupDetails node={node} canSave={can("org.update")} />
+        <GroupDetails
+          node={node}
+          canSave={can("org.update")}
+          canInvite={can("invitations.send")}
+        />
       ) : (
         <ChurchOrLocationDetails
           node={node}
@@ -97,9 +103,11 @@ const ChurchOrLocationDetails = ({
 const GroupDetails = ({
   node,
   canSave,
+  canInvite,
 }: {
   node: OrganizationResponse;
   canSave: boolean;
+  canInvite: boolean;
 }) => {
   const alert = React.useContext(SnackbarContext);
   const { mutate } = useSWRConfig();
@@ -118,6 +126,7 @@ const GroupDetails = ({
       nodeId={node.parentId ?? node.id ?? ""}
       initialValues={toGroupInitialValues(node, members)}
       canSave={canSave}
+      canInvite={canInvite}
       submit={async (values) => {
         try {
           await putOrganizationsLocationsChildsById(
@@ -132,7 +141,19 @@ const GroupDetails = ({
           mutateMembers(),
           mutate(getGetMeOrganizationsKey()),
         ]);
-        alert.showMessage("Guardado exitosamente");
+        const invitations =
+          values.inviteLeaders && canInvite
+            ? await inviteLeaders(
+                node.id ?? "",
+                values.leaders,
+                postOrganizationsByIdInvitations,
+              )
+            : undefined;
+        alert.showMessage(
+          invitations
+            ? invitationSummary(invitations)
+            : "Guardado exitosamente",
+        );
       }}
     />
   );

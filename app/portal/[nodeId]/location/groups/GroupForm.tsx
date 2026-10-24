@@ -1,13 +1,16 @@
 import { Box, Grid, Stack, Typography } from "@mui/material";
 import {
+  CheckboxElement,
   FormContainer,
   RadioButtonGroup,
   TextFieldElement,
   useForm,
+  useWatch,
 } from "react-hook-form-mui";
 import React from "react";
 import { GroupTypeLabels } from "./Group";
 import { GroupAutocomplete } from "./GroupAutocomplete";
+import { leadersToInvite } from "./leaderInvitations";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { SaveButton } from "@/app/(components)/SaveButton";
@@ -30,8 +33,12 @@ const baseSchema = z.object({
     z.object({
       id: z.string(),
       label: z.string(),
+      // Only people picked from the search carry it; saved leaders do not.
+      email: z.string().optional(),
     }),
   ),
+  // Invite the leaders that have an email to use the app, after saving.
+  inviteLeaders: z.boolean(),
   socialLinks: socialLinksSchema,
 });
 
@@ -45,6 +52,8 @@ type GroupFormContext = {
   initialValues: GroupInitialValues;
   submit: (data: GroupInitialValues) => Promise<void>;
   canSave?: boolean;
+  // The user may invite people to use the app (shows the checkbox).
+  canInvite?: boolean;
 };
 
 export const GroupForm = ({
@@ -52,6 +61,7 @@ export const GroupForm = ({
   submit,
   initialValues,
   canSave = true,
+  canInvite = false,
 }: GroupFormContext) => {
   const formContext = useForm({
     defaultValues: initialValues,
@@ -115,6 +125,11 @@ export const GroupForm = ({
                     label="Escriba/seleccione el lider o lideres"
                   />
                 </Grid>
+                {canInvite && (
+                  <Grid size={{ xs: 12 }}>
+                    <InviteLeadersCheckbox />
+                  </Grid>
+                )}
                 <Grid size={{ xs: 12, sm: 3 }}>
                   <Typography variant="h6">Miembro(s):</Typography>
                 </Grid>
@@ -139,5 +154,23 @@ export const GroupForm = ({
         </Grid>
       </Box>
     </FormContainer>
+  );
+};
+
+// Offered when some chosen leader has an email: they get an invitation to use
+// the app once the group is saved.
+const InviteLeadersCheckbox = () => {
+  const leaders = useWatch<GroupInitialValues, "leaders">({ name: "leaders" });
+  const count = leadersToInvite(leaders ?? []).length;
+  if (count === 0) return null;
+  return (
+    <CheckboxElement
+      name="inviteLeaders"
+      label={
+        count === 1
+          ? "Invitar a usar la app al líder con correo"
+          : `Invitar a usar la app a los ${count} líderes con correo`
+      }
+    />
   );
 };

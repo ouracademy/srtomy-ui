@@ -129,6 +129,7 @@ async function mockCurrentUser(page: import("@playwright/test").Page) {
         "positions.manage",
         "iam.read",
         "iam.manage",
+        "invitations.send",
       ]),
     ),
   );
@@ -147,6 +148,12 @@ async function mockCurrentUser(page: import("@playwright/test").Page) {
   await page.route("**/v1/organizations/*/access", (route) =>
     route.fulfill(json([])),
   );
+  await page.route("**/v1/organizations/*/invitations", (route) =>
+    route.request().method() === "GET"
+      ? route.fulfill(json([]))
+      : route.fallback(),
+  );
+  await page.route("**/v1/me/invitations", (route) => route.fulfill(json([])));
   await page.route("**/v1/iam/permissions", (route) =>
     route.fulfill(json(permissionCatalog)),
   );

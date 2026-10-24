@@ -32,11 +32,13 @@ import { ResourceError } from "@/app/(components)/ResourceError";
 
 const requiredFirstNameMessage = "Por favor ingrese su nombre";
 const requiredLastNameMessage = "Por favor ingrese su apellido";
+const invalidEmailMessage = "Ingrese un correo válido";
 
 const schema = z.object({
   firstName: z.string().trim().min(1, { message: requiredFirstNameMessage }),
   lastName: z.string().trim().min(1, { message: requiredLastNameMessage }),
   phoneNumber: z.string().optional(),
+  email: z.union([z.literal(""), z.string().trim().email(invalidEmailMessage)]),
   age: z.number().optional(),
   birthdate: z.date().optional().nullable(),
   hasBeenBaptized: z.enum(["YES", "NO"]).optional(),
@@ -60,6 +62,7 @@ export const toPersonPayload = (
   firstName: data.firstName,
   lastName: data.lastName,
   phoneNumber: data.phoneNumber,
+  email: data.email.trim() || undefined,
   age: data.age,
   birthdate: data.birthdate
     ? formatISO(data.birthdate, { representation: "date" })
@@ -131,8 +134,17 @@ export const PersonForm = ({
             required
           />
         </Grid>
-        <Grid size={{ xs: 12 }}>
+        <Grid size={{ xs: 12, sm: 6 }}>
           <TelFieldElement name="phoneNumber" />
+        </Grid>
+        <Grid size={{ xs: 12, sm: 6 }}>
+          <TextFieldElement
+            fullWidth
+            name="email"
+            label="Correo electrónico"
+            type="email"
+            helperText="Con este correo podrá recibir una invitación a la aplicación"
+          />
         </Grid>
         <Grid size={{ xs: 12, sm: 4 }}>
           <DatePickerElement

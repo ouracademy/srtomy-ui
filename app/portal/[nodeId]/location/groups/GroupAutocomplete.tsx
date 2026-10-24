@@ -38,6 +38,7 @@ export const GroupAutocomplete = ({
         people?.content?.map((x) => ({
           id: x.id,
           label: `${x.firstName ?? ""} ${x.lastName ?? ""}`,
+          email: x.email ?? undefined,
         })) || []
       }
     />

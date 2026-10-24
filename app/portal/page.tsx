@@ -6,17 +6,22 @@ import { useRouter } from "next/navigation";
 import React from "react";
 import {
   getOrganizationsByIdChilds,
+  postMeInvitationsByIdAccept,
   postOrganizations,
   useGetMe,
+  useGetMeInvitations,
   useGetMeOrganizations,
 } from "@/app/(api)/generated";
+import type { InvitationResponse } from "@/app/(api)/generated/aPISrTommy.schemas";
 import Loading from "../(components)/Loading";
 import { ResourceError } from "../(components)/ResourceError";
 import { SnackbarContext } from "../(components)/SnackbarContext";
+import { apiErrorMessage } from "../(components)/apiErrorMessage";
 import { CreateChurchForm } from "./CreateChurchForm";
 import { toCreateChurchRequest } from "./CreateChurchSchema";
-import { readLastNode } from "./lastNode";
+import { readLastNode, saveLastNode } from "./lastNode";
 import MenuDrawer from "./MenuDrawer";
+import { PendingInvitations } from "./PendingInvitations";
 import { pickLandingNode, withIds } from "./organizationTree";
 import { suggestedNames } from "./userNames";
 
@@ -35,6 +40,7 @@ export default function PortalHome() {
     isLoading,
     mutate: mutateOrganizations,
   } = useGetMeOrganizations();
+  const { data: invitations } = useGetMeInvitations();
   const nodes = withIds(data);
   const wantsNewChurch =
     typeof window !== "undefined" &&
@@ -60,6 +66,23 @@ export default function PortalHome() {
     router.push(`/portal/${location?.id ?? church.id}`);
   };
 
+  // Accepting links the user to their person of the church and opens the node.
+  const acceptInvitation = async (invitation: InvitationResponse) => {
+    try {
+      const joined = await postMeInvitationsByIdAccept(invitation.id ?? "");
+      await mutateOrganizations();
+      alert.showMessage("Invitación aceptada");
+      saveLastNode(joined.organizationId ?? "");
+      router.push(`/portal/${joined.organizationId}`);
+      return undefined;
+    } catch (failure) {
+      return apiErrorMessage(
+        failure,
+        "No se pudo aceptar la invitación. Intente nuevamente",
+      );
+    }
+  };
+
   return (
     <MenuDrawer
       listDrawer={
@@ -81,6 +104,10 @@ export default function PortalHome() {
         <Typography variant="h4" component="h1" gutterBottom>
           {nodes.length > 0 ? "Registrar otra iglesia" : "Bienvenido"}
         </Typography>
+        <PendingInvitations
+          invitations={invitations ?? []}
+          accept={acceptInvitation}
+        />
         <Typography gutterBottom>
           Registre su iglesia y su primera sede para empezar. Si su iglesia ya
           usa Sr. Tommy, pida a su pastor o líder que lo invite.
