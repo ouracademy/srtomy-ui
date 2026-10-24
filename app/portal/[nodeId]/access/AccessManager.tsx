@@ -131,7 +131,13 @@ export const AccessList = ({ entries, currentUserId }: AccessListProps) => {
                 <TableCell>
                   <Stack spacing={0.5}>
                     {person.entries.map((entry) => (
-                      <Typography key={entryKey(entry)} variant="body2">
+                      // A div, not the default <p>: the chip is a div and a div
+                      // inside a paragraph breaks hydration.
+                      <Typography
+                        key={entryKey(entry)}
+                        component="div"
+                        variant="body2"
+                      >
                         {originLabel(entry)}
                         {entry.inherited && entry.source === "DIRECT" && (
                           <Chip

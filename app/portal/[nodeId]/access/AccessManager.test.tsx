@@ -118,6 +118,16 @@ describe("AccessList", () => {
     expect(within(rows[1]!).getByText("2 permisos")).toBeInTheDocument();
   });
 
+  it("does not put a block element inside a paragraph (hydration)", () => {
+    const error = vi.spyOn(console, "error").mockImplementation(() => {});
+    // An inherited Owner is the row that carries a chip.
+    render(<AccessList entries={[{ ...entries[0]!, inherited: true }]} />);
+
+    expect(screen.getByText("Heredado de Iglesia Central")).toBeInTheDocument();
+    expect(error).not.toHaveBeenCalled();
+    error.mockRestore();
+  });
+
   it("marks the signed-in user", () => {
     render(<AccessList entries={entries} currentUserId="u2" />);
 
