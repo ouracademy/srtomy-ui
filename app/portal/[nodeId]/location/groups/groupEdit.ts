@@ -5,6 +5,10 @@ import type {
 } from "@/app/(api)/generated/aPISrTommy.schemas";
 import type { GroupInitialValues } from "./GroupForm";
 import {
+  toVisibilityForm,
+  toVisibilityRequest,
+} from "@/app/(components)/visibility";
+import {
   toSocialLinksForm,
   toSocialLinksRequest,
 } from "@/app/(components)/SocialLinks";
@@ -30,6 +34,7 @@ export const toGroupInitialValues = (
   })),
   socialLinks: toSocialLinksForm(group.socialLinks),
   inviteLeaders: true,
+  ...toVisibilityForm(group),
 });
 
 // Builds the body of PUT /organizations/locations/childs/{id} from the form values.
@@ -42,4 +47,5 @@ export const toUpdateLocationChildRequest = (
   leaderIds: values.leaders.map((x) => x.id),
   memberIds: values.members.map((x) => x.id),
   socialLinks: toSocialLinksRequest(values.socialLinks),
+  ...toVisibilityRequest(values),
 });

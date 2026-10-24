@@ -1214,6 +1214,36 @@
         }
       }
     },
+    "/v1/public/organizations/{slug}": {
+      "get": {
+        "tags": [
+          "directory"
+        ],
+        "operationId": "publicPage",
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicPageResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/public/invitations/{token}": {
       "get": {
         "tags": [
@@ -1260,6 +1290,37 @@
                   "items": {
                     "$ref": "#/components/schemas/PositionSuggestionResponse"
                   }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/organizations/{nodeId}/directory-entry": {
+      "get": {
+        "tags": [
+          "directory"
+        ],
+        "operationId": "entry",
+        "parameters": [
+          {
+            "name": "nodeId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/DirectoryEntryResponse"
                 }
               }
             }
@@ -1404,6 +1465,40 @@
                   "type": "array",
                   "items": {
                     "$ref": "#/components/schemas/AccessEntryResponse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/organizations/{churchId}/directory": {
+      "get": {
+        "tags": [
+          "directory"
+        ],
+        "operationId": "directory",
+        "parameters": [
+          {
+            "name": "churchId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/DirectoryNodeResponse"
                   }
                 }
               }
@@ -1831,6 +1926,21 @@
           "socialLinks": {
             "$ref": "#/components/schemas/SocialLinksRequest"
           },
+          "schedule": {
+            "type": "string"
+          },
+          "memberVisibility": {
+            "type": "string",
+            "enum": [
+              "PUBLIC",
+              "CHURCH",
+              "MEMBERS",
+              "LEADERS"
+            ]
+          },
+          "showOrgChart": {
+            "type": "boolean"
+          },
           "parentId": {
             "type": "string",
             "format": "uuid"
@@ -1900,6 +2010,24 @@
           "socialLinks": {
             "$ref": "#/components/schemas/SocialLinks"
           },
+          "schedule": {
+            "type": "string"
+          },
+          "memberVisibility": {
+            "type": "string",
+            "enum": [
+              "PUBLIC",
+              "CHURCH",
+              "MEMBERS",
+              "LEADERS"
+            ]
+          },
+          "showOrgChart": {
+            "type": "boolean"
+          },
+          "slug": {
+            "type": "string"
+          },
           "createDate": {
             "type": "string",
             "format": "date-time"
@@ -1948,6 +2076,21 @@
           },
           "socialLinks": {
             "$ref": "#/components/schemas/SocialLinksRequest"
+          },
+          "schedule": {
+            "type": "string"
+          },
+          "memberVisibility": {
+            "type": "string",
+            "enum": [
+              "PUBLIC",
+              "CHURCH",
+              "MEMBERS",
+              "LEADERS"
+            ]
+          },
+          "showOrgChart": {
+            "type": "boolean"
           },
           "parentId": {
             "type": "string",
@@ -2036,10 +2179,10 @@
               "ALL_EVENTS"
             ]
           },
-          "recurrent": {
+          "validDaysOfWeek": {
             "type": "boolean"
           },
-          "validDaysOfWeek": {
+          "recurrent": {
             "type": "boolean"
           }
         },
@@ -2365,6 +2508,21 @@
           "socialLinks": {
             "$ref": "#/components/schemas/SocialLinksRequest"
           },
+          "schedule": {
+            "type": "string"
+          },
+          "memberVisibility": {
+            "type": "string",
+            "enum": [
+              "PUBLIC",
+              "CHURCH",
+              "MEMBERS",
+              "LEADERS"
+            ]
+          },
+          "showOrgChart": {
+            "type": "boolean"
+          },
           "parentId": {
             "type": "string",
             "format": "uuid"
@@ -2393,6 +2551,21 @@
           },
           "socialLinks": {
             "$ref": "#/components/schemas/SocialLinksRequest"
+          },
+          "schedule": {
+            "type": "string"
+          },
+          "memberVisibility": {
+            "type": "string",
+            "enum": [
+              "PUBLIC",
+              "CHURCH",
+              "MEMBERS",
+              "LEADERS"
+            ]
+          },
+          "showOrgChart": {
+            "type": "boolean"
           },
           "parentId": {
             "type": "string",
@@ -2491,10 +2664,10 @@
             "type": "string",
             "format": "date"
           },
-          "recurrent": {
+          "validDaysOfWeek": {
             "type": "boolean"
           },
-          "validDaysOfWeek": {
+          "recurrent": {
             "type": "boolean"
           }
         },
@@ -2572,6 +2745,105 @@
           "lastModifiedDate": {
             "type": "string",
             "format": "date-time"
+          }
+        }
+      },
+      "OrgChartNode": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "CHURCH",
+              "LOCATION",
+              "GROUP",
+              "MINISTRY"
+            ]
+          },
+          "slug": {
+            "type": "string"
+          },
+          "leaders": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "children": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OrgChartNode"
+            }
+          }
+        }
+      },
+      "PositionPeople": {
+        "type": "object",
+        "properties": {
+          "position": {
+            "type": "string"
+          },
+          "people": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "PublicPageResponse": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "CHURCH",
+              "LOCATION",
+              "GROUP",
+              "MINISTRY"
+            ]
+          },
+          "description": {
+            "type": "string"
+          },
+          "schedule": {
+            "type": "string"
+          },
+          "address": {
+            "type": "string"
+          },
+          "phoneNumber": {
+            "type": "string"
+          },
+          "socialLinks": {
+            "$ref": "#/components/schemas/SocialLinks"
+          },
+          "leaders": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "members": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "positions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PositionPeople"
+            }
+          },
+          "orgChart": {
+            "$ref": "#/components/schemas/OrgChartNode"
           }
         }
       },
@@ -2741,6 +3013,75 @@
           },
           "unsorted": {
             "type": "boolean"
+          }
+        }
+      },
+      "DirectoryEntryResponse": {
+        "type": "object",
+        "properties": {
+          "node": {
+            "$ref": "#/components/schemas/DirectoryNodeResponse"
+          },
+          "membersVisible": {
+            "type": "boolean"
+          },
+          "members": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "children": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DirectoryNodeResponse"
+            }
+          }
+        }
+      },
+      "DirectoryNodeResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "CHURCH",
+              "LOCATION",
+              "GROUP",
+              "MINISTRY"
+            ]
+          },
+          "parentId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "description": {
+            "type": "string"
+          },
+          "schedule": {
+            "type": "string"
+          },
+          "memberVisibility": {
+            "type": "string",
+            "enum": [
+              "PUBLIC",
+              "CHURCH",
+              "MEMBERS",
+              "LEADERS"
+            ]
+          },
+          "leaders": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
           }
         }
       },

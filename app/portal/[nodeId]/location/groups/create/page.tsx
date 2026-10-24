@@ -12,6 +12,10 @@ import {
   emptySocialLinks,
   toSocialLinksRequest,
 } from "@/app/(components)/SocialLinks";
+import {
+  defaultVisibility,
+  toVisibilityRequest,
+} from "@/app/(components)/visibility";
 import { SnackbarContext } from "@/app/(components)/SnackbarContext";
 import { usePermissions } from "@/app/(hooks)/usePermissions";
 import { GroupForm } from "../GroupForm";
@@ -39,6 +43,7 @@ export default function GroupCreatePage(props: {
         leaders: [],
         socialLinks: emptySocialLinks,
         inviteLeaders: true,
+        ...defaultVisibility,
       }}
       submit={async (values) => {
         const group = await postOrganizationsLocationsChilds({
@@ -49,6 +54,7 @@ export default function GroupCreatePage(props: {
           leaderIds: values.leaders.map((x) => x.id),
           memberIds: values.members.map((x) => x.id),
           socialLinks: toSocialLinksRequest(values.socialLinks),
+          ...toVisibilityRequest(values),
         });
         await mutate(getGetMeOrganizationsKey());
         const invitations =

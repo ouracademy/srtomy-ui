@@ -53,4 +53,81 @@ test.describe("Accesibilidad", () => {
       ).toEqual([]);
     });
   }
+
+  test("Página pública, invitación y directorio no tienen violaciones graves", async ({
+    page,
+  }) => {
+    await page.route("**/v1/public/organizations/abc", (route) =>
+      route.fulfill(
+        json({
+          name: "Iglesia E2E",
+          type: "CHURCH",
+          schedule: "Domingos 10 am",
+          socialLinks: { website: "https://iglesia.example" },
+          leaders: ["Ana Díaz"],
+          positions: [{ position: "Pastor", people: ["Pedro Pastor"] }],
+          orgChart: {
+            name: "Iglesia E2E",
+            type: "CHURCH",
+            slug: "abc",
+            leaders: [],
+            children: [
+              { name: "Sede Norte", slug: "norte", leaders: [], children: [] },
+            ],
+          },
+        }),
+      ),
+    );
+    await page.route("**/v1/public/invitations/tok", (route) =>
+      route.fulfill(
+        json({
+          email: "ana@example.com",
+          organizationName: "Sede Central",
+          positionName: "Ujier",
+          status: "PENDING",
+        }),
+      ),
+    );
+    await page.route("**/v1/organizations/*/directory", (route) =>
+      route.fulfill(
+        json([
+          {
+            id: nodeId,
+            name: "Sede Central",
+            type: "LOCATION",
+            schedule: "Domingos",
+            leaders: ["Ana Díaz"],
+            memberVisibility: "CHURCH",
+          },
+        ]),
+      ),
+    );
+
+    for (const path of [
+      "/g/abc",
+      "/invitacion/tok",
+      `/portal/${nodeId}/directory`,
+    ]) {
+      await page.goto(path);
+      await page
+        .getByRole("main")
+        .or(page.getByRole("list").first())
+        .first()
+        .waitFor();
+
+      const { violations } = await new AxeBuilder({ page })
+        .withTags(["wcag2a", "wcag2aa"])
+        .analyze();
+
+      const serious = violations.filter((v) =>
+        ["serious", "critical"].includes(v.impact ?? ""),
+      );
+      expect(
+        serious.map(
+          (v) =>
+            `${path} ${v.id}: ${v.nodes.map((n) => n.target.join(" ")).join(" | ")}`,
+        ),
+      ).toEqual([]);
+    }
+  });
 });

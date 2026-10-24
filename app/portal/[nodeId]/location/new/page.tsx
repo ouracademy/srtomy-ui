@@ -8,6 +8,7 @@ import {
   postOrganizationsLocations,
 } from "@/app/(api)/generated";
 import { emptySocialLinks } from "@/app/(components)/SocialLinks";
+import { defaultVisibility } from "@/app/(components)/visibility";
 import { SnackbarContext } from "@/app/(components)/SnackbarContext";
 import { LocationForm } from "../LocationForm";
 import { toOrganizationPayload } from "../LocationSchema";
@@ -29,6 +30,7 @@ export default function NewLocationPage(props: {
         address: "",
         phoneNumber: "+51",
         socialLinks: emptySocialLinks,
+        ...defaultVisibility,
       }}
       submit={async (values) => {
         const location = await postOrganizationsLocations({

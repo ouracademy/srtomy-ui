@@ -10,6 +10,7 @@ import {
   Typography,
 } from "@mui/material";
 import React from "react";
+import { primaryButtonSx } from "@/app/(components)/buttonStyles";
 import type { InvitationResponse } from "@/app/(api)/generated/aPISrTommy.schemas";
 
 type PendingInvitationsProps = Readonly<{
@@ -51,6 +52,7 @@ export const PendingInvitations = ({
             secondaryAction={
               <LoadingButton
                 variant="contained"
+                sx={primaryButtonSx}
                 loading={accepting === invitation.id}
                 disabled={accepting !== null}
                 aria-label={`Aceptar la invitación a ${invitation.organizationName}`}

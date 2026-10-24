@@ -16,6 +16,8 @@ import { z } from "zod";
 import { SaveButton } from "@/app/(components)/SaveButton";
 import { socialLinksSchema } from "@/app/(components)/SocialLinks";
 import { SocialLinksFields } from "@/app/(components)/SocialLinksFields";
+import { VisibilityFields } from "@/app/(components)/VisibilityFields";
+import { visibilitySchema } from "@/app/(components)/visibility";
 
 const baseSchema = z.object({
   name: z
@@ -39,6 +41,7 @@ const baseSchema = z.object({
   ),
   // Invite the leaders that have an email to use the app, after saving.
   inviteLeaders: z.boolean(),
+  ...visibilitySchema.shape,
   socialLinks: socialLinksSchema,
 });
 
@@ -54,6 +57,9 @@ type GroupFormContext = {
   canSave?: boolean;
   // The user may invite people to use the app (shows the checkbox).
   canInvite?: boolean;
+  // Address of the public page, to show and copy.
+  slug?: string;
+  onCopy?: (url: string) => void;
 };
 
 export const GroupForm = ({
@@ -62,6 +68,8 @@ export const GroupForm = ({
   initialValues,
   canSave = true,
   canInvite = false,
+  slug,
+  onCopy,
 }: GroupFormContext) => {
   const formContext = useForm({
     defaultValues: initialValues,
@@ -101,6 +109,7 @@ export const GroupForm = ({
                 row
               />
               <SocialLinksFields prefix="socialLinks" />
+              <VisibilityFields slug={slug} onCopy={onCopy} />
             </Stack>
           </Grid>
           <Grid size={{ xs: 12, md: 6 }}>

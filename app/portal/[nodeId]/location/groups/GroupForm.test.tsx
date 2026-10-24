@@ -1,6 +1,7 @@
 import { cleanup, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { defaultVisibility } from "@/app/(components)/visibility";
 import { emptySocialLinks } from "@/app/(components)/SocialLinks";
 import { GroupForm, type GroupInitialValues } from "./GroupForm";
 
@@ -25,6 +26,7 @@ const initialValues: GroupInitialValues = {
   leaders: [],
   inviteLeaders: true,
   socialLinks: emptySocialLinks,
+  ...defaultVisibility,
 };
 
 const setup = (canInvite: boolean) => {

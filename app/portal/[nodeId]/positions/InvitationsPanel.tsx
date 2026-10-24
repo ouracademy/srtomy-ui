@@ -23,6 +23,7 @@ import type {
   InvitationResponse,
   PositionSummaryResponse,
 } from "@/app/(api)/generated/aPISrTommy.schemas";
+import { primaryButtonSx } from "@/app/(components)/buttonStyles";
 import { DialogDeleteConfirmation } from "@/app/(components)/DialogDeleteConfirmation";
 import {
   emptyInvitation,
@@ -143,7 +144,12 @@ export const InvitationsPanel = ({
             </MenuItem>
           ))}
         </TextField>
-        <LoadingButton type="submit" variant="contained" loading={sending}>
+        <LoadingButton
+          type="submit"
+          variant="contained"
+          sx={primaryButtonSx}
+          loading={sending}
+        >
           Invitar
         </LoadingButton>
       </Stack>

@@ -4,6 +4,11 @@ import type {
   OrganizationResponse,
 } from "@/app/(api)/generated/aPISrTommy.schemas";
 import {
+  toVisibilityForm,
+  toVisibilityRequest,
+  visibilitySchema,
+} from "@/app/(components)/visibility";
+import {
   socialLinksSchema,
   toSocialLinksForm,
   toSocialLinksRequest,
@@ -16,6 +21,7 @@ export const organizationSchema = z.object({
   address: z.string(),
   phoneNumber: z.string(),
   socialLinks: socialLinksSchema,
+  ...visibilitySchema.shape,
 });
 
 export type OrganizationDetailForm = z.infer<typeof organizationSchema>;
@@ -27,6 +33,7 @@ export const toOrganizationForm = (
   address: organization.address ?? "",
   phoneNumber: organization.phoneNumber ?? "",
   socialLinks: toSocialLinksForm(organization.socialLinks),
+  ...toVisibilityForm(organization),
 });
 
 // The API overwrites the whole node on update, so the description the form
@@ -40,5 +47,6 @@ export const toOrganizationPayload = (
   address: values.address,
   phoneNumber: values.phoneNumber,
   socialLinks: toSocialLinksRequest(values.socialLinks),
+  ...toVisibilityRequest(values),
   parentId,
 });

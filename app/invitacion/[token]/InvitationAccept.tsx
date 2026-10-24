@@ -3,6 +3,7 @@
 import LoadingButton from "@mui/lab/LoadingButton";
 import { Alert, Box, Button, Paper, Stack, Typography } from "@mui/material";
 import React from "react";
+import { primaryButtonSx } from "@/app/(components)/buttonStyles";
 import type { InvitationPreviewResponse } from "@/app/(api)/generated/aPISrTommy.schemas";
 
 type InvitationAcceptProps = Readonly<{
@@ -70,7 +71,7 @@ export const InvitationAccept = ({
           {closed && <Alert severity="info">{closed}</Alert>}
           {refusal && <Alert severity="error">{refusal}</Alert>}
           {!closed && !signedIn && (
-            <Button variant="contained" onClick={signIn}>
+            <Button variant="contained" sx={primaryButtonSx} onClick={signIn}>
               Iniciar sesión o crear cuenta
             </Button>
           )}
@@ -83,6 +84,7 @@ export const InvitationAccept = ({
               )}
               <LoadingButton
                 variant="contained"
+                sx={primaryButtonSx}
                 loading={accepting}
                 disabled={!ready}
                 onClick={run}

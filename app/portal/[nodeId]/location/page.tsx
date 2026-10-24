@@ -14,6 +14,7 @@ import {
 import type { OrganizationResponse } from "@/app/(api)/generated/aPISrTommy.schemas";
 import Loading from "@/app/(components)/Loading";
 import { ResourceError } from "@/app/(components)/ResourceError";
+import { copyLink } from "@/app/(components)/copyLink";
 import { SnackbarContext } from "@/app/(components)/SnackbarContext";
 import { usePermissions } from "@/app/(hooks)/usePermissions";
 import { nodeTypeLabels } from "@/app/portal/organizationTree";
@@ -86,6 +87,8 @@ const ChurchOrLocationDetails = ({
       title={`Datos de la ${nodeTypeLabels[node.type ?? ""]?.toLowerCase() ?? "organización"}`}
       initialValues={toOrganizationForm(node)}
       canSave={canSave}
+      slug={node.slug}
+      onCopy={(url) => copyLink(url, alert.showMessage)}
       submit={async (values) => {
         await putOrganizationsById(
           node.id ?? "",
@@ -127,6 +130,8 @@ const GroupDetails = ({
       initialValues={toGroupInitialValues(node, members)}
       canSave={canSave}
       canInvite={canInvite}
+      slug={node.slug}
+      onCopy={(url) => copyLink(url, alert.showMessage)}
       submit={async (values) => {
         try {
           await putOrganizationsLocationsChildsById(
