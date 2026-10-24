@@ -48,6 +48,13 @@ export const PersonTable = ({
         [
           { field: "fullName", headerName: "Nombre", flex: 1 },
           {
+            field: "organizationName",
+            headerName: "Grupo",
+            flex: 1,
+            valueGetter: (_value, row) =>
+              row.directMember ? "" : (row.organizationName ?? ""),
+          },
+          {
             field: "actions",
             type: "actions",
             width: 80,
