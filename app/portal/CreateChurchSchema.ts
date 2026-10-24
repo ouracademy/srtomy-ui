@@ -1,23 +1,22 @@
 import { z } from "zod";
 import type {
   CreateChurchRequest,
-  RoleResponse,
+  PositionSuggestionResponse,
 } from "@/app/(api)/generated/aPISrTommy.schemas";
-import { levelIdByName, toAccessRoleId } from "../(components)/accessLevels";
 import {
   emptySocialLinks,
   socialLinksSchema,
   toSocialLinksRequest,
 } from "../(components)/SocialLinks";
 
-// Positions (cargos) offered when a church is created, with the access level
-// they usually have (by the level's name). They are only a start: the church
-// can rename, remove or change them, before saving and at any time after.
-export const suggestedPositions = [
-  { name: "Pastor", level: "Administrador" },
-  { name: "Líder de alabanza", level: "Líder" },
-  { name: "Servidor", level: "Colaborador" },
-  { name: "Maestro", level: "Colaborador" },
+// Positions (cargos) the sign-up starts with. Their permissions come from the
+// API's suggestions (a copy of what each one usually gives). They are only a
+// start: the church can rename, remove or change them, now and at any time.
+export const startingPositions = [
+  "Pastor",
+  "Líder de alabanza",
+  "Servidor",
+  "Maestro",
 ];
 
 export const createChurchSchema = z.object({
@@ -34,7 +33,9 @@ export const createChurchSchema = z.object({
     address: z.string().trim(),
     phoneNumber: z.string(),
   }),
-  positions: z.array(z.object({ name: z.string(), accessRoleId: z.string() })),
+  positions: z.array(
+    z.object({ name: z.string(), permissions: z.array(z.string()) }),
+  ),
   // Whoever creates the church is its first person, with their own position.
   creator: z.object({
     firstName: z.string().trim().min(1, { message: "Ingrese su nombre" }),
@@ -53,14 +54,14 @@ export const emptyCreateChurchForm: CreateChurchForm = {
   creator: { firstName: "", lastName: "", positionName: "" },
 };
 
-/** The form with the suggested positions, once the church's levels are known. */
+/** The form with the starting positions, once the suggestions are known. */
 export const initialCreateChurchForm = (
-  levels: RoleResponse[],
+  suggestions: PositionSuggestionResponse[],
 ): CreateChurchForm => ({
   ...emptyCreateChurchForm,
-  positions: suggestedPositions.map(({ name, level }) => ({
+  positions: startingPositions.map((name) => ({
     name,
-    accessRoleId: levelIdByName(levels, level),
+    permissions: suggestions.find((s) => s.name === name)?.permissions ?? [],
   })),
   creator: { ...emptyCreateChurchForm.creator, positionName: "Pastor" },
 });
@@ -80,10 +81,7 @@ export const toCreateChurchRequest = (
     phoneNumber: phoneOrUndefined(values.location.phoneNumber),
   },
   positions: values.positions
-    .map(({ name, accessRoleId }) => ({
-      name: name.trim(),
-      accessRoleId: toAccessRoleId(accessRoleId),
-    }))
+    .map(({ name, permissions }) => ({ name: name.trim(), permissions }))
     .filter(({ name }) => name),
   creator: {
     firstName: values.creator.firstName.trim(),

@@ -79,29 +79,11 @@ const json = (body: unknown) => ({
   body: JSON.stringify(body),
 });
 
-// The predefined levels a position can have (Owner is never one).
-export const levels = [
-  {
-    id: "level-admin",
-    name: "Administrador",
-    permissions: ["org.read", "iam.manage"],
-    predefined: true,
-    assignable: true,
-  },
-  {
-    id: "level-leader",
-    name: "Líder",
-    permissions: ["org.read", "org.update"],
-    predefined: true,
-    assignable: true,
-  },
-  {
-    id: "level-collab",
-    name: "Colaborador",
-    permissions: ["org.read"],
-    predefined: true,
-    assignable: true,
-  },
+// The permissions a position can give, grouped by module as the API sends them.
+export const permissionCatalog = [
+  { resource: "org", permissions: ["org.read", "org.update"] },
+  { resource: "members", permissions: ["members.read", "members.write"] },
+  { resource: "events", permissions: ["events.read", "events.write"] },
 ];
 
 // Who the e2e user is: an Administrator of a church with one location
@@ -153,21 +135,35 @@ async function mockCurrentUser(page: import("@playwright/test").Page) {
   await page.route("**/v1/positions/suggestions", (route) =>
     route.fulfill(
       json([
-        { name: "Pastor", suggestedRoleId: "level-admin" },
-        { name: "Diácono", suggestedRoleId: "level-leader" },
-        { name: "Catequista" },
+        { name: "Pastor", permissions: ["org.read", "members.write"] },
+        { name: "Líder de alabanza", permissions: ["org.read"] },
+        { name: "Servidor", permissions: ["org.read"] },
+        { name: "Maestro", permissions: ["events.read"] },
+        { name: "Diácono", permissions: ["org.read", "events.write"] },
+        { name: "Catequista", permissions: [] },
       ]),
     ),
   );
-  await page.route("**/v1/iam/levels", (route) => route.fulfill(json(levels)));
+  await page.route("**/v1/iam/permissions", (route) =>
+    route.fulfill(json(permissionCatalog)),
+  );
   await page.route("**/v1/organizations/*/positions", (route) =>
     route.fulfill(
       json([
         {
           id: "p-pastor",
           name: "Pastor",
-          accessRoleId: "level-admin",
-          holders: 1,
+          roleIds: [],
+          permissions: ["org.read", "members.write"],
+          effectivePermissions: ["members.write", "org.read"],
+          holders: [
+            {
+              personId: "person-1",
+              name: "Ana Díaz",
+              organizationName: "Sede Central",
+              email: "ana@example.com",
+            },
+          ],
         },
       ]),
     ),

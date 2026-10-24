@@ -6,10 +6,10 @@ import {
   toCreateChurchRequest,
 } from "./CreateChurchSchema";
 
-const levels = [
-  { id: "l-admin", name: "Administrador" },
-  { id: "l-leader", name: "Líder" },
-  { id: "l-collab", name: "Colaborador" },
+const suggestions = [
+  { name: "Pastor", permissions: ["org.read", "members.write"] },
+  { name: "Servidor", permissions: ["org.read"] },
+  { name: "Intercesor", permissions: [] },
 ];
 
 const creator = { firstName: "Ana", lastName: "Diaz", positionName: "Pastor" };
@@ -45,22 +45,16 @@ describe("createChurchSchema creator", () => {
 });
 
 describe("initialCreateChurchForm", () => {
-  it("offers the suggested positions with the level they usually have", () => {
-    const form = initialCreateChurchForm(levels);
+  it("starts with the usual positions and the permissions they usually give", () => {
+    const form = initialCreateChurchForm(suggestions);
 
     expect(form.positions).toEqual([
-      { name: "Pastor", accessRoleId: "l-admin" },
-      { name: "Líder de alabanza", accessRoleId: "l-leader" },
-      { name: "Servidor", accessRoleId: "l-collab" },
-      { name: "Maestro", accessRoleId: "l-collab" },
+      { name: "Pastor", permissions: ["org.read", "members.write"] },
+      { name: "Líder de alabanza", permissions: [] },
+      { name: "Servidor", permissions: ["org.read"] },
+      { name: "Maestro", permissions: [] },
     ]);
     expect(form.creator.positionName).toBe("Pastor");
-  });
-
-  it("leaves a position without level when the church has no such level", () => {
-    const form = initialCreateChurchForm([]);
-
-    expect(form.positions.every((p) => p.accessRoleId === "none")).toBe(true);
   });
 });
 
@@ -74,9 +68,9 @@ describe("toCreateChurchRequest", () => {
         youtubeUrl: "https://yt.com/v",
       },
       positions: [
-        { name: "Pastor", accessRoleId: "l-admin" },
-        { name: " ", accessRoleId: "l-leader" },
-        { name: " Hermano ", accessRoleId: "none" },
+        { name: "Pastor", permissions: ["org.read"] },
+        { name: " ", permissions: ["events.read"] },
+        { name: " Hermano ", permissions: [] },
       ],
       creator: { ...creator, firstName: " Ana ", positionName: " " },
     });
@@ -90,8 +84,8 @@ describe("toCreateChurchRequest", () => {
         phoneNumber: undefined,
       },
       positions: [
-        { name: "Pastor", accessRoleId: "l-admin" },
-        { name: "Hermano", accessRoleId: undefined },
+        { name: "Pastor", permissions: ["org.read"] },
+        { name: "Hermano", permissions: [] },
       ],
       creator: { firstName: "Ana", lastName: "Diaz", positionName: undefined },
     });

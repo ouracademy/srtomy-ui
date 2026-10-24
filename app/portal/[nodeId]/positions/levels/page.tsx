@@ -14,7 +14,7 @@ import { ResourceError } from "@/app/(components)/ResourceError";
 import { SnackbarContext } from "@/app/(components)/SnackbarContext";
 import { usePermissions } from "@/app/(hooks)/usePermissions";
 import { churchOf, withIds } from "../../../organizationTree";
-import { apiErrorMessage } from "../../access/apiErrorMessage";
+import { apiErrorMessage } from "@/app/(components)/apiErrorMessage";
 import { RolesManager } from "./RolesManager";
 
 // Access levels belong to the church, so every node of a church shows the same list

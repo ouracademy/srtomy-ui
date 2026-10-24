@@ -43,34 +43,29 @@ describe("resolvePositionIds", () => {
 
 describe("accessHints", () => {
   const church = [
-    { id: "p1", name: "Pastor", accessRoleId: "l-admin" },
-    { id: "p2", name: "Hermano" },
+    {
+      id: "p1",
+      name: "Pastor",
+      effectivePermissions: ["org.read", "iam.read"],
+    },
+    { id: "p2", name: "Hermano", effectivePermissions: [] },
+    { id: "p3", name: "Ujier", effectivePermissions: ["org.read"] },
   ];
-  const levels = [{ id: "l-admin", name: "Administrador" }];
 
-  it("names the level of each chosen position that gives access", () => {
+  it("counts the permissions of each chosen position that gives access", () => {
     expect(
       accessHints(
         [
           { id: "p1", label: "Pastor" },
           { id: "p2", label: "Hermano" },
+          { id: "p3", label: "Ujier" },
         ],
         church,
-        levels,
       ),
-    ).toEqual(["Pastor: Administrador"]);
+    ).toEqual(["Pastor: 2 permisos", "Ujier: 1 permiso"]);
   });
 
-  it("says nothing for labels and for names that are new", () => {
-    expect(accessHints([{ label: "Nuevo" }], church, levels)).toEqual([]);
-    expect(accessHints([{ id: "p2", label: "Hermano" }], church, [])).toEqual(
-      [],
-    );
-  });
-
-  it("still flags access when the level's name cannot be read", () => {
-    expect(accessHints([{ id: "p1", label: "Pastor" }], church, [])).toEqual([
-      "Pastor: Con acceso a la app",
-    ]);
+  it("says nothing for names that are new", () => {
+    expect(accessHints([{ label: "Nuevo" }], church)).toEqual([]);
   });
 });

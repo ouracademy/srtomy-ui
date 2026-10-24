@@ -20,8 +20,14 @@ import type {
   PermissionGroupResponse,
   RoleResponse,
 } from "@/app/(api)/generated/aPISrTommy.schemas";
-import { permissionLabel, resourceLabel } from "../../access/permissionLabels";
-import { setGroup, togglePermission } from "./rolePermissions";
+import {
+  permissionLabel,
+  resourceLabel,
+} from "@/app/(components)/permissionLabels";
+import {
+  setGroup,
+  togglePermission,
+} from "@/app/(components)/permissionSelection";
 
 export type RoleInput = {
   name: string;

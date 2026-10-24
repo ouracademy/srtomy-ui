@@ -13,14 +13,10 @@ import {
 } from "react-hook-form-mui";
 import { DatePickerElement } from "react-hook-form-mui/date-pickers";
 import { z } from "zod";
-import {
-  useGetOrganizationsByIdPositions,
-  useGetOrganizationsByIdRoles,
-} from "@/app/(api)/generated";
+import { useGetOrganizationsByIdPositions } from "@/app/(api)/generated";
 import type {
   CreatePersonRequest,
-  PositionResponse,
-  RoleResponse,
+  PositionSummaryResponse,
 } from "@/app/(api)/generated/aPISrTommy.schemas";
 import { formatISO } from "date-fns";
 import {
@@ -93,8 +89,6 @@ export const PersonForm = ({
     error: positionsError,
     isLoading,
   } = useGetOrganizationsByIdPositions(nodeId);
-  // Only to name the level a position gives; without iam.read it is omitted.
-  const { data: levels } = useGetOrganizationsByIdRoles(nodeId);
 
   const formContext = useForm({
     defaultValues: initialValues,
@@ -178,7 +172,7 @@ export const PersonForm = ({
           <Grid sx={{ paddingBottom: "10px" }}>
             <Typography variant="h6">Cargos:</Typography>
           </Grid>
-          <PositionsField positions={positions} levels={levels ?? []} />
+          <PositionsField positions={positions} />
         </Grid>
         <Grid size={{ xs: 12 }}>
           <SaveButton
@@ -194,10 +188,8 @@ export const PersonForm = ({
 // Positions of the church, or any new name: it is created when saving.
 const PositionsField = ({
   positions,
-  levels,
 }: {
-  positions: PositionResponse[];
-  levels: RoleResponse[];
+  positions: PositionSummaryResponse[];
 }) => {
   const { control } = useFormContext<PersonDetailFormData>();
   return (
@@ -234,7 +226,7 @@ const PositionsField = ({
             })
           }
           renderInput={(params) => {
-            const hints = accessHints(field.value, positions, levels);
+            const hints = accessHints(field.value, positions);
             return (
               <TextField
                 {...params}

@@ -1,8 +1,7 @@
 import type {
   PositionResponse,
-  RoleResponse,
+  PositionSummaryResponse,
 } from "@/app/(api)/generated/aPISrTommy.schemas";
-import { levelLabel } from "@/app/(components)/accessLevels";
 
 // A position picked in the person form: an existing one (with id) or a name
 // typed by the user that the church does not have yet.
@@ -43,17 +42,17 @@ export const resolvePositionIds = async (
 };
 
 /**
- * What the chosen positions allow in the app, e.g. "Pastor: Administrador".
- * New names (no id yet) are plain labels, so they say nothing.
+ * What the chosen positions allow in the app, e.g. "Pastor: 12 permisos". New
+ * names (no id yet) are plain labels, so they say nothing.
  */
 export const accessHints = (
   choices: PositionChoice[],
-  positions: PositionResponse[],
-  levels: RoleResponse[],
+  positions: PositionSummaryResponse[],
 ) =>
   choices.flatMap((choice) => {
     const position = positions.find((p) => p.id && p.id === choice.id);
-    return position?.accessRoleId
-      ? [`${position.name}: ${levelLabel(levels, position.accessRoleId)}`]
+    const count = position?.effectivePermissions?.length ?? 0;
+    return position && count > 0
+      ? [`${position.name}: ${count} ${count === 1 ? "permiso" : "permisos"}`]
       : [];
   });

@@ -17,12 +17,15 @@ import {
   useWatch,
 } from "react-hook-form-mui";
 import {
-  useGetIamLevels,
+  useGetIamPermissions,
   useGetPositionsSuggestions,
 } from "@/app/(api)/generated";
-import type { RoleResponse } from "@/app/(api)/generated/aPISrTommy.schemas";
+import type {
+  PermissionGroupResponse,
+  PositionSuggestionResponse,
+} from "@/app/(api)/generated/aPISrTommy.schemas";
 import Loading from "../(components)/Loading";
-import { PositionLevelsField } from "../(components)/PositionLevelsField";
+import { PositionsField } from "../(components)/PositionsField";
 import { SaveButton } from "../(components)/SaveButton";
 import { SocialLinksFields } from "../(components)/SocialLinksFields";
 import { TelFieldElement } from "../(components)/TelFieldElement";
@@ -39,24 +42,32 @@ export const CreateChurchForm = ({
 }: {
   submit: (values: CreateChurchValues) => Promise<void>;
 }) => {
-  const { data: levels } = useGetIamLevels();
-  // The suggested positions pick their level by name, so wait for the levels.
-  if (!levels) return <Loading />;
-  return <CreateChurchFields levels={levels} submit={submit} />;
+  const { data: suggestions } = useGetPositionsSuggestions();
+  const { data: catalog } = useGetIamPermissions();
+  // The starting positions copy the permissions of the suggestions, so wait.
+  if (!suggestions || !catalog) return <Loading />;
+  return (
+    <CreateChurchFields
+      suggestions={suggestions}
+      catalog={catalog}
+      submit={submit}
+    />
+  );
 };
 
 const CreateChurchFields = ({
-  levels,
+  suggestions,
+  catalog,
   submit,
 }: {
-  levels: RoleResponse[];
+  suggestions: PositionSuggestionResponse[];
+  catalog: PermissionGroupResponse[];
   submit: (values: CreateChurchValues) => Promise<void>;
 }) => {
   const formContext = useForm<CreateChurchValues>({
-    defaultValues: initialCreateChurchForm(levels),
+    defaultValues: initialCreateChurchForm(suggestions),
     resolver: zodResolver(createChurchSchema),
   });
-  const { data: suggestions } = useGetPositionsSuggestions();
   const positions = useWatch({
     control: formContext.control,
     name: "positions",
@@ -109,7 +120,7 @@ const CreateChurchFields = ({
         </Paper>
         <Paper sx={{ p: 3 }}>
           <Typography variant="h6" component="h2" gutterBottom>
-            3. Cargos y accesos
+            3. Cargos y permisos
           </Typography>
           <Typography variant="body2" color="text.secondary" gutterBottom>
             Cada cargo da un nivel de acceso a la aplicación a quien lo tenga.
@@ -120,11 +131,11 @@ const CreateChurchFields = ({
             control={formContext.control}
             name="positions"
             render={({ field }) => (
-              <PositionLevelsField
+              <PositionsField
                 value={field.value}
                 onChange={field.onChange}
-                levels={levels}
-                suggestions={suggestions ?? []}
+                catalog={catalog}
+                suggestions={suggestions}
               />
             )}
           />

@@ -1,30 +1,35 @@
-import { cleanup, render, screen } from "@testing-library/react";
+import { cleanup, render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { CreateChurchForm } from "./CreateChurchForm";
 
-const levels = [
-  { id: "l-admin", name: "Administrador", assignable: true },
-  { id: "l-leader", name: "Líder", assignable: true },
-  { id: "l-collab", name: "Colaborador", assignable: true },
-];
-
-const mocks = vi.hoisted(() => ({ levels: undefined as unknown }));
+const mocks = vi.hoisted(() => ({
+  suggestions: undefined as unknown,
+  catalog: undefined as unknown,
+}));
 
 vi.mock("@/app/(api)/generated", () => ({
-  useGetIamLevels: () => ({ data: mocks.levels }),
-  useGetPositionsSuggestions: () => ({
-    data: [
-      { name: "Diácono", suggestedRoleId: "l-leader" },
-      { name: "Intercesor" },
-    ],
-  }),
+  useGetPositionsSuggestions: () => ({ data: mocks.suggestions }),
+  useGetIamPermissions: () => ({ data: mocks.catalog }),
 }));
 
 afterEach(() => {
   cleanup();
-  mocks.levels = undefined;
+  mocks.suggestions = undefined;
+  mocks.catalog = undefined;
 });
+
+const ready = () => {
+  mocks.suggestions = [
+    { name: "Pastor", permissions: ["org.read", "members.write"] },
+    { name: "Servidor", permissions: ["org.read"] },
+    { name: "Diácono", permissions: ["events.read"] },
+  ];
+  mocks.catalog = [
+    { resource: "members", permissions: ["members.read", "members.write"] },
+    { resource: "events", permissions: ["events.read"] },
+  ];
+};
 
 const fillBasics = async (user: ReturnType<typeof userEvent.setup>) => {
   await user.type(
@@ -39,7 +44,7 @@ const fillBasics = async (user: ReturnType<typeof userEvent.setup>) => {
 };
 
 describe("CreateChurchForm", () => {
-  it("waits for the access levels", () => {
+  it("waits for the suggestions and the permissions", () => {
     render(<CreateChurchForm submit={vi.fn()} />);
 
     expect(
@@ -47,8 +52,8 @@ describe("CreateChurchForm", () => {
     ).not.toBeInTheDocument();
   });
 
-  it("sends the church, its location, the positions with their level and the creator", async () => {
-    mocks.levels = levels;
+  it("sends the church, its location, the positions with their permissions and the creator", async () => {
+    ready();
     const user = userEvent.setup();
     const submit = vi.fn().mockResolvedValue(undefined);
     render(<CreateChurchForm submit={submit} />);
@@ -69,9 +74,9 @@ describe("CreateChurchForm", () => {
     expect(values.name).toBe("Iglesia Vida");
     expect(values.location.name).toBe("Sede Centro");
     expect(values.positions).toEqual([
-      { name: "Pastor", accessRoleId: "l-admin" },
-      { name: "Líder de alabanza", accessRoleId: "l-leader" },
-      { name: "Servidor", accessRoleId: "l-collab" },
+      { name: "Pastor", permissions: ["org.read", "members.write"] },
+      { name: "Líder de alabanza", permissions: [] },
+      { name: "Servidor", permissions: ["org.read"] },
     ]);
     expect(values.creator).toEqual({
       firstName: "Ana",
@@ -80,29 +85,31 @@ describe("CreateChurchForm", () => {
     });
   });
 
-  it("lets the user change the level of a position", async () => {
-    mocks.levels = levels;
+  it("lets the user change the permissions of a position", async () => {
+    ready();
     const user = userEvent.setup();
     const submit = vi.fn().mockResolvedValue(undefined);
     render(<CreateChurchForm submit={submit} />);
 
     await fillBasics(user);
     await user.click(
-      screen.getByRole("combobox", { name: "Nivel de acceso del cargo 3" }),
+      screen.getByRole("button", { name: "Permisos del cargo 2" }),
     );
+    const dialog = screen.getByRole("dialog");
     await user.click(
-      screen.getByRole("option", { name: "Sin acceso a la app" }),
+      within(dialog).getByRole("checkbox", { name: "Ver eventos y cursos" }),
     );
+    await user.click(within(dialog).getByRole("button", { name: "Listo" }));
     await user.click(screen.getByRole("button", { name: "Crear iglesia" }));
 
-    expect(submit.mock.calls[0]?.[0].positions[2]).toEqual({
-      name: "Servidor",
-      accessRoleId: "none",
+    expect(submit.mock.calls[0]?.[0].positions[1]).toEqual({
+      name: "Líder de alabanza",
+      permissions: ["events.read"],
     });
   });
 
-  it("proposes the usual level when a suggested name is typed in a new row", async () => {
-    mocks.levels = levels;
+  it("brings the usual permissions when a suggested name is typed in a new row", async () => {
+    ready();
     const user = userEvent.setup();
     const submit = vi.fn().mockResolvedValue(undefined);
     render(<CreateChurchForm submit={submit} />);
@@ -117,12 +124,12 @@ describe("CreateChurchForm", () => {
 
     expect(submit.mock.calls[0]?.[0].positions[4]).toEqual({
       name: "Diácono",
-      accessRoleId: "l-leader",
+      permissions: ["events.read"],
     });
   });
 
   it("does not submit without a church name or the creator's names", async () => {
-    mocks.levels = levels;
+    ready();
     const user = userEvent.setup();
     const submit = vi.fn();
     render(<CreateChurchForm submit={submit} />);

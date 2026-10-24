@@ -19,7 +19,7 @@ import type {
   RoleResponse,
 } from "@/app/(api)/generated/aPISrTommy.schemas";
 import { DialogDeleteConfirmation } from "@/app/(components)/DialogDeleteConfirmation";
-import { permissionLabel } from "../../access/permissionLabels";
+import { permissionLabel } from "@/app/(components)/permissionLabels";
 import { RoleDialog, type RoleInput } from "./RoleDialog";
 
 type RolesManagerProps = Readonly<{

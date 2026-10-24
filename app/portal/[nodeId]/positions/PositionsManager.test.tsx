@@ -1,62 +1,157 @@
-import { cleanup, render, screen } from "@testing-library/react";
+import { cleanup, render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { PositionsManager } from "./PositionsManager";
 
 afterEach(cleanup);
 
-const levels = [
-  { id: "l-owner", name: "Propietario", assignable: false },
-  { id: "l-admin", name: "Administrador", assignable: true },
-  { id: "l-collab", name: "Colaborador", assignable: true },
+const catalog = [
+  { resource: "members", permissions: ["members.read", "members.write"] },
+  { resource: "events", permissions: ["events.read"] },
 ];
 
 const positions = [
-  { id: "p1", name: "Pastor", accessRoleId: "l-admin", holders: 2 },
-  { id: "p2", name: "Ujier", holders: 0 },
-  { id: "p3", name: "Tesorero", accessRoleId: "l-collab", holders: 0 },
+  {
+    id: "p1",
+    name: "Pastor",
+    permissions: ["members.read", "members.write"],
+    effectivePermissions: ["members.read", "members.write"],
+    holders: [
+      {
+        personId: "a",
+        name: "Ana Díaz",
+        organizationName: "Sede Central",
+        email: "ana@x.org",
+      },
+      { personId: "b", name: "Luis Rojas", organizationName: "Sede Norte" },
+    ],
+  },
+  {
+    id: "p2",
+    name: "Ujier",
+    permissions: [],
+    effectivePermissions: [],
+    holders: [],
+  },
+  {
+    id: "p3",
+    name: "Tesorero",
+    permissions: ["events.read"],
+    // One more permission comes from a role, so it cannot be unchecked here.
+    effectivePermissions: ["events.read", "members.read"],
+    holders: [],
+  },
 ];
 
-const setup = (
-  canManage = true,
-  levelsHref: string | undefined = undefined,
-) => {
+const setup = (canManage = true) => {
   const handlers = {
     onCreate: vi.fn().mockResolvedValue(undefined),
     onRename: vi.fn().mockResolvedValue(undefined),
-    onSetAccess: vi.fn().mockResolvedValue(undefined),
+    onSetPermissions: vi.fn().mockResolvedValue(undefined),
     onDelete: vi.fn().mockResolvedValue(undefined),
   };
   render(
     <PositionsManager
       positions={positions}
-      levels={levels}
       suggestions={[
-        { name: "Pastor", suggestedRoleId: "l-admin" },
-        { name: "Catequista", suggestedRoleId: "l-collab" },
-        { name: "Intercesor" },
+        { name: "Pastor", permissions: ["members.write"] },
+        { name: "Catequista", permissions: ["events.read"] },
+        { name: "Intercesor", permissions: [] },
       ]}
+      catalog={catalog}
       canManage={canManage}
-      levelsHref={levelsHref}
       {...handlers}
     />,
   );
   return { user: userEvent.setup(), ...handlers };
 };
 
-const levelSelect = (position: string) =>
-  screen.getByRole("combobox", { name: `Nivel de acceso de ${position}` });
-
 describe("PositionsManager", () => {
-  it("shows each position with its level and how many people hold it", () => {
+  it("shows each position with what it gives and how many people hold it", () => {
     setup();
 
-    expect(levelSelect("Pastor")).toHaveTextContent("Administrador");
-    expect(levelSelect("Ujier")).toHaveTextContent("Sin acceso a la app");
-    expect(screen.getByRole("row", { name: /Pastor.*2/ })).toBeInTheDocument();
+    expect(
+      screen.getByRole("row", { name: /Pastor.*2 permisos.*2/ }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("row", { name: /Ujier.*Sin acceso a la app.*0/ }),
+    ).toBeInTheDocument();
   });
 
-  it("adds a position with any wording and no level", async () => {
+  it("opens a position to see its permissions by module and its people", async () => {
+    const { user } = setup();
+
+    await user.click(screen.getByRole("button", { name: "Abrir Pastor" }));
+
+    expect(
+      screen.getByRole("checkbox", { name: "Crear y editar personas" }),
+    ).toBeChecked();
+    expect(
+      screen.getByRole("checkbox", { name: "Ver eventos y cursos" }),
+    ).not.toBeChecked();
+    expect(
+      screen.getByText(/Ana Díaz · Sede Central · ana@x.org/),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(/Luis Rojas · Sede Norte · sin cuenta/),
+    ).toBeInTheDocument();
+  });
+
+  it("saves the permissions marked, asking first when people with an account hold it", async () => {
+    const { user, onSetPermissions } = setup();
+
+    await user.click(screen.getByRole("button", { name: "Abrir Pastor" }));
+    await user.click(
+      screen.getByRole("checkbox", { name: "Ver eventos y cursos" }),
+    );
+    await user.click(screen.getByRole("button", { name: "Guardar permisos" }));
+
+    expect(onSetPermissions).not.toHaveBeenCalled();
+    expect(
+      screen.getByText(/1 persona con cuenta tiene el cargo Pastor/),
+    ).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "Cambiar permisos" }));
+    expect(onSetPermissions).toHaveBeenCalledWith("p1", [
+      "members.read",
+      "members.write",
+      "events.read",
+    ]);
+  });
+
+  it("saves at once a position nobody with an account holds", async () => {
+    const { user, onSetPermissions } = setup();
+
+    await user.click(screen.getByRole("button", { name: "Abrir Ujier" }));
+    await user.click(screen.getByRole("checkbox", { name: "Personas" }));
+    await user.click(screen.getByRole("button", { name: "Guardar permisos" }));
+
+    expect(onSetPermissions).toHaveBeenCalledWith("p2", [
+      "members.read",
+      "members.write",
+    ]);
+  });
+
+  it("does not offer to save until something changes", async () => {
+    const { user } = setup();
+
+    await user.click(screen.getByRole("button", { name: "Abrir Ujier" }));
+
+    expect(
+      screen.getByRole("button", { name: "Guardar permisos" }),
+    ).toBeDisabled();
+  });
+
+  it("shows the permissions that come from a role as fixed", async () => {
+    const { user } = setup();
+
+    await user.click(screen.getByRole("button", { name: "Abrir Tesorero" }));
+
+    const fixed = screen.getByRole("checkbox", { name: "Ver personas" });
+    expect(fixed).toBeChecked();
+    expect(fixed).toBeDisabled();
+  });
+
+  it("adds a position with any wording and no permissions", async () => {
     const { user, onCreate } = setup();
 
     await user.type(
@@ -65,37 +160,39 @@ describe("PositionsManager", () => {
     );
     await user.click(screen.getByRole("button", { name: "Agregar" }));
 
-    expect(onCreate).toHaveBeenCalledWith("Hermano servidor", undefined);
+    expect(onCreate).toHaveBeenCalledWith("Hermano servidor", []);
   });
 
-  it("proposes the usual level for a common name", async () => {
+  it("brings the usual permissions of a common name", async () => {
     const { user, onCreate } = setup();
 
     await user.type(
       screen.getByRole("combobox", { name: "Nuevo cargo" }),
       "Catequista",
     );
-    expect(
-      screen.getByRole("combobox", {
-        name: "Nivel de acceso del nuevo cargo",
-      }),
-    ).toHaveTextContent("Colaborador");
+    expect(screen.getByText(/Se creará con 1 permiso/)).toBeInTheDocument();
     await user.click(screen.getByRole("button", { name: "Agregar" }));
 
-    expect(onCreate).toHaveBeenCalledWith("Catequista", "l-collab");
+    expect(onCreate).toHaveBeenCalledWith("Catequista", ["events.read"]);
   });
 
-  it("never offers Owner as a level", async () => {
-    const { user } = setup();
+  it("copies the permissions of an existing position", async () => {
+    const { user, onCreate } = setup();
 
-    await user.click(levelSelect("Ujier"));
+    await user.type(
+      screen.getByRole("combobox", { name: "Nuevo cargo" }),
+      "Copastor",
+    );
+    await user.click(
+      screen.getByRole("combobox", { name: "Copiar permisos de" }),
+    );
+    await user.click(screen.getByRole("option", { name: "Pastor" }));
+    await user.click(screen.getByRole("button", { name: "Agregar" }));
 
-    expect(
-      screen.queryByRole("option", { name: "Propietario" }),
-    ).not.toBeInTheDocument();
-    expect(
-      screen.getByRole("option", { name: "Administrador" }),
-    ).toBeInTheDocument();
+    expect(onCreate).toHaveBeenCalledWith("Copastor", [
+      "members.read",
+      "members.write",
+    ]);
   });
 
   it("only suggests names the church does not have yet", async () => {
@@ -109,50 +206,6 @@ describe("PositionsManager", () => {
     expect(
       screen.queryByRole("option", { name: "Pastor" }),
     ).not.toBeInTheDocument();
-  });
-
-  it("sets the level of a position nobody holds at once", async () => {
-    const { user, onSetAccess } = setup();
-
-    await user.click(levelSelect("Ujier"));
-    await user.click(screen.getByRole("option", { name: "Colaborador" }));
-
-    expect(onSetAccess).toHaveBeenCalledWith("p2", "l-collab");
-  });
-
-  it("removes the level with the plain-label option", async () => {
-    const { user, onSetAccess } = setup();
-
-    await user.click(levelSelect("Tesorero"));
-    await user.click(
-      screen.getByRole("option", { name: "Sin acceso a la app" }),
-    );
-
-    expect(onSetAccess).toHaveBeenCalledWith("p3", undefined);
-  });
-
-  it("warns before changing the level of a position people hold", async () => {
-    const { user, onSetAccess } = setup();
-
-    await user.click(levelSelect("Pastor"));
-    await user.click(screen.getByRole("option", { name: "Colaborador" }));
-
-    expect(onSetAccess).not.toHaveBeenCalled();
-    expect(
-      screen.getByText(/2 personas tienen el cargo Pastor/),
-    ).toHaveTextContent("«Administrador» a «Colaborador»");
-    await user.click(screen.getByRole("button", { name: "Cambiar nivel" }));
-    expect(onSetAccess).toHaveBeenCalledWith("p1", "l-collab");
-  });
-
-  it("keeps the level when the change is cancelled", async () => {
-    const { user, onSetAccess } = setup();
-
-    await user.click(levelSelect("Pastor"));
-    await user.click(screen.getByRole("option", { name: "Colaborador" }));
-    await user.click(screen.getByRole("button", { name: "Cancelar" }));
-
-    expect(onSetAccess).not.toHaveBeenCalled();
   });
 
   it("renames a position", async () => {
@@ -176,42 +229,38 @@ describe("PositionsManager", () => {
     expect(onDelete).toHaveBeenCalledWith("p2");
   });
 
-  it("warns that deleting a position with holders and access removes it", async () => {
+  it("warns that deleting a position that gives access takes it from people with an account", async () => {
     const { user, onDelete } = setup();
 
     await user.click(screen.getByRole("button", { name: "Eliminar Pastor" }));
 
     expect(
-      screen.getByText(/2 personas tienen el cargo Pastor, que da acceso/),
+      screen.getByText(/1 persona con cuenta tiene el cargo Pastor.*perderán/),
     ).toBeInTheDocument();
-    await user.click(screen.getByRole("button", { name: "Eliminar" }));
+    await user.click(
+      within(screen.getByRole("dialog")).getByRole("button", {
+        name: "Eliminar",
+      }),
+    );
     expect(onDelete).toHaveBeenCalledWith("p1");
   });
 
-  it("links to the custom levels only when given", () => {
-    setup(true, "/portal/n1/positions/levels");
-
-    expect(
-      screen.getByRole("link", { name: "Niveles de acceso personalizados" }),
-    ).toHaveAttribute("href", "/portal/n1/positions/levels");
-  });
-
-  it("is read-only without permission", () => {
-    setup(false);
+  it("is read-only without permission", async () => {
+    const { user } = setup(false);
 
     expect(screen.getByText("Pastor")).toBeInTheDocument();
-    expect(screen.getByText("Administrador")).toBeInTheDocument();
-    expect(
-      screen.queryByRole("combobox", { name: /nivel de acceso de pastor/i }),
-    ).not.toBeInTheDocument();
     expect(
       screen.queryByRole("button", { name: "Agregar" }),
     ).not.toBeInTheDocument();
     expect(
       screen.queryByRole("button", { name: /renombrar/i }),
     ).not.toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "Abrir Pastor" }));
     expect(
-      screen.queryByRole("link", { name: /niveles de acceso/i }),
+      screen.getByRole("checkbox", { name: "Crear y editar personas" }),
+    ).toBeDisabled();
+    expect(
+      screen.queryByRole("button", { name: "Guardar permisos" }),
     ).not.toBeInTheDocument();
   });
 });
