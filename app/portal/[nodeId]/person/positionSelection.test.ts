@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 import {
+  accessHints,
   resolvePositionIds,
   toChoice,
   toPositionChoice,
@@ -37,5 +38,34 @@ describe("resolvePositionIds", () => {
     expect(ids).toEqual(["p1", "new"]);
     expect(create).toHaveBeenCalledOnce();
     expect(create).toHaveBeenCalledWith("Catequista");
+  });
+});
+
+describe("accessHints", () => {
+  const church = [
+    {
+      id: "p1",
+      name: "Pastor",
+      effectivePermissions: ["org.read", "iam.read"],
+    },
+    { id: "p2", name: "Hermano", effectivePermissions: [] },
+    { id: "p3", name: "Ujier", effectivePermissions: ["org.read"] },
+  ];
+
+  it("counts the permissions of each chosen position that gives access", () => {
+    expect(
+      accessHints(
+        [
+          { id: "p1", label: "Pastor" },
+          { id: "p2", label: "Hermano" },
+          { id: "p3", label: "Ujier" },
+        ],
+        church,
+      ),
+    ).toEqual(["Pastor: 2 permisos", "Ujier: 1 permiso"]);
+  });
+
+  it("says nothing for names that are new", () => {
+    expect(accessHints([{ label: "Nuevo" }], church)).toEqual([]);
   });
 });

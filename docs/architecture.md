@@ -30,12 +30,12 @@ app/
     MenuDrawer.tsx             Marco: barra superior, menú lateral y contenido
     OrganizationPicker.tsx     Cambiar de iglesia, sede o grupo (lo usa MenuDrawer)
     organizationTree.ts        Árbol de nodos del usuario (GET /me/organizations): ruta, iglesia, nodo inicial
-    CreateChurchForm.tsx       Alta de iglesia con su primera sede y sus cargos (página /portal)
+    CreateChurchForm.tsx       Alta de iglesia con su primera sede, sus cargos con nivel y su propio cargo (página /portal)
     UserMenu.tsx               Perfil y cerrar sesión (lo usa MenuDrawer)
     [nodeId]/                  Un nodo: iglesia, sede, grupo o ministerio (anidables)
-      person/ location/ event/ positions/ access/
+      person/ location/ event/ positions/
                                Una carpeta por sección, con sus componentes, formularios y tablas
-                               (access/roles/ edita los roles personalizados de la iglesia)
+
   error.tsx global-error.tsx not-found.tsx    Límites de error de Next
 ```
 
@@ -102,7 +102,22 @@ Las iglesias del usuario **no** vienen en el token: `GET /me/organizations` devu
 
 ### Permisos
 
-Los accesos funcionan como IAM de GCP: un rol (Propietario, Administrador, Líder, Colaborador, Miembro) se otorga sobre un nodo y vale para todo lo que cuelga de él. `usePermissions(nodeId)` (`app/(hooks)/`) pide `GET /me/permissions` y responde `can("members.write")`, etc. La UI solo **oculta** lo que el usuario no puede hacer (menú, botones de guardar, crear o borrar); la API rechaza con 403 cualquier petición sin permiso. Los **cargos** (Pastor, Diácono, Catequista...) son etiquetas de cada iglesia y no dan acceso. La sección **Accesos** (`access/`) muestra los roles de un nodo, heredados y directos, y permite otorgarlos por correo o quitarlos; en `access/roles/` cada iglesia crea sus propios roles eligiendo permisos. Los mensajes de error de la API (`detail`) se muestran tal cual con `apiErrorMessage`. Diseño completo: [redesign.md](redesign.md).
+Los accesos funcionan como IAM de GCP, pero **nacen del cargo**: cada cargo de la iglesia (Pastor, Diácono, Catequista...) da una lista de permisos, y quien lo tiene —a través de la persona vinculada a su usuario— obtiene esos permisos en el nodo donde tiene el cargo y en todo lo que cuelga de él. Un cargo sin permisos es solo un nombre. El API guarda los permisos de un cargo como la unión de sus **roles** (grupos de permisos, vinculados) y sus permisos sueltos; **la UI solo muestra y edita permisos**, agrupados por módulo, y deja los roles para cuando haga falta. **Propietario** es la excepción: no se agrega a un cargo, se agrega aparte. `usePermissions(nodeId)` (`app/(hooks)/`) pide `GET /me/permissions` y responde `can("members.write")`, etc. La UI solo **oculta** lo que el usuario no puede hacer (menú, botones de guardar, crear o borrar); la API rechaza con 403 cualquier petición sin permiso, incluida la escalada de privilegios (dar un cargo con más permisos de los que uno tiene). Los mensajes de error de la API (`detail`) se muestran tal cual con `apiErrorMessage`.
+
+Una sola pantalla, **Cargos y accesos** (`positions/`), con pestañas:
+
+- **Cargos**: la tabla de cargos con cuántos permisos dan y cuántas personas los tienen. Cada fila se abre y muestra sus permisos por módulo (`PermissionPicker`, en `app/(components)/`, el mismo del alta de iglesia) y las personas que lo tienen, con su correo o «sin cuenta». Avisa antes de cambiar los permisos o borrar un cargo que da acceso a personas con cuenta. Un cargo nuevo puede nacer de un nombre sugerido (trae sus permisos habituales, una copia) o copiando los permisos de otro cargo.
+- **Personas con acceso** (`access/AccessManager.tsx`, `AccessList`): solo lectura y con filtro, con el origen de cada acceso (cargo y nodo, liderazgo de grupo o Propietario). Hace falta `iam.read`.
+- **Propietarios** (`OwnersPanel`): solo en la iglesia; se agregan y quitan por correo.
+
+El formulario de persona muestra, al elegir un cargo, cuántos permisos da.
+
+**Cómo se nombran los permisos.** `app/(components)/permissionLabels.ts` traduce el catálogo del API al español, y `permissionLabel(permiso, tipoDeNodo?)` tiene dos redacciones, porque un permiso vale para el nodo donde se otorga **y para todo lo que cuelga de él**:
+
+- **Neutra** (sin tipo de nodo): en el editor de permisos de un cargo, que es de toda la iglesia y aún no saben dónde se otorgarán. Dice «la iglesia, sede, grupo o ministerio».
+- **Según el nodo** (`CHURCH`, `LOCATION`, `GROUP` o `MINISTRY`): hoy ninguna pantalla la usa (ver la deuda técnica 11 en [redesign.md](redesign.md)).
+
+Al sumar un permiso al catálogo del API, agrégalo a `permissionLabels` (y a `nodePermissionLabels` si su texto cambia con el nodo); si falta, la pantalla muestra el valor técnico en vez de romperse. Nunca pases `permissionLabel` directo a `.map(...)`: el índice entraría como tipo de nodo. Diseño completo: [redesign.md](redesign.md).
 
 ## Carga, vacío y error
 

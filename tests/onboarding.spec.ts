@@ -10,7 +10,7 @@ const json = (body: unknown, status = 200) => ({
 });
 
 test.describe("Alta de iglesia", () => {
-  test("un usuario sin iglesias crea la suya con su primera sede y sus cargos", async ({
+  test("un usuario sin iglesias crea la suya con su primera sede, sus cargos con sus permisos y su propio cargo", async ({
     page,
   }) => {
     let created = false;
@@ -72,9 +72,13 @@ test.describe("Alta de iglesia", () => {
     await page
       .getByRole("textbox", { name: /nombre de la sede/i })
       .fill("Sede Centro");
-    const positions = page.getByRole("combobox", { name: /cargos/i });
-    await positions.fill("Catequista");
-    await positions.press("Enter");
+    await page.getByRole("button", { name: "Agregar cargo" }).click();
+    await page
+      .getByRole("combobox", { name: "Cargo 5", exact: true })
+      .fill("Diácono");
+    await page.getByRole("button", { name: "Quitar cargo Maestro" }).click();
+    await page.getByRole("textbox", { name: /sus nombres/i }).fill("Ana");
+    await page.getByRole("textbox", { name: /sus apellidos/i }).fill("Diaz");
 
     const request = page.waitForRequest(
       (r) => r.method() === "POST" && r.url().endsWith("/v1/organizations"),
@@ -85,12 +89,12 @@ test.describe("Alta de iglesia", () => {
       name: "Iglesia Vida",
       location: { name: "Sede Centro" },
       positions: [
-        "Pastor",
-        "Líder de alabanza",
-        "Servidor",
-        "Maestro",
-        "Catequista",
+        { name: "Pastor", permissions: ["org.read", "members.write"] },
+        { name: "Líder de alabanza", permissions: ["org.read"] },
+        { name: "Servidor", permissions: ["org.read"] },
+        { name: "Diácono", permissions: ["org.read", "events.write"] },
       ],
+      creator: { firstName: "Ana", lastName: "Diaz", positionName: "Pastor" },
     });
     await expect(page).toHaveURL(new RegExp(`/portal/${locationId}$`));
   });

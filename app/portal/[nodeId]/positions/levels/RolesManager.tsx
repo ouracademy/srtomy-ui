@@ -19,7 +19,7 @@ import type {
   RoleResponse,
 } from "@/app/(api)/generated/aPISrTommy.schemas";
 import { DialogDeleteConfirmation } from "@/app/(components)/DialogDeleteConfirmation";
-import { permissionLabel } from "../permissionLabels";
+import { permissionLabel } from "@/app/(components)/permissionLabels";
 import { RoleDialog, type RoleInput } from "./RoleDialog";
 
 type RolesManagerProps = Readonly<{
@@ -52,19 +52,20 @@ export const RolesManager = ({
     <Stack spacing={2} sx={{ m: { xs: 2, sm: 4 }, maxWidth: 800 }}>
       <Stack direction="row" justifyContent="space-between" alignItems="center">
         <Typography variant="h5" component="h1">
-          Roles de la iglesia
+          Niveles de acceso personalizados
         </Typography>
         {canManage && (
           <Button variant="contained" onClick={() => setEditing(null)}>
-            Nuevo rol
+            Nuevo nivel
           </Button>
         )}
       </Stack>
       <Typography color="text.secondary">
-        Los roles predefinidos no se pueden editar. Cree los suyos eligiendo los
-        permisos que necesita cada tarea.
+        Un nivel de acceso es lo que puede hacer quien tiene un cargo. Los
+        niveles predefinidos no se pueden editar; cree los suyos eligiendo los
+        permisos que necesita cada tarea y asígnelos desde Cargos.
       </Typography>
-      <List aria-label="Roles">
+      <List aria-label="Niveles de acceso">
         {roles.map((role) => (
           <ListItem
             key={role.id}
@@ -99,7 +100,9 @@ export const RolesManager = ({
               }
               secondary={
                 <Typography variant="body2" color="text.secondary">
-                  {(role.permissions ?? []).map(permissionLabel).join(", ")}
+                  {(role.permissions ?? [])
+                    .map((permission) => permissionLabel(permission))
+                    .join(", ")}
                 </Typography>
               }
             />
