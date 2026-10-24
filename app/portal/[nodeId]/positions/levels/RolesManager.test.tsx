@@ -43,7 +43,7 @@ const setup = (canManage = true) => {
 };
 
 describe("RolesManager", () => {
-  it("shows predefined roles without edit or delete buttons", () => {
+  it("shows predefined levels without edit or delete buttons", () => {
     setup();
 
     expect(screen.getByText("Predefinido")).toBeInTheDocument();
@@ -55,7 +55,7 @@ describe("RolesManager", () => {
     ).toBeInTheDocument();
   });
 
-  it("lists each role with its permissions worded for any node", () => {
+  it("lists each level with its permissions worded for any node", () => {
     setup();
 
     expect(
@@ -65,10 +65,10 @@ describe("RolesManager", () => {
     ).toBeInTheDocument();
   });
 
-  it("creates a role from scratch with the chosen permissions", async () => {
+  it("creates a level from scratch with the chosen permissions", async () => {
     const { user, onCreate } = setup();
 
-    await user.click(screen.getByRole("button", { name: "Nuevo rol" }));
+    await user.click(screen.getByRole("button", { name: "Nuevo nivel" }));
     const save = screen.getByRole("button", { name: "Guardar" });
     expect(save).toBeDisabled();
     await user.type(screen.getByRole("textbox", { name: "Nombre" }), " Media ");
@@ -86,10 +86,10 @@ describe("RolesManager", () => {
     });
   });
 
-  it("starts from a predefined role and lets you adjust it", async () => {
+  it("starts from a predefined level and lets you adjust it", async () => {
     const { user, onCreate } = setup();
 
-    await user.click(screen.getByRole("button", { name: "Nuevo rol" }));
+    await user.click(screen.getByRole("button", { name: "Nuevo nivel" }));
     await user.click(
       screen.getByRole("combobox", { name: "Crear a partir de" }),
     );
@@ -111,7 +111,7 @@ describe("RolesManager", () => {
   it("selects a whole resource group at once", async () => {
     const { user } = setup();
 
-    await user.click(screen.getByRole("button", { name: "Nuevo rol" }));
+    await user.click(screen.getByRole("button", { name: "Nuevo nivel" }));
     const group = screen.getByRole("group", { name: "Personas" });
     await user.click(within(group).getByRole("checkbox", { name: "Personas" }));
 
@@ -123,7 +123,7 @@ describe("RolesManager", () => {
     ).toBeChecked();
   });
 
-  it("edits an existing role", async () => {
+  it("edits an existing level", async () => {
     const { user, onUpdate } = setup();
 
     await user.click(screen.getByRole("button", { name: "Editar Tesorero" }));
@@ -144,7 +144,7 @@ describe("RolesManager", () => {
     });
   });
 
-  it("deletes a custom role after confirming", async () => {
+  it("deletes a custom level after confirming", async () => {
     const { user, onDelete } = setup();
 
     await user.click(screen.getByRole("button", { name: "Eliminar Tesorero" }));
@@ -157,7 +157,7 @@ describe("RolesManager", () => {
     setup(false);
 
     expect(
-      screen.queryByRole("button", { name: "Nuevo rol" }),
+      screen.queryByRole("button", { name: "Nuevo nivel" }),
     ).not.toBeInTheDocument();
     expect(
       screen.queryByRole("button", { name: "Editar Tesorero" }),

@@ -1,9 +1,11 @@
 "use client";
 
+import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
+import LoadingButton from "@mui/lab/LoadingButton";
 import {
   Button,
   Chip,
-  MenuItem,
+  IconButton,
   Paper,
   Stack,
   Table,
@@ -15,61 +17,67 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
-import IconButton from "@mui/material/IconButton";
-import LoadingButton from "@mui/lab/LoadingButton";
 import NextLink from "next/link";
 import React from "react";
-import type {
-  AccessEntryResponse,
-  RoleResponse,
-} from "@/app/(api)/generated/aPISrTommy.schemas";
+import type { AccessEntryResponse } from "@/app/(api)/generated/aPISrTommy.schemas";
 import { DialogDeleteConfirmation } from "@/app/(components)/DialogDeleteConfirmation";
-import { permissionLabel, reachLabel, type NodeType } from "./permissionLabels";
 
 type AccessManagerProps = Readonly<{
   entries: AccessEntryResponse[];
-  roles: RoleResponse[];
   canManage: boolean;
-  rolesHref: string;
-  // Kind of node the access is granted on; words what each role allows there.
-  nodeType?: NodeType;
-  onGrant: (email: string, roleId: string) => Promise<void>;
-  onRevoke: (bindingId: string) => Promise<void>;
+  // Owners are agreed on for the whole church, so they are managed there.
+  isChurch: boolean;
+  positionsHref: string;
+  onAddOwner: (email: string) => Promise<void>;
+  onRemoveOwner: (bindingId: string) => Promise<void>;
 }>;
 
-// Who has access to a node. Inherited rows come from an ancestor and can only
-// be removed there; direct rows are made on this node.
+// Where an access comes from, in words: a position (here or inherited), the
+// leadership of a group, or being an Owner of the church.
+export const originLabel = (entry: AccessEntryResponse) => {
+  switch (entry.source) {
+    case "POSITION":
+      return entry.inherited
+        ? `Cargo ${entry.positionName} en ${entry.organizationName}`
+        : `Cargo ${entry.positionName}`;
+    case "LEADER":
+      return `Líder de ${entry.organizationName}`;
+    default:
+      return "Propietario de la iglesia";
+  }
+};
+
+// Who can do things in a node and why. Access is not handed out here: it comes
+// from the access level of the position each person holds, so the way to change
+// it is Cargos. Only Owners are added and removed directly.
 export const AccessManager = ({
   entries,
-  roles,
   canManage,
-  rolesHref,
-  nodeType,
-  onGrant,
-  onRevoke,
+  isChurch,
+  positionsHref,
+  onAddOwner,
+  onRemoveOwner,
 }: AccessManagerProps) => {
   const [email, setEmail] = React.useState("");
-  const [roleId, setRoleId] = React.useState("");
-  const [granting, setGranting] = React.useState(false);
-  const [revoking, setRevoking] = React.useState<AccessEntryResponse | null>(
+  const [adding, setAdding] = React.useState(false);
+  const [removing, setRemoving] = React.useState<AccessEntryResponse | null>(
     null,
   );
 
-  const selectedRole = roles.find((role) => role.id === roleId);
+  const owners = entries.filter((entry) => entry.source === "DIRECT");
 
-  const grant = async () => {
-    setGranting(true);
+  const addOwner = async () => {
+    setAdding(true);
     try {
-      await onGrant(email.trim(), roleId);
+      await onAddOwner(email.trim());
       setEmail("");
     } finally {
-      setGranting(false);
+      setAdding(false);
     }
   };
 
   return (
-    <Stack spacing={2} sx={{ m: { xs: 2, sm: 4 }, maxWidth: 900 }}>
+    <Stack spacing={3} sx={{ m: { xs: 2, sm: 4 }, maxWidth: 900 }}>
       <Stack
         direction="row"
         justifyContent="space-between"
@@ -78,111 +86,44 @@ export const AccessManager = ({
         gap={1}
       >
         <Typography variant="h5" component="h1">
-          Accesos
+          Personas con acceso
         </Typography>
-        <Button component={NextLink} href={rolesHref} variant="outlined">
-          Administrar roles
+        <Button component={NextLink} href={positionsHref} variant="outlined">
+          Cargos y niveles de acceso
         </Button>
       </Stack>
       <Typography color="text.secondary">
-        Un rol vale para este lugar y para todo lo que cuelga de él. Los accesos
-        heredados se quitan en el lugar donde se otorgaron.
+        El acceso viene del cargo que tiene cada persona: su nivel vale para
+        este lugar y para todo lo que cuelga de él. Para dar o quitar acceso,
+        cambie el nivel del cargo o el cargo de la persona.
       </Typography>
 
-      {canManage && (
-        <Stack direction={{ xs: "column", sm: "row" }} spacing={1}>
-          <TextField
-            label="Correo"
-            type="email"
-            size="small"
-            value={email}
-            onChange={(event) => setEmail(event.target.value)}
-            helperText="La persona debe haber iniciado sesión antes."
-            sx={{ flex: 1 }}
-          />
-          <TextField
-            select
-            label="Rol"
-            size="small"
-            value={roleId}
-            onChange={(event) => setRoleId(event.target.value)}
-            sx={{ minWidth: 200 }}
-          >
-            {roles.map((role) => (
-              <MenuItem key={role.id} value={role.id}>
-                {role.name}
-              </MenuItem>
-            ))}
-          </TextField>
-          <LoadingButton
-            variant="contained"
-            loading={granting}
-            disabled={!email.trim() || !roleId}
-            onClick={grant}
-          >
-            Otorgar acceso
-          </LoadingButton>
-        </Stack>
-      )}
-      {canManage && selectedRole && (
-        <Paper variant="outlined" sx={{ p: 2 }}>
-          <Typography fontWeight={600} gutterBottom>
-            Con el rol {selectedRole.name} podrá:
-          </Typography>
-          <Stack component="ul" sx={{ m: 0, pl: 3 }} spacing={0.25}>
-            {(selectedRole.permissions ?? []).map((permission) => (
-              <li key={permission}>
-                <Typography variant="body2">
-                  {permissionLabel(permission, nodeType)}
-                </Typography>
-              </li>
-            ))}
-          </Stack>
-          {nodeType && (
-            <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-              {reachLabel(nodeType)}
-            </Typography>
-          )}
-        </Paper>
-      )}
-
       <TableContainer component={Paper} variant="outlined">
-        <Table aria-label="Accesos">
+        <Table aria-label="Personas con acceso">
           <TableHead>
             <TableRow>
               <TableCell>Correo</TableCell>
-              <TableCell>Rol</TableCell>
+              <TableCell>Nivel de acceso</TableCell>
               <TableCell>Origen</TableCell>
-              {canManage && <TableCell />}
             </TableRow>
           </TableHead>
           <TableBody>
             {entries.map((entry) => (
-              <TableRow key={entry.bindingId}>
+              <TableRow
+                key={`${entry.userId}-${entry.roleId}-${entry.organizationId}-${entry.positionName ?? entry.source}`}
+              >
                 <TableCell>{entry.email}</TableCell>
                 <TableCell>{entry.roleName}</TableCell>
                 <TableCell>
-                  {entry.inherited ? (
+                  {originLabel(entry)}
+                  {entry.inherited && entry.source === "DIRECT" && (
                     <Chip
                       size="small"
+                      sx={{ ml: 1 }}
                       label={`Heredado de ${entry.organizationName}`}
                     />
-                  ) : (
-                    <Chip size="small" color="primary" label="Directo" />
                   )}
                 </TableCell>
-                {canManage && (
-                  <TableCell align="right">
-                    {!entry.inherited && (
-                      <IconButton
-                        aria-label={`Quitar acceso a ${entry.email}`}
-                        onClick={() => setRevoking(entry)}
-                      >
-                        <DeleteOutlineIcon />
-                      </IconButton>
-                    )}
-                  </TableCell>
-                )}
               </TableRow>
             ))}
           </TableBody>
@@ -191,12 +132,66 @@ export const AccessManager = ({
       {entries.length === 0 && (
         <Typography color="text.secondary">Aún no hay accesos.</Typography>
       )}
+
+      {isChurch && (
+        <Stack spacing={1}>
+          <Typography variant="h6" component="h2">
+            Propietarios
+          </Typography>
+          <Typography color="text.secondary">
+            Los Propietarios controlan toda la iglesia y no dependen de un
+            cargo. La iglesia siempre conserva al menos uno.
+          </Typography>
+          <Stack component="ul" sx={{ m: 0, pl: 0, listStyle: "none" }}>
+            {owners.map((owner) => (
+              <Stack
+                component="li"
+                key={owner.bindingId}
+                direction="row"
+                alignItems="center"
+                justifyContent="space-between"
+              >
+                <Typography>{owner.email}</Typography>
+                {canManage && (
+                  <IconButton
+                    aria-label={`Quitar Propietario ${owner.email}`}
+                    onClick={() => setRemoving(owner)}
+                  >
+                    <DeleteOutlineIcon />
+                  </IconButton>
+                )}
+              </Stack>
+            ))}
+          </Stack>
+          {canManage && (
+            <Stack direction={{ xs: "column", sm: "row" }} spacing={1}>
+              <TextField
+                label="Correo del nuevo Propietario"
+                type="email"
+                size="small"
+                value={email}
+                onChange={(event) => setEmail(event.target.value)}
+                helperText="La persona debe haber iniciado sesión antes. Solo un Propietario puede agregar Propietarios."
+                sx={{ flex: 1 }}
+              />
+              <LoadingButton
+                variant="contained"
+                loading={adding}
+                disabled={!email.trim()}
+                onClick={addOwner}
+              >
+                Agregar Propietario
+              </LoadingButton>
+            </Stack>
+          )}
+        </Stack>
+      )}
       <DialogDeleteConfirmation
-        open={revoking !== null}
-        close={() => setRevoking(null)}
+        open={removing !== null}
+        close={() => setRemoving(null)}
         onDelete={async () => {
-          await onRevoke(revoking?.bindingId ?? "");
-          setRevoking(null);
+          await onRemoveOwner(removing?.bindingId ?? "");
+          setRemoving(null);
         }}
       />
     </Stack>

@@ -2,11 +2,10 @@
 
 import React from "react";
 import {
-  deleteOrganizationsByIdAccessByBindingId,
+  deleteOrganizationsByIdOwnersByBindingId,
+  postOrganizationsByIdOwners,
   useGetOrganizationsById,
-  postOrganizationsByIdAccess,
   useGetOrganizationsByIdAccess,
-  useGetOrganizationsByIdRoles,
 } from "@/app/(api)/generated";
 import Loading from "@/app/(components)/Loading";
 import { ResourceError } from "@/app/(components)/ResourceError";
@@ -27,7 +26,6 @@ export default function AccessPage(props: {
     isLoading,
     mutate,
   } = useGetOrganizationsByIdAccess(nodeId);
-  const { data: roles } = useGetOrganizationsByIdRoles(nodeId);
   const { data: node } = useGetOrganizationsById(nodeId);
 
   if (isLoading) return <Loading />;
@@ -47,20 +45,19 @@ export default function AccessPage(props: {
   return (
     <AccessManager
       entries={entries}
-      roles={roles ?? []}
       canManage={can("iam.manage")}
-      rolesHref={`/portal/${nodeId}/access/roles`}
-      nodeType={node?.type}
-      onGrant={(email, roleId) =>
+      isChurch={node?.type === "CHURCH"}
+      positionsHref={`/portal/${nodeId}/positions`}
+      onAddOwner={(email) =>
         run(
-          () => postOrganizationsByIdAccess(nodeId, { email, roleId }),
-          "Acceso otorgado",
+          () => postOrganizationsByIdOwners(nodeId, { email }),
+          "Propietario agregado",
         )
       }
-      onRevoke={(bindingId) =>
+      onRemoveOwner={(bindingId) =>
         run(
-          () => deleteOrganizationsByIdAccessByBindingId(nodeId, bindingId),
-          "Acceso quitado",
+          () => deleteOrganizationsByIdOwnersByBindingId(nodeId, bindingId),
+          "Propietario quitado",
         )
       }
     />

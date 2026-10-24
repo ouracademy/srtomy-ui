@@ -13,14 +13,19 @@ import {
 } from "react-hook-form-mui";
 import { DatePickerElement } from "react-hook-form-mui/date-pickers";
 import { z } from "zod";
-import { useGetOrganizationsByIdPositions } from "@/app/(api)/generated";
+import {
+  useGetOrganizationsByIdPositions,
+  useGetOrganizationsByIdRoles,
+} from "@/app/(api)/generated";
 import type {
   CreatePersonRequest,
   PositionResponse,
+  RoleResponse,
 } from "@/app/(api)/generated/aPISrTommy.schemas";
 import { formatISO } from "date-fns";
 import {
   toChoice,
+  accessHints,
   toPositionChoice,
   type PositionChoice,
 } from "./positionSelection";
@@ -88,6 +93,8 @@ export const PersonForm = ({
     error: positionsError,
     isLoading,
   } = useGetOrganizationsByIdPositions(nodeId);
+  // Only to name the level a position gives; without iam.read it is omitted.
+  const { data: levels } = useGetOrganizationsByIdRoles(nodeId);
 
   const formContext = useForm({
     defaultValues: initialValues,
@@ -171,7 +178,7 @@ export const PersonForm = ({
           <Grid sx={{ paddingBottom: "10px" }}>
             <Typography variant="h6">Cargos:</Typography>
           </Grid>
-          <PositionsField positions={positions} />
+          <PositionsField positions={positions} levels={levels ?? []} />
         </Grid>
         <Grid size={{ xs: 12 }}>
           <SaveButton
@@ -185,7 +192,13 @@ export const PersonForm = ({
 };
 
 // Positions of the church, or any new name: it is created when saving.
-const PositionsField = ({ positions }: { positions: PositionResponse[] }) => {
+const PositionsField = ({
+  positions,
+  levels,
+}: {
+  positions: PositionResponse[];
+  levels: RoleResponse[];
+}) => {
   const { control } = useFormContext<PersonDetailFormData>();
   return (
     <Controller
@@ -220,13 +233,23 @@ const PositionsField = ({ positions }: { positions: PositionResponse[] }) => {
               return <Chip key={key} label={label} {...itemProps} />;
             })
           }
-          renderInput={(params) => (
-            <TextField
-              {...params}
-              label="Escriba o seleccione los cargos"
-              helperText="Si escribe un cargo nuevo, se agregará a los cargos de la iglesia."
-            />
-          )}
+          renderInput={(params) => {
+            const hints = accessHints(field.value, positions, levels);
+            return (
+              <TextField
+                {...params}
+                label="Escriba o seleccione los cargos"
+                helperText={
+                  <>
+                    Si escribe un cargo nuevo, se agregará a los cargos de la
+                    iglesia, sin acceso a la aplicación.
+                    {hints.length > 0 &&
+                      ` Da acceso a la aplicación: ${hints.join("; ")}.`}
+                  </>
+                }
+              />
+            );
+          }}
         />
       )}
     />

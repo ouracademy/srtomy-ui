@@ -145,6 +145,47 @@
         }
       }
     },
+    "/v1/positions/{id}/access": {
+      "put": {
+        "tags": [
+          "positions"
+        ],
+        "operationId": "setAccess",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PositionAccessRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/PositionResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/people/{id}": {
       "get": {
         "tags": [
@@ -786,7 +827,7 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/PositionResponse"
+                    "$ref": "#/components/schemas/PositionSummaryResponse"
                   }
                 }
               }
@@ -814,7 +855,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/PositionRequest"
+                "$ref": "#/components/schemas/CreatePositionRequest"
               }
             }
           },
@@ -834,44 +875,12 @@
         }
       }
     },
-    "/v1/organizations/{id}/access": {
-      "get": {
-        "tags": [
-          "iam"
-        ],
-        "operationId": "access",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "*/*": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/AccessEntryResponse"
-                  }
-                }
-              }
-            }
-          }
-        }
-      },
+    "/v1/organizations/{id}/owners": {
       "post": {
         "tags": [
           "iam"
         ],
-        "operationId": "grant",
+        "operationId": "addOwner",
         "parameters": [
           {
             "name": "id",
@@ -887,7 +896,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/GrantAccessRequest"
+                "$ref": "#/components/schemas/OwnerRequest"
               }
             }
           },
@@ -1085,7 +1094,7 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "type": "string"
+                    "$ref": "#/components/schemas/PositionSuggestionResponse"
                   }
                 }
               }
@@ -1197,6 +1206,40 @@
                   "type": "array",
                   "items": {
                     "$ref": "#/components/schemas/OrganizationResponse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/organizations/{id}/access": {
+      "get": {
+        "tags": [
+          "iam"
+        ],
+        "operationId": "access",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AccessEntryResponse"
                   }
                 }
               }
@@ -1342,12 +1385,35 @@
         }
       }
     },
-    "/v1/organizations/{id}/access/{bindingId}": {
+    "/v1/iam/levels": {
+      "get": {
+        "tags": [
+          "iam"
+        ],
+        "operationId": "levels",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/RoleResponse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/organizations/{id}/owners/{bindingId}": {
       "delete": {
         "tags": [
           "iam"
         ],
-        "operationId": "revoke",
+        "operationId": "removeOwner",
         "parameters": [
           {
             "name": "id",
@@ -1424,6 +1490,9 @@
           },
           "predefined": {
             "type": "boolean"
+          },
+          "assignable": {
+            "type": "boolean"
           }
         }
       },
@@ -1449,6 +1518,19 @@
           },
           "name": {
             "type": "string"
+          },
+          "accessRoleId": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+      "PositionAccessRequest": {
+        "type": "object",
+        "properties": {
+          "accessRoleId": {
+            "type": "string",
+            "format": "uuid"
           }
         }
       },
@@ -1795,6 +1877,22 @@
           "organizationId"
         ]
       },
+      "ChurchPositionRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "accessRoleId": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "required": [
+          "name"
+        ]
+      },
       "CreateChurchRequest": {
         "type": "object",
         "properties": {
@@ -1820,14 +1918,38 @@
           "positions": {
             "type": "array",
             "items": {
-              "type": "string"
+              "$ref": "#/components/schemas/ChurchPositionRequest"
             }
+          },
+          "creator": {
+            "$ref": "#/components/schemas/CreatorRequest"
           }
         },
         "required": [
+          "creator",
           "location",
           "name",
           "positions"
+        ]
+      },
+      "CreatorRequest": {
+        "type": "object",
+        "properties": {
+          "firstName": {
+            "type": "string",
+            "minLength": 1
+          },
+          "lastName": {
+            "type": "string",
+            "minLength": 1
+          },
+          "positionName": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "firstName",
+          "lastName"
         ]
       },
       "LocationInfoRequest": {
@@ -1854,21 +1976,34 @@
           "name"
         ]
       },
-      "GrantAccessRequest": {
+      "CreatePositionRequest": {
         "type": "object",
         "properties": {
-          "email": {
+          "name": {
             "type": "string",
-            "minLength": 1
+            "maxLength": 255,
+            "minLength": 0
           },
-          "roleId": {
+          "accessRoleId": {
             "type": "string",
             "format": "uuid"
           }
         },
         "required": [
-          "email",
-          "roleId"
+          "name"
+        ]
+      },
+      "OwnerRequest": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "email"
         ]
       },
       "CreateLocationRequest": {
@@ -2083,6 +2218,18 @@
           }
         }
       },
+      "PositionSuggestionResponse": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "suggestedRoleId": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
       "PagePersonResponse": {
         "type": "object",
         "properties": {
@@ -2218,6 +2365,26 @@
           }
         }
       },
+      "PositionSummaryResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "accessRoleId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "holders": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
       "MemberStateResponse": {
         "type": "object",
         "properties": {
@@ -2313,6 +2480,17 @@
           },
           "inherited": {
             "type": "boolean"
+          },
+          "source": {
+            "type": "string",
+            "enum": [
+              "DIRECT",
+              "POSITION",
+              "LEADER"
+            ]
+          },
+          "positionName": {
+            "type": "string"
           }
         }
       },

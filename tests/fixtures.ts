@@ -79,6 +79,31 @@ const json = (body: unknown) => ({
   body: JSON.stringify(body),
 });
 
+// The predefined levels a position can have (Owner is never one).
+export const levels = [
+  {
+    id: "level-admin",
+    name: "Administrador",
+    permissions: ["org.read", "iam.manage"],
+    predefined: true,
+    assignable: true,
+  },
+  {
+    id: "level-leader",
+    name: "Líder",
+    permissions: ["org.read", "org.update"],
+    predefined: true,
+    assignable: true,
+  },
+  {
+    id: "level-collab",
+    name: "Colaborador",
+    permissions: ["org.read"],
+    predefined: true,
+    assignable: true,
+  },
+];
+
 // Who the e2e user is: an Administrator of a church with one location
 // (NODE_ID), so every screen and action is available unless a test overrides
 // these routes.
@@ -126,10 +151,26 @@ async function mockCurrentUser(page: import("@playwright/test").Page) {
     ),
   );
   await page.route("**/v1/positions/suggestions", (route) =>
-    route.fulfill(json(["Pastor", "Diácono", "Catequista"])),
+    route.fulfill(
+      json([
+        { name: "Pastor", suggestedRoleId: "level-admin" },
+        { name: "Diácono", suggestedRoleId: "level-leader" },
+        { name: "Catequista" },
+      ]),
+    ),
   );
+  await page.route("**/v1/iam/levels", (route) => route.fulfill(json(levels)));
   await page.route("**/v1/organizations/*/positions", (route) =>
-    route.fulfill(json([{ id: "p-pastor", name: "Pastor" }])),
+    route.fulfill(
+      json([
+        {
+          id: "p-pastor",
+          name: "Pastor",
+          accessRoleId: "level-admin",
+          holders: 1,
+        },
+      ]),
+    ),
   );
 }
 

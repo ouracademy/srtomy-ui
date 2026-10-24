@@ -5,8 +5,10 @@ import {
   deletePositionsById,
   postOrganizationsByIdPositions,
   putPositionsById,
+  putPositionsByIdAccess,
   useGetMeOrganizations,
   useGetOrganizationsByIdPositions,
+  useGetOrganizationsByIdRoles,
   useGetPositionsSuggestions,
 } from "@/app/(api)/generated";
 import Loading from "@/app/(components)/Loading";
@@ -14,6 +16,7 @@ import { ResourceError } from "@/app/(components)/ResourceError";
 import { SnackbarContext } from "@/app/(components)/SnackbarContext";
 import { usePermissions } from "@/app/(hooks)/usePermissions";
 import { churchOf, withIds } from "../../organizationTree";
+import { apiErrorMessage } from "../access/apiErrorMessage";
 import { PositionsManager } from "./PositionsManager";
 
 // Positions belong to the church, so every node of a church shows the same list.
@@ -32,6 +35,8 @@ export default function PositionsPage(props: {
     mutate,
   } = useGetOrganizationsByIdPositions(nodeId);
   const { data: suggestions } = useGetPositionsSuggestions();
+  // Readable with iam.read; without it the levels show only as "with access".
+  const { data: levels } = useGetOrganizationsByIdRoles(nodeId);
 
   if (isLoading) return <Loading />;
   if (!positions) return <ResourceError error={error} />;
@@ -39,9 +44,12 @@ export default function PositionsPage(props: {
   const run = async (action: () => Promise<unknown>, message: string) => {
     try {
       await action();
-    } catch {
+    } catch (failure) {
       alert.showMessage(
-        "No se pudo guardar. ¿Ya existe un cargo con ese nombre?",
+        apiErrorMessage(
+          failure,
+          "No se pudo guardar. ¿Ya existe un cargo con ese nombre?",
+        ),
       );
       return;
     }
@@ -52,12 +60,22 @@ export default function PositionsPage(props: {
   return (
     <PositionsManager
       positions={positions}
+      levels={levels ?? []}
       suggestions={suggestions ?? []}
       canManage={can("positions.manage")}
-      onCreate={(name) =>
+      levelsHref={
+        can("iam.manage") ? `/portal/${nodeId}/positions/levels` : undefined
+      }
+      onCreate={(name, accessRoleId) =>
         run(
-          () => postOrganizationsByIdPositions(nodeId, { name }),
+          () => postOrganizationsByIdPositions(nodeId, { name, accessRoleId }),
           "Cargo agregado",
+        )
+      }
+      onSetAccess={(id, accessRoleId) =>
+        run(
+          () => putPositionsByIdAccess(id, { accessRoleId }),
+          "Nivel de acceso actualizado",
         )
       }
       onRename={(id, name) =>

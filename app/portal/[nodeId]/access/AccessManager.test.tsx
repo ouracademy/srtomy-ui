@@ -1,147 +1,143 @@
 import { cleanup, render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { AccessManager } from "./AccessManager";
-import type { NodeType } from "./permissionLabels";
+import type { AccessEntryResponse } from "@/app/(api)/generated/aPISrTommy.schemas";
+import { AccessManager, originLabel } from "./AccessManager";
 
 afterEach(cleanup);
 
-const entries = [
+const entries: AccessEntryResponse[] = [
   {
     bindingId: "b1",
+    userId: "u1",
     email: "ana@x.org",
+    roleId: "r-owner",
     roleName: "Propietario",
+    organizationId: "church",
     organizationName: "Iglesia Central",
-    inherited: true,
+    inherited: false,
+    source: "DIRECT",
   },
   {
-    bindingId: "b2",
+    userId: "u2",
     email: "luis@x.org",
+    roleId: "r-leader",
     roleName: "Líder",
+    organizationId: "location",
+    organizationName: "Sede Centro",
+    inherited: true,
+    source: "POSITION",
+    positionName: "Pastor",
+  },
+  {
+    userId: "u3",
+    email: "eva@x.org",
+    roleId: "r-leader",
+    roleName: "Líder",
+    organizationId: "group",
     organizationName: "Jóvenes",
     inherited: false,
+    source: "LEADER",
   },
-];
-const roles = [
-  {
-    id: "r1",
-    name: "Líder",
-    permissions: ["org.read", "org.update", "members.write"],
-  },
-  { id: "r2", name: "Colaborador", permissions: ["org.read"] },
 ];
 
-const setup = (canManage = true, nodeType?: NodeType) => {
-  const onGrant = vi.fn().mockResolvedValue(undefined);
-  const onRevoke = vi.fn().mockResolvedValue(undefined);
+const setup = (canManage = true, isChurch = true) => {
+  const onAddOwner = vi.fn().mockResolvedValue(undefined);
+  const onRemoveOwner = vi.fn().mockResolvedValue(undefined);
   render(
     <AccessManager
       entries={entries}
-      roles={roles}
       canManage={canManage}
-      rolesHref="/portal/n1/access/roles"
-      nodeType={nodeType}
-      onGrant={onGrant}
-      onRevoke={onRevoke}
+      isChurch={isChurch}
+      positionsHref="/portal/n1/positions"
+      onAddOwner={onAddOwner}
+      onRemoveOwner={onRemoveOwner}
     />,
   );
-  return { user: userEvent.setup(), onGrant, onRevoke };
+  return { user: userEvent.setup(), onAddOwner, onRemoveOwner };
 };
 
+describe("originLabel", () => {
+  it("says where each access comes from", () => {
+    expect(originLabel(entries[0]!)).toBe("Propietario de la iglesia");
+    expect(originLabel(entries[1]!)).toBe("Cargo Pastor en Sede Centro");
+    expect(originLabel({ ...entries[1]!, inherited: false })).toBe(
+      "Cargo Pastor",
+    );
+    expect(originLabel(entries[2]!)).toBe("Líder de Jóvenes");
+  });
+});
+
 describe("AccessManager", () => {
-  it("marks each access as inherited or direct", () => {
+  it("lists who has access, at which level and why", () => {
     setup();
 
-    const rows = screen.getAllByRole("row");
+    const rows = within(
+      screen.getByRole("table", { name: "Personas con acceso" }),
+    ).getAllByRole("row");
+    expect(within(rows[2]!).getByText("luis@x.org")).toBeInTheDocument();
+    expect(within(rows[2]!).getByText("Líder")).toBeInTheDocument();
     expect(
-      within(rows[1]!).getByText("Heredado de Iglesia Central"),
+      within(rows[2]!).getByText("Cargo Pastor en Sede Centro"),
     ).toBeInTheDocument();
-    expect(within(rows[2]!).getByText("Directo")).toBeInTheDocument();
+    expect(within(rows[3]!).getByText("Líder de Jóvenes")).toBeInTheDocument();
   });
 
-  it("only lets you remove direct accesses", () => {
+  it("does not hand out access: that is done from the positions", () => {
     setup();
 
     expect(
-      screen.getByRole("button", { name: "Quitar acceso a luis@x.org" }),
-    ).toBeInTheDocument();
-    expect(
-      screen.queryByRole("button", { name: "Quitar acceso a ana@x.org" }),
+      screen.queryByRole("button", { name: "Otorgar acceso" }),
     ).not.toBeInTheDocument();
+    expect(
+      screen.getByRole("link", { name: "Cargos y niveles de acceso" }),
+    ).toHaveAttribute("href", "/portal/n1/positions");
   });
 
-  it("asks for confirmation before removing an access", async () => {
-    const { user, onRevoke } = setup();
+  it("adds an Owner by email", async () => {
+    const { user, onAddOwner } = setup();
+
+    await user.type(
+      screen.getByRole("textbox", { name: "Correo del nuevo Propietario" }),
+      " bob@x.org ",
+    );
+    await user.click(
+      screen.getByRole("button", { name: "Agregar Propietario" }),
+    );
+
+    expect(onAddOwner).toHaveBeenCalledWith("bob@x.org");
+  });
+
+  it("removes an Owner after confirming", async () => {
+    const { user, onRemoveOwner } = setup();
 
     await user.click(
-      screen.getByRole("button", { name: "Quitar acceso a luis@x.org" }),
+      screen.getByRole("button", { name: "Quitar Propietario ana@x.org" }),
     );
-    await user.click(screen.getByRole("button", { name: /eliminar/i }));
+    await user.click(screen.getByRole("button", { name: "Eliminar" }));
 
-    expect(onRevoke).toHaveBeenCalledWith("b2");
+    expect(onRemoveOwner).toHaveBeenCalledWith("b1");
   });
 
-  it("grants a role to an email", async () => {
-    const { user, onGrant } = setup();
-    const grant = screen.getByRole("button", { name: "Otorgar acceso" });
-    expect(grant).toBeDisabled();
+  it("only offers Owners on the church", () => {
+    setup(true, false);
 
-    await user.type(screen.getByLabelText("Correo"), " nuevo@x.org ");
-    await user.click(screen.getByRole("combobox", { name: "Rol" }));
-    await user.click(screen.getByRole("option", { name: "Colaborador" }));
-    await user.click(grant);
-
-    expect(onGrant).toHaveBeenCalledWith("nuevo@x.org", "r2");
+    expect(
+      screen.queryByRole("heading", { name: "Propietarios" }),
+    ).not.toBeInTheDocument();
   });
 
-  it("hides the editing controls without iam.manage", () => {
+  it("is read-only without iam.manage", () => {
     setup(false);
 
-    expect(screen.queryByLabelText("Correo")).not.toBeInTheDocument();
     expect(
-      screen.queryByRole("button", { name: /quitar acceso/i }),
+      screen.getByText("ana@x.org", { selector: "li p" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: "Agregar Propietario" }),
     ).not.toBeInTheDocument();
     expect(
-      screen.getByRole("link", { name: "Administrar roles" }),
-    ).toHaveAttribute("href", "/portal/n1/access/roles");
-  });
-
-  it.each<[NodeType, string, string]>([
-    [
-      "LOCATION",
-      "Editar nombre, dirección, teléfono y redes de esta sede y de sus grupos y ministerios",
-      "Estos permisos valen para esta sede y para sus grupos y ministerios.",
-    ],
-    [
-      "GROUP",
-      "Editar nombre, dirección, teléfono y redes de este grupo y de sus subgrupos",
-      "Estos permisos valen para este grupo y para sus subgrupos.",
-    ],
-  ])(
-    "explains what the chosen role allows on a %s",
-    async (nodeType, updateLabel, reach) => {
-      const { user } = setup(true, nodeType);
-      expect(screen.queryByText(/podrá:/)).not.toBeInTheDocument();
-
-      await user.click(screen.getByRole("combobox", { name: "Rol" }));
-      await user.click(screen.getByRole("option", { name: "Líder" }));
-
-      expect(screen.getByText("Con el rol Líder podrá:")).toBeInTheDocument();
-      expect(screen.getByText(updateLabel)).toBeInTheDocument();
-      expect(screen.getByText("Crear y editar personas")).toBeInTheDocument();
-      expect(screen.getByText(reach)).toBeInTheDocument();
-    },
-  );
-
-  it("words the role neutrally and skips the reach when the node type is unknown", async () => {
-    const { user } = setup(true);
-
-    await user.click(screen.getByRole("combobox", { name: "Rol" }));
-    await user.click(screen.getByRole("option", { name: "Colaborador" }));
-
-    expect(
-      screen.getByText("Ver los datos de la iglesia, sede, grupo o ministerio"),
-    ).toBeInTheDocument();
-    expect(screen.queryByText(/Estos permisos valen/)).not.toBeInTheDocument();
+      screen.queryByRole("button", { name: /Quitar Propietario/ }),
+    ).not.toBeInTheDocument();
   });
 });

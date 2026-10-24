@@ -14,10 +14,10 @@ import { ResourceError } from "@/app/(components)/ResourceError";
 import { SnackbarContext } from "@/app/(components)/SnackbarContext";
 import { usePermissions } from "@/app/(hooks)/usePermissions";
 import { churchOf, withIds } from "../../../organizationTree";
-import { apiErrorMessage } from "../apiErrorMessage";
+import { apiErrorMessage } from "../../access/apiErrorMessage";
 import { RolesManager } from "./RolesManager";
 
-// Roles belong to the church, so every node of a church shows the same list
+// Access levels belong to the church, so every node of a church shows the same list
 // and managing them needs iam.manage on the church itself.
 export default function RolesPage(props: {
   params: Promise<{ nodeId: string }>;
@@ -55,12 +55,12 @@ export default function RolesPage(props: {
       catalog={catalog ?? []}
       canManage={can("iam.manage")}
       onCreate={(input) =>
-        run(() => postOrganizationsByIdRoles(nodeId, input), "Rol creado")
+        run(() => postOrganizationsByIdRoles(nodeId, input), "Nivel creado")
       }
       onUpdate={(id, input) =>
-        run(() => putRolesByRoleId(id, input), "Rol actualizado")
+        run(() => putRolesByRoleId(id, input), "Nivel actualizado")
       }
-      onDelete={(id) => run(() => deleteRolesByRoleId(id), "Rol eliminado")}
+      onDelete={(id) => run(() => deleteRolesByRoleId(id), "Nivel eliminado")}
     />
   );
 }

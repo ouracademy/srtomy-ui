@@ -20,7 +20,7 @@ import type {
   PermissionGroupResponse,
   RoleResponse,
 } from "@/app/(api)/generated/aPISrTommy.schemas";
-import { permissionLabel, resourceLabel } from "../permissionLabels";
+import { permissionLabel, resourceLabel } from "../../access/permissionLabels";
 import { setGroup, togglePermission } from "./rolePermissions";
 
 export type RoleInput = {
@@ -71,7 +71,7 @@ export const RoleDialog = ({
 
   return (
     <Dialog open onClose={close} fullWidth maxWidth="sm">
-      <DialogTitle>{role ? "Editar rol" : "Nuevo rol"}</DialogTitle>
+      <DialogTitle>{role ? "Editar nivel" : "Nuevo nivel"}</DialogTitle>
       <DialogContent>
         <Stack spacing={2} sx={{ mt: 1 }}>
           <TextField
@@ -92,7 +92,7 @@ export const RoleDialog = ({
               label="Crear a partir de"
               value={baseId}
               onChange={(event) => startFrom(event.target.value)}
-              helperText="Parte de los permisos de un rol predefinido o de cero."
+              helperText="Parte de los permisos de un nivel predefinido o de cero."
             >
               <MenuItem value="">Desde cero</MenuItem>
               {predefinedRoles.map((base) => (
