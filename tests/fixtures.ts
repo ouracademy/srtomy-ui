@@ -144,6 +144,9 @@ async function mockCurrentUser(page: import("@playwright/test").Page) {
       ]),
     ),
   );
+  await page.route("**/v1/organizations/*/access", (route) =>
+    route.fulfill(json([])),
+  );
   await page.route("**/v1/iam/permissions", (route) =>
     route.fulfill(json(permissionCatalog)),
   );
