@@ -8,6 +8,7 @@ import { getEvents } from "@/app/(api)/generated";
 import { useRouter } from "next/navigation";
 import { Box, Fab, useMediaQuery, useTheme } from "@mui/material";
 import listPlugin from "@fullcalendar/list";
+import { originLabel, titleWithOrigin } from "../originLabel";
 
 export type DatesSelection = {
   start: Date;
@@ -69,6 +70,14 @@ export default function Calendar({
                 successCallback(
                   events.map((event) => ({
                     ...event,
+                    title: titleWithOrigin(
+                      event.title ?? "",
+                      originLabel(
+                        event.organization?.id,
+                        event.organization?.name,
+                        organizationId,
+                      ),
+                    ),
                     backgroundColor: event.isACourse ? "green" : undefined,
                     classNames: ["cursor-pointer"],
                   })),
