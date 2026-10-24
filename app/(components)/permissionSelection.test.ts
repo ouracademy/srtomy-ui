@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { setGroup, togglePermission } from "./rolePermissions";
+import { setGroup, togglePermission } from "./permissionSelection";
 
 describe("togglePermission", () => {
   it("adds a missing permission and removes a present one", () => {

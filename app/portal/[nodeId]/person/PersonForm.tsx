@@ -16,11 +16,12 @@ import { z } from "zod";
 import { useGetOrganizationsByIdPositions } from "@/app/(api)/generated";
 import type {
   CreatePersonRequest,
-  PositionResponse,
+  PositionSummaryResponse,
 } from "@/app/(api)/generated/aPISrTommy.schemas";
 import { formatISO } from "date-fns";
 import {
   toChoice,
+  accessHints,
   toPositionChoice,
   type PositionChoice,
 } from "./positionSelection";
@@ -185,7 +186,11 @@ export const PersonForm = ({
 };
 
 // Positions of the church, or any new name: it is created when saving.
-const PositionsField = ({ positions }: { positions: PositionResponse[] }) => {
+const PositionsField = ({
+  positions,
+}: {
+  positions: PositionSummaryResponse[];
+}) => {
   const { control } = useFormContext<PersonDetailFormData>();
   return (
     <Controller
@@ -220,13 +225,23 @@ const PositionsField = ({ positions }: { positions: PositionResponse[] }) => {
               return <Chip key={key} label={label} {...itemProps} />;
             })
           }
-          renderInput={(params) => (
-            <TextField
-              {...params}
-              label="Escriba o seleccione los cargos"
-              helperText="Si escribe un cargo nuevo, se agregará a los cargos de la iglesia."
-            />
-          )}
+          renderInput={(params) => {
+            const hints = accessHints(field.value, positions);
+            return (
+              <TextField
+                {...params}
+                label="Escriba o seleccione los cargos"
+                helperText={
+                  <>
+                    Si escribe un cargo nuevo, se agregará a los cargos de la
+                    iglesia, sin acceso a la aplicación.
+                    {hints.length > 0 &&
+                      ` Da acceso a la aplicación: ${hints.join("; ")}.`}
+                  </>
+                }
+              />
+            );
+          }}
         />
       )}
     />

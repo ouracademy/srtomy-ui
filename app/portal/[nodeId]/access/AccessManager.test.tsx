@@ -1,102 +1,229 @@
 import { cleanup, render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { AccessManager } from "./AccessManager";
+import type { AccessEntryResponse } from "@/app/(api)/generated/aPISrTommy.schemas";
+import {
+  AccessList,
+  groupByPerson,
+  OwnersPanel,
+  accessLabel,
+  originLabel,
+} from "./AccessManager";
 
 afterEach(cleanup);
 
-const entries = [
+const entries: AccessEntryResponse[] = [
   {
     bindingId: "b1",
+    userId: "u1",
     email: "ana@x.org",
+    roleId: "r-owner",
     roleName: "Propietario",
+    organizationId: "church",
     organizationName: "Iglesia Central",
-    inherited: true,
+    inherited: false,
+    source: "DIRECT",
+    permissionCount: 12,
   },
   {
-    bindingId: "b2",
+    userId: "u2",
     email: "luis@x.org",
+    organizationId: "location",
+    organizationName: "Sede Centro",
+    inherited: true,
+    source: "POSITION",
+    positionName: "Pastor",
+    permissionCount: 5,
+  },
+  {
+    userId: "u3",
+    email: "eva@x.org",
+    roleId: "r-leader",
     roleName: "Líder",
+    organizationId: "group",
     organizationName: "Jóvenes",
     inherited: false,
+    source: "LEADER",
+    permissionCount: 9,
   },
 ];
-const roles = [
-  { id: "r1", name: "Líder" },
-  { id: "r2", name: "Colaborador" },
-];
 
-const setup = (canManage = true) => {
-  const onGrant = vi.fn().mockResolvedValue(undefined);
-  const onRevoke = vi.fn().mockResolvedValue(undefined);
-  render(
-    <AccessManager
-      entries={entries}
-      roles={roles}
-      canManage={canManage}
-      rolesHref="/portal/n1/access/roles"
-      onGrant={onGrant}
-      onRevoke={onRevoke}
-    />,
-  );
-  return { user: userEvent.setup(), onGrant, onRevoke };
+describe("originLabel and accessLabel", () => {
+  it("say where each access comes from and what it allows", () => {
+    expect(originLabel(entries[0]!)).toBe("Propietario de la iglesia");
+    expect(originLabel(entries[1]!)).toBe("Cargo Pastor en Sede Centro");
+    expect(originLabel({ ...entries[1]!, inherited: false })).toBe(
+      "Cargo Pastor",
+    );
+    expect(originLabel(entries[2]!)).toBe("Líder de Jóvenes");
+    expect(accessLabel(entries[0]!)).toBe("Propietario");
+    expect(accessLabel(entries[1]!)).toBe("5 permisos");
+    expect(accessLabel({ ...entries[1]!, permissionCount: 1 })).toBe(
+      "1 permiso",
+    );
+  });
+});
+
+// Ana is also a Pastor: two accesses of the same person.
+const anaAlso: AccessEntryResponse = {
+  userId: "u1",
+  email: "ana@x.org",
+  organizationId: "church",
+  organizationName: "Iglesia Central",
+  inherited: false,
+  source: "POSITION",
+  positionName: "Servidor",
+  permissionCount: 2,
 };
 
-describe("AccessManager", () => {
-  it("marks each access as inherited or direct", () => {
-    setup();
+describe("groupByPerson", () => {
+  it("joins the accesses of the same person", () => {
+    const people = groupByPerson([...entries, anaAlso]);
+
+    expect(people.map((p) => p.email)).toEqual([
+      "ana@x.org",
+      "luis@x.org",
+      "eva@x.org",
+    ]);
+    expect(people[0]!.entries).toHaveLength(2);
+  });
+});
+
+describe("AccessList", () => {
+  it("lists who has access, what it allows and why", () => {
+    render(<AccessList entries={entries} />);
+
+    const rows = within(
+      screen.getByRole("table", { name: "Personas con acceso" }),
+    ).getAllByRole("row");
+    expect(within(rows[2]!).getByText("luis@x.org")).toBeInTheDocument();
+    expect(within(rows[2]!).getByText("5 permisos")).toBeInTheDocument();
+    expect(
+      within(rows[2]!).getByText("Cargo Pastor en Sede Centro"),
+    ).toBeInTheDocument();
+    expect(within(rows[3]!).getByText("Líder de Jóvenes")).toBeInTheDocument();
+  });
+
+  it("shows a person with several accesses in one row", () => {
+    render(<AccessList entries={[...entries, anaAlso]} />);
+
+    const rows = within(
+      screen.getByRole("table", { name: "Personas con acceso" }),
+    ).getAllByRole("row");
+    expect(rows).toHaveLength(4);
+    expect(
+      within(rows[1]!).getByText("Propietario de la iglesia"),
+    ).toBeInTheDocument();
+    expect(within(rows[1]!).getByText("Cargo Servidor")).toBeInTheDocument();
+    expect(within(rows[1]!).getByText("2 permisos")).toBeInTheDocument();
+  });
+
+  it("does not put a block element inside a paragraph (hydration)", () => {
+    const error = vi.spyOn(console, "error").mockImplementation(() => {});
+    // An inherited Owner is the row that carries a chip.
+    render(<AccessList entries={[{ ...entries[0]!, inherited: true }]} />);
+
+    expect(screen.getByText("Heredado de Iglesia Central")).toBeInTheDocument();
+    expect(error).not.toHaveBeenCalled();
+    error.mockRestore();
+  });
+
+  it("marks the signed-in user", () => {
+    render(<AccessList entries={entries} currentUserId="u2" />);
 
     const rows = screen.getAllByRole("row");
-    expect(
-      within(rows[1]!).getByText("Heredado de Iglesia Central"),
-    ).toBeInTheDocument();
-    expect(within(rows[2]!).getByText("Directo")).toBeInTheDocument();
+    expect(within(rows[2]!).getByText("Tú")).toBeInTheDocument();
+    expect(within(rows[1]!).queryByText("Tú")).not.toBeInTheDocument();
   });
 
-  it("only lets you remove direct accesses", () => {
+  it("filters by email, position or permissions", async () => {
+    const user = userEvent.setup();
+    render(<AccessList entries={entries} />);
+
+    await user.type(
+      screen.getByRole("textbox", { name: /filtrar/i }),
+      "pastor",
+    );
+
+    expect(screen.getByText("luis@x.org")).toBeInTheDocument();
+    expect(screen.queryByText("eva@x.org")).not.toBeInTheDocument();
+  });
+
+  it("says when nothing matches", async () => {
+    const user = userEvent.setup();
+    render(<AccessList entries={entries} />);
+
+    await user.type(screen.getByRole("textbox", { name: /filtrar/i }), "zzz");
+
+    expect(screen.getByText("Sin resultados.")).toBeInTheDocument();
+  });
+
+  it("does not hand out access", () => {
+    render(<AccessList entries={[]} />);
+
+    expect(screen.getByText("Aún no hay accesos.")).toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: "Otorgar acceso" }),
+    ).not.toBeInTheDocument();
+  });
+});
+
+describe("OwnersPanel", () => {
+  const setup = (canManage = true) => {
+    const onAddOwner = vi.fn().mockResolvedValue(undefined);
+    const onRemoveOwner = vi.fn().mockResolvedValue(undefined);
+    render(
+      <OwnersPanel
+        entries={entries}
+        canManage={canManage}
+        onAddOwner={onAddOwner}
+        onRemoveOwner={onRemoveOwner}
+      />,
+    );
+    return { user: userEvent.setup(), onAddOwner, onRemoveOwner };
+  };
+
+  it("lists only the Owners", () => {
     setup();
 
-    expect(
-      screen.getByRole("button", { name: "Quitar acceso a luis@x.org" }),
-    ).toBeInTheDocument();
-    expect(
-      screen.queryByRole("button", { name: "Quitar acceso a ana@x.org" }),
-    ).not.toBeInTheDocument();
+    expect(screen.getByText("ana@x.org")).toBeInTheDocument();
+    expect(screen.queryByText("luis@x.org")).not.toBeInTheDocument();
   });
 
-  it("asks for confirmation before removing an access", async () => {
-    const { user, onRevoke } = setup();
+  it("adds an Owner by email", async () => {
+    const { user, onAddOwner } = setup();
+
+    await user.type(
+      screen.getByRole("textbox", { name: "Correo del nuevo Propietario" }),
+      " bob@x.org ",
+    );
+    await user.click(
+      screen.getByRole("button", { name: "Agregar Propietario" }),
+    );
+
+    expect(onAddOwner).toHaveBeenCalledWith("bob@x.org");
+  });
+
+  it("removes an Owner after confirming", async () => {
+    const { user, onRemoveOwner } = setup();
 
     await user.click(
-      screen.getByRole("button", { name: "Quitar acceso a luis@x.org" }),
+      screen.getByRole("button", { name: "Quitar Propietario ana@x.org" }),
     );
-    await user.click(screen.getByRole("button", { name: /eliminar/i }));
+    await user.click(screen.getByRole("button", { name: "Eliminar" }));
 
-    expect(onRevoke).toHaveBeenCalledWith("b2");
+    expect(onRemoveOwner).toHaveBeenCalledWith("b1");
   });
 
-  it("grants a role to an email", async () => {
-    const { user, onGrant } = setup();
-    const grant = screen.getByRole("button", { name: "Otorgar acceso" });
-    expect(grant).toBeDisabled();
-
-    await user.type(screen.getByLabelText("Correo"), " nuevo@x.org ");
-    await user.click(screen.getByRole("combobox", { name: "Rol" }));
-    await user.click(screen.getByRole("option", { name: "Colaborador" }));
-    await user.click(grant);
-
-    expect(onGrant).toHaveBeenCalledWith("nuevo@x.org", "r2");
-  });
-
-  it("hides the editing controls without iam.manage", () => {
+  it("is read-only without iam.manage", () => {
     setup(false);
 
-    expect(screen.queryByLabelText("Correo")).not.toBeInTheDocument();
+    expect(screen.getByText("ana@x.org")).toBeInTheDocument();
     expect(
-      screen.queryByRole("button", { name: /quitar acceso/i }),
+      screen.queryByRole("button", { name: "Agregar Propietario" }),
     ).not.toBeInTheDocument();
     expect(
-      screen.getByRole("link", { name: "Administrar roles" }),
-    ).toHaveAttribute("href", "/portal/n1/access/roles");
+      screen.queryByRole("button", { name: /Quitar Propietario/ }),
+    ).not.toBeInTheDocument();
   });
 });
