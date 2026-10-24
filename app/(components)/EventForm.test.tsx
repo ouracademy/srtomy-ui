@@ -34,7 +34,7 @@ const renderForm = (submit: (values: EventDetailFormData) => void) =>
   render(
     <LocalizationProvider dateAdapter={AdapterDateFns}>
       <EventForm
-        locId="11111111-1111-1111-1111-111111111111"
+        nodeId="11111111-1111-1111-1111-111111111111"
         initialValues={initialValues}
         submit={submit}
         editable

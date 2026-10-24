@@ -56,14 +56,14 @@ const schema = z
 export type EventDetailFormData = z.infer<typeof schema>;
 
 type EventFormProps = {
-  locId: string;
+  nodeId: string;
   initialValues: EventDetailFormData;
   submit: SubmitHandler<EventDetailFormData>;
   editable: boolean;
 };
 
 export const EventForm = ({
-  locId,
+  nodeId,
   initialValues,
   submit,
   editable,
@@ -82,10 +82,10 @@ export const EventForm = ({
     DEBOUNCE_WAIT_MS,
   );
 
-  const { data: location } = useGetOrganizationsById(locId);
+  const { data: location } = useGetOrganizationsById(nodeId);
 
   const { data: people } = useGetPeople({
-    organizationId: locId,
+    organizationId: nodeId,
     searchText: searchTextDebounced,
   });
 

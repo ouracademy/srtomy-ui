@@ -1,16 +1,16 @@
 import { test, expect } from "./fixtures";
 
 test.describe("Registro de eventos", () => {
-  const locId = "11111111-1111-1111-1111-111111111111";
+  const nodeId = "11111111-1111-1111-1111-111111111111";
   test("abc", async ({ page }) => {
     const { faker } = await import("@faker-js/faker");
 
     //1 Mock para obtener locación
-    await page.route(`**/organizations/${locId}`, async (route) => {
+    await page.route(`**/organizations/${nodeId}`, async (route) => {
       await route.fulfill({
         status: 200,
         contentType: "application/json",
-        body: JSON.stringify({ id: locId, address: "Calle Principal 123" }),
+        body: JSON.stringify({ id: nodeId, address: "Calle Principal 123" }),
       });
     });
 
@@ -50,7 +50,7 @@ test.describe("Registro de eventos", () => {
     });
 
     //2 Navegación
-    await page.goto(`/portal/${locId}/event`);
+    await page.goto(`/portal/${nodeId}/event`);
 
     //Esperamos que cargue un elemento
     await expect(

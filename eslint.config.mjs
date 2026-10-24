@@ -18,7 +18,7 @@ export default defineConfig([
     // The board passes @hello-pangea/dnd render-prop `provided` objects to
     // `ref`; the React Compiler rule reads that as a ref access during render
     // (false positive, it is the documented usage of the library).
-    files: ["app/portal/[[]locId]/person/board/**"],
+    files: ["app/portal/[[]nodeId]/person/board/**"],
     rules: { "react-hooks/refs": "off" },
   },
   {

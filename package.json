@@ -61,8 +61,10 @@
     "@commitlint/config-conventional": "^21.2.3",
     "@faker-js/faker": "^10.6.0",
     "@playwright/test": "^1.64.1",
+    "@testing-library/dom": "^10.4.2",
     "@testing-library/jest-dom": "^7.0.1",
     "@testing-library/react": "^16.3.3",
+    "@testing-library/user-event": "^14.6.8",
     "@types/node": "^24.19.2",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
@@ -76,6 +78,11 @@
     "prettier": "^3.9.10",
     "typescript": "^6.0.3",
     "vitest": "^5.0.5"
+  },
+  "pnpm": {
+    "overrides": {
+      "fast-uri": "^3.1.9"
+    }
   },
   "packageManager": "pnpm@10.33.0+sha512.10568bb4a6afb58c9eb3630da90cc9516417abebd3fabbe6739f0ae795728da1491e9db5a544c76ad8eb7570f5c4bb3d6c637b2cb41bfdcdb47fa823c8649319"
 }

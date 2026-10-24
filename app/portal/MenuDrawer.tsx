@@ -1,6 +1,5 @@
 "use client";
 
-import { useAuth0 } from "@auth0/auth0-react";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import MenuIcon from "@mui/icons-material/Menu";
 import { Button, Stack } from "@mui/material";
@@ -13,9 +12,9 @@ import IconButton from "@mui/material/IconButton";
 import Toolbar from "@mui/material/Toolbar";
 import { styled } from "@mui/material/styles";
 import * as React from "react";
-import { useGetOrganizationsById } from "@/app/(api)/generated";
-import Loading from "../(components)/Loading";
-import { LocationsDialog } from "./LocationsDialog";
+import { useGetMeOrganizations } from "@/app/(api)/generated";
+import { OrganizationPicker } from "./OrganizationPicker";
+import { pathTo, withIds } from "./organizationTree";
 import { UserMenu } from "./UserMenu";
 
 const drawerWidth = 240;
@@ -38,28 +37,23 @@ const DrawerHeader = styled("div")(({ theme }) => ({
   justifyContent: "center",
 }));
 
-// Layout of the portal: top bar (location switcher, user menu), side menu
-// (`listDrawer`) and the page content (`children`).
+// Layout of the portal: top bar (breadcrumb of the current node that opens the
+// node picker, user menu), side menu (`listDrawer`) and the page content.
 export default function MenuDrawer({
   children,
   listDrawer,
-  location,
-  locId,
+  nodeId,
 }: React.PropsWithChildren<{
   listDrawer?: React.ReactNode;
-  location?: { name?: string };
-  locId?: string;
+  nodeId?: string;
 }>) {
-  const { user, isLoading } = useAuth0();
   const [mobileOpen, setMobileOpen] = React.useState(false);
-  const [openLocations, setOpenLocations] = React.useState(false);
+  const [openPicker, setOpenPicker] = React.useState(false);
 
-  const orgId = user?.["https://sr-tommy.com/orgId"];
-  const { data: organization } = useGetOrganizationsById(orgId ?? "", {
-    swr: { enabled: !!orgId },
-  });
-
-  if (isLoading) return <Loading />;
+  const { data } = useGetMeOrganizations();
+  const nodes = withIds(data);
+  const path = nodeId ? pathTo(nodes, nodeId) : [];
+  const church = path[0];
 
   return (
     <Box sx={{ display: "flex" }}>
@@ -96,15 +90,27 @@ export default function MenuDrawer({
                 variant="outlined"
                 color="inherit"
                 endIcon={<KeyboardArrowDownIcon />}
-                onClick={() => setOpenLocations(true)}
+                onClick={() => setOpenPicker(true)}
+                aria-label={
+                  path.length
+                    ? `Cambiar de iglesia, sede o grupo. Actual: ${path.map((node) => node.name).join(" / ")}`
+                    : "Seleccione iglesia o sede"
+                }
               >
-                {location?.name || "Seleccione sede"}
+                {path.length
+                  ? path
+                      .slice(-2)
+                      .map((node) => node.name)
+                      .join(" › ")
+                  : "Seleccione iglesia o sede"}
               </Button>
             </Stack>
-            <UserMenu locId={locId} />
-            <LocationsDialog
-              open={openLocations}
-              onClose={() => setOpenLocations(false)}
+            <UserMenu nodeId={nodeId} />
+            <OrganizationPicker
+              open={openPicker}
+              onClose={() => setOpenPicker(false)}
+              nodes={nodes}
+              currentId={nodeId}
             />
           </div>
         </Toolbar>
@@ -138,7 +144,7 @@ export default function MenuDrawer({
           open
         >
           <DrawerHeader sx={{ background: "#2a2b36", color: "#fff" }}>
-            {organization?.name}
+            {church?.name}
           </DrawerHeader>
           <Divider />
           <Box

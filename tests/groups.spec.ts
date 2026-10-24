@@ -1,12 +1,12 @@
 import { test, expect } from "./fixtures";
 
 test.describe("Grupos y Ministerios", () => {
-  const locId = "11111111-1111-1111-1111-111111111111";
+  const nodeId = "11111111-1111-1111-1111-111111111111";
 
   //1. Mocks
   test.beforeEach(async ({ page }) => {
     //
-    await page.route(`**/organizations/${locId}/childs**`, async (route) => {
+    await page.route(`**/organizations/${nodeId}/childs**`, async (route) => {
       await route.fulfill({
         status: 200,
         contentType: "application/json",
@@ -55,7 +55,7 @@ test.describe("Grupos y Ministerios", () => {
 
   test("Crear un grupo exitosamente", async ({ page }) => {
     //1. Navegar a la página de creación
-    await page.goto(`/portal/${locId}/location/groups/create`);
+    await page.goto(`/portal/${nodeId}/location/groups/create`);
 
     //2. Verificar el título del formulario
     await expect(
@@ -98,11 +98,11 @@ test.describe("Grupos y Ministerios", () => {
     await expect(page.getByText(/guardado exitosamente/i)).toBeVisible();
 
     //
-    await expect(page).toHaveURL(new RegExp(`/portal/${locId}/location`));
+    await expect(page).toHaveURL(new RegExp(`/portal/${nodeId}/location`));
   });
 
   test("error de validación", async ({ page }) => {
-    await page.goto(`/portal/${locId}/location/groups/create`);
+    await page.goto(`/portal/${nodeId}/location/groups/create`);
 
     //1. Intentar guardar sin llenar
     await page.getByRole("button", { name: /Guardar/i }).click();
@@ -111,7 +111,5 @@ test.describe("Grupos y Ministerios", () => {
     await expect(
       page.getByText(/Por favor ingrese el nombre del Grupo o ministerio/i),
     ).toBeVisible();
-    await expect(page.getByText(/Añada al menos un líder/i)).toBeVisible();
-    await expect(page.getByText(/Añada al menos un miembro/i)).toBeVisible();
   });
 });

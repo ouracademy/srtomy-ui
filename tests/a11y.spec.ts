@@ -1,7 +1,7 @@
 import AxeBuilder from "@axe-core/playwright";
 import { test, expect } from "./fixtures";
 
-const locId = "11111111-1111-1111-1111-111111111111";
+const nodeId = "11111111-1111-1111-1111-111111111111";
 
 const json = (body: unknown) => ({
   status: 200,
@@ -11,13 +11,15 @@ const json = (body: unknown) => ({
 
 test.describe("Accesibilidad", () => {
   test.beforeEach(async ({ page }) => {
-    await page.route("**/organizations/locations/*/roles**", (route) =>
+    await page.route("**/organizations/*/positions**", (route) =>
       route.fulfill(json([])),
     );
-    await page.route(`**/organizations/${locId}`, (route) =>
-      route.fulfill(json({ id: locId, name: "Sede Central" })),
+    await page.route(`**/organizations/${nodeId}`, (route) =>
+      route.fulfill(
+        json({ id: nodeId, name: "Sede Central", type: "LOCATION" }),
+      ),
     );
-    await page.route("**/organizations/locations/childs**", (route) =>
+    await page.route("**/organizations/*/childs**", (route) =>
       route.fulfill(json([])),
     );
     await page.route("**/people**", (route) =>
@@ -26,8 +28,9 @@ test.describe("Accesibilidad", () => {
   });
 
   const pages = [
-    { name: "Crear grupo", path: `/portal/${locId}/location/groups/create` },
-    { name: "Registrar persona", path: `/portal/${locId}/person/create` },
+    { name: "Crear grupo", path: `/portal/${nodeId}/location/groups/create` },
+    { name: "Registrar persona", path: `/portal/${nodeId}/person/create` },
+    { name: "Cargos", path: `/portal/${nodeId}/positions` },
   ];
 
   for (const { name, path } of pages) {
