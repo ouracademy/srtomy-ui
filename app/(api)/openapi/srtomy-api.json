@@ -1969,13 +1969,6 @@
           "name": {
             "type": "string"
           },
-          "kind": {
-            "type": "string",
-            "enum": [
-              "ORGANIZATION",
-              "PERSON"
-            ]
-          },
           "fullName": {
             "type": "string"
           },
