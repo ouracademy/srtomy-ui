@@ -16,7 +16,7 @@ const roles = [
   },
 ];
 
-test.describe("Cargos y accesos", () => {
+test.describe("Accesos", () => {
   test.beforeEach(async ({ page }) => {
     await page.route(`**/organizations/${NODE_ID}`, (route) =>
       route.fulfill(
@@ -25,12 +25,6 @@ test.describe("Cargos y accesos", () => {
     );
     await page.route("**/organizations/*/roles", (route) =>
       route.fulfill(json(roles)),
-    );
-    await page.route("**/organizations/*/positions**", (route) =>
-      route.fulfill(json([])),
-    );
-    await page.route("**/positions/suggestions", (route) =>
-      route.fulfill(json([])),
     );
   });
 
@@ -66,8 +60,7 @@ test.describe("Cargos y accesos", () => {
       );
     });
 
-    await page.goto(`/portal/${NODE_ID}/positions`);
-    await page.getByRole("tab", { name: "Accesos" }).click();
+    await page.goto(`/portal/${NODE_ID}/access`);
 
     await expect(page.getByText("Heredado de Iglesia E2E")).toBeVisible();
     await expect(page.getByText("Directo")).toBeVisible();
@@ -102,8 +95,7 @@ test.describe("Cargos y accesos", () => {
       await route.fulfill(json(roles));
     });
 
-    await page.goto(`/portal/${NODE_ID}/positions`);
-    await page.getByRole("tab", { name: "Roles" }).click();
+    await page.goto(`/portal/${NODE_ID}/access/roles`);
     await page.getByRole("button", { name: "Nuevo rol" }).click();
     await page.getByRole("combobox", { name: "Crear a partir de" }).click();
     await page.getByRole("option", { name: "Líder" }).click();
@@ -119,15 +111,18 @@ test.describe("Cargos y accesos", () => {
     });
   });
 
-  test("sin iam.read solo se ve la pestaña Cargos", async ({ page }) => {
+  test("sin iam.read no aparece Accesos en el menú", async ({ page }) => {
     await page.route("**/v1/me/permissions**", (route) =>
       route.fulfill(json(["org.read", "members.read"])),
     );
+    await page.route("**/organizations/*/childs**", (route) =>
+      route.fulfill(json([])),
+    );
 
-    await page.goto(`/portal/${NODE_ID}/positions`);
+    await page.goto(`/portal/${NODE_ID}/location`);
 
-    await expect(page.getByRole("tab", { name: "Cargos" })).toBeVisible();
-    await expect(page.getByRole("tab", { name: "Accesos" })).toHaveCount(0);
-    await expect(page.getByRole("tab", { name: "Roles" })).toHaveCount(0);
+    const menu = page.getByRole("list", { name: "Menú principal" });
+    await expect(menu.getByText("Personas", { exact: true })).toBeVisible();
+    await expect(menu.getByText("Accesos", { exact: true })).toHaveCount(0);
   });
 });

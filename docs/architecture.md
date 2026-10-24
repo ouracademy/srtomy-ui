@@ -33,9 +33,9 @@ app/
     CreateChurchForm.tsx       Alta de iglesia con su primera sede y sus cargos (página /portal)
     UserMenu.tsx               Perfil y cerrar sesión (lo usa MenuDrawer)
     [nodeId]/                  Un nodo: iglesia, sede, grupo o ministerio (anidables)
-      person/ location/ event/ positions/
+      person/ location/ event/ positions/ access/
                                Una carpeta por sección, con sus componentes, formularios y tablas
-                               (positions/ reúne en pestañas los cargos, los accesos y los roles personalizados de la iglesia)
+                               (access/roles/ edita los roles personalizados de la iglesia)
   error.tsx global-error.tsx not-found.tsx    Límites de error de Next
 ```
 

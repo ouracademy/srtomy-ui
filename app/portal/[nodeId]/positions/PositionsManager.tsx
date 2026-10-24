@@ -66,8 +66,8 @@ export const PositionsManager = ({
   };
 
   return (
-    <Stack spacing={2} sx={{ maxWidth: 700 }}>
-      <Typography variant="h6" component="h2">
+    <Stack spacing={2} sx={{ m: { xs: 2, sm: 4 }, maxWidth: 700 }}>
+      <Typography variant="h5" component="h1">
         Cargos de la iglesia
       </Typography>
       <Typography color="text.secondary">

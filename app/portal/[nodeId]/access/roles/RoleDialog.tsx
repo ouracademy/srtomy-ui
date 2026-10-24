@@ -20,7 +20,7 @@ import type {
   PermissionGroupResponse,
   RoleResponse,
 } from "@/app/(api)/generated/aPISrTommy.schemas";
-import { permissionLabel, resourceLabel } from "./permissionLabels";
+import { permissionLabel, resourceLabel } from "../permissionLabels";
 import { setGroup, togglePermission } from "./rolePermissions";
 
 export type RoleInput = {

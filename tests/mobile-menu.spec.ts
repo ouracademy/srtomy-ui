@@ -39,7 +39,7 @@ test.describe("Menú en móvil", () => {
       "Sede",
       "Personas",
       "Eventos y cursos",
-      "Cargos y accesos",
+      "Cargos",
     ]) {
       await expect(navigation.getByText(label, { exact: true })).toBeVisible();
     }

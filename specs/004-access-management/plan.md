@@ -2,7 +2,7 @@
 
 ## Summary
 
-Accesos y roles viven como pestañas de la pantalla "Cargos y accesos" (`app/portal/[nodeId]/positions/`), sin ítem de menú propio; las pestañas piden `iam.read`. Sin dependencias nuevas.
+Dos pantallas nuevas bajo `app/portal/[nodeId]/access/` y un ítem de menú con `needs: "iam.read"`. Sin dependencias nuevas.
 
 ## Decisiones
 
@@ -15,9 +15,8 @@ Accesos y roles viven como pestañas de la pantalla "Cargos y accesos" (`app/por
 ## Estructura
 
 ```text
-app/portal/[nodeId]/positions/page.tsx   pantalla "Cargos y accesos" con pestañas Cargos, Accesos y Roles
-app/portal/[nodeId]/positions/{Access,Roles,Positions}Section.tsx
-app/portal/[nodeId]/positions/{AccessManager,RolesManager,RoleDialog,permissionLabels,rolePermissions,apiErrorMessage}.tsx|ts (+ tests)
-app/portal/[nodeId]/layout.tsx   ítem "Cargos y accesos" (las pestañas Accesos y Roles piden iam.read)
+app/portal/[nodeId]/access/{page,AccessManager,permissionLabels,apiErrorMessage}.tsx|ts (+ tests)
+app/portal/[nodeId]/access/roles/{page,RolesManager,RoleDialog,rolePermissions}.tsx|ts (+ tests)
+app/portal/[nodeId]/layout.tsx   ítem "Accesos"
 tests/access.spec.ts             e2e con la API simulada
 ```
