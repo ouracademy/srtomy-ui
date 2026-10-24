@@ -1,5 +1,5 @@
 import { test, expect } from "./fixtures";
-import { NODE_ID } from "./e2e-env";
+import { CHURCH_ID, NODE_ID } from "./e2e-env";
 
 test.describe("Editar Sede", () => {
   const nodeId = NODE_ID;
@@ -98,5 +98,73 @@ test.describe("Editar Sede", () => {
     ).toHaveValue("Sede Central Antigua");
     await expect(page.getByRole("button", { name: /Guardar/i })).toHaveCount(0);
     await expect(page.getByRole("link", { name: "Personas" })).toHaveCount(0);
+  });
+
+  test("registrar una sede no cambia de nodo: avisa y ofrece ir a ella", async ({
+    page,
+  }) => {
+    const churchId = CHURCH_ID;
+    await page.route(`**/organizations/${churchId}`, (route) =>
+      route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({
+          id: churchId,
+          name: "Iglesia E2E",
+          type: "CHURCH",
+        }),
+      }),
+    );
+    await page.route(`**/organizations/${churchId}/childs**`, (route) =>
+      route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: "[]",
+      }),
+    );
+    await page.route("**/organizations/locations", async (route) => {
+      await route.fulfill({
+        status: 201,
+        contentType: "application/json",
+        body: JSON.stringify({
+          id: "88888888-8888-8888-8888-888888888888",
+          name: "Sede Norte",
+        }),
+      });
+    });
+    await page.route(
+      "**/organizations/88888888-8888-8888-8888-888888888888",
+      (route) =>
+        route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify({
+            id: "88888888-8888-8888-8888-888888888888",
+            name: "Sede Norte",
+            type: "LOCATION",
+          }),
+        }),
+    );
+    await page.route(
+      "**/organizations/88888888-8888-8888-8888-888888888888/childs**",
+      (route) =>
+        route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: "[]",
+        }),
+    );
+
+    await page.goto(`/portal/${churchId}/location/new`);
+    await page.getByRole("textbox", { name: /nombre/i }).fill("Sede Norte");
+    await page.getByRole("button", { name: /Guardar/i }).click();
+
+    await expect(page.getByText(/Sede "Sede Norte" registrada/)).toBeVisible();
+    await expect(page).toHaveURL(new RegExp(`/portal/${churchId}/location$`));
+
+    await page.getByRole("button", { name: "Ir a la sede" }).click();
+    await expect(page).toHaveURL(
+      /\/portal\/88888888-8888-8888-8888-888888888888$/,
+    );
   });
 });
