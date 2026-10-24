@@ -1,6 +1,6 @@
 // Public origin used for canonical URLs, sitemap and social previews.
 export const siteUrl = (
-  process.env.NEXT_PUBLIC_SITE_URL ?? "https://sr-tommy.com"
+  process.env.NEXT_PUBLIC_SITE_URL ?? "https://srtommy-ui-test.vercel.app"
 ).replace(/\/$/, "");
 
 export const siteName = "Sr. Tommy";
