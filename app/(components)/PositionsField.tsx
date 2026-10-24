@@ -19,6 +19,7 @@ import type {
   PositionSuggestionResponse,
 } from "@/app/(api)/generated/aPISrTommy.schemas";
 import { PermissionPicker } from "./PermissionPicker";
+import { PermissionsInfo } from "./PermissionsInfo";
 
 export type PositionDraft = { name: string; permissions: string[] };
 
@@ -98,6 +99,10 @@ export const PositionsField = ({
           >
             {permissionsText(position.permissions.length)}
           </Button>
+          <PermissionsInfo
+            name={position.name}
+            permissions={position.permissions}
+          />
           <IconButton
             aria-label={`Quitar cargo ${position.name || index + 1}`}
             onClick={() => onChange(value.filter((_p, i) => i !== index))}

@@ -78,6 +78,19 @@ describe("PositionsManager", () => {
     ).toBeInTheDocument();
   });
 
+  it("lists the permissions of a position from its info icon", async () => {
+    const { user } = setup();
+
+    await user.click(
+      screen.getByRole("button", { name: "Ver permisos de Pastor" }),
+    );
+
+    expect(screen.getByText("Permisos de Pastor")).toBeInTheDocument();
+    expect(
+      screen.getAllByText("Crear y editar personas").length,
+    ).toBeGreaterThan(0);
+  });
+
   it("opens a position to see its permissions by module and its people", async () => {
     const { user } = setup();
 

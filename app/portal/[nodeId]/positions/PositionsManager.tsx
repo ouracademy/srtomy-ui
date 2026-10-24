@@ -36,6 +36,7 @@ import type {
 } from "@/app/(api)/generated/aPISrTommy.schemas";
 import { DialogDeleteConfirmation } from "@/app/(components)/DialogDeleteConfirmation";
 import { PermissionPicker } from "@/app/(components)/PermissionPicker";
+import { PermissionsInfo } from "@/app/(components)/PermissionsInfo";
 
 type PositionsManagerProps = Readonly<{
   positions: PositionSummaryResponse[];
@@ -248,6 +249,10 @@ export const PositionsManager = ({
                       {permissionsText(
                         (position.effectivePermissions ?? []).length,
                       )}
+                      <PermissionsInfo
+                        name={position.name ?? ""}
+                        permissions={position.effectivePermissions ?? []}
+                      />
                     </TableCell>
                     <TableCell align="right">
                       {(position.holders ?? []).length}

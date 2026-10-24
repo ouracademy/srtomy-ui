@@ -92,4 +92,17 @@ describe("PositionsField", () => {
       screen.getByRole("button", { name: "Permisos del cargo 1" }),
     ).toHaveTextContent("2 permisos");
   });
+
+  it("lists the permissions of a row from its info icon", async () => {
+    const user = userEvent.setup();
+    render(
+      <Harness initial={[{ name: "Ujier", permissions: ["members.read"] }]} />,
+    );
+
+    await user.click(
+      screen.getByRole("button", { name: "Ver permisos de Ujier" }),
+    );
+
+    expect(screen.getByText("Ver personas")).toBeInTheDocument();
+  });
 });
