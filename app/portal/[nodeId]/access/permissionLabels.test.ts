@@ -1,14 +1,85 @@
 import { describe, expect, it } from "vitest";
-import { permissionLabel, resourceLabel } from "./permissionLabels";
+import {
+  permissionLabel,
+  reachLabel,
+  resourceLabel,
+  type NodeType,
+} from "./permissionLabels";
 
 describe("permission labels", () => {
   it("translates the known permissions and resources", () => {
     expect(permissionLabel("members.read")).toBe("Ver personas");
     expect(resourceLabel("iam")).toBe("Accesos");
+    expect(resourceLabel("org")).toBe("Iglesia, sedes y grupos");
   });
 
   it("falls back to the raw value for unknown ones", () => {
     expect(permissionLabel("billing.read")).toBe("billing.read");
+    expect(permissionLabel("billing.read", "CHURCH")).toBe("billing.read");
     expect(resourceLabel("billing")).toBe("billing");
+  });
+
+  it("words the node permissions neutrally when the node is not known", () => {
+    expect(permissionLabel("org.update")).toBe(
+      "Editar nombre, dirección, teléfono y redes de la iglesia, sede, grupo o ministerio",
+    );
+    expect(permissionLabel("org.read")).toContain("iglesia, sede, grupo");
+  });
+
+  it.each<[NodeType, string]>([
+    [
+      "CHURCH",
+      "Editar nombre, dirección, teléfono y redes de esta iglesia y de todas sus sedes, grupos y ministerios",
+    ],
+    [
+      "LOCATION",
+      "Editar nombre, dirección, teléfono y redes de esta sede y de sus grupos y ministerios",
+    ],
+    [
+      "GROUP",
+      "Editar nombre, dirección, teléfono y redes de este grupo y de sus subgrupos",
+    ],
+    [
+      "MINISTRY",
+      "Editar nombre, dirección, teléfono y redes de este ministerio y de sus subgrupos",
+    ],
+  ])("words org.update for a %s", (type, expected) => {
+    expect(permissionLabel("org.update", type)).toBe(expected);
+  });
+
+  it("words reading, creating and deleting for each kind of node", () => {
+    expect(permissionLabel("org.read", "LOCATION")).toBe(
+      "Ver los datos de esta sede y de sus grupos y ministerios",
+    );
+    expect(permissionLabel("org.create_child", "CHURCH")).toBe(
+      "Crear sedes, grupos y ministerios",
+    );
+    expect(permissionLabel("org.create_child", "LOCATION")).toBe(
+      "Crear grupos y ministerios",
+    );
+    expect(permissionLabel("org.create_child", "MINISTRY")).toBe(
+      "Crear subgrupos",
+    );
+    expect(permissionLabel("org.delete", "CHURCH")).toBe(
+      "Eliminar grupos y ministerios",
+    );
+    expect(permissionLabel("org.delete", "GROUP")).toBe(
+      "Eliminar este grupo y sus subgrupos",
+    );
+  });
+
+  it("keeps the permissions that do not depend on the node as they are", () => {
+    expect(permissionLabel("members.write", "GROUP")).toBe(
+      "Crear y editar personas",
+    );
+  });
+
+  it("says how far a role reaches from each kind of node", () => {
+    expect(reachLabel("CHURCH")).toBe(
+      "Estos permisos valen para esta iglesia y para todas sus sedes, grupos y ministerios.",
+    );
+    expect(reachLabel("GROUP")).toBe(
+      "Estos permisos valen para este grupo y para sus subgrupos.",
+    );
   });
 });

@@ -2,6 +2,7 @@ import { cleanup, render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { AccessManager } from "./AccessManager";
+import type { NodeType } from "./permissionLabels";
 
 afterEach(cleanup);
 
@@ -22,11 +23,15 @@ const entries = [
   },
 ];
 const roles = [
-  { id: "r1", name: "Líder" },
-  { id: "r2", name: "Colaborador" },
+  {
+    id: "r1",
+    name: "Líder",
+    permissions: ["org.read", "org.update", "members.write"],
+  },
+  { id: "r2", name: "Colaborador", permissions: ["org.read"] },
 ];
 
-const setup = (canManage = true) => {
+const setup = (canManage = true, nodeType?: NodeType) => {
   const onGrant = vi.fn().mockResolvedValue(undefined);
   const onRevoke = vi.fn().mockResolvedValue(undefined);
   render(
@@ -35,6 +40,7 @@ const setup = (canManage = true) => {
       roles={roles}
       canManage={canManage}
       rolesHref="/portal/n1/access/roles"
+      nodeType={nodeType}
       onGrant={onGrant}
       onRevoke={onRevoke}
     />,
@@ -98,5 +104,44 @@ describe("AccessManager", () => {
     expect(
       screen.getByRole("link", { name: "Administrar roles" }),
     ).toHaveAttribute("href", "/portal/n1/access/roles");
+  });
+
+  it.each<[NodeType, string, string]>([
+    [
+      "LOCATION",
+      "Editar nombre, dirección, teléfono y redes de esta sede y de sus grupos y ministerios",
+      "Estos permisos valen para esta sede y para sus grupos y ministerios.",
+    ],
+    [
+      "GROUP",
+      "Editar nombre, dirección, teléfono y redes de este grupo y de sus subgrupos",
+      "Estos permisos valen para este grupo y para sus subgrupos.",
+    ],
+  ])(
+    "explains what the chosen role allows on a %s",
+    async (nodeType, updateLabel, reach) => {
+      const { user } = setup(true, nodeType);
+      expect(screen.queryByText(/podrá:/)).not.toBeInTheDocument();
+
+      await user.click(screen.getByRole("combobox", { name: "Rol" }));
+      await user.click(screen.getByRole("option", { name: "Líder" }));
+
+      expect(screen.getByText("Con el rol Líder podrá:")).toBeInTheDocument();
+      expect(screen.getByText(updateLabel)).toBeInTheDocument();
+      expect(screen.getByText("Crear y editar personas")).toBeInTheDocument();
+      expect(screen.getByText(reach)).toBeInTheDocument();
+    },
+  );
+
+  it("words the role neutrally and skips the reach when the node type is unknown", async () => {
+    const { user } = setup(true);
+
+    await user.click(screen.getByRole("combobox", { name: "Rol" }));
+    await user.click(screen.getByRole("option", { name: "Colaborador" }));
+
+    expect(
+      screen.getByText("Ver los datos de la iglesia, sede, grupo o ministerio"),
+    ).toBeInTheDocument();
+    expect(screen.queryByText(/Estos permisos valen/)).not.toBeInTheDocument();
   });
 });

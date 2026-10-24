@@ -77,6 +77,42 @@ test.describe("Accesos", () => {
     });
   });
 
+  test("explica lo que permite el rol según el tipo de nodo", async ({
+    page,
+  }) => {
+    await page.route(`**/organizations/${NODE_ID}/access`, (route) =>
+      route.fulfill(json([])),
+    );
+    await page.route("**/organizations/*/roles", (route) =>
+      route.fulfill(
+        json([
+          {
+            id: "role-leader",
+            name: "Líder",
+            permissions: ["org.read", "org.update"],
+            predefined: true,
+          },
+        ]),
+      ),
+    );
+
+    await page.goto(`/portal/${NODE_ID}/access`);
+    await page.getByRole("combobox", { name: "Rol" }).click();
+    await page.getByRole("option", { name: "Líder" }).click();
+
+    await expect(page.getByText("Con el rol Líder podrá:")).toBeVisible();
+    await expect(
+      page.getByText(
+        "Editar nombre, dirección, teléfono y redes de esta sede y de sus grupos y ministerios",
+      ),
+    ).toBeVisible();
+    await expect(
+      page.getByText(
+        "Estos permisos valen para esta sede y para sus grupos y ministerios.",
+      ),
+    ).toBeVisible();
+  });
+
   test("crea un rol personalizado a partir de uno predefinido", async ({
     page,
   }) => {
@@ -99,7 +135,11 @@ test.describe("Accesos", () => {
     await page.getByRole("button", { name: "Nuevo rol" }).click();
     await page.getByRole("combobox", { name: "Crear a partir de" }).click();
     await page.getByRole("option", { name: "Líder" }).click();
-    await page.getByRole("checkbox", { name: "Editar datos" }).check();
+    await page
+      .getByRole("checkbox", {
+        name: /^Editar nombre, dirección, teléfono y redes de la iglesia, sede, grupo o ministerio$/,
+      })
+      .check();
     await page.getByRole("textbox", { name: "Nombre" }).fill("Mío");
     await page.getByRole("button", { name: "Guardar" }).click();
 

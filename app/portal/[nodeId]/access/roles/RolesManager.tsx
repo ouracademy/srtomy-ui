@@ -99,7 +99,9 @@ export const RolesManager = ({
               }
               secondary={
                 <Typography variant="body2" color="text.secondary">
-                  {(role.permissions ?? []).map(permissionLabel).join(", ")}
+                  {(role.permissions ?? [])
+                    .map((permission) => permissionLabel(permission))
+                    .join(", ")}
                 </Typography>
               }
             />

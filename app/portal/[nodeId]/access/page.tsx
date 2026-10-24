@@ -3,6 +3,7 @@
 import React from "react";
 import {
   deleteOrganizationsByIdAccessByBindingId,
+  useGetOrganizationsById,
   postOrganizationsByIdAccess,
   useGetOrganizationsByIdAccess,
   useGetOrganizationsByIdRoles,
@@ -27,6 +28,7 @@ export default function AccessPage(props: {
     mutate,
   } = useGetOrganizationsByIdAccess(nodeId);
   const { data: roles } = useGetOrganizationsByIdRoles(nodeId);
+  const { data: node } = useGetOrganizationsById(nodeId);
 
   if (isLoading) return <Loading />;
   if (!entries) return <ResourceError error={error} />;
@@ -48,6 +50,7 @@ export default function AccessPage(props: {
       roles={roles ?? []}
       canManage={can("iam.manage")}
       rolesHref={`/portal/${nodeId}/access/roles`}
+      nodeType={node?.type}
       onGrant={(email, roleId) =>
         run(
           () => postOrganizationsByIdAccess(nodeId, { email, roleId }),

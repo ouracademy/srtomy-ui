@@ -55,6 +55,16 @@ describe("RolesManager", () => {
     ).toBeInTheDocument();
   });
 
+  it("lists each role with its permissions worded for any node", () => {
+    setup();
+
+    expect(
+      screen.getByText(
+        "Ver los datos de la iglesia, sede, grupo o ministerio, Ver personas",
+      ),
+    ).toBeInTheDocument();
+  });
+
   it("creates a role from scratch with the chosen permissions", async () => {
     const { user, onCreate } = setup();
 
@@ -62,7 +72,11 @@ describe("RolesManager", () => {
     const save = screen.getByRole("button", { name: "Guardar" });
     expect(save).toBeDisabled();
     await user.type(screen.getByRole("textbox", { name: "Nombre" }), " Media ");
-    await user.click(screen.getByRole("checkbox", { name: "Editar datos" }));
+    await user.click(
+      screen.getByRole("checkbox", {
+        name: /^Editar nombre, dirección, teléfono y redes de la iglesia, sede, grupo o ministerio$/,
+      }),
+    );
     await user.click(save);
 
     expect(onCreate).toHaveBeenCalledWith({
@@ -116,7 +130,11 @@ describe("RolesManager", () => {
     expect(
       screen.queryByRole("combobox", { name: "Crear a partir de" }),
     ).not.toBeInTheDocument();
-    await user.click(screen.getByRole("checkbox", { name: "Editar datos" }));
+    await user.click(
+      screen.getByRole("checkbox", {
+        name: /^Editar nombre, dirección, teléfono y redes de la iglesia, sede, grupo o ministerio$/,
+      }),
+    );
     await user.click(screen.getByRole("button", { name: "Guardar" }));
 
     expect(onUpdate).toHaveBeenCalledWith("r2", {

@@ -25,12 +25,15 @@ import type {
   RoleResponse,
 } from "@/app/(api)/generated/aPISrTommy.schemas";
 import { DialogDeleteConfirmation } from "@/app/(components)/DialogDeleteConfirmation";
+import { permissionLabel, reachLabel, type NodeType } from "./permissionLabels";
 
 type AccessManagerProps = Readonly<{
   entries: AccessEntryResponse[];
   roles: RoleResponse[];
   canManage: boolean;
   rolesHref: string;
+  // Kind of node the access is granted on; words what each role allows there.
+  nodeType?: NodeType;
   onGrant: (email: string, roleId: string) => Promise<void>;
   onRevoke: (bindingId: string) => Promise<void>;
 }>;
@@ -42,6 +45,7 @@ export const AccessManager = ({
   roles,
   canManage,
   rolesHref,
+  nodeType,
   onGrant,
   onRevoke,
 }: AccessManagerProps) => {
@@ -51,6 +55,8 @@ export const AccessManager = ({
   const [revoking, setRevoking] = React.useState<AccessEntryResponse | null>(
     null,
   );
+
+  const selectedRole = roles.find((role) => role.id === roleId);
 
   const grant = async () => {
     setGranting(true);
@@ -117,6 +123,27 @@ export const AccessManager = ({
             Otorgar acceso
           </LoadingButton>
         </Stack>
+      )}
+      {canManage && selectedRole && (
+        <Paper variant="outlined" sx={{ p: 2 }}>
+          <Typography fontWeight={600} gutterBottom>
+            Con el rol {selectedRole.name} podrá:
+          </Typography>
+          <Stack component="ul" sx={{ m: 0, pl: 3 }} spacing={0.25}>
+            {(selectedRole.permissions ?? []).map((permission) => (
+              <li key={permission}>
+                <Typography variant="body2">
+                  {permissionLabel(permission, nodeType)}
+                </Typography>
+              </li>
+            ))}
+          </Stack>
+          {nodeType && (
+            <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+              {reachLabel(nodeType)}
+            </Typography>
+          )}
+        </Paper>
       )}
 
       <TableContainer component={Paper} variant="outlined">
