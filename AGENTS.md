@@ -46,6 +46,10 @@ Work on a branch, never push directly to `main`. Open a PR with `gh pr create`; 
 
 Claude Code runs Prettier and ESLint `--fix` on every file it edits (`.claude/hooks/format-on-edit.sh`). Do not fight the formatter.
 
+## Pending work and cleanup
+
+Anything left to do or to clean up (unused secrets, dead code, legacy names...) goes into the technical debt table of `docs/redesign.md` (section 10, "009"). Ask the product owner before doing any item from that list, especially cleanups; never remove things on your own initiative.
+
 ## Specs and plans
 
 Use spec-kit (the `speckit-*` skills) for specs, plans and task lists. Do not use addy's `/spec` or `/planning` commands, the `spec-driven-development` and `planning-and-task-breakdown` skills, or write `SPEC.md` or `tasks/plan.md` at the repo root. Those write to a second place and split the plan.

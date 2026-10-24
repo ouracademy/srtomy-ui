@@ -147,6 +147,7 @@ El usuario confirmó que **no hay datos reales**, así que hay libertad para lim
 4. **006-visibility**: `member_visibility`, directorio, páginas públicas de nodos.
 5. **007-sharing**: compartir eventos y cursos, enlaces, inscripción por enlace.
 6. **008-my-space**: la vista del miembro común.
+7. **009-tech-debt**: no es una feature, es una lista viva de limpiezas y pendientes (sección 10). Cada ítem se hace solo con el visto bueno del dueño del producto.
 
 Alcance acordado para este branch (`claude/app-flow-redesign-nq6j60`, en ambos repos):
 
@@ -155,7 +156,22 @@ Alcance acordado para este branch (`claude/app-flow-redesign-nq6j60`, en ambos r
 3. Implementar la 003: primero el API, luego `pnpm api:sync` y la UI.
 4. Commits en Conventional Commits y push al branch. No se abre PR salvo que el usuario lo pida.
 
-Para probar el flujo completo antes de que exista la Auth0 Action, la API acepta `email` desde el endpoint `/userinfo` si el token no lo trae. Esto queda documentado como paso de despliegue.
+Sin la Auth0 Action que agrega el email al token, el usuario se registra sin email (ver el ítem 8 de la sección 10).
+
+## 10. Deuda técnica y limpieza pendiente (009)
+
+**Regla:** cada ítem se consulta con el dueño del producto antes de hacerlo; nada de aquí se borra ni se cambia por iniciativa propia. Todo lo que quede por hacer o por limpiar al cerrar una fase se agrega a esta tabla.
+
+| #   | Ítem                                      | Repo     | Por qué quedó                                                                                                                                                                                    | Qué haría falta                                                                                                                                            | Estado                |
+| --- | ----------------------------------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------- |
+| 1   | Secretos `auth0-client-*`                 | API      | Desde la 003 la API no llama a la Management API de Auth0, pero `infra/terraform/environments/{dev,prod}/main.tf` aún listan `existing_secret_ids = ["auth0-client-id", "auth0-client-secret"]`. | Quitarlos de Terraform y aplicar; borrar los secretos en Secret Manager; revisar o borrar la aplicación M2M de Auth0 con permisos sobre la Management API. | Pendiente (consultar) |
+| 2   | Claim y metadata `orgId` en Auth0         | Auth0    | La UI ya no lee `https://sr-tommy.com/orgId`, y la API ya no escribe `app_metadata.orgId`.                                                                                                       | Revisar en el tenant si hay una Action o Rule que agrega el claim y quitarla; opcionalmente limpiar el `app_metadata.orgId` de los usuarios.               | Pendiente (consultar) |
+| 3   | Rama `Kind.ORGANIZATION`                  | API      | `GetLocationChildrenQueryHandlerImpl` aún distingue hijos organización, pero los subgrupos se enlazan por `parent_id`, ya no por `IS_PART_OF`.                                                   | Quitar la rama y el valor del enum (y del tipo generado en la UI).                                                                                         | Pendiente (consultar) |
+| 4   | Nombres `/organizations/locations/childs` | API y UI | Ahora crean y editan grupos a cualquier profundidad, no solo hijos de una sede.                                                                                                                  | Renombrar (p. ej. `/organizations/{id}/groups`); rompe el contrato: `pnpm api:sync` y ajustar la UI y las e2e.                                             | Pendiente (consultar) |
+| 5   | Carpeta `app/portal/[nodeId]/location`    | UI       | Ahora muestra los datos de cualquier nodo (iglesia, sede o grupo).                                                                                                                               | Renombrar a `details` y actualizar enlaces y e2e.                                                                                                          | Pendiente (consultar) |
+| 6   | `app/(components)/Option.ts`              | UI       | Ya no lo importa ningún archivo desde que los cargos reemplazaron a los roles.                                                                                                                   | Borrarlo.                                                                                                                                                  | Pendiente (consultar) |
+| 7   | Columna `app_user.person_id`              | API      | Reservada para la fase 005 (vincular el usuario con su persona al aceptar una invitación). No es abandono.                                                                                       | Usarla en la 005; si la 005 cambia de diseño, borrarla.                                                                                                    | Reservada             |
+| 8   | Email del usuario sin Auth0 Action        | API      | El diseño mencionaba leer el email desde `/userinfo` si el token no lo trae; no se implementó.                                                                                                   | Crear la Auth0 Action del README del API (recomendado) o implementar el respaldo con `/userinfo`.                                                          | Pendiente (consultar) |
 
 ## Archivos clave
 
