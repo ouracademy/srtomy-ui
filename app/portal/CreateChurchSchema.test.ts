@@ -58,6 +58,29 @@ describe("initialCreateChurchForm", () => {
   });
 });
 
+describe("initialCreateChurchForm creator", () => {
+  it("starts with the name proposed from the sign-in profile", () => {
+    const form = initialCreateChurchForm(suggestions, {
+      firstName: "Ana",
+      lastName: "Díaz",
+    });
+
+    expect(form.creator).toEqual({
+      firstName: "Ana",
+      lastName: "Díaz",
+      positionName: "Pastor",
+    });
+  });
+
+  it("starts with empty names when nothing is proposed", () => {
+    expect(initialCreateChurchForm(suggestions).creator).toEqual({
+      firstName: "",
+      lastName: "",
+      positionName: "Pastor",
+    });
+  });
+});
+
 describe("toCreateChurchRequest", () => {
   it("trims, drops blanks and the bare phone prefix", () => {
     const request = toCreateChurchRequest({

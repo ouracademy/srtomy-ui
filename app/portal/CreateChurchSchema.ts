@@ -57,13 +57,17 @@ export const emptyCreateChurchForm: CreateChurchForm = {
 /** The form with the starting positions, once the suggestions are known. */
 export const initialCreateChurchForm = (
   suggestions: PositionSuggestionResponse[],
+  creatorName: { firstName: string; lastName: string } = {
+    firstName: "",
+    lastName: "",
+  },
 ): CreateChurchForm => ({
   ...emptyCreateChurchForm,
   positions: startingPositions.map((name) => ({
     name,
     permissions: suggestions.find((s) => s.name === name)?.permissions ?? [],
   })),
-  creator: { ...emptyCreateChurchForm.creator, positionName: "Pastor" },
+  creator: { ...creatorName, positionName: "Pastor" },
 });
 
 // "+51" alone is the country prefix the phone field starts with, not a number.

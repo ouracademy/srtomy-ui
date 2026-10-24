@@ -43,6 +43,8 @@ type PositionsManagerProps = Readonly<{
   suggestions: PositionSuggestionResponse[];
   catalog: PermissionGroupResponse[];
   canManage: boolean;
+  // Marks the signed-in user among the people who hold a position.
+  currentEmail?: string;
   onCreate: (name: string, permissions: string[]) => Promise<void>;
   onRename: (id: string, name: string) => Promise<void>;
   onSetPermissions: (id: string, permissions: string[]) => Promise<void>;
@@ -79,6 +81,7 @@ export const PositionsManager = ({
   suggestions,
   catalog,
   canManage,
+  currentEmail,
   onCreate,
   onRename,
   onSetPermissions,
@@ -288,6 +291,7 @@ export const PositionsManager = ({
                           position={position}
                           catalog={catalog}
                           canManage={canManage}
+                          currentEmail={currentEmail}
                           save={(permissions) =>
                             savePermissions(position, permissions)
                           }
@@ -333,11 +337,13 @@ const PositionDetail = ({
   position,
   catalog,
   canManage,
+  currentEmail,
   save,
 }: {
   position: PositionSummaryResponse;
   catalog: PermissionGroupResponse[];
   canManage: boolean;
+  currentEmail?: string;
   save: (permissions: string[]) => Promise<void>;
 }) => {
   const saved = position.permissions ?? [];
@@ -393,6 +399,7 @@ const PositionDetail = ({
               <Typography variant="body2">
                 {holder.name} · {holder.organizationName} ·{" "}
                 {holder.email ?? "sin cuenta"}
+                {currentEmail && holder.email === currentEmail && " (tú)"}
               </Typography>
             </li>
           ))}

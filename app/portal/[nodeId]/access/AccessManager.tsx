@@ -45,22 +45,48 @@ export const accessLabel = (entry: AccessEntryResponse) => {
 
 type AccessListProps = Readonly<{
   entries: AccessEntryResponse[];
+  // Marks the signed-in user's own row.
+  currentUserId?: string;
 }>;
+
+type PersonAccess = Readonly<{
+  userId?: string;
+  email?: string;
+  entries: AccessEntryResponse[];
+}>;
+
+/** One row per person: someone can have access from several places at once. */
+export const groupByPerson = (entries: AccessEntryResponse[]) => {
+  const people = new Map<string, AccessEntryResponse[]>();
+  for (const entry of entries) {
+    const key = entry.userId ?? entry.email ?? "";
+    people.set(key, [...(people.get(key) ?? []), entry]);
+  }
+  return [...people.values()].map((own): PersonAccess => ({
+    userId: own[0]?.userId,
+    email: own[0]?.email,
+    entries: own,
+  }));
+};
 
 // Who can do things in a node and why. Access is not handed out here: it comes
 // from the permissions of the position each person holds, so the way to change
 // it is the Cargos tab.
-export const AccessList = ({ entries }: AccessListProps) => {
+export const AccessList = ({ entries, currentUserId }: AccessListProps) => {
   const [filter, setFilter] = React.useState("");
   const text = filter.trim().toLocaleLowerCase("es");
+  const people = groupByPerson(entries);
   const shown = text
-    ? entries.filter((entry) =>
-        [entry.email, accessLabel(entry), originLabel(entry)]
+    ? people.filter((person) =>
+        [
+          person.email,
+          ...person.entries.flatMap((e) => [accessLabel(e), originLabel(e)]),
+        ]
           .join(" ")
           .toLocaleLowerCase("es")
           .includes(text),
       )
-    : entries;
+    : people;
 
   return (
     <Stack spacing={2}>
@@ -85,21 +111,38 @@ export const AccessList = ({ entries }: AccessListProps) => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {shown.map((entry) => (
-              <TableRow
-                key={`${entry.userId}-${entry.roleId}-${entry.organizationId}-${entry.positionName ?? entry.source}`}
-              >
-                <TableCell>{entry.email}</TableCell>
-                <TableCell>{accessLabel(entry)}</TableCell>
+            {shown.map((person) => (
+              <TableRow key={person.userId ?? person.email}>
                 <TableCell>
-                  {originLabel(entry)}
-                  {entry.inherited && entry.source === "DIRECT" && (
-                    <Chip
-                      size="small"
-                      sx={{ ml: 1 }}
-                      label={`Heredado de ${entry.organizationName}`}
-                    />
+                  {person.email}
+                  {currentUserId && person.userId === currentUserId && (
+                    <Chip size="small" sx={{ ml: 1 }} label="Tú" />
                   )}
+                </TableCell>
+                <TableCell>
+                  <Stack spacing={0.5}>
+                    {person.entries.map((entry) => (
+                      <Typography key={entryKey(entry)} variant="body2">
+                        {accessLabel(entry)}
+                      </Typography>
+                    ))}
+                  </Stack>
+                </TableCell>
+                <TableCell>
+                  <Stack spacing={0.5}>
+                    {person.entries.map((entry) => (
+                      <Typography key={entryKey(entry)} variant="body2">
+                        {originLabel(entry)}
+                        {entry.inherited && entry.source === "DIRECT" && (
+                          <Chip
+                            size="small"
+                            sx={{ ml: 1 }}
+                            label={`Heredado de ${entry.organizationName}`}
+                          />
+                        )}
+                      </Typography>
+                    ))}
+                  </Stack>
                 </TableCell>
               </TableRow>
             ))}
@@ -114,6 +157,9 @@ export const AccessList = ({ entries }: AccessListProps) => {
     </Stack>
   );
 };
+
+const entryKey = (entry: AccessEntryResponse) =>
+  `${entry.roleId}-${entry.organizationId}-${entry.positionName ?? entry.source}`;
 
 type OwnersPanelProps = Readonly<{
   entries: AccessEntryResponse[];
