@@ -154,6 +154,9 @@ async function mockCurrentUser(page: import("@playwright/test").Page) {
       : route.fallback(),
   );
   await page.route("**/v1/me/invitations", (route) => route.fulfill(json([])));
+  await page.route("**/v1/me/shared-events", (route) =>
+    route.fulfill(json([])),
+  );
   await page.route("**/v1/iam/permissions", (route) =>
     route.fulfill(json(permissionCatalog)),
   );

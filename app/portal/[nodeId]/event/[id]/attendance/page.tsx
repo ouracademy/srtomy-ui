@@ -19,6 +19,8 @@ import { PersonTable, fullName } from "../../../person/PersonTable";
 import { DialogDeleteConfirmation } from "@/app/(components)/DialogDeleteConfirmation";
 import { useRouter } from "next/navigation";
 import { RegisterButton } from "@/app/(components)/RegisterButton";
+import { usePermissions } from "@/app/(hooks)/usePermissions";
+import { ShareEventButton } from "./ShareEventButton";
 import { SaveButton } from "@/app/(components)/SaveButton";
 import {
   DeleteRecurrentEventDialog,
@@ -32,6 +34,7 @@ export default function AttendanceEvent(props: {
   const { id, nodeId } = params;
 
   const alert = useContext(SnackbarContext);
+  const { can } = usePermissions(nodeId);
   const router = useRouter();
 
   const {
@@ -110,6 +113,13 @@ export default function AttendanceEvent(props: {
         <Grid size={{ xs: 12 }}>
           <Box>
             <div style={{ display: "flex", justifyContent: "flex-end" }}>
+              {can("events.write") && (
+                <ShareEventButton
+                  eventId={event.recurrentEvent?.id ?? id}
+                  title={event.title ?? ""}
+                  isACourse={Boolean(event.isACourse)}
+                />
+              )}
               <Tooltip title="Eliminar">
                 <RegisterButton
                   icon={<DeleteIcon />}

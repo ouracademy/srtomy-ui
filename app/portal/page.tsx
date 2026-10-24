@@ -10,6 +10,7 @@ import {
   postOrganizations,
   useGetMe,
   useGetMeInvitations,
+  useGetMeSharedEvents,
   useGetMeOrganizations,
 } from "@/app/(api)/generated";
 import type { InvitationResponse } from "@/app/(api)/generated/aPISrTommy.schemas";
@@ -22,6 +23,7 @@ import { toCreateChurchRequest } from "./CreateChurchSchema";
 import { readLastNode, saveLastNode } from "./lastNode";
 import MenuDrawer from "./MenuDrawer";
 import { PendingInvitations } from "./PendingInvitations";
+import { SharedWithMe } from "./SharedWithMe";
 import { pickLandingNode, withIds } from "./organizationTree";
 import { suggestedNames } from "./userNames";
 
@@ -41,6 +43,7 @@ export default function PortalHome() {
     mutate: mutateOrganizations,
   } = useGetMeOrganizations();
   const { data: invitations } = useGetMeInvitations();
+  const { data: sharedEvents } = useGetMeSharedEvents();
   const nodes = withIds(data);
   const wantsNewChurch =
     typeof window !== "undefined" &&
@@ -104,6 +107,7 @@ export default function PortalHome() {
         <Typography variant="h4" component="h1" gutterBottom>
           {nodes.length > 0 ? "Registrar otra iglesia" : "Bienvenido"}
         </Typography>
+        <SharedWithMe events={sharedEvents ?? []} />
         <PendingInvitations
           invitations={invitations ?? []}
           accept={acceptInvitation}

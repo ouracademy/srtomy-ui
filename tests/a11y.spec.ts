@@ -103,8 +103,22 @@ test.describe("Accesibilidad", () => {
       ),
     );
 
+    await page.route("**/v1/public/events/curso", (route) =>
+      route.fulfill(
+        json({
+          title: "Curso de discipulado",
+          start: "2030-01-05T15:00:00Z",
+          end: "2030-01-05T17:00:00Z",
+          isACourse: true,
+          organizationName: "Jóvenes",
+          canRegister: true,
+        }),
+      ),
+    );
+
     for (const path of [
       "/g/abc",
+      "/e/curso",
       "/invitacion/tok",
       `/portal/${nodeId}/directory`,
     ]) {
