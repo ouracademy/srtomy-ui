@@ -84,7 +84,7 @@ El cliente HTTP y sus tipos **se generan** desde la especificación OpenAPI de s
 app/
   (api)/          cliente HTTP, servicios por recurso y tipos de la API
   (components)/   componentes compartidos entre pantallas
-  portal/         área autenticada: /portal/[locId]/{person,location,event}
+  portal/         área autenticada: /portal (alta de iglesia) y /portal/[nodeId]/{location,person,event,positions}
   footer/ header/ landing y legales (Builder)
 tests/            e2e (Playwright)
 .specify/         constitución y plantillas de spec-kit

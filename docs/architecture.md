@@ -28,9 +28,11 @@ app/
   portal/                      Área autenticada
     layout.tsx                 PortalProviders (SWR, fechas en español, RequireAuth)
     MenuDrawer.tsx             Marco: barra superior, menú lateral y contenido
-    LocationsDialog.tsx        Cambiar de sede (lo usa MenuDrawer)
+    OrganizationPicker.tsx     Cambiar de iglesia, sede o grupo (lo usa MenuDrawer)
+    organizationTree.ts        Árbol de nodos del usuario (GET /me/organizations): ruta, iglesia, nodo inicial
+    CreateChurchForm.tsx       Alta de iglesia con su primera sede y sus cargos (página /portal)
     UserMenu.tsx               Perfil y cerrar sesión (lo usa MenuDrawer)
-    [locId]/                   Una sede
+    [nodeId]/                  Un nodo: iglesia, sede, grupo o ministerio (anidables)
       person/ location/ event/ Una carpeta por sección, con sus componentes, formularios y tablas
   error.tsx global-error.tsx not-found.tsx    Límites de error de Next
 ```
@@ -42,7 +44,7 @@ Los paréntesis en `(api)`, `(components)` y `(hooks)` son _route groups_ de Nex
 | Quiero agregar...                                    | Va en...                                                                                       |
 | ---------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
 | Un endpoint nuevo de srtomy-api                      | Agrégalo en la API, luego `pnpm api:sync` regenera el hook y el tipo en `app/(api)/generated/` |
-| Una pantalla                                         | `app/portal/[locId]/<sección>/page.tsx`                                                        |
+| Una pantalla                                         | `app/portal/[nodeId]/<sección>/page.tsx`                                                       |
 | Un componente de una sola pantalla                   | Al lado de su `page.tsx`                                                                       |
 | Un componente que ya usan dos o más pantallas        | `app/(components)/`                                                                            |
 | Un hook de interfaz que usan dos o más               | `app/(hooks)/`                                                                                 |
@@ -73,7 +75,7 @@ Los hooks devuelven lo de SWR (`data`, `error`, `isLoading`, `mutate`). El tipo 
 Son funciones asíncronas generadas sobre el mismo cliente; no son hooks. La pantalla las llama, avisa al usuario y revalida la lectura que mostró el dato:
 
 ```ts
-await updatePerson(id, toPersonPayload(formValues, locId));
+await updatePerson(id, toPersonPayload(formValues, nodeId));
 mutatePerson();
 alert.showMessage("Guardado exitosamente");
 ```
@@ -94,7 +96,11 @@ La conversión formulario → cuerpo (por ejemplo `toPersonPayload`) vive junto 
 2. `app/portal/layout.tsx` envuelve el portal en `PortalProviders`, que incluye `RequireAuth`: si no hay sesión redirige a Auth0 y **no renderiza** las páginas ni sus peticiones hasta tenerla.
 3. El guard del frontend mejora la experiencia, no es seguridad: **la API es quien autoriza**.
 
-El identificador de la iglesia llega como claim `https://sr-tommy.com/orgId` del token.
+Las iglesias del usuario **no** vienen en el token: `GET /me/organizations` devuelve los nodos a los que tiene acceso (iglesias, sedes, grupos y ministerios, con su `parentId`) y `organizationTree.ts` arma el árbol, la ruta de la barra superior y el nodo al que entra (`lastNode.ts` recuerda el último). Un usuario sin iglesias ve el alta de iglesia en `/portal`.
+
+### Permisos
+
+Los accesos funcionan como IAM de GCP: un rol (Propietario, Administrador, Líder, Colaborador, Miembro) se otorga sobre un nodo y vale para todo lo que cuelga de él. `usePermissions(nodeId)` (`app/(hooks)/`) pide `GET /me/permissions` y responde `can("members.write")`, etc. La UI solo **oculta** lo que el usuario no puede hacer (menú, botones de guardar, crear o borrar); la API rechaza con 403 cualquier petición sin permiso. Los **cargos** (Pastor, Diácono, Catequista...) son etiquetas de cada iglesia y no dan acceso. Diseño completo: [redesign.md](redesign.md).
 
 ## Carga, vacío y error
 
@@ -136,7 +142,7 @@ Cosas que el código hoy **no** hace; no son errores nuevos, conviene saberlas:
 - No hay Content-Security-Policy ni `X-Frame-Options`: el editor visual de Builder embebe el sitio en un iframe. Se agregan al retirar Builder.
 - No hay reporte de errores en producción (Sentry u otro); los límites de error solo hacen `console.error`.
 - Builder.io: `@builder.io/dev-tools` está fijado en 1.16.4 (la 1.94 rompe el build) y `next.config.js` tiene `turbopack: {}` y `images.remotePatterns` solo por él.
-- `react-hooks/refs` está desactivado para `app/portal/[locId]/person/board/**`: el tablero pasa los objetos `provided` de `@hello-pangea/dnd` a `ref`, un uso documentado de la librería que la regla marca como falso positivo.
+- `react-hooks/refs` está desactivado para `app/portal/[nodeId]/person/board/**`: el tablero pasa los objetos `provided` de `@hello-pangea/dnd` a `ref`, un uso documentado de la librería que la regla marca como falso positivo.
 
 ## Evolución propuesta
 
@@ -146,4 +152,4 @@ Lo que haría falta si el proyecto crece, en orden de utilidad:
 2. **`useSWRMutation` para las escrituras.** Da estado de «guardando» y errores por operación sin `useState` manual, y puede invalidar claves tras escribir. Las funciones generadas se pueden envolver sin cambiar a sus llamadores.
 3. **Claves de SWR con una fábrica por recurso** (`peopleKeys.detail(id)`), si empieza a haber invalidaciones cruzadas (al guardar una persona, refrescar la lista). Hoy cada clave se repite en un solo hook, así que no hace falta.
 4. **Componentes de servidor donde se pueda.** Casi todo el portal es `"use client"` porque depende del token de Auth0 en el navegador. Las páginas públicas (landing, legales, libro de reclamaciones) y el marco del portal sí podrían ser de servidor.
-5. **Tipos de `params`.** Hoy cada `page.tsx` declara sus parámetros de ruta (`{ locId: number }`) aunque en ejecución son texto. Un tipo compartido con conversión explícita evitaría la confusión.
+5. **Tipos de `params`.** Hoy cada `page.tsx` declara sus parámetros de ruta (`{ nodeId: number }`) aunque en ejecución son texto. Un tipo compartido con conversión explícita evitaría la confusión.

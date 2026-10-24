@@ -35,7 +35,7 @@ Dos reglas: **proximidad** para lo que usa una sola pantalla, y **globales con n
 - No uses `!` (aserción de no nulo) para callar un posible `undefined`: maneja el caso.
 - Los tipos de la API vienen de `app/(api)/generated/`; no los escribas a mano ni los copies a otro archivo. Los de un formulario salen de su esquema (`z.infer`).
 - Importa con `@/` entre carpetas distintas y con ruta relativa dentro de la misma carpeta.
-- El id de cualquier entidad de srtomy-api (persona, organización/sede/grupo, evento, rol) es siempre `string` (UUID), nunca `number`. No lo conviertas con `Number(...)`/`parseInt(...)` ni lo valides con `z.number()`; tampoco lo tipes como `number | string` "por si acaso". Esto aplica a los tipos del frontend, los esquemas zod que validan ids seleccionados en un formulario (roles, ponentes, miembros, líderes) y los `params` de una ruta `[id]`/`[locId]`.
+- El id de cualquier entidad de srtomy-api (persona, organización/sede/grupo, evento, cargo) es siempre `string` (UUID), nunca `number`. No lo conviertas con `Number(...)`/`parseInt(...)` ni lo valides con `z.number()`; tampoco lo tipes como `number | string` "por si acaso". Esto aplica a los tipos del frontend, los esquemas zod que validan ids seleccionados en un formulario (cargos, ponentes, miembros, líderes) y los `params` de una ruta `[id]`/`[nodeId]`.
 
 ## Componentes
 
@@ -43,7 +43,7 @@ Dos reglas: **proximidad** para lo que usa una sola pantalla, y **globales con n
 - Las props se tipan con `Readonly<...>` (lo exige SonarCloud).
 - Pon `"use client"` solo donde hace falta: hooks, eventos o APIs del navegador.
 - **No definas un componente dentro de otro** (por ejemplo con `styled(...)` dentro del render): se recrea en cada render y pierde su estado. Súbelo al nivel del módulo.
-- Un componente que pasa de ~200 líneas suele estar haciendo dos cosas: extrae la parte con nombre propio **junto a él** (ver `UserMenu` y `LocationsDialog` junto a `MenuDrawer`).
+- Un componente que pasa de ~200 líneas suele estar haciendo dos cosas: extrae la parte con nombre propio **junto a él** (ver `UserMenu` y `OrganizationPicker` junto a `MenuDrawer`).
 - Nombres sin sufijos numéricos ni erratas (`MenuDrawer2`, `ToogleButton`): si hay dos versiones, una sobra.
 
 ## Estado y efectos
