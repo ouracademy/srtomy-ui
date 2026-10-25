@@ -111,7 +111,7 @@ export default function AttendanceEvent(props: {
             <div style={{ display: "flex", justifyContent: "flex-end" }}>
               {can("events.write") && (
                 <ShareEventButton
-                  eventId={event.recurrentEvent?.id ?? id}
+                  eventId={id}
                   title={event.title ?? ""}
                   isACourse={Boolean(event.isACourse)}
                 />

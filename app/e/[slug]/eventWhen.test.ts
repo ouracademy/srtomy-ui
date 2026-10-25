@@ -17,26 +17,31 @@ describe("eventWhen", () => {
     );
   });
 
-  it("writes a recurring event by its days, until the end of the recurrence", () => {
+  it("writes a repeating event by its rule, with the hours", () => {
     expect(
       eventWhen({
         start: new Date(2026, 0, 5, 19, 0),
         end: new Date(2026, 0, 5, 21, 0),
-        daysOfWeek: [3, 1],
-        endRecur: "2026-01-14",
+        recurrence: {
+          frequency: "WEEKLY",
+          interval: 1,
+          daysOfWeek: [3, 1],
+          endType: "UNTIL",
+          until: "2026-01-14",
+        },
       }),
     ).toBe(
-      "Los lunes y miércoles, 19:00 a 21:00, hasta el 14 de enero de 2026",
+      "Semanalmente el lunes y miércoles, hasta el 14 de enero de 2026, 19:00 a 21:00",
     );
   });
 
-  it("lists three days with commas and a final y", () => {
+  it("writes a repeating event that never ends", () => {
     expect(
       eventWhen({
         start: new Date(2026, 0, 5, 19, 0),
-        daysOfWeek: [0, 3, 6],
+        recurrence: { frequency: "DAILY", interval: 1, endType: "NEVER" },
       }),
-    ).toBe("Los domingos, miércoles y sábados, 19:00");
+    ).toBe("Todos los días, 19:00");
   });
 
   it("reads as nothing without a start", () => {
