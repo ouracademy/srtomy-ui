@@ -28,9 +28,12 @@ test.describe("Eliminar un evento con asistencia", () => {
             end: "2026-11-01T17:00:00Z",
             isACourse: false,
             speakers: [],
-            recurrentEvent: {
+            recurrence: {
+              frequency: "WEEKLY",
+              interval: 1,
               daysOfWeek: [0],
-              endRecur: "2026-11-20",
+              endType: "UNTIL",
+              until: "2026-11-20",
             },
           }),
         });
