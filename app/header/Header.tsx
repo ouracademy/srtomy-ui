@@ -4,6 +4,7 @@ import React from "react";
 import Image, { StaticImageData } from "next/image";
 import Link from "next/link";
 import MenuIcon from "@mui/icons-material/Menu";
+import { useAuth0 } from "@auth0/auth0-react";
 
 interface HeaderProps {
   src: StaticImageData;
@@ -11,6 +12,7 @@ interface HeaderProps {
 }
 
 const Header: React.FC<HeaderProps> = ({ src, alt }) => {
+  const { isAuthenticated, isLoading } = useAuth0();
   const scrollToFooter = () => {
     const footer = document.getElementById("footer-contact");
     if (footer) {
@@ -41,9 +43,13 @@ const Header: React.FC<HeaderProps> = ({ src, alt }) => {
           </button>
           <div className="divider" />
           <div className="action-buttons">
-            <Link href="/portal" style={{ textDecoration: "none" }}>
-              <button className="login-button">Iniciar sesión</button>
-            </Link>
+            {!isLoading && (
+              <Link href="/portal" style={{ textDecoration: "none" }}>
+                <button className="login-button">
+                  {isAuthenticated ? "Ir al portal" : "Iniciar sesión"}
+                </button>
+              </Link>
+            )}
           </div>
         </div>
       </header>

@@ -97,6 +97,9 @@ test.describe("Alta de iglesia", () => {
       creator: { firstName: "Ana", lastName: "Diaz", positionName: "Pastor" },
     });
     await expect(page).toHaveURL(new RegExp(`/portal/${locationId}$`));
+    await expect(
+      page.getByText(/Iglesia registrada\. Está en la sede "Sede Centro"/),
+    ).toBeVisible();
   });
 
   test("quien ya tiene iglesia entra directo a su sede", async ({ page }) => {

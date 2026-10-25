@@ -41,11 +41,11 @@ describe("permission labels", () => {
     ],
     [
       "GROUP",
-      "Editar nombre, dirección, teléfono y redes de este grupo y de sus subgrupos",
+      "Editar nombre, dirección, teléfono y redes de este grupo y de los grupos que contiene",
     ],
     [
       "MINISTRY",
-      "Editar nombre, dirección, teléfono y redes de este ministerio y de sus subgrupos",
+      "Editar nombre, dirección, teléfono y redes de este ministerio y de los grupos que contiene",
     ],
   ])("words org.update for a %s", (type, expected) => {
     expect(permissionLabel("org.update", type)).toBe(expected);
@@ -61,14 +61,17 @@ describe("permission labels", () => {
     expect(permissionLabel("org.create_child", "LOCATION")).toBe(
       "Crear grupos y ministerios",
     );
+    expect(permissionLabel("org.create_child", "GROUP")).toBe(
+      "Crear grupos dentro de este grupo",
+    );
     expect(permissionLabel("org.create_child", "MINISTRY")).toBe(
-      "Crear subgrupos",
+      "Crear grupos dentro de este ministerio",
     );
     expect(permissionLabel("org.delete", "CHURCH")).toBe(
       "Eliminar grupos y ministerios",
     );
     expect(permissionLabel("org.delete", "GROUP")).toBe(
-      "Eliminar este grupo y sus subgrupos",
+      "Eliminar este grupo y los grupos que contiene",
     );
   });
 
@@ -83,7 +86,7 @@ describe("permission labels", () => {
       "Estos permisos valen para esta iglesia y para todas sus sedes, grupos y ministerios.",
     );
     expect(reachLabel("GROUP")).toBe(
-      "Estos permisos valen para este grupo y para sus subgrupos.",
+      "Estos permisos valen para este grupo y para los grupos que contiene.",
     );
   });
 });

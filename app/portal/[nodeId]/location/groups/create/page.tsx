@@ -18,6 +18,7 @@ import {
 } from "@/app/(components)/visibility";
 import { SnackbarContext } from "@/app/(components)/SnackbarContext";
 import { usePermissions } from "@/app/(hooks)/usePermissions";
+import { nodeTypeLabels } from "@/app/portal/organizationTree";
 import { GroupForm } from "../GroupForm";
 import { invitationSummary, inviteLeaders } from "../leaderInvitations";
 
@@ -46,7 +47,7 @@ export default function GroupCreatePage(props: {
         ...defaultVisibility,
       }}
       submit={async (values) => {
-        const group = await postOrganizationsLocationsChilds({
+        const created = await postOrganizationsLocationsChilds({
           name: values.name,
           description: values.description,
           type: values.type,
@@ -60,15 +61,21 @@ export default function GroupCreatePage(props: {
         const invitations =
           values.inviteLeaders && can("invitations.send")
             ? await inviteLeaders(
-                group.id ?? "",
+                created.id ?? "",
                 values.leaders,
                 postOrganizationsByIdInvitations,
               )
             : undefined;
+        const kind = nodeTypeLabels[values.type] ?? "Grupo";
+        const registered = `${kind} "${values.name.trim()}" registrado. Para verlo, cámbiese desde el selector de arriba.`;
         alert.showMessage(
           invitations
-            ? invitationSummary(invitations)
-            : "Guardado exitosamente",
+            ? `${registered} ${invitationSummary(invitations)}`
+            : registered,
+          {
+            label: `Ir al ${kind.toLowerCase()}`,
+            onClick: () => router.push(`/portal/${created.id}`),
+          },
         );
         router.push(`/portal/${nodeId}/location`);
       }}

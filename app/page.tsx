@@ -1,6 +1,18 @@
 import { RenderBuilderContent } from "@/components/builder";
 import { builder } from "@builder.io/sdk";
 import LandingLayout from "./landing-layout";
+import { siteDescription, siteName, siteUrl } from "./site";
+
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  name: siteName,
+  url: siteUrl,
+  description: siteDescription,
+  applicationCategory: "BusinessApplication",
+  operatingSystem: "Web",
+  inLanguage: "es",
+};
 
 // Builder Public API Key set in .env file
 builder.init(process.env.NEXT_PUBLIC_BUILDER_API_KEY!);
@@ -19,6 +31,12 @@ export default async function Home() {
 
   return (
     <LandingLayout>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c"),
+        }}
+      />
       {/* Render the Builder page */}
       <RenderBuilderContent content={content} />
     </LandingLayout>

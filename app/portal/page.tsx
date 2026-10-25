@@ -65,7 +65,9 @@ export default function PortalHome() {
     const church = await postOrganizations(toCreateChurchRequest(values));
     const [location] = await getOrganizationsByIdChilds(church.id ?? "");
     await mutateOrganizations();
-    alert.showMessage("Iglesia registrada exitosamente");
+    alert.showMessage(
+      `Iglesia registrada. Está en la sede "${location?.name ?? "principal"}"; puede cambiar de iglesia, sede o grupo desde el selector de arriba.`,
+    );
     router.push(`/portal/${location?.id ?? church.id}`);
   };
 

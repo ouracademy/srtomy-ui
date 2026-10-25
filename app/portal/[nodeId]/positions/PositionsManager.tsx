@@ -27,7 +27,6 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import LoadingButton from "@mui/lab/LoadingButton";
 import React from "react";
 import type {
   PermissionGroupResponse,
@@ -199,13 +198,9 @@ export const PositionsManager = ({
               </MenuItem>
             ))}
           </TextField>
-          <LoadingButton
-            variant="contained"
-            loading={creating}
-            onClick={create}
-          >
+          <Button variant="contained" loading={creating} onClick={create}>
             Agregar
-          </LoadingButton>
+          </Button>
         </Stack>
       )}
       {canManage && newName.trim() && (
@@ -370,7 +365,7 @@ const PositionDetail = ({
       />
       {canManage && (
         <div>
-          <LoadingButton
+          <Button
             variant="contained"
             loading={saving}
             disabled={!changed}
@@ -384,7 +379,7 @@ const PositionDetail = ({
             }}
           >
             Guardar permisos
-          </LoadingButton>
+          </Button>
         </div>
       )}
       <Typography variant="subtitle1" component="h2" fontWeight={600}>
@@ -427,7 +422,7 @@ const ConfirmDialog = ({
         <Button onClick={close} disabled={working}>
           Cancelar
         </Button>
-        <LoadingButton
+        <Button
           variant="contained"
           loading={working}
           onClick={async () => {
@@ -441,7 +436,7 @@ const ConfirmDialog = ({
           }}
         >
           {confirmation.confirmLabel}
-        </LoadingButton>
+        </Button>
       </DialogActions>
     </Dialog>
   );
@@ -474,7 +469,7 @@ const RenameDialog = ({
         <Button onClick={close} disabled={saving}>
           Cancelar
         </Button>
-        <LoadingButton
+        <Button
           variant="contained"
           loading={saving}
           disabled={!name.trim()}
@@ -489,7 +484,7 @@ const RenameDialog = ({
           }}
         >
           Guardar
-        </LoadingButton>
+        </Button>
       </DialogActions>
     </Dialog>
   );

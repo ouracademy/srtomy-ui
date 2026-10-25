@@ -57,7 +57,7 @@ Dos reglas: **proximidad** para lo que usa una sola pantalla, y **globales con n
 - Toda llamada a la API pasa por `app/(api)/generated/` (hooks y funciones generados). Nada de `axios`, `fetch` ni URLs sueltas en componentes ni en código a mano fuera de `(api)`.
 - Toda pantalla que lee datos maneja **carga, error y no encontrado** (`Loading` y `ResourceError`). Un `if (!data) return <div>Not found</div>` es un error: mientras carga `data` también es `undefined`.
 - Tras una escritura: avisa al usuario (`alert.showMessage`) y revalida con el `mutate` del hook correspondiente.
-- Todo botón que llama a la API muestra un spinner y queda bloqueado mientras dura la petición (`SaveButton` o `LoadingButton` de `@mui/lab`). Ver [el skill `api-submit-button`](../.claude/skills/api-submit-button/SKILL.md).
+- Todo botón que llama a la API muestra un spinner y queda bloqueado mientras dura la petición (`SaveButton` o `Button` con el `loading` prop). Ver [el skill `api-submit-button`](../.claude/skills/api-submit-button/SKILL.md).
 
 ## Comentarios y logs
 

@@ -47,7 +47,10 @@ test.describe("Grupos y Ministerios", () => {
         await route.fulfill({
           status: 201,
           contentType: "application/json",
-          body: JSON.stringify({ message: "Guardado exitosamente" }),
+          body: JSON.stringify({
+            id: "99999999-9999-9999-9999-999999999999",
+            name: "Ministerio de Alabanza",
+          }),
         });
       }
     });
@@ -95,10 +98,16 @@ test.describe("Grupos y Ministerios", () => {
     await page.getByRole("button", { name: /Guardar/i }).click();
 
     //8. Verificaciones finales
-    await expect(page.getByText(/guardado exitosamente/i)).toBeVisible();
-
-    //
+    //    Se queda en el nodo actual y avisa cómo ir al nuevo.
+    await expect(
+      page.getByText(/Ministerio "Ministerio de Alabanza" registrado/),
+    ).toBeVisible();
     await expect(page).toHaveURL(new RegExp(`/portal/${nodeId}/location`));
+
+    await page.getByRole("button", { name: "Ir al ministerio" }).click();
+    await expect(page).toHaveURL(
+      /\/portal\/99999999-9999-9999-9999-999999999999$/,
+    );
   });
 
   test("error de validación", async ({ page }) => {

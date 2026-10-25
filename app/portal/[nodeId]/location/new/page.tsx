@@ -38,8 +38,15 @@ export default function NewLocationPage(props: {
           parentId: nodeId,
         });
         await mutate(getGetMeOrganizationsKey());
-        alert.showMessage("Sede registrada exitosamente");
-        router.push(`/portal/${location.id}`);
+        // Stay on the church: switching without saying so is confusing.
+        alert.showMessage(
+          `Sede "${values.name.trim()}" registrada. Para verla, cámbiese desde el selector de arriba (Iglesia › Sede › Grupo).`,
+          {
+            label: "Ir a la sede",
+            onClick: () => router.push(`/portal/${location.id}`),
+          },
+        );
+        router.push(`/portal/${nodeId}/location`);
       }}
     />
   );
