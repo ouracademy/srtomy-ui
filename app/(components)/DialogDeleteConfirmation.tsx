@@ -5,7 +5,6 @@ import {
   DialogContent,
   DialogTitle,
 } from "@mui/material";
-import LoadingButton from "@mui/lab/LoadingButton";
 import { useState } from "react";
 
 type DialogDeleteConfirmationProps = Readonly<{
@@ -45,7 +44,7 @@ export const DialogDeleteConfirmation = ({
         <Button onClick={close} disabled={deleting}>
           Cancelar
         </Button>
-        <LoadingButton
+        <Button
           onClick={handleDelete}
           loading={deleting}
           sx={{
@@ -54,7 +53,7 @@ export const DialogDeleteConfirmation = ({
           }}
         >
           Eliminar
-        </LoadingButton>
+        </Button>
       </DialogActions>
     </Dialog>
   );

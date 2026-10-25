@@ -14,7 +14,6 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import LoadingButton from "@mui/lab/LoadingButton";
 import React from "react";
 import type {
   PermissionGroupResponse,
@@ -158,14 +157,14 @@ export const RoleDialog = ({
         <Button onClick={close} disabled={saving}>
           Cancelar
         </Button>
-        <LoadingButton
+        <Button
           variant="contained"
           loading={saving}
           disabled={!name.trim() || permissions.length === 0}
           onClick={submit}
         >
           Guardar
-        </LoadingButton>
+        </Button>
       </DialogActions>
     </Dialog>
   );

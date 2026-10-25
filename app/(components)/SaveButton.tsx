@@ -1,4 +1,4 @@
-import LoadingButton from "@mui/lab/LoadingButton";
+import Button from "@mui/material/Button";
 
 type SaveButtonProps = Readonly<{
   name: string;
@@ -13,7 +13,7 @@ export const SaveButton = ({
   onClick,
 }: SaveButtonProps) => {
   return (
-    <LoadingButton
+    <Button
       type="submit"
       loading={loading}
       sx={{
@@ -27,6 +27,6 @@ export const SaveButton = ({
       onClick={onClick}
     >
       {name}
-    </LoadingButton>
+    </Button>
   );
 };
