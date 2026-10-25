@@ -28,6 +28,8 @@ type PendingInvitationsProps = Readonly<{
     invitation: InvitationResponse,
     name?: PersonName,
   ) => Promise<string | void>;
+  // "Mi espacio" always shows the section; the portal home only when needed.
+  showEmpty?: boolean;
 }>;
 
 // Invitations waiting for the email of the signed-in user, shown to someone
@@ -36,6 +38,7 @@ export const PendingInvitations = ({
   invitations,
   suggestedName,
   accept,
+  showEmpty = false,
 }: PendingInvitationsProps) => {
   const [accepting, setAccepting] = React.useState<string | null>(null);
   const [refusal, setRefusal] = React.useState<string | null>(null);
@@ -45,7 +48,7 @@ export const PendingInvitations = ({
   const [triedWithoutName, setTriedWithoutName] = React.useState(false);
   const typedName = name ?? suggestedName ?? { firstName: "", lastName: "" };
 
-  if (invitations.length === 0) return null;
+  if (invitations.length === 0 && !showEmpty) return null;
 
   const run = async (invitation: InvitationResponse) => {
     if (invitation.needsName) {
@@ -79,6 +82,11 @@ export const PendingInvitations = ({
         Tienes invitaciones
       </Typography>
       {refusal && <Alert severity="error">{refusal}</Alert>}
+      {invitations.length === 0 && (
+        <Typography color="text.secondary">
+          No tienes invitaciones pendientes.
+        </Typography>
+      )}
       <List>
         {invitations.map((invitation) => (
           <ListItem

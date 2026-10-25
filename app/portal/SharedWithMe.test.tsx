@@ -53,3 +53,14 @@ describe("SharedWithMe", () => {
     ).toBeTruthy();
   });
 });
+
+describe("SharedWithMe in Mi espacio", () => {
+  it("shows the section with a message when nothing was shared", () => {
+    render(<SharedWithMe events={[]} showEmpty />);
+
+    expect(
+      screen.getByRole("heading", { name: "Compartidos contigo" }),
+    ).toBeTruthy();
+    expect(screen.getByText(/Nadie ha compartido/)).toBeTruthy();
+  });
+});

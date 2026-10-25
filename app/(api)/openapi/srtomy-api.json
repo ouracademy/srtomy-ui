@@ -1874,6 +1874,29 @@
         }
       }
     },
+    "/v1/me/nodes": {
+      "get": {
+        "tags": [
+          "directory"
+        ],
+        "operationId": "myNodes",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/MyNodeResponse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/me/invitations": {
       "get": {
         "tags": [
@@ -1889,6 +1912,29 @@
                   "type": "array",
                   "items": {
                     "$ref": "#/components/schemas/InvitationResponse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/me/events": {
+      "get": {
+        "tags": [
+          "event-sharing"
+        ],
+        "operationId": "myEvents",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/MyEventResponse"
                   }
                 }
               }
@@ -3939,6 +3985,70 @@
             "items": {
               "type": "string"
             }
+          }
+        }
+      },
+      "MyNodeResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "CHURCH",
+              "LOCATION",
+              "GROUP",
+              "MINISTRY"
+            ]
+          },
+          "churchId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "churchName": {
+            "type": "string"
+          },
+          "leader": {
+            "type": "boolean"
+          },
+          "positions": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "MyEventResponse": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "start": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "isACourse": {
+            "type": "boolean"
+          },
+          "organizationName": {
+            "type": "string"
+          },
+          "registered": {
+            "type": "boolean"
+          },
+          "attended": {
+            "type": "boolean"
+          },
+          "slug": {
+            "type": "string"
           }
         }
       },

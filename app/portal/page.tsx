@@ -6,18 +6,19 @@ import { useRouter } from "next/navigation";
 import React from "react";
 import {
   getOrganizationsByIdChilds,
-  postMeInvitationsByIdAccept,
   postOrganizations,
   useGetMe,
   useGetMeInvitations,
   useGetMeSharedEvents,
   useGetMeOrganizations,
 } from "@/app/(api)/generated";
-import type { InvitationResponse } from "@/app/(api)/generated/aPISrTommy.schemas";
+import {
+  hasManagementAccess,
+  usePermissions,
+} from "@/app/(hooks)/usePermissions";
 import Loading from "../(components)/Loading";
 import { ResourceError } from "../(components)/ResourceError";
 import { SnackbarContext } from "../(components)/SnackbarContext";
-import { apiErrorMessage } from "../(components)/apiErrorMessage";
 import { CreateChurchForm } from "./CreateChurchForm";
 import { toCreateChurchRequest } from "./CreateChurchSchema";
 import { readLastNode, saveLastNode } from "./lastNode";
@@ -25,10 +26,12 @@ import MenuDrawer from "./MenuDrawer";
 import { PendingInvitations } from "./PendingInvitations";
 import { SharedWithMe } from "./SharedWithMe";
 import { pickLandingNode, withIds } from "./organizationTree";
-import { suggestedNames, type PersonName } from "./userNames";
+import { useAcceptInvitation } from "./useAcceptInvitation";
+import { suggestedNames } from "./userNames";
 
 // Entry point of the portal. Someone who already belongs to a church goes
-// straight to the node they last used; someone new creates their church.
+// straight to the node they last used, or to "Mi espacio" when they only are a
+// plain member there; someone new creates their church.
 // `?nueva=1` shows the form even to members, to create another church.
 export default function PortalHome() {
   const router = useRouter();
@@ -42,6 +45,12 @@ export default function PortalHome() {
     isLoading,
     mutate: mutateOrganizations,
   } = useGetMeOrganizations();
+  // Accepting links the user to their person of the church; the landing logic
+  // then opens the node (or "Mi espacio") from the refreshed tree.
+  const acceptInvitation = useAcceptInvitation((joined) => {
+    saveLastNode(joined.organizationId ?? "");
+    router.push("/portal");
+  });
   const { data: invitations } = useGetMeInvitations();
   const { data: sharedEvents } = useGetMeSharedEvents();
   const nodes = withIds(data);
@@ -51,10 +60,16 @@ export default function PortalHome() {
   const landing = wantsNewChurch
     ? undefined
     : pickLandingNode(nodes, readLastNode());
+  const { permissions, isLoading: loadingPermissions } = usePermissions(
+    landing?.id,
+  );
 
   React.useEffect(() => {
-    if (landing) router.replace(`/portal/${landing.id}`);
-  }, [landing, router]);
+    if (!landing || loadingPermissions) return;
+    router.replace(
+      hasManagementAccess(permissions) ? `/portal/${landing.id}` : "/portal/me",
+    );
+  }, [landing, loadingPermissions, permissions, router]);
 
   if (isLoading || landing) return <Loading />;
   if (!data) return <ResourceError error={error ?? meError} />;
@@ -69,29 +84,6 @@ export default function PortalHome() {
       `Iglesia registrada. Está en la sede "${location?.name ?? "principal"}"; puede cambiar de iglesia, sede o grupo desde el selector de arriba.`,
     );
     router.push(`/portal/${location?.id ?? church.id}`);
-  };
-
-  // Accepting links the user to their person of the church and opens the node.
-  const acceptInvitation = async (
-    invitation: InvitationResponse,
-    name?: PersonName,
-  ) => {
-    try {
-      const joined = await postMeInvitationsByIdAccept(
-        invitation.id ?? "",
-        name,
-      );
-      await mutateOrganizations();
-      alert.showMessage("Invitación aceptada");
-      saveLastNode(joined.organizationId ?? "");
-      router.push(`/portal/${joined.organizationId}`);
-      return undefined;
-    } catch (failure) {
-      return apiErrorMessage(
-        failure,
-        "No se pudo aceptar la invitación. Intente nuevamente",
-      );
-    }
   };
 
   return (

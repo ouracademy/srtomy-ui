@@ -92,3 +92,14 @@ describe("PendingInvitations", () => {
     });
   });
 });
+
+describe("PendingInvitations in Mi espacio", () => {
+  it("shows the section with a message when there are none", () => {
+    render(<PendingInvitations invitations={[]} accept={vi.fn()} showEmpty />);
+
+    expect(
+      screen.getByRole("heading", { name: "Tienes invitaciones" }),
+    ).toBeTruthy();
+    expect(screen.getByText("No tienes invitaciones pendientes.")).toBeTruthy();
+  });
+});
