@@ -6,6 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { SaveButton } from "@/app/(components)/SaveButton";
 import { SocialLinksFields } from "@/app/(components)/SocialLinksFields";
 import { TelFieldElement } from "@/app/(components)/TelFieldElement";
+import { VisibilityFields } from "@/app/(components)/VisibilityFields";
 import {
   organizationSchema,
   type OrganizationDetailForm,
@@ -17,6 +18,9 @@ type LocationFormProps = {
   submit: (data: OrganizationDetailForm) => Promise<void>;
   // Without permission to edit, the data is shown but cannot be saved.
   canSave?: boolean;
+  // Address of the public page, to show and copy.
+  slug?: string;
+  onCopy?: (url: string) => void;
 };
 
 // Name, contact and links of a church or a location.
@@ -25,6 +29,8 @@ export const LocationForm = ({
   submit,
   initialValues,
   canSave = true,
+  slug,
+  onCopy,
 }: LocationFormProps) => {
   const formContext = useForm({
     defaultValues: initialValues,
@@ -50,6 +56,9 @@ export const LocationForm = ({
         </Grid>
         <Grid size={{ xs: 12 }}>
           <SocialLinksFields prefix="socialLinks" />
+        </Grid>
+        <Grid size={{ xs: 12 }}>
+          <VisibilityFields orgChart slug={slug} onCopy={onCopy} />
         </Grid>
         {canSave && (
           <Grid size={{ xs: 12 }}>

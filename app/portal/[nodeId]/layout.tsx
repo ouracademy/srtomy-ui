@@ -1,5 +1,6 @@
 "use client";
 
+import ContactsOutlinedIcon from "@mui/icons-material/ContactsOutlined";
 import ChurchOutlinedIcon from "@mui/icons-material/ChurchOutlined";
 import DashboardOutlinedIcon from "@mui/icons-material/DashboardOutlined";
 import EventOutlinedIcon from "@mui/icons-material/EventOutlined";
@@ -40,6 +41,7 @@ const menuItems = (type: string | undefined) => [
     needs: "events.read" as Permission,
   },
   { label: "Cargos y accesos", path: "/positions", Icon: BadgeOutlinedIcon },
+  { label: "Directorio", path: "/directory", Icon: ContactsOutlinedIcon },
 ];
 
 export default function NodeLayout(props: {

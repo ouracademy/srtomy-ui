@@ -16,6 +16,10 @@ export const PersonResponseSchema = z.object({
   firstName: z.string(),
   lastName: z.string(),
   phoneNumber: z.string(),
+  email: z
+    .string()
+    .nullish()
+    .transform((val) => val ?? ""),
   age: z
     .number()
     .nullable()

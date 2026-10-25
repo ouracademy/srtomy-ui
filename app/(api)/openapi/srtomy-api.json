@@ -534,6 +534,76 @@
         }
       }
     },
+    "/v1/events/{id}/sharing": {
+      "get": {
+        "tags": [
+          "event-sharing"
+        ],
+        "operationId": "sharing",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/EventSharingResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "event-sharing"
+        ],
+        "operationId": "setSharing",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EventSharingRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/EventSharingResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/events/{id}/attendance": {
       "get": {
         "tags": [
@@ -593,6 +663,46 @@
         "responses": {
           "201": {
             "description": "Created"
+          }
+        }
+      }
+    },
+    "/v1/public/events/{slug}/registrations": {
+      "post": {
+        "tags": [
+          "event-sharing"
+        ],
+        "operationId": "register",
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EventRegistrationRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/RegistrationOutcomeResponse"
+                }
+              }
+            }
           }
         }
       }
@@ -909,6 +1019,79 @@
         }
       }
     },
+    "/v1/organizations/{id}/invitations": {
+      "get": {
+        "tags": [
+          "invitations"
+        ],
+        "operationId": "ofOrganization",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/InvitationResponse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "invitations"
+        ],
+        "operationId": "create_3",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateInvitationRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateInvitationResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/organizations/locations": {
       "post": {
         "tags": [
@@ -962,6 +1145,85 @@
               "*/*": {
                 "schema": {
                   "$ref": "#/components/schemas/OrganizationResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/me/invitations/{id}/accept": {
+      "post": {
+        "tags": [
+          "invitations"
+        ],
+        "operationId": "acceptMine",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AcceptInvitationRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/AcceptInvitationResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/invitations/{token}/accept": {
+      "post": {
+        "tags": [
+          "invitations"
+        ],
+        "operationId": "accept",
+        "parameters": [
+          {
+            "name": "token",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AcceptInvitationRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/AcceptInvitationResponse"
                 }
               }
             }
@@ -1024,7 +1286,7 @@
         "tags": [
           "events"
         ],
-        "operationId": "create_3",
+        "operationId": "create_4",
         "requestBody": {
           "content": {
             "application/json": {
@@ -1050,12 +1312,84 @@
         }
       }
     },
+    "/v1/events/{id}/sharing/link/renew": {
+      "post": {
+        "tags": [
+          "event-sharing"
+        ],
+        "operationId": "renewLink",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/EventLinkResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/events/{id}/shares": {
+      "post": {
+        "tags": [
+          "event-sharing"
+        ],
+        "operationId": "share",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ShareEventRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ShareEventResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/complaints": {
       "post": {
         "tags": [
           "complaints"
         ],
-        "operationId": "create_4",
+        "operationId": "create_5",
         "requestBody": {
           "content": {
             "application/json": {
@@ -1080,6 +1414,96 @@
         }
       }
     },
+    "/v1/public/organizations/{slug}": {
+      "get": {
+        "tags": [
+          "directory"
+        ],
+        "operationId": "publicPage",
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicPageResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/public/invitations/{token}": {
+      "get": {
+        "tags": [
+          "invitations"
+        ],
+        "operationId": "preview",
+        "parameters": [
+          {
+            "name": "token",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/InvitationPreviewResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/public/events/{slug}": {
+      "get": {
+        "tags": [
+          "event-sharing"
+        ],
+        "operationId": "sharedEvent",
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/SharedEventResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/positions/suggestions": {
       "get": {
         "tags": [
@@ -1096,6 +1520,37 @@
                   "items": {
                     "$ref": "#/components/schemas/PositionSuggestionResponse"
                   }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/organizations/{nodeId}/directory-entry": {
+      "get": {
+        "tags": [
+          "directory"
+        ],
+        "operationId": "entry",
+        "parameters": [
+          {
+            "name": "nodeId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/DirectoryEntryResponse"
                 }
               }
             }
@@ -1248,6 +1703,40 @@
         }
       }
     },
+    "/v1/organizations/{churchId}/directory": {
+      "get": {
+        "tags": [
+          "directory"
+        ],
+        "operationId": "directory",
+        "parameters": [
+          {
+            "name": "churchId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/DirectoryNodeResponse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/organizations/locations/childs/{id}/members": {
       "get": {
         "tags": [
@@ -1298,6 +1787,29 @@
               "*/*": {
                 "schema": {
                   "$ref": "#/components/schemas/MeResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/me/shared-events": {
+      "get": {
+        "tags": [
+          "event-sharing"
+        ],
+        "operationId": "sharedWithMe",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/SharedWithMeResponse"
+                  }
                 }
               }
             }
@@ -1362,6 +1874,29 @@
         }
       }
     },
+    "/v1/me/invitations": {
+      "get": {
+        "tags": [
+          "invitations"
+        ],
+        "operationId": "mine",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/InvitationResponse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/iam/permissions": {
       "get": {
         "tags": [
@@ -1408,6 +1943,40 @@
         }
       }
     },
+    "/v1/events/{id}/registrations": {
+      "get": {
+        "tags": [
+          "event-sharing"
+        ],
+        "operationId": "registrations",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/EventRegistrationResponse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/organizations/{id}/owners/{bindingId}": {
       "delete": {
         "tags": [
@@ -1426,6 +1995,96 @@
           },
           {
             "name": "bindingId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/v1/invitations/{id}": {
+      "delete": {
+        "tags": [
+          "invitations"
+        ],
+        "operationId": "revoke",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/v1/events/{id}/shares/{shareId}": {
+      "delete": {
+        "tags": [
+          "event-sharing"
+        ],
+        "operationId": "unshare",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "shareId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/v1/events/{id}/registrations/{registrationId}": {
+      "delete": {
+        "tags": [
+          "event-sharing"
+        ],
+        "operationId": "cancelRegistration",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "registrationId",
             "in": "path",
             "required": true,
             "schema": {
@@ -1566,6 +2225,10 @@
           "phoneNumber": {
             "type": "string"
           },
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
           "age": {
             "type": "integer",
             "format": "int32",
@@ -1615,6 +2278,21 @@
           },
           "socialLinks": {
             "$ref": "#/components/schemas/SocialLinksRequest"
+          },
+          "schedule": {
+            "type": "string"
+          },
+          "memberVisibility": {
+            "type": "string",
+            "enum": [
+              "PUBLIC",
+              "CHURCH",
+              "MEMBERS",
+              "LEADERS"
+            ]
+          },
+          "showOrgChart": {
+            "type": "boolean"
           },
           "parentId": {
             "type": "string",
@@ -1685,6 +2363,24 @@
           "socialLinks": {
             "$ref": "#/components/schemas/SocialLinks"
           },
+          "schedule": {
+            "type": "string"
+          },
+          "memberVisibility": {
+            "type": "string",
+            "enum": [
+              "PUBLIC",
+              "CHURCH",
+              "MEMBERS",
+              "LEADERS"
+            ]
+          },
+          "showOrgChart": {
+            "type": "boolean"
+          },
+          "slug": {
+            "type": "string"
+          },
           "createDate": {
             "type": "string",
             "format": "date-time"
@@ -1733,6 +2429,21 @@
           },
           "socialLinks": {
             "$ref": "#/components/schemas/SocialLinksRequest"
+          },
+          "schedule": {
+            "type": "string"
+          },
+          "memberVisibility": {
+            "type": "string",
+            "enum": [
+              "PUBLIC",
+              "CHURCH",
+              "MEMBERS",
+              "LEADERS"
+            ]
+          },
+          "showOrgChart": {
+            "type": "boolean"
           },
           "parentId": {
             "type": "string",
@@ -1835,6 +2546,85 @@
           "startTime"
         ]
       },
+      "EventSharingRequest": {
+        "type": "object",
+        "properties": {
+          "generalAccess": {
+            "type": "string",
+            "enum": [
+              "RESTRICTED",
+              "CHURCH",
+              "ANYONE_WITH_LINK"
+            ]
+          },
+          "linkRole": {
+            "type": "string",
+            "enum": [
+              "VIEWER",
+              "REGISTRANT"
+            ]
+          }
+        },
+        "required": [
+          "generalAccess",
+          "linkRole"
+        ]
+      },
+      "EventSharingResponse": {
+        "type": "object",
+        "properties": {
+          "generalAccess": {
+            "type": "string",
+            "enum": [
+              "RESTRICTED",
+              "CHURCH",
+              "ANYONE_WITH_LINK"
+            ]
+          },
+          "linkRole": {
+            "type": "string",
+            "enum": [
+              "VIEWER",
+              "REGISTRANT"
+            ]
+          },
+          "slug": {
+            "type": "string"
+          },
+          "isACourse": {
+            "type": "boolean"
+          },
+          "shares": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ShareResponse"
+            }
+          },
+          "registrations": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "ShareResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "email": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "VIEWER",
+              "EDITOR"
+            ]
+          }
+        }
+      },
       "AttendanceRequest": {
         "type": "object",
         "properties": {
@@ -1850,6 +2640,45 @@
           "personIds"
         ]
       },
+      "EventRegistrationRequest": {
+        "type": "object",
+        "properties": {
+          "firstName": {
+            "type": "string",
+            "maxLength": 100,
+            "minLength": 0
+          },
+          "lastName": {
+            "type": "string",
+            "maxLength": 100,
+            "minLength": 0
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "maxLength": 200,
+            "minLength": 0
+          },
+          "phoneNumber": {
+            "type": "string",
+            "maxLength": 40,
+            "minLength": 0
+          }
+        },
+        "required": [
+          "email",
+          "firstName",
+          "lastName"
+        ]
+      },
+      "RegistrationOutcomeResponse": {
+        "type": "object",
+        "properties": {
+          "alreadyRegistered": {
+            "type": "boolean"
+          }
+        }
+      },
       "CreatePersonRequest": {
         "type": "object",
         "properties": {
@@ -1863,6 +2692,10 @@
           },
           "phoneNumber": {
             "type": "string"
+          },
+          "email": {
+            "type": "string",
+            "format": "email"
           },
           "age": {
             "type": "integer",
@@ -2042,6 +2875,94 @@
           "email"
         ]
       },
+      "CreateInvitationRequest": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email",
+            "minLength": 1
+          },
+          "positionId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "personId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "firstName": {
+            "type": "string"
+          },
+          "lastName": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "email"
+        ]
+      },
+      "CreateInvitationResponse": {
+        "type": "object",
+        "properties": {
+          "invitation": {
+            "$ref": "#/components/schemas/InvitationResponse"
+          },
+          "emailSent": {
+            "type": "boolean"
+          }
+        }
+      },
+      "InvitationResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "email": {
+            "type": "string"
+          },
+          "organizationId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "organizationName": {
+            "type": "string"
+          },
+          "positionId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "positionName": {
+            "type": "string"
+          },
+          "personId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "personName": {
+            "type": "string"
+          },
+          "needsName": {
+            "type": "boolean"
+          },
+          "status": {
+            "type": "string"
+          },
+          "expiresAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "invitedByEmail": {
+            "type": "string"
+          },
+          "createDate": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
       "CreateLocationRequest": {
         "type": "object",
         "properties": {
@@ -2060,6 +2981,21 @@
           },
           "socialLinks": {
             "$ref": "#/components/schemas/SocialLinksRequest"
+          },
+          "schedule": {
+            "type": "string"
+          },
+          "memberVisibility": {
+            "type": "string",
+            "enum": [
+              "PUBLIC",
+              "CHURCH",
+              "MEMBERS",
+              "LEADERS"
+            ]
+          },
+          "showOrgChart": {
+            "type": "boolean"
           },
           "parentId": {
             "type": "string",
@@ -2089,6 +3025,21 @@
           },
           "socialLinks": {
             "$ref": "#/components/schemas/SocialLinksRequest"
+          },
+          "schedule": {
+            "type": "string"
+          },
+          "memberVisibility": {
+            "type": "string",
+            "enum": [
+              "PUBLIC",
+              "CHURCH",
+              "MEMBERS",
+              "LEADERS"
+            ]
+          },
+          "showOrgChart": {
+            "type": "boolean"
           },
           "parentId": {
             "type": "string",
@@ -2125,6 +3076,38 @@
           "parentId",
           "type"
         ]
+      },
+      "AcceptInvitationRequest": {
+        "type": "object",
+        "properties": {
+          "firstName": {
+            "type": "string",
+            "maxLength": 100,
+            "minLength": 0
+          },
+          "lastName": {
+            "type": "string",
+            "maxLength": 100,
+            "minLength": 0
+          }
+        }
+      },
+      "AcceptInvitationResponse": {
+        "type": "object",
+        "properties": {
+          "organizationId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "churchId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "personId": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
       },
       "EventRequest": {
         "type": "object",
@@ -2183,6 +3166,46 @@
           "organizationId",
           "startTime"
         ]
+      },
+      "EventLinkResponse": {
+        "type": "object",
+        "properties": {
+          "slug": {
+            "type": "string"
+          }
+        }
+      },
+      "ShareEventRequest": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email",
+            "minLength": 1
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "VIEWER",
+              "EDITOR"
+            ]
+          }
+        },
+        "required": [
+          "email",
+          "role"
+        ]
+      },
+      "ShareEventResponse": {
+        "type": "object",
+        "properties": {
+          "share": {
+            "$ref": "#/components/schemas/ShareResponse"
+          },
+          "emailSent": {
+            "type": "boolean"
+          }
+        }
       },
       "CreateComplaintRequest": {
         "type": "object",
@@ -2251,6 +3274,170 @@
           "lastModifiedDate": {
             "type": "string",
             "format": "date-time"
+          }
+        }
+      },
+      "OrgChartNode": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "CHURCH",
+              "LOCATION",
+              "GROUP",
+              "MINISTRY"
+            ]
+          },
+          "slug": {
+            "type": "string"
+          },
+          "leaders": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "children": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OrgChartNode"
+            }
+          }
+        }
+      },
+      "PositionPeople": {
+        "type": "object",
+        "properties": {
+          "position": {
+            "type": "string"
+          },
+          "people": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "PublicPageResponse": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "CHURCH",
+              "LOCATION",
+              "GROUP",
+              "MINISTRY"
+            ]
+          },
+          "description": {
+            "type": "string"
+          },
+          "schedule": {
+            "type": "string"
+          },
+          "address": {
+            "type": "string"
+          },
+          "phoneNumber": {
+            "type": "string"
+          },
+          "socialLinks": {
+            "$ref": "#/components/schemas/SocialLinks"
+          },
+          "leaders": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "members": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "positions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PositionPeople"
+            }
+          },
+          "orgChart": {
+            "$ref": "#/components/schemas/OrgChartNode"
+          }
+        }
+      },
+      "InvitationPreviewResponse": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string"
+          },
+          "organizationName": {
+            "type": "string"
+          },
+          "positionName": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "needsName": {
+            "type": "boolean"
+          }
+        }
+      },
+      "SharedEventResponse": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "address": {
+            "type": "string"
+          },
+          "start": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "end": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "isACourse": {
+            "type": "boolean"
+          },
+          "organizationName": {
+            "type": "string"
+          },
+          "daysOfWeek": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          "endRecur": {
+            "type": "string",
+            "format": "date"
+          },
+          "canRegister": {
+            "type": "boolean"
+          },
+          "registered": {
+            "type": "boolean"
           }
         }
       },
@@ -2365,6 +3552,9 @@
           "phoneNumber": {
             "type": "string"
           },
+          "email": {
+            "type": "string"
+          },
           "address": {
             "type": "string"
           },
@@ -2400,6 +3590,75 @@
           },
           "unsorted": {
             "type": "boolean"
+          }
+        }
+      },
+      "DirectoryEntryResponse": {
+        "type": "object",
+        "properties": {
+          "node": {
+            "$ref": "#/components/schemas/DirectoryNodeResponse"
+          },
+          "membersVisible": {
+            "type": "boolean"
+          },
+          "members": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "children": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DirectoryNodeResponse"
+            }
+          }
+        }
+      },
+      "DirectoryNodeResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "CHURCH",
+              "LOCATION",
+              "GROUP",
+              "MINISTRY"
+            ]
+          },
+          "parentId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "description": {
+            "type": "string"
+          },
+          "schedule": {
+            "type": "string"
+          },
+          "memberVisibility": {
+            "type": "string",
+            "enum": [
+              "PUBLIC",
+              "CHURCH",
+              "MEMBERS",
+              "LEADERS"
+            ]
+          },
+          "leaders": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
           }
         }
       },
@@ -2621,6 +3880,34 @@
           }
         }
       },
+      "SharedWithMeResponse": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "start": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "isACourse": {
+            "type": "boolean"
+          },
+          "organizationName": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "VIEWER",
+              "EDITOR"
+            ]
+          },
+          "slug": {
+            "type": "string"
+          }
+        }
+      },
       "MyOrganizationResponse": {
         "type": "object",
         "properties": {
@@ -2819,6 +4106,34 @@
             "format": "date-time"
           },
           "lastModifiedDate": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "EventRegistrationResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "firstName": {
+            "type": "string"
+          },
+          "lastName": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "phoneNumber": {
+            "type": "string"
+          },
+          "hasAccount": {
+            "type": "boolean"
+          },
+          "registeredAt": {
             "type": "string",
             "format": "date-time"
           }

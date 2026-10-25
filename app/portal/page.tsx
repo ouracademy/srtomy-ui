@@ -6,19 +6,26 @@ import { useRouter } from "next/navigation";
 import React from "react";
 import {
   getOrganizationsByIdChilds,
+  postMeInvitationsByIdAccept,
   postOrganizations,
   useGetMe,
+  useGetMeInvitations,
+  useGetMeSharedEvents,
   useGetMeOrganizations,
 } from "@/app/(api)/generated";
+import type { InvitationResponse } from "@/app/(api)/generated/aPISrTommy.schemas";
 import Loading from "../(components)/Loading";
 import { ResourceError } from "../(components)/ResourceError";
 import { SnackbarContext } from "../(components)/SnackbarContext";
+import { apiErrorMessage } from "../(components)/apiErrorMessage";
 import { CreateChurchForm } from "./CreateChurchForm";
 import { toCreateChurchRequest } from "./CreateChurchSchema";
-import { readLastNode } from "./lastNode";
+import { readLastNode, saveLastNode } from "./lastNode";
 import MenuDrawer from "./MenuDrawer";
+import { PendingInvitations } from "./PendingInvitations";
+import { SharedWithMe } from "./SharedWithMe";
 import { pickLandingNode, withIds } from "./organizationTree";
-import { suggestedNames } from "./userNames";
+import { suggestedNames, type PersonName } from "./userNames";
 
 // Entry point of the portal. Someone who already belongs to a church goes
 // straight to the node they last used; someone new creates their church.
@@ -35,6 +42,8 @@ export default function PortalHome() {
     isLoading,
     mutate: mutateOrganizations,
   } = useGetMeOrganizations();
+  const { data: invitations } = useGetMeInvitations();
+  const { data: sharedEvents } = useGetMeSharedEvents();
   const nodes = withIds(data);
   const wantsNewChurch =
     typeof window !== "undefined" &&
@@ -62,6 +71,29 @@ export default function PortalHome() {
     router.push(`/portal/${location?.id ?? church.id}`);
   };
 
+  // Accepting links the user to their person of the church and opens the node.
+  const acceptInvitation = async (
+    invitation: InvitationResponse,
+    name?: PersonName,
+  ) => {
+    try {
+      const joined = await postMeInvitationsByIdAccept(
+        invitation.id ?? "",
+        name,
+      );
+      await mutateOrganizations();
+      alert.showMessage("Invitación aceptada");
+      saveLastNode(joined.organizationId ?? "");
+      router.push(`/portal/${joined.organizationId}`);
+      return undefined;
+    } catch (failure) {
+      return apiErrorMessage(
+        failure,
+        "No se pudo aceptar la invitación. Intente nuevamente",
+      );
+    }
+  };
+
   return (
     <MenuDrawer
       listDrawer={
@@ -83,6 +115,12 @@ export default function PortalHome() {
         <Typography variant="h4" component="h1" gutterBottom>
           {nodes.length > 0 ? "Registrar otra iglesia" : "Bienvenido"}
         </Typography>
+        <SharedWithMe events={sharedEvents ?? []} />
+        <PendingInvitations
+          invitations={invitations ?? []}
+          suggestedName={suggestedNames(user)}
+          accept={acceptInvitation}
+        />
         <Typography gutterBottom>
           Registre su iglesia y su primera sede para empezar. Si su iglesia ya
           usa Sr. Tommy, pida a su pastor o líder que lo invite.

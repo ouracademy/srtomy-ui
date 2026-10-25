@@ -5,15 +5,22 @@ import { useRouter } from "next/navigation";
 import { useSWRConfig } from "swr";
 import {
   getGetMeOrganizationsKey,
+  postOrganizationsByIdInvitations,
   postOrganizationsLocationsChilds,
 } from "@/app/(api)/generated";
 import {
   emptySocialLinks,
   toSocialLinksRequest,
 } from "@/app/(components)/SocialLinks";
+import {
+  defaultVisibility,
+  toVisibilityRequest,
+} from "@/app/(components)/visibility";
 import { SnackbarContext } from "@/app/(components)/SnackbarContext";
+import { usePermissions } from "@/app/(hooks)/usePermissions";
 import { nodeTypeLabels } from "@/app/portal/organizationTree";
 import { GroupForm } from "../GroupForm";
+import { invitationSummary, inviteLeaders } from "../leaderInvitations";
 
 // A group or ministry under the current node (a location, group or ministry).
 export default function GroupCreatePage(props: {
@@ -23,10 +30,12 @@ export default function GroupCreatePage(props: {
   const router = useRouter();
   const alert = React.useContext(SnackbarContext);
   const { mutate } = useSWRConfig();
+  const { can } = usePermissions(nodeId);
 
   return (
     <GroupForm
       nodeId={nodeId}
+      canInvite={can("invitations.send")}
       initialValues={{
         name: "",
         description: "",
@@ -34,6 +43,8 @@ export default function GroupCreatePage(props: {
         members: [],
         leaders: [],
         socialLinks: emptySocialLinks,
+        inviteLeaders: true,
+        ...defaultVisibility,
       }}
       submit={async (values) => {
         const created = await postOrganizationsLocationsChilds({
@@ -44,11 +55,23 @@ export default function GroupCreatePage(props: {
           leaderIds: values.leaders.map((x) => x.id),
           memberIds: values.members.map((x) => x.id),
           socialLinks: toSocialLinksRequest(values.socialLinks),
+          ...toVisibilityRequest(values),
         });
         await mutate(getGetMeOrganizationsKey());
+        const invitations =
+          values.inviteLeaders && can("invitations.send")
+            ? await inviteLeaders(
+                created.id ?? "",
+                values.leaders,
+                postOrganizationsByIdInvitations,
+              )
+            : undefined;
         const kind = nodeTypeLabels[values.type] ?? "Grupo";
+        const registered = `${kind} "${values.name.trim()}" registrado. Para verlo, cámbiese desde el selector de arriba.`;
         alert.showMessage(
-          `${kind} "${values.name.trim()}" registrado. Para verlo, cámbiese desde el selector de arriba.`,
+          invitations
+            ? `${registered} ${invitationSummary(invitations)}`
+            : registered,
           {
             label: `Ir al ${kind.toLowerCase()}`,
             onClick: () => router.push(`/portal/${created.id}`),

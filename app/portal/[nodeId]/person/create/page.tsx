@@ -12,6 +12,8 @@ import {
 } from "@/app/portal/[nodeId]/person/PersonForm";
 import React from "react";
 import { SnackbarContext } from "@/app/(components)/SnackbarContext";
+import { returnToFrom } from "@/app/returnTo";
+import { withPersonParam } from "./withPersonParam";
 
 export default function CreatePerson(props: {
   params: Promise<{ nodeId: string }>;
@@ -27,15 +29,30 @@ export default function CreatePerson(props: {
         firstName: "",
         lastName: "",
         phoneNumber: "+51",
+        email: "",
         positions: [],
       }}
       submit={async (data) => {
         const positionIds = await resolvePositionIds(data.positions, (name) =>
           postOrganizationsByIdPositions(nodeId, { name }),
         );
-        await postPeople(toPersonPayload(data, nodeId, positionIds));
+        const personId = await postPeople(
+          toPersonPayload(data, nodeId, positionIds),
+        );
         alert.showMessage("Guardado exitosamente");
-        router.push(`/portal/${nodeId}/person`);
+        // `?next=` sends the user back to what asked for the person (the
+        // invitation dialog), with the new person in `persona`.
+        const next = new URLSearchParams(globalThis.location.search).get(
+          "next",
+        );
+        router.push(
+          next
+            ? withPersonParam(
+                returnToFrom({ returnTo: next }, `/portal/${nodeId}/person`),
+                personId,
+              )
+            : `/portal/${nodeId}/person`,
+        );
       }}
       nodeId={nodeId}
     />
