@@ -1169,6 +1169,15 @@
             }
           }
         ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AcceptInvitationRequest"
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
             "description": "OK",
@@ -1177,15 +1186,6 @@
                 "schema": {
                   "$ref": "#/components/schemas/AcceptInvitationResponse"
                 }
-              }
-            }
-          }
-        },
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/AcceptInvitationRequest"
               }
             }
           }
@@ -1208,6 +1208,15 @@
             }
           }
         ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AcceptInvitationRequest"
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
             "description": "OK",
@@ -1216,15 +1225,6 @@
                 "schema": {
                   "$ref": "#/components/schemas/AcceptInvitationResponse"
                 }
-              }
-            }
-          }
-        },
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/AcceptInvitationRequest"
               }
             }
           }
@@ -2944,6 +2944,9 @@
           "personName": {
             "type": "string"
           },
+          "needsName": {
+            "type": "boolean"
+          },
           "status": {
             "type": "string"
           },
@@ -2957,9 +2960,6 @@
           "createDate": {
             "type": "string",
             "format": "date-time"
-          },
-          "needsName": {
-            "type": "boolean"
           }
         }
       },
@@ -3076,6 +3076,21 @@
           "parentId",
           "type"
         ]
+      },
+      "AcceptInvitationRequest": {
+        "type": "object",
+        "properties": {
+          "firstName": {
+            "type": "string",
+            "maxLength": 100,
+            "minLength": 0
+          },
+          "lastName": {
+            "type": "string",
+            "maxLength": 100,
+            "minLength": 0
+          }
+        }
       },
       "AcceptInvitationResponse": {
         "type": "object",
@@ -4146,19 +4161,6 @@
               "THIS_AND_THE_FOLLOWING_EVENTS",
               "ALL_EVENTS"
             ]
-          }
-        }
-      },
-      "AcceptInvitationRequest": {
-        "type": "object",
-        "properties": {
-          "firstName": {
-            "type": "string",
-            "maxLength": 100
-          },
-          "lastName": {
-            "type": "string",
-            "maxLength": 100
           }
         }
       }
