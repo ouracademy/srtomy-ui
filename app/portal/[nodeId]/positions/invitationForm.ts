@@ -7,19 +7,19 @@ export const invitationSchema = z.object({
     .trim()
     .min(1, "Ingrese el correo")
     .email("Ingrese un correo válido"),
-  firstName: z.string().trim().min(1, "Ingrese el nombre"),
-  lastName: z.string().trim().min(1, "Ingrese el apellido"),
   // Empty: no position, the invitation only links the account.
   positionId: z.string(),
+  // Empty: only the email is known; the API links the person of the node that
+  // has it, and whoever accepts says their name when there is none.
+  personId: z.string(),
 });
 
 export type InvitationFormValues = z.infer<typeof invitationSchema>;
 
 export const emptyInvitation: InvitationFormValues = {
   email: "",
-  firstName: "",
-  lastName: "",
   positionId: "",
+  personId: "",
 };
 
 // Body of POST /organizations/{id}/invitations.
@@ -27,9 +27,8 @@ export const toInvitationRequest = (
   values: InvitationFormValues,
 ): CreateInvitationRequest => ({
   email: values.email.trim(),
-  firstName: values.firstName.trim(),
-  lastName: values.lastName.trim(),
   ...(values.positionId ? { positionId: values.positionId } : {}),
+  ...(values.personId ? { personId: values.personId } : {}),
 });
 
 // First message of each failing field, by field name.

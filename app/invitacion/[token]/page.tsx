@@ -15,6 +15,7 @@ import Loading from "@/app/(components)/Loading";
 import { ResourceError } from "@/app/(components)/ResourceError";
 import { SnackbarContext } from "@/app/(components)/SnackbarContext";
 import { saveLastNode } from "@/app/portal/lastNode";
+import { suggestedNames, type PersonName } from "@/app/portal/userNames";
 import { InvitationAccept } from "./InvitationAccept";
 
 // Public page of an invitation link (/invitacion/{token}). Anyone can read
@@ -27,7 +28,8 @@ export default function InvitationPage(props: {
   const router = useRouter();
   const alert = React.useContext(SnackbarContext);
   const { mutate } = useSWRConfig();
-  const { isAuthenticated, isLoading, loginWithRedirect, logout } = useAuth0();
+  const { isAuthenticated, isLoading, loginWithRedirect, logout, user } =
+    useAuth0();
   const { data: invitation, error } = useGetPublicInvitationsByToken(token);
   // Registers the user in the API; accepting needs them to exist there.
   const { data: me } = useGetMe({ swr: { enabled: isAuthenticated } });
@@ -35,9 +37,9 @@ export default function InvitationPage(props: {
   if (isLoading || (!invitation && !error)) return <Loading />;
   if (!invitation) return <ResourceError error={error} />;
 
-  const accept = async (): Promise<string | void> => {
+  const accept = async (name?: PersonName): Promise<string | void> => {
     try {
-      const joined = await postInvitationsByTokenAccept(token);
+      const joined = await postInvitationsByTokenAccept(token, name);
       await mutate(getGetMeOrganizationsKey());
       alert.showMessage("Invitación aceptada");
       saveLastNode(joined.organizationId ?? "");
@@ -70,6 +72,7 @@ export default function InvitationPage(props: {
           },
         })
       }
+      suggestedName={suggestedNames(user)}
       accept={accept}
     />
   );

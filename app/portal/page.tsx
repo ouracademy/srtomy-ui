@@ -25,7 +25,7 @@ import MenuDrawer from "./MenuDrawer";
 import { PendingInvitations } from "./PendingInvitations";
 import { SharedWithMe } from "./SharedWithMe";
 import { pickLandingNode, withIds } from "./organizationTree";
-import { suggestedNames } from "./userNames";
+import { suggestedNames, type PersonName } from "./userNames";
 
 // Entry point of the portal. Someone who already belongs to a church goes
 // straight to the node they last used; someone new creates their church.
@@ -70,9 +70,15 @@ export default function PortalHome() {
   };
 
   // Accepting links the user to their person of the church and opens the node.
-  const acceptInvitation = async (invitation: InvitationResponse) => {
+  const acceptInvitation = async (
+    invitation: InvitationResponse,
+    name?: PersonName,
+  ) => {
     try {
-      const joined = await postMeInvitationsByIdAccept(invitation.id ?? "");
+      const joined = await postMeInvitationsByIdAccept(
+        invitation.id ?? "",
+        name,
+      );
       await mutateOrganizations();
       alert.showMessage("Invitación aceptada");
       saveLastNode(joined.organizationId ?? "");
@@ -110,6 +116,7 @@ export default function PortalHome() {
         <SharedWithMe events={sharedEvents ?? []} />
         <PendingInvitations
           invitations={invitations ?? []}
+          suggestedName={suggestedNames(user)}
           accept={acceptInvitation}
         />
         <Typography gutterBottom>

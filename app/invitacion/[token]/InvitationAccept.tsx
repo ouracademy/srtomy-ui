@@ -4,6 +4,11 @@ import LoadingButton from "@mui/lab/LoadingButton";
 import { Alert, Box, Button, Paper, Stack, Typography } from "@mui/material";
 import React from "react";
 import { primaryButtonSx } from "@/app/(components)/buttonStyles";
+import {
+  AcceptNameFields,
+  hasBothNames,
+} from "@/app/(components)/AcceptNameFields";
+import type { PersonName } from "@/app/portal/userNames";
 import type { InvitationPreviewResponse } from "@/app/(api)/generated/aPISrTommy.schemas";
 
 type InvitationAcceptProps = Readonly<{
@@ -16,8 +21,11 @@ type InvitationAcceptProps = Readonly<{
   ready: boolean;
   signIn: () => void;
   signOut: () => void;
-  // Resolves with an error message when the invitation was refused.
-  accept: () => Promise<string | void>;
+  // Name to propose when the invitation needs one (from the sign-in profile).
+  suggestedName?: PersonName;
+  // Resolves with an error message when the invitation was refused. The name
+  // is given only when the invitation needs it.
+  accept: (name?: PersonName) => Promise<string | void>;
 }>;
 
 const closedMessages: Record<string, string> = {
@@ -36,16 +44,26 @@ export const InvitationAccept = ({
   ready,
   signIn,
   signOut,
+  suggestedName,
   accept,
 }: InvitationAcceptProps) => {
   const [accepting, setAccepting] = React.useState(false);
   const [refusal, setRefusal] = React.useState<string | null>(null);
+  const [name, setName] = React.useState<PersonName | null>(null);
+  const [triedWithoutName, setTriedWithoutName] = React.useState(false);
+  const typedName = name ?? suggestedName ?? { firstName: "", lastName: "" };
   const closed = closedMessages[invitation.status ?? "PENDING"];
 
   const run = async () => {
+    if (invitation.needsName && !hasBothNames(typedName)) {
+      setTriedWithoutName(true);
+      return;
+    }
     setAccepting(true);
     try {
-      setRefusal((await accept()) ?? null);
+      setRefusal(
+        (await accept(invitation.needsName ? typedName : undefined)) ?? null,
+      );
     } finally {
       setAccepting(false);
     }
@@ -81,6 +99,18 @@ export const InvitationAccept = ({
                 <Typography variant="body2" color="text.secondary">
                   Sesión iniciada como {currentEmail}.
                 </Typography>
+              )}
+              {invitation.needsName && (
+                <>
+                  <Typography>
+                    ¿Cómo se llama? Así lo verá su iglesia.
+                  </Typography>
+                  <AcceptNameFields
+                    value={typedName}
+                    onChange={setName}
+                    showErrors={triedWithoutName}
+                  />
+                </>
               )}
               <LoadingButton
                 variant="contained"

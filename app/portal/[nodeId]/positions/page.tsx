@@ -18,6 +18,7 @@ import {
   useGetOrganizationsByIdAccess,
   useGetOrganizationsByIdInvitations,
   useGetOrganizationsByIdPositions,
+  useGetPeopleById,
   useGetPositionsSuggestions,
 } from "@/app/(api)/generated";
 import { apiErrorMessage } from "@/app/(components)/apiErrorMessage";
@@ -40,7 +41,23 @@ export default function PositionsPage(props: {
 }) {
   const { nodeId } = React.use(props.params);
   const alert = React.useContext(SnackbarContext);
-  const [tab, setTab] = React.useState<TabName>("positions");
+  // Coming back from registering a person to invite: ?tab=invitaciones&persona=id.
+  const query = new URLSearchParams(
+    React.useSyncExternalStore(
+      () => () => undefined,
+      () => globalThis.location.search,
+      () => "",
+    ),
+  );
+  const invitePersonId = query.get("persona") ?? "";
+  const [chosenTab, setTab] = React.useState<TabName | null>(null);
+  const tab: TabName =
+    chosenTab ??
+    (query.get("tab") === "invitaciones" ? "invitations" : "positions");
+  const { data: invitePerson, isLoading: loadingInvitePerson } =
+    useGetPeopleById(invitePersonId, {
+      swr: { enabled: invitePersonId !== "" },
+    });
   const { data: nodes } = useGetMeOrganizations();
   const { data: me } = useGetMe();
   const church = churchOf(withIds(nodes), nodeId);
@@ -67,7 +84,9 @@ export default function PositionsPage(props: {
       swr: { enabled: canInvite },
     });
 
-  if (isLoading) return <Loading />;
+  if (isLoading || (invitePersonId !== "" && loadingInvitePerson)) {
+    return <Loading />;
+  }
   if (!positions) return <ResourceError error={error} />;
 
   const run = async (action: () => Promise<unknown>, message: string) => {
@@ -167,6 +186,9 @@ export default function PositionsPage(props: {
         )}
         {current === "invitations" && (
           <InvitationsPanel
+            key={invitePerson?.id ?? "none"}
+            nodeId={nodeId}
+            initialPerson={invitePerson}
             invitations={invitations ?? []}
             positions={positions}
             onInvite={invite}

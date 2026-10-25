@@ -7,21 +7,18 @@ import {
 
 const valid = {
   email: " beto@x.org ",
-  firstName: " Beto ",
-  lastName: "Pérez",
   positionId: "",
+  personId: "",
 };
 
 describe("invitationErrors", () => {
-  it("accepts a complete invitation", () => {
+  it("accepts an invitation with only an email", () => {
     expect(invitationErrors(valid)).toEqual({});
   });
 
-  it("asks for each missing field", () => {
+  it("asks for the email", () => {
     expect(invitationErrors(emptyInvitation)).toEqual({
       email: "Ingrese el correo",
-      firstName: "Ingrese el nombre",
-      lastName: "Ingrese el apellido",
     });
   });
 
@@ -33,17 +30,13 @@ describe("invitationErrors", () => {
 });
 
 describe("toInvitationRequest", () => {
-  it("trims the values and leaves out an empty position", () => {
-    expect(toInvitationRequest(valid)).toEqual({
-      email: "beto@x.org",
-      firstName: "Beto",
-      lastName: "Pérez",
-    });
+  it("sends only the email when nothing else was chosen", () => {
+    expect(toInvitationRequest(valid)).toEqual({ email: "beto@x.org" });
   });
 
-  it("sends the chosen position", () => {
-    expect(toInvitationRequest({ ...valid, positionId: "p1" }).positionId).toBe(
-      "p1",
-    );
+  it("adds the position and the person when chosen", () => {
+    expect(
+      toInvitationRequest({ ...valid, positionId: "p1", personId: "per1" }),
+    ).toEqual({ email: "beto@x.org", positionId: "p1", personId: "per1" });
   });
 });

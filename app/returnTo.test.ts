@@ -23,3 +23,11 @@ describe("returnToFrom", () => {
     expect(returnToFrom({ returnTo })).toBe("/portal");
   });
 });
+
+describe("returnToFrom fallback", () => {
+  it("uses the given fallback for an unsafe path", () => {
+    expect(returnToFrom({ returnTo: "//evil.com" }, "/portal/n1/person")).toBe(
+      "/portal/n1/person",
+    );
+  });
+});

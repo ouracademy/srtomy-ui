@@ -47,18 +47,15 @@ test.describe("Invitaciones", () => {
 
     await page.goto(`/portal/${NODE_ID}/positions`);
     await page.getByRole("tab", { name: "Invitaciones" }).click();
-    await page.getByLabel("Correo").fill("beto@example.com");
-    await page.getByLabel("Nombre").fill("Beto");
-    await page.getByLabel("Apellido").fill("Pérez");
+    await page.getByRole("button", { name: "Invitar", exact: true }).click();
+    await page.getByLabel("Correo o persona").fill("beto@example.com");
     await page.getByRole("combobox", { name: "Cargo" }).click();
     await page.getByRole("option", { name: "Pastor" }).click();
-    await page.getByRole("button", { name: "Invitar" }).click();
+    await page.getByRole("button", { name: "Enviar invitación" }).click();
 
     await expect(page.getByText("Invitación enviada")).toBeVisible();
     expect(sent).toEqual({
       email: "beto@example.com",
-      firstName: "Beto",
-      lastName: "Pérez",
       positionId: "p-pastor",
     });
     await expect(page.getByRole("cell", { name: "Beto Pérez" })).toBeVisible();
@@ -80,15 +77,16 @@ test.describe("Invitaciones", () => {
 
     await page.goto(`/portal/${NODE_ID}/positions`);
     await page.getByRole("tab", { name: "Invitaciones" }).click();
-    await page.getByLabel("Correo").fill("beto@example.com");
-    await page.getByLabel("Nombre").fill("Beto");
-    await page.getByLabel("Apellido").fill("Pérez");
-    await page.getByRole("button", { name: "Invitar" }).click();
+    await page.getByRole("button", { name: "Invitar", exact: true }).click();
+    await page.getByLabel("Correo o persona").fill("beto@example.com");
+    await page.getByRole("button", { name: "Enviar invitación" }).click();
 
     await expect(
       page.getByText("No puedes dar permisos que no tienes"),
     ).toBeVisible();
-    await expect(page.getByLabel("Correo")).toHaveValue("beto@example.com");
+    await expect(page.getByLabel("Correo o persona")).toHaveValue(
+      "beto@example.com",
+    );
   });
 
   test("quien abre el enlace acepta la invitación y entra al nodo", async ({

@@ -119,4 +119,67 @@ describe("InvitationAccept", () => {
       screen.queryByRole("button", { name: "Iniciar sesión o crear cuenta" }),
     ).toBeNull();
   });
+
+  describe("when the invitation has no name", () => {
+    const needsName = { ...invitation, needsName: true };
+
+    it("asks for the name and sends it when accepting", async () => {
+      const { accept, user } = setup({
+        invitation: needsName,
+        signedIn: true,
+        ready: true,
+      });
+
+      await user.type(screen.getByLabelText(/Nombre/), "Beto");
+      await user.type(screen.getByLabelText(/Apellido/), "Pérez");
+      await user.click(
+        screen.getByRole("button", { name: "Aceptar invitación" }),
+      );
+
+      expect(accept).toHaveBeenCalledWith({
+        firstName: "Beto",
+        lastName: "Pérez",
+      });
+    });
+
+    it("proposes the name of the sign-in profile", async () => {
+      const { accept, user } = setup({
+        invitation: needsName,
+        signedIn: true,
+        ready: true,
+        suggestedName: { firstName: "Ana", lastName: "Ruiz" },
+      });
+
+      await user.click(
+        screen.getByRole("button", { name: "Aceptar invitación" }),
+      );
+
+      expect(accept).toHaveBeenCalledWith({
+        firstName: "Ana",
+        lastName: "Ruiz",
+      });
+    });
+
+    it("does not accept without both names", async () => {
+      const { accept, user } = setup({
+        invitation: needsName,
+        signedIn: true,
+        ready: true,
+      });
+
+      await user.type(screen.getByLabelText(/Nombre/), "Beto");
+      await user.click(
+        screen.getByRole("button", { name: "Aceptar invitación" }),
+      );
+
+      expect(screen.getByText("Ingrese su apellido")).toBeTruthy();
+      expect(accept).not.toHaveBeenCalled();
+    });
+  });
+
+  it("does not ask for a name when the invitation already has one", () => {
+    setup({ signedIn: true, ready: true });
+
+    expect(screen.queryByLabelText(/Apellido/)).toBeNull();
+  });
 });

@@ -12,9 +12,11 @@
 
 ### US1 — Invitar por correo con un cargo (P1)
 
-En «Cargos y accesos», quien tiene `invitations.send` ve la pestaña **Invitaciones**: un formulario (correo, nombre, apellido y cargo opcional) y la tabla de pendientes (correo, persona, cargo, vencimiento; las vencidas con la etiqueta «Vencida»).
+En «Cargos y accesos», quien tiene `invitations.send` ve la pestaña **Invitaciones**: el botón **Invitar** y la tabla de pendientes (correo, persona, cargo, vencimiento; las vencidas con la etiqueta «Vencida»).
 
-1. **Given** el formulario completo, **When** se envía, **Then** `POST /organizations/{id}/invitations`, aparece «Invitación enviada» y la fila en la tabla. El cargo «Sin cargo» solo vincula la cuenta.
+El botón abre un diálogo con un solo campo, «Correo o persona»: se escribe un correo nuevo o se busca a una persona de la sede (al elegirla se usa su correo; si no tiene, se pide y se guarda en su ficha). Hay un cargo opcional y el enlace «Registrar persona», que lleva al alta de persona y vuelve al diálogo con la persona elegida. No se pide nombre: quien acepta lo escribe en la página de la invitación (o en «Tienes invitaciones») cuando la invitación lo necesita (`needsName`); el API vincula a la única persona de la sede con ese correo en vez de duplicarla.
+
+1. **Given** el diálogo con un correo, **When** se envía, **Then** `POST /organizations/{id}/invitations`, aparece «Invitación enviada» y la fila en la tabla. El cargo «Sin cargo» solo vincula la cuenta.
 2. **Given** que el correo no se pudo enviar (`emailSent=false`), **Then** se avisa que la invitación se guardó y que se intente de nuevo.
 3. **Given** un rechazo de la API (403: el cargo da permisos que el usuario no tiene), **Then** se muestra el mensaje de la API y el formulario conserva lo escrito.
 4. **Given** una fila, **When** se pulsa «Cancelar» y se confirma, **Then** `DELETE /invitations/{id}`.

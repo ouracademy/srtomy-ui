@@ -40,7 +40,7 @@ describe("PendingInvitations", () => {
       screen.getByRole("button", { name: "Aceptar la invitación a Jóvenes" }),
     );
 
-    expect(accept).toHaveBeenCalledWith(invitations[1]);
+    expect(accept).toHaveBeenCalledWith(invitations[1], undefined);
   });
 
   it("shows why an invitation was refused", async () => {
@@ -55,5 +55,40 @@ describe("PendingInvitations", () => {
     );
 
     expect(await screen.findByText("La invitación venció")).toBeTruthy();
+  });
+
+  it("asks for the name before accepting an invitation that needs one", async () => {
+    const accept = vi.fn().mockResolvedValue(undefined);
+    const user = userEvent.setup();
+    render(
+      <PendingInvitations
+        invitations={[
+          { id: "i3", organizationName: "Sede Sur", needsName: true },
+        ]}
+        accept={accept}
+      />,
+    );
+
+    await user.click(
+      screen.getByRole("button", { name: "Aceptar la invitación a Sede Sur" }),
+    );
+    expect(accept).not.toHaveBeenCalled();
+
+    await user.type(screen.getByLabelText(/Nombre/), "Beto");
+    await user.click(
+      screen.getByRole("button", { name: "Aceptar la invitación a Sede Sur" }),
+    );
+    expect(screen.getByText("Ingrese su apellido")).toBeTruthy();
+    expect(accept).not.toHaveBeenCalled();
+
+    await user.type(screen.getByLabelText(/Apellido/), "Pérez");
+    await user.click(
+      screen.getByRole("button", { name: "Aceptar la invitación a Sede Sur" }),
+    );
+
+    expect(accept).toHaveBeenCalledWith(expect.objectContaining({ id: "i3" }), {
+      firstName: "Beto",
+      lastName: "Pérez",
+    });
   });
 });
