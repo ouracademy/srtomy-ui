@@ -17,8 +17,7 @@ No aplica a botones que solo navegan, abren un diálogo o cambian un filtro.
 
 ## Qué componente usar
 
-- **Guardar** (azul, el estándar del proyecto): `SaveButton` de `app/(components)/SaveButton.tsx`, con la prop `loading`.
-- **Otro botón de envío** (rojo, de confirmación, de denuncia...): `LoadingButton` de `@mui/lab/LoadingButton` con `loading`. Nunca un `Button` normal para algo que llama a la API.
+- **Guardar** (azul, el estándar del proyecto): `SaveButton` de `app/(components)/SaveButton.tsx`, con la prop `loading`, revise siempre que haya llamadas a la API.
 - **Confirmación de borrado**: `DialogDeleteConfirmation` de `app/(components)/`. Su prop `onDelete` debe **devolver la promesa**; el diálogo muestra el spinner solo mientras esa promesa está pendiente.
 
 ## Formulario (react-hook-form)

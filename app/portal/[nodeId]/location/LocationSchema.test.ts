@@ -4,6 +4,7 @@ import {
   toOrganizationForm,
   toOrganizationPayload,
 } from "./LocationSchema";
+import { defaultVisibility } from "@/app/(components)/visibility";
 import { emptySocialLinks } from "@/app/(components)/SocialLinks";
 
 describe("organizationSchema", () => {
@@ -13,6 +14,7 @@ describe("organizationSchema", () => {
       address: "",
       phoneNumber: "",
       socialLinks: emptySocialLinks,
+      ...defaultVisibility,
     };
     expect(organizationSchema.safeParse(values).success).toBe(true);
     expect(organizationSchema.safeParse({ ...values, name: " " }).success).toBe(
@@ -22,6 +24,26 @@ describe("organizationSchema", () => {
 });
 
 describe("conversions", () => {
+  it("carries the schedule and visibility of the node both ways", () => {
+    const form = toOrganizationForm({
+      name: "Sede Norte",
+      schedule: "Domingos 10 am",
+      memberVisibility: "CHURCH",
+      showOrgChart: false,
+    });
+
+    expect(form).toMatchObject({
+      schedule: "Domingos 10 am",
+      memberVisibility: "CHURCH",
+      showOrgChart: false,
+    });
+    expect(toOrganizationPayload(form, {})).toMatchObject({
+      schedule: "Domingos 10 am",
+      memberVisibility: "CHURCH",
+      showOrgChart: false,
+    });
+  });
+
   it("fills blanks from the API and keeps the description on save", () => {
     const form = toOrganizationForm({
       name: "Sede Norte",
@@ -32,6 +54,7 @@ describe("conversions", () => {
       address: "",
       phoneNumber: "",
       socialLinks: { ...emptySocialLinks, facebookUrl: "https://fb.com/n" },
+      ...defaultVisibility,
     });
 
     expect(
@@ -42,6 +65,9 @@ describe("conversions", () => {
       address: "",
       phoneNumber: "",
       socialLinks: { facebookUrl: "https://fb.com/n" },
+      schedule: "",
+      memberVisibility: "PUBLIC",
+      showOrgChart: true,
       parentId: "c",
     });
     expect(toOrganizationPayload(form, {}).description).toBe("");

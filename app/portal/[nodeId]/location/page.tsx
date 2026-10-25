@@ -5,6 +5,7 @@ import React from "react";
 import { useSWRConfig } from "swr";
 import {
   getGetMeOrganizationsKey,
+  postOrganizationsByIdInvitations,
   putOrganizationsById,
   putOrganizationsLocationsChildsById,
   useGetOrganizationsById,
@@ -13,12 +14,14 @@ import {
 import type { OrganizationResponse } from "@/app/(api)/generated/aPISrTommy.schemas";
 import Loading from "@/app/(components)/Loading";
 import { ResourceError } from "@/app/(components)/ResourceError";
+import { copyLink } from "@/app/(components)/copyLink";
 import { SnackbarContext } from "@/app/(components)/SnackbarContext";
 import { usePermissions } from "@/app/(hooks)/usePermissions";
 import { nodeTypeLabels } from "@/app/portal/organizationTree";
 import { LocationForm } from "./LocationForm";
 import { toOrganizationForm, toOrganizationPayload } from "./LocationSchema";
 import { GroupForm } from "./groups/GroupForm";
+import { invitationSummary, inviteLeaders } from "./groups/leaderInvitations";
 import { Groups } from "./groups/Groups";
 import {
   toGroupInitialValues,
@@ -46,7 +49,11 @@ export default function NodeDetails(props: {
   return (
     <Box>
       {isGroup ? (
-        <GroupDetails node={node} canSave={can("org.update")} />
+        <GroupDetails
+          node={node}
+          canSave={can("org.update")}
+          canInvite={can("invitations.send")}
+        />
       ) : (
         <ChurchOrLocationDetails
           node={node}
@@ -81,6 +88,8 @@ const ChurchOrLocationDetails = ({
       title={`Datos de la ${nodeTypeLabels[node.type ?? ""]?.toLowerCase() ?? "organización"}`}
       initialValues={toOrganizationForm(node)}
       canSave={canSave}
+      slug={node.slug}
+      onCopy={(url) => copyLink(url, alert.showMessage)}
       submit={async (values) => {
         await putOrganizationsById(
           node.id ?? "",
@@ -98,9 +107,11 @@ const ChurchOrLocationDetails = ({
 const GroupDetails = ({
   node,
   canSave,
+  canInvite,
 }: {
   node: OrganizationResponse;
   canSave: boolean;
+  canInvite: boolean;
 }) => {
   const alert = React.useContext(SnackbarContext);
   const { mutate } = useSWRConfig();
@@ -119,6 +130,9 @@ const GroupDetails = ({
       nodeId={node.parentId ?? node.id ?? ""}
       initialValues={toGroupInitialValues(node, members)}
       canSave={canSave}
+      canInvite={canInvite}
+      slug={node.slug}
+      onCopy={(url) => copyLink(url, alert.showMessage)}
       submit={async (values) => {
         try {
           await putOrganizationsLocationsChildsById(
@@ -133,7 +147,19 @@ const GroupDetails = ({
           mutateMembers(),
           mutate(getGetMeOrganizationsKey()),
         ]);
-        alert.showMessage("Guardado exitosamente");
+        const invitations =
+          values.inviteLeaders && canInvite
+            ? await inviteLeaders(
+                node.id ?? "",
+                values.leaders,
+                postOrganizationsByIdInvitations,
+              )
+            : undefined;
+        alert.showMessage(
+          invitations
+            ? invitationSummary(invitations)
+            : "Guardado exitosamente",
+        );
       }}
     />
   );

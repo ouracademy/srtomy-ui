@@ -1169,6 +1169,15 @@
             }
           }
         ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AcceptInvitationRequest"
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
             "description": "OK",
@@ -1219,6 +1228,15 @@
             }
           }
         ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AcceptInvitationRequest"
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
             "description": "OK",
@@ -3082,6 +3100,9 @@
           "personName": {
             "type": "string"
           },
+          "needsName": {
+            "type": "boolean"
+          },
           "status": {
             "type": "string"
           },
@@ -3211,6 +3232,21 @@
           "parentId",
           "type"
         ]
+      },
+      "AcceptInvitationRequest": {
+        "type": "object",
+        "properties": {
+          "firstName": {
+            "type": "string",
+            "maxLength": 100,
+            "minLength": 0
+          },
+          "lastName": {
+            "type": "string",
+            "maxLength": 100,
+            "minLength": 0
+          }
+        }
       },
       "AcceptInvitationResponse": {
         "type": "object",
@@ -3510,6 +3546,9 @@
           },
           "status": {
             "type": "string"
+          },
+          "needsName": {
+            "type": "boolean"
           }
         }
       },

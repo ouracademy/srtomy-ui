@@ -26,6 +26,28 @@ describe("toGroupInitialValues", () => {
       leaders: [{ id: LEADER_ID, label: "Juan Perez" }],
       members: [{ id: MEMBER_ID, label: "Maria Garcia" }],
       socialLinks: emptySocialLinks,
+      inviteLeaders: true,
+      schedule: "",
+      memberVisibility: "PUBLIC",
+      showOrgChart: true,
+    });
+  });
+
+  it("brings the schedule and visibility of the group", () => {
+    const values = toGroupInitialValues(
+      {
+        type: "GROUP",
+        schedule: "Viernes",
+        memberVisibility: "LEADERS",
+        showOrgChart: false,
+      },
+      {},
+    );
+
+    expect(values).toMatchObject({
+      schedule: "Viernes",
+      memberVisibility: "LEADERS",
+      showOrgChart: false,
     });
   });
 
@@ -58,12 +80,16 @@ describe("toUpdateLocationChildRequest", () => {
       name: "Jóvenes - Editado",
       description: "Sábados",
       type: "MINISTRY",
+      inviteLeaders: true,
       leaders: [
-        { id: LEADER_ID, label: "Juan Perez" },
+        { id: LEADER_ID, label: "Juan Perez", email: "juan@x.org" },
         { id: MEMBER_ID, label: "Maria Garcia" },
       ],
       members: [{ id: MEMBER_ID, label: "Maria Garcia" }],
       socialLinks: { ...emptySocialLinks, instagramUrl: "https://ig.com/j" },
+      schedule: " Viernes 7 pm ",
+      memberVisibility: "MEMBERS",
+      showOrgChart: true,
     };
 
     expect(toUpdateLocationChildRequest(values)).toEqual({
@@ -73,6 +99,9 @@ describe("toUpdateLocationChildRequest", () => {
       leaderIds: [LEADER_ID, MEMBER_ID],
       memberIds: [MEMBER_ID],
       socialLinks: { instagramUrl: "https://ig.com/j" },
+      schedule: "Viernes 7 pm",
+      memberVisibility: "MEMBERS",
+      showOrgChart: true,
     });
   });
 });

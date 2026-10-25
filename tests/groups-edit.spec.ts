@@ -137,6 +137,9 @@ test.describe("Editar Grupos y ministerios", () => {
       ],
       memberIds: ["22222222-bbbb-bbbb-bbbb-bbbbbbbbbbbb"],
       socialLinks: {},
+      schedule: "",
+      memberVisibility: "PUBLIC",
+      showOrgChart: true,
     });
     await expect(page.getByText("Guardado exitosamente")).toBeVisible();
   });
