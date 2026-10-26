@@ -90,8 +90,7 @@ export const SharedEventPage = ({
             {eventWhen({
               start: event.start,
               end: event.end,
-              daysOfWeek: event.daysOfWeek,
-              endRecur: event.endRecur,
+              recurrence: event.recurrence,
             })}
           </Typography>
           {event.address && <Typography>Lugar: {event.address}</Typography>}

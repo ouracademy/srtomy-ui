@@ -2,6 +2,10 @@
 
 import { postEvents } from "@/app/(api)/generated";
 import { EventForm } from "@/app/(components)/EventForm";
+import {
+  noRecurrence,
+  toRecurrenceRequest,
+} from "@/app/(components)/recurrence";
 import { SnackbarContext } from "@/app/(components)/SnackbarContext";
 import CloseIcon from "@mui/icons-material/Close";
 import { Dialog, IconButton, Stack, Typography } from "@mui/material";
@@ -65,27 +69,22 @@ export default function EventListPage(props: {
               endTime: spanSelected.end,
               address: "",
               description: "",
-              isRecurrent: false,
-              daysOfWeek: [],
+              recurrence: noRecurrence(),
               type: 0,
               speakers: [],
             }}
             submit={async (values) => {
-              if (values.isRecurrent && !values.endRecur) {
-                return;
-              }
               const data = {
                 name: values.name,
                 address: values.address,
                 organizationId: nodeId,
                 startTime: format(values.startTime, "yyyy-MM-dd'T'HH:mm:ssXXX"),
                 endTime: format(values.endTime, "yyyy-MM-dd'T'HH:mm:ssXXX"),
-                endRecur: values.endRecur
-                  ? format(values.endRecur, "yyyy-MM-dd")
-                  : undefined,
+                recurrence: toRecurrenceRequest(values.recurrence, values.date),
+                // The series keeps its local hour across summer time.
+                timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
                 speakerIds: values.speakers.map((x) => x.id),
                 description: values.description,
-                daysOfWeek: values.daysOfWeek,
                 isACourse: values.type === 1,
               };
 
