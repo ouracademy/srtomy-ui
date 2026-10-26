@@ -69,22 +69,6 @@ async function asMember(page: import("@playwright/test").Page) {
       ]),
     ),
   );
-  await page.route(`**/v1/organizations/${CHURCH_ID}/directory`, (route) =>
-    route.fulfill(
-      json([
-        { id: CHURCH_ID, name: "Iglesia E2E", type: "CHURCH", leaders: [] },
-        {
-          id: NODE_ID,
-          name: "Sede Central",
-          type: "LOCATION",
-          parentId: CHURCH_ID,
-          schedule: "Domingos 10 am",
-          leaders: ["Ana Díaz"],
-          memberVisibility: "CHURCH",
-        },
-      ]),
-    ),
-  );
 }
 
 test.describe("Mi espacio", () => {
@@ -193,7 +177,7 @@ test.describe("Mi espacio", () => {
     await asMember(page);
 
     await page.goto("/portal/me");
-    await expect(page.getByText("Domingos 10 am")).toBeVisible();
+    await expect(page.getByText("Curso de discipulado")).toBeVisible();
 
     const { violations } = await new AxeBuilder({ page })
       .withTags(["wcag2a", "wcag2aa"])

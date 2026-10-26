@@ -21,11 +21,6 @@ vi.mock("../useAcceptInvitation", () => ({
 vi.mock("../MenuDrawer", () => ({
   default: ({ children }: { children: React.ReactNode }) => <>{children}</>,
 }));
-vi.mock("@/app/(components)/directory/ChurchDirectory", () => ({
-  ChurchDirectory: ({ churchId }: { churchId: string }) => (
-    <p>Directorio de la iglesia {churchId}</p>
-  ),
-}));
 
 const ok = (data: unknown) => ({
   data,
@@ -73,21 +68,20 @@ afterEach(() => {
 });
 
 describe("Mi espacio", () => {
-  it("shows the five sections to a plain member", () => {
+  it("shows the four sections to a plain member", () => {
     render(<MySpacePage />);
 
     expect(screen.getByRole("heading", { name: "Mi espacio" })).toBeTruthy();
     for (const name of [
       "Mis eventos y cursos",
       "Mis grupos y ministerios",
-      "Directorio",
       "Compartidos contigo",
       "Tienes invitaciones",
     ]) {
       expect(screen.getByRole("heading", { name })).toBeTruthy();
     }
     expect(screen.getByRole("link", { name: "Retiro" })).toBeTruthy();
-    expect(screen.getByText("Directorio de la iglesia c1")).toBeTruthy();
+    expect(screen.queryByRole("heading", { name: "Directorio" })).toBeNull();
   });
 
   it("offers no administration", () => {
@@ -99,12 +93,11 @@ describe("Mi espacio", () => {
     ).toBeNull();
   });
 
-  it("explains the directory when the user belongs to no church", () => {
+  it("offers to register a church to someone who belongs to none", () => {
     hooks.useGetMeOrganizations.mockReturnValue(ok([]));
 
     render(<MySpacePage />);
 
-    expect(screen.getByText(/Cuando pertenezcas a una iglesia/)).toBeTruthy();
     expect(
       screen.getByRole("link", { name: "Registrar otra iglesia" }),
     ).toBeTruthy();

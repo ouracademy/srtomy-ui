@@ -91,7 +91,7 @@ Reglas:
 3. **Con iglesias**: se redirige al último nodo usado (`localStorage`) o, si no hay, al primero.
 4. **Selector de contexto** como el _resource picker_ de GCP, en la barra superior: breadcrumb `Iglesia › Sede › Ministerio › Subgrupo`. Un diálogo con buscador y árbol permite cambiar de iglesia o de cualquier nodo. Reemplaza `LocationsDialog`.
 5. **Rutas**: `app/portal/[locId]` pasa a `app/portal/[nodeId]`. Las secciones (personas, eventos, subgrupos, accesos) se muestran según el tipo de nodo y los permisos.
-6. **"Mi espacio"** (`/portal/me`) para cualquier usuario: mis cursos y eventos (donde estoy inscrito o asistí), mis grupos y ministerios, y el directorio de la iglesia (nodos visibles con su información básica y sus líderes).
+6. **"Mi espacio"** (`/portal/me`) para cualquier usuario: mis cursos y eventos (donde estoy inscrito o asistí), mis grupos y ministerios, compartidos conmigo e invitaciones (el directorio de la iglesia vive en «Directorio» del menú de cada nodo).
 7. Nueva pestaña **"Accesos"** en cada nodo (como "IAM" en GCP): bindings heredados, marcados como tales, y directos; otorgar o quitar roles; invitaciones pendientes.
 
 ## 5. Invitaciones

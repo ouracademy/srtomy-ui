@@ -19,13 +19,12 @@
 
 ### US2 — La página `/portal/me` (P1)
 
-Abierta a cualquier usuario con sesión, con estas secciones (cada una carga y falla por su cuenta):
+Abierta a cualquier usuario con sesión, con estas secciones (cada una carga y falla por su cuenta). El directorio de la iglesia **no** va aquí: sigue en «Directorio» del menú de cada nodo.
 
 1. **Mis eventos y cursos** (`GET /me/events`): título (enlace a `/e/{slug}`), si es curso, el nodo, la fecha y las marcas «Inscrito» y «Asististe».
 2. **Mis grupos y ministerios** (`GET /me/nodes`): enlace al nodo, tipo e iglesia, «Líder» y los cargos que tiene allí.
-3. **Directorio**: el directorio de cada iglesia del usuario (el mismo componente que la pantalla Directorio, `ChurchDirectory`); cada nodo respeta su visibilidad.
-4. **Compartidos contigo** (`GET /me/shared-events`) e **Invitaciones** (`GET /me/invitations`, con «Aceptar»). En Mi espacio siempre se muestran, con un texto si están vacías.
-5. «Registrar otra iglesia».
+3. **Compartidos contigo** (`GET /me/shared-events`) e **Invitaciones** (`GET /me/invitations`, con «Aceptar»). En Mi espacio siempre se muestran, con un texto si están vacías.
+4. «Registrar otra iglesia».
 
 ### US3 — Un miembro no ve administración (P1)
 
