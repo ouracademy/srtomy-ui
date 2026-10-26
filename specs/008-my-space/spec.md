@@ -10,12 +10,12 @@
 
 ## User Scenarios & Testing
 
-### US1 — Un miembro sin cargo aterriza en Mi espacio (P1)
+### US1 — Después de entrar se llega a Mi espacio (P1)
 
-1. **Given** una persona vinculada a su usuario que solo tiene el nivel Miembro (`org.read`, `events.read`) en su nodo, **When** abre `/portal`, **Then** va a `/portal/me` en vez del nodo.
-2. **Given** alguien con algún permiso más allá del nivel Miembro (p. ej. `members.read`, `attendance.write`), **Then** va al nodo como hasta ahora.
-3. **Given** alguien sin iglesia, **Then** sigue viendo el asistente «Crea tu iglesia».
-4. Aceptar una invitación vuelve a `/portal`, que decide el destino con los permisos del nodo.
+1. **Given** alguien con acceso a algún nodo, **When** abre `/portal` (por ejemplo tras iniciar sesión), **Then** va a `/portal/me`, sea miembro sin cargo o administrador; desde ahí abre su sede, grupo o ministerio.
+2. **Given** alguien sin iglesia, **Then** sigue viendo el asistente «Crea tu iglesia».
+3. Aceptar una invitación vuelve a `/portal`, que lo lleva a Mi espacio con el árbol ya actualizado.
+4. `/portal?nueva=1` sigue mostrando el formulario para registrar otra iglesia.
 
 ### US2 — La página `/portal/me` (P1)
 

@@ -17,16 +17,7 @@ const hooks = vi.hoisted(() => ({
 }));
 vi.mock("@/app/(api)/generated", () => hooks);
 
-const usePermissions = vi.fn();
-vi.mock("@/app/(hooks)/usePermissions", async (importOriginal) => ({
-  ...(await importOriginal<typeof import("@/app/(hooks)/usePermissions")>()),
-  usePermissions: (...args: unknown[]) => usePermissions(...args),
-}));
 vi.mock("@auth0/auth0-react", () => ({ useAuth0: () => ({ user: {} }) }));
-vi.mock("./lastNode", () => ({
-  readLastNode: () => null,
-  saveLastNode: vi.fn(),
-}));
 vi.mock("./useAcceptInvitation", () => ({
   useAcceptInvitation: () => vi.fn(),
 }));
@@ -59,44 +50,29 @@ afterEach(() => {
 });
 
 describe("portal landing", () => {
-  it("sends a plain member to Mi espacio", () => {
-    usePermissions.mockReturnValue({
-      permissions: ["org.read", "events.read"],
-      isLoading: false,
-    });
-
+  it("sends someone who belongs to a church to Mi espacio", () => {
     render(<PortalHome />);
 
     expect(replace).toHaveBeenCalledWith("/portal/me");
-  });
-
-  it("sends someone who helps manage the node to that node", () => {
-    usePermissions.mockReturnValue({
-      permissions: ["org.read", "members.read", "attendance.write"],
-      isLoading: false,
-    });
-
-    render(<PortalHome />);
-
-    expect(replace).toHaveBeenCalledWith("/portal/n1");
-  });
-
-  it("waits for the permissions before choosing", () => {
-    usePermissions.mockReturnValue({ permissions: [], isLoading: true });
-
-    render(<PortalHome />);
-
-    expect(replace).not.toHaveBeenCalled();
     expect(screen.getByLabelText("Cargando")).toBeTruthy();
   });
 
   it("asks someone without a church to create one", () => {
     hooks.useGetMeOrganizations.mockReturnValue(ok([]));
-    usePermissions.mockReturnValue({ permissions: [], isLoading: false });
 
     render(<PortalHome />);
 
     expect(replace).not.toHaveBeenCalled();
     expect(screen.getByText("Formulario de iglesia")).toBeTruthy();
+  });
+
+  it("does not count an ancestor the user can only see as a breadcrumb", () => {
+    hooks.useGetMeOrganizations.mockReturnValue(
+      ok([{ id: "c1", name: "Iglesia", type: "CHURCH", accessible: false }]),
+    );
+
+    render(<PortalHome />);
+
+    expect(replace).not.toHaveBeenCalled();
   });
 });

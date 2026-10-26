@@ -12,26 +12,21 @@ import {
   useGetMeSharedEvents,
   useGetMeOrganizations,
 } from "@/app/(api)/generated";
-import {
-  hasManagementAccess,
-  usePermissions,
-} from "@/app/(hooks)/usePermissions";
 import Loading from "../(components)/Loading";
 import { ResourceError } from "../(components)/ResourceError";
 import { SnackbarContext } from "../(components)/SnackbarContext";
 import { CreateChurchForm } from "./CreateChurchForm";
 import { toCreateChurchRequest } from "./CreateChurchSchema";
-import { readLastNode, saveLastNode } from "./lastNode";
 import MenuDrawer from "./MenuDrawer";
 import { PendingInvitations } from "./PendingInvitations";
 import { SharedWithMe } from "./SharedWithMe";
-import { pickLandingNode, withIds } from "./organizationTree";
+import { withIds } from "./organizationTree";
 import { useAcceptInvitation } from "./useAcceptInvitation";
 import { suggestedNames } from "./userNames";
 
-// Entry point of the portal. Someone who already belongs to a church goes
-// straight to the node they last used, or to "Mi espacio" when they only are a
-// plain member there; someone new creates their church.
+// Entry point of the portal. Someone who already belongs to a church lands on
+// "Mi espacio", from where they open any of their nodes; someone new creates
+// their church.
 // `?nueva=1` shows the form even to members, to create another church.
 export default function PortalHome() {
   const router = useRouter();
@@ -46,32 +41,21 @@ export default function PortalHome() {
     mutate: mutateOrganizations,
   } = useGetMeOrganizations();
   // Accepting links the user to their person of the church; the landing logic
-  // then opens the node (or "Mi espacio") from the refreshed tree.
-  const acceptInvitation = useAcceptInvitation((joined) => {
-    saveLastNode(joined.organizationId ?? "");
-    router.push("/portal");
-  });
+  // then opens "Mi espacio" from the refreshed tree.
+  const acceptInvitation = useAcceptInvitation(() => router.push("/portal"));
   const { data: invitations } = useGetMeInvitations();
   const { data: sharedEvents } = useGetMeSharedEvents();
   const nodes = withIds(data);
   const wantsNewChurch =
     typeof window !== "undefined" &&
     new URLSearchParams(window.location.search).has("nueva");
-  const landing = wantsNewChurch
-    ? undefined
-    : pickLandingNode(nodes, readLastNode());
-  const { permissions, isLoading: loadingPermissions } = usePermissions(
-    landing?.id,
-  );
+  const goToMySpace = !wantsNewChurch && nodes.some((node) => node.accessible);
 
   React.useEffect(() => {
-    if (!landing || loadingPermissions) return;
-    router.replace(
-      hasManagementAccess(permissions) ? `/portal/${landing.id}` : "/portal/me",
-    );
-  }, [landing, loadingPermissions, permissions, router]);
+    if (goToMySpace) router.replace("/portal/me");
+  }, [goToMySpace, router]);
 
-  if (isLoading || landing) return <Loading />;
+  if (isLoading || goToMySpace) return <Loading />;
   if (!data) return <ResourceError error={error ?? meError} />;
 
   const createChurch = async (

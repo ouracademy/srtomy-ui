@@ -88,7 +88,7 @@ async function asMember(page: import("@playwright/test").Page) {
 }
 
 test.describe("Mi espacio", () => {
-  test("un miembro sin cargo aterriza en Mi espacio y ve sus cinco secciones", async ({
+  test("un miembro sin cargo aterriza en Mi espacio y ve sus secciones", async ({
     page,
   }) => {
     await asMember(page);
@@ -150,9 +150,24 @@ test.describe("Mi espacio", () => {
     await expect(menu.getByText("Dashboard", { exact: true })).toHaveCount(0);
   });
 
-  test("quien administra aterriza en su nodo y llega a Mi espacio desde el menú", async ({
+  test("quien administra también aterriza en Mi espacio y de ahí abre su sede", async ({
     page,
   }) => {
+    await page.route("**/v1/me/nodes", (route) =>
+      route.fulfill(
+        json([
+          {
+            id: NODE_ID,
+            name: "Sede Central",
+            type: "LOCATION",
+            churchId: CHURCH_ID,
+            churchName: "Iglesia E2E",
+            leader: true,
+            positions: ["Pastor"],
+          },
+        ]),
+      ),
+    );
     await page.route(`**/organizations/${NODE_ID}`, (route) =>
       route.fulfill(
         json({ id: NODE_ID, name: "Sede Central", type: "LOCATION" }),
@@ -161,15 +176,17 @@ test.describe("Mi espacio", () => {
 
     await page.goto("/portal");
 
+    await expect(page).toHaveURL(/\/portal\/me$/);
+    await page
+      .getByRole("list", { name: "Mis grupos y ministerios" })
+      .getByRole("link", { name: "Sede Central" })
+      .click();
     await expect(page).toHaveURL(new RegExp(`/portal/${NODE_ID}$`));
     await page
       .getByRole("navigation", { name: "Navegación" })
       .getByText("Mi espacio", { exact: true })
       .click();
     await expect(page).toHaveURL(/\/portal\/me$/);
-    await expect(
-      page.getByText("Aún no te has inscrito ni has asistido"),
-    ).toBeVisible();
   });
 
   test("Mi espacio con datos no tiene violaciones graves", async ({ page }) => {
