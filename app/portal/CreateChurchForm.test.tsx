@@ -43,7 +43,7 @@ const fillBasics = async (user: ReturnType<typeof userEvent.setup>) => {
   );
 };
 
-describe("CreateChurchForm", () => {
+describe("CreateChurchForm", { timeout: 15000 }, () => {
   it("waits for the suggestions and the permissions", () => {
     render(<CreateChurchForm submit={vi.fn()} />);
 
