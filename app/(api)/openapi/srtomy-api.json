@@ -2960,6 +2960,9 @@
           "createDate": {
             "type": "string",
             "format": "date-time"
+          },
+          "emailStatus": {
+            "type": "string"
           }
         }
       },

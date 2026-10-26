@@ -78,7 +78,7 @@ export const ShareEventButton = ({
                 });
                 if (result.emailSent === false) {
                   alert.showMessage(
-                    "Se compartió, pero no se pudo enviar el correo. Copie el enlace y envíelo usted.",
+                    "Se compartió. El correo aún no sale y se reintenta solo; si lo necesita ya, copie el enlace y envíelo usted.",
                   );
                 }
               },

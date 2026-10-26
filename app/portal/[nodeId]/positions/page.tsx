@@ -81,7 +81,14 @@ export default function PositionsPage(props: {
 
   const { data: invitations, mutate: mutateInvitations } =
     useGetOrganizationsByIdInvitations(nodeId, {
-      swr: { enabled: canInvite },
+      swr: {
+        enabled: canInvite,
+        // Emails still in the queue leave within minutes: keep looking.
+        refreshInterval: (latest) =>
+          latest?.some((invitation) => invitation.emailStatus === "PENDING")
+            ? 20000
+            : 0,
+      },
     });
 
   if (isLoading || (invitePersonId !== "" && loadingInvitePerson)) {
@@ -115,7 +122,9 @@ export default function PositionsPage(props: {
       const result = await postOrganizationsByIdInvitations(nodeId, request);
       await mutateInvitations();
       alert.showMessage(
-        result.emailSent ? "Invitación enviada" : "Invitación guardada",
+        result.emailSent
+          ? "Invitación enviada"
+          : "Invitación guardada; el correo sale en unos minutos",
       );
       return result.emailSent;
     } catch (failure) {

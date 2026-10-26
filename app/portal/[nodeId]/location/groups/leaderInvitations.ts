@@ -64,7 +64,9 @@ export const invitationSummary = (result: LeaderInvitationResult): string => {
     );
   }
   if (result.notDelivered > 0) {
-    parts.push(`no se pudo enviar el correo a ${result.notDelivered}`);
+    parts.push(
+      `el correo de ${result.notDelivered} aún no sale y se reintenta solo`,
+    );
   }
   for (const failure of result.failed) {
     parts.push(`${failure.label}: ${failure.reason}`);

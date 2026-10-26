@@ -101,7 +101,7 @@ describe("invitationSummary", () => {
         ],
       }),
     ).toBe(
-      "Guardado exitosamente. 1 líder invitado; no se pudo enviar el correo a 1; Luis Paz: Esa persona ya usa la aplicación",
+      "Guardado exitosamente. 1 líder invitado; el correo de 1 aún no sale y se reintenta solo; Luis Paz: Esa persona ya usa la aplicación",
     );
   });
 });
