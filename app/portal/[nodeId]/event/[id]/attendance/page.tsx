@@ -9,7 +9,7 @@ import {
 import { EventDetailFormData, EventForm } from "@/app/(components)/EventForm";
 import Loading from "@/app/(components)/Loading";
 import { ResourceError } from "@/app/(components)/ResourceError";
-import { parseISO } from "date-fns";
+import { fromRecurrenceResponse } from "@/app/(components)/recurrence";
 import { SnackbarContext } from "@/app/(components)/SnackbarContext";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { Box, Stack, Tooltip, Typography, Grid } from "@mui/material";
@@ -68,7 +68,7 @@ export default function AttendanceEvent(props: {
   if (isLoading || eventLoading) return <Loading />;
   if (!event) return <ResourceError error={eventError} />;
 
-  const isRecurrent = Boolean(event.recurrentEvent);
+  const isRecurrent = Boolean(event.recurrence);
 
   const chooseDeleteOption = (values: DeleteEventRecurrentForm) => {
     setDeleteOption(values.option);
@@ -93,11 +93,7 @@ export default function AttendanceEvent(props: {
     date: event.start ?? new Date(),
     startTime: event.start ?? new Date(),
     endTime: event.end ?? new Date(),
-    isRecurrent,
-    daysOfWeek: event.recurrentEvent?.daysOfWeek ?? [],
-    endRecur: event.recurrentEvent?.endRecur
-      ? parseISO(event.recurrentEvent.endRecur)
-      : undefined,
+    recurrence: fromRecurrenceResponse(event.recurrence),
     type: event.isACourse ? 1 : 0,
     address: event.address,
     speakers: (event.speakers ?? []).map((speaker) => ({
@@ -115,7 +111,7 @@ export default function AttendanceEvent(props: {
             <div style={{ display: "flex", justifyContent: "flex-end" }}>
               {can("events.write") && (
                 <ShareEventButton
-                  eventId={event.recurrentEvent?.id ?? id}
+                  eventId={id}
                   title={event.title ?? ""}
                   isACourse={Boolean(event.isACourse)}
                 />

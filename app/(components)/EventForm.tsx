@@ -16,42 +16,28 @@ import { useGetPeople } from "@/app/(api)/generated";
 import { DEBOUNCE_WAIT_MS } from "./helpers/debouncing";
 import PlaceOutlinedIcon from "@mui/icons-material/PlaceOutlined";
 import { RecurrenceFields } from "./RecurrenceFields";
+import { recurrenceSchema } from "./recurrence";
 import { ToggleButton } from "./ToggleButton";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { SaveButton } from "./SaveButton";
 
-const schema = z
-  .object({
-    name: z.string().trim().min(1, { message: "Por favor ingrese el título" }),
-    date: z.date(),
-    startTime: z.date(),
-    endTime: z.date(),
-    endRecur: z.date().nullable().optional(),
-    address: z.string().optional(),
-    isRecurrent: z.boolean().optional(),
-    description: z.string().optional(),
-    daysOfWeek: z.array(z.number()),
-    type: z.number(),
-    speakers: z.array(
-      z.object({
-        id: z.string(),
-        label: z.string(),
-      }),
-    ),
-  })
-  .refine(
-    (data) => {
-      return data.isRecurrent
-        ? data.daysOfWeek.length >= 1 && data.endRecur
-        : true;
-    },
-    {
-      message:
-        "Por favor seleccionar el/los día(s) y la fecha que finaliza el evento",
-      path: ["isRecurrent"],
-    },
-  );
+const schema = z.object({
+  name: z.string().trim().min(1, { message: "Por favor ingrese el título" }),
+  date: z.date(),
+  startTime: z.date(),
+  endTime: z.date(),
+  address: z.string().optional(),
+  description: z.string().optional(),
+  recurrence: recurrenceSchema,
+  type: z.number(),
+  speakers: z.array(
+    z.object({
+      id: z.string(),
+      label: z.string(),
+    }),
+  ),
+});
 
 export type EventDetailFormData = z.infer<typeof schema>;
 
@@ -157,7 +143,7 @@ export const EventForm = ({
           />
         </Grid>
         <Grid size={{ xs: 12 }}>
-          <RecurrenceFields />
+          <RecurrenceFields readOnly={!editable} />
         </Grid>
         <Grid size={{ xs: 12 }}>
           <AutocompleteElement
