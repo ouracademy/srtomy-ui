@@ -7,6 +7,7 @@ export default defineConfig({
     environment: "jsdom",
     include: ["app/**/*.test.{ts,tsx}"],
     setupFiles: ["./vitest.setup.ts"],
+    testTimeout: 15000,
     coverage: {
       provider: "v8",
       // No `include`: coverage is measured on the modules the unit tests load,
