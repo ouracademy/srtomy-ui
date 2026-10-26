@@ -13,9 +13,9 @@ const keepDateOnlyAsString = (node: unknown): void => {
 // Generates typed functions and SWR hooks from the committed OpenAPI spec.
 // Output is not versioned (see .gitignore): it is rebuilt on every run.
 export default defineConfig({
-  srtomyApi: {
+  ovejafielApi: {
     input: {
-      target: "./app/(api)/openapi/srtomy-api.json",
+      target: "./app/(api)/openapi/ovejafiel-api.json",
       override: {
         transformer: (spec) => {
           keepDateOnlyAsString(spec);

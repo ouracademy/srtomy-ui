@@ -61,7 +61,7 @@ Other addy skills stay available for code review, TDD, security and performance.
 Read [docs/architecture.md](./docs/architecture.md) (where code goes, data flow) and [docs/code-style.md](./docs/code-style.md) (how to write it) before adding code. The short version:
 
 - Code lives next to what uses it (by proximity). A component used by one screen goes beside its `page.tsx`; shared ones go in `app/(components)/`. No `features/` or `utils/` folders.
-- Every call to srtomy-api goes through `app/(api)/services` (typed functions and SWR hooks) and the single client in `app/(api)/client.ts`. Components never build URLs or use axios directly. Response types live in `app/(api)/types.ts`.
+- Every call to ovejafiel-api goes through `app/(api)/services` (typed functions and SWR hooks) and the single client in `app/(api)/client.ts`. Components never build URLs or use axios directly. Response types live in `app/(api)/types.ts`.
 - Screens that read data handle loading, not-found and error (`Loading`, `ResourceError`).
 - Unit tests sit next to the file they test; e2e tests are in `tests/`.
 

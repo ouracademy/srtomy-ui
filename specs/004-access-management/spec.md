@@ -6,7 +6,7 @@
 
 **Status**: Implemented
 
-**Input**: Fase 004 del rediseño ([`docs/redesign.md`](../../docs/redesign.md)). Contrato y reglas en la spec del API: `srtomy-api/specs/004-access-management/`. Depende de la 003 y del PR del API de esta fase.
+**Input**: Fase 004 del rediseño ([`docs/redesign.md`](../../docs/redesign.md)). Contrato y reglas en la spec del API: `ovejafiel-api/specs/004-access-management/`. Depende de la 003 y del PR del API de esta fase.
 
 ## User Scenarios & Testing
 

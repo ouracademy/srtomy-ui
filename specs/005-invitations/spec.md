@@ -6,7 +6,7 @@
 
 **Status**: Implemented
 
-**Input**: Fase 005 del rediseño ([`docs/redesign.md`](../../docs/redesign.md) §5). Contrato y reglas en la spec del API: `srtomy-api/specs/005-invitations/`. Depende de la 004b.
+**Input**: Fase 005 del rediseño ([`docs/redesign.md`](../../docs/redesign.md) §5). Contrato y reglas en la spec del API: `ovejafiel-api/specs/005-invitations/`. Depende de la 004b.
 
 ## User Scenarios & Testing
 

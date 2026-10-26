@@ -2,7 +2,7 @@
   "version": "0.0.1",
   "configurations": [
     {
-      "name": "srtomy-ui",
+      "name": "ovejafiel-ui",
       "runtimeExecutable": "bash",
       "runtimeArgs": ["-lc", "nvm use 22 && pnpm dev"],
       "port": 3000

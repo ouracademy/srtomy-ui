@@ -6,7 +6,7 @@
 
 **Status**: Implemented
 
-**Input**: Fase 006 del rediseño ([`docs/redesign.md`](../../docs/redesign.md) §6). Contrato y reglas en la spec del API: `srtomy-api/specs/006-visibility/`. Depende de la 005.
+**Input**: Fase 006 del rediseño ([`docs/redesign.md`](../../docs/redesign.md) §6). Contrato y reglas en la spec del API: `ovejafiel-api/specs/006-visibility/`. Depende de la 005.
 
 ## User Scenarios & Testing
 

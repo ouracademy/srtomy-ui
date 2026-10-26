@@ -8,7 +8,7 @@
 .specify/
 .claude/skills/
 
-# Generated from srtomy-api; keep the server output byte-for-byte
+# Generated from ovejafiel-api; keep the server output byte-for-byte
 app/(api)/openapi/
 
 # generated API client (orval)
