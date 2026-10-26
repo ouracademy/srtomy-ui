@@ -96,10 +96,10 @@ test.describe("Mi espacio", () => {
     await expect(
       page.getByRole("list", { name: "Mis grupos y ministerios" }),
     ).toContainText("Sede Central");
-    await expect(
-      page.getByRole("heading", { name: "Directorio" }),
-    ).toBeVisible();
-    await expect(page.getByText("Domingos 10 am")).toBeVisible();
+    // The church directory lives in the menu of each node, not here.
+    await expect(page.getByRole("heading", { name: "Directorio" })).toHaveCount(
+      0,
+    );
     await expect(
       page.getByRole("heading", { name: "Compartidos contigo" }),
     ).toBeVisible();
