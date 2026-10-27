@@ -1,11 +1,11 @@
 ---
 name: api-submit-button
-description: Usar siempre que crees o cambies un formulario, diálogo o botón que llame a la API de ovejafiel-api (guardar, registrar, enviar, eliminar). Hace que el botón muestre un spinner y quede bloqueado mientras dura la petición.
+description: Usar siempre que crees o cambies un formulario, diálogo o botón que llame a la API de srtomy-api (guardar, registrar, enviar, eliminar). Hace que el botón muestre un spinner y quede bloqueado mientras dura la petición.
 ---
 
 # Botones que llaman a la API
 
-Todo botón que dispara una petición a ovejafiel-api muestra un **spinner** y queda **deshabilitado** hasta que la petición termina. Así el usuario ve que algo ocurre y no puede enviar dos veces.
+Todo botón que dispara una petición a srtomy-api muestra un **spinner** y queda **deshabilitado** hasta que la petición termina. Así el usuario ve que algo ocurre y no puede enviar dos veces.
 
 ## Cuándo aplica
 

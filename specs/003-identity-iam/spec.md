@@ -6,7 +6,7 @@
 
 **Status**: Implemented
 
-**Input**: Fase 1 (003) del rediseño ([`docs/redesign.md`](../../docs/redesign.md)). El contrato y las reglas de acceso están en la spec del API: `ovejafiel-api/specs/003-identity-iam/`.
+**Input**: Fase 1 (003) del rediseño ([`docs/redesign.md`](../../docs/redesign.md)). El contrato y las reglas de acceso están en la spec del API: `srtomy-api/specs/003-identity-iam/`.
 
 ## User Scenarios & Testing
 

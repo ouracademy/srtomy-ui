@@ -2,7 +2,7 @@
 
 Guía para quien va a tocar el código: dónde va cada cosa y por qué. Si algo de aquí deja de ser cierto, corrige el documento en el mismo PR. Las reglas de escritura están en [code-style.md](code-style.md).
 
-> La capa de API es código generado desde la especificación OpenAPI de ovejafiel-api (`app/(api)/generated/`). `person.ts` y `date.ts` son lo único escrito a mano que transforma respuestas.
+> La capa de API es código generado desde la especificación OpenAPI de srtomy-api (`app/(api)/generated/`). `person.ts` y `date.ts` son lo único escrito a mano que transforma respuestas.
 
 ## Principio: cercanía
 
@@ -10,13 +10,13 @@ El código vive **junto a lo que lo usa**. La ruta de la pantalla es el contexto
 
 - Un componente o hook que solo usa una pantalla va **en la carpeta de esa pantalla**, junto a su `page.tsx`.
 - Un componente o hook que usan dos o más pantallas va en una carpeta global con nombre de tipo: `app/(components)/` o `app/(hooks)/`.
-- `app/(api)/` es la excepción: todo lo que habla con ovejafiel-api vive ahí, porque se genera de su especificación y las pantallas no deben conocerse entre sí.
+- `app/(api)/` es la excepción: todo lo que habla con srtomy-api vive ahí, porque se genera de su especificación y las pantallas no deben conocerse entre sí.
 - Una prueba unitaria va **al lado** del archivo que prueba (`date.ts` y `date.test.ts`).
 
 ```
 app/
-  (api)/                       Todo lo que habla con ovejafiel-api
-    openapi/ovejafiel-api.json    Especificación OpenAPI versionada (fuente de la API)
+  (api)/                       Todo lo que habla con srtomy-api
+    openapi/srtomy-api.json    Especificación OpenAPI versionada (fuente de la API)
     generated/                 NO versionado ni editable: tipos, funciones y hooks SWR (orval)
     client.ts                  Mutator de axios: token e interceptores (a mano)
     AuthTokenBridge.tsx        Entrega el token de Auth0 al cliente
@@ -49,7 +49,7 @@ Los paréntesis en `(api)`, `(components)` y `(hooks)` son _route groups_ de Nex
 
 | Quiero agregar...                                    | Va en...                                                                                       |
 | ---------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
-| Un endpoint nuevo de ovejafiel-api                   | Agrégalo en la API, luego `pnpm api:sync` regenera el hook y el tipo en `app/(api)/generated/` |
+| Un endpoint nuevo de srtomy-api                   | Agrégalo en la API, luego `pnpm api:sync` regenera el hook y el tipo en `app/(api)/generated/` |
 | Una pantalla                                         | `app/portal/[nodeId]/<sección>/page.tsx`                                                       |
 | Un componente de una sola pantalla                   | Al lado de su `page.tsx`                                                                       |
 | Un componente que ya usan dos o más pantallas        | `app/(components)/`                                                                            |
@@ -64,7 +64,7 @@ La regla: **los componentes no construyen URLs ni usan axios**. Piden datos y mo
 
 ### Generación
 
-`app/(api)/openapi/ovejafiel-api.json` es la fuente. Cada tag de OpenAPI produce un archivo en `app/(api)/generated/` (`people`, `events`, `organizations`, `complaints`), con sus tipos, sus funciones y sus hooks SWR.
+`app/(api)/openapi/srtomy-api.json` es la fuente. Cada tag de OpenAPI produce un archivo en `app/(api)/generated/` (`people`, `events`, `organizations`, `complaints`), con sus tipos, sus funciones y sus hooks SWR.
 
 - `pnpm api:sync` descarga la especificación de la API en local (o `API_DOCS_URL`) y la guarda en el repo. Se ejecuta cuando cambia la API y el cambio viaja en el PR.
 - `pnpm api:generate` regenera `generated/`. Corre solo al hacer `pnpm install`, `dev`, `build`, `typecheck`, `test` y `lint`; no hace falta ejecutarlo a mano.

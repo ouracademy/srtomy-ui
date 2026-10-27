@@ -2,8 +2,8 @@ import axios, { type AxiosRequestConfig } from "axios";
 import { env } from "../env";
 import { handleDates } from "./date";
 
-// Only the origin: the paths in openapi/ovejafiel-api.json already carry the /v1
-// prefix (ovejafiel-api#23), so adding it here would duplicate it.
+// Only the origin: the paths in openapi/srtomy-api.json already carry the /v1
+// prefix (srtomy-api#23), so adding it here would duplicate it.
 export const apiUrl = env.NEXT_PUBLIC_API_URL;
 
 type AccessTokenProvider = () => Promise<string | undefined>;

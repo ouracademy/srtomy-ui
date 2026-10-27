@@ -1,4 +1,4 @@
-// Saves the OpenAPI spec of ovejafiel-api into the repo, pretty-printed so that
+// Saves the OpenAPI spec of srtomy-api into the repo, pretty-printed so that
 // changes to the API show up as readable diffs. API_DOCS_URL defaults to the
 // local API; API_DOCS_TOKEN is sent as a bearer token when it is set.
 import { writeFile } from "node:fs/promises";
@@ -23,7 +23,7 @@ if (!response.ok) {
 
 const spec = JSON.stringify(await response.json(), null, 2) + "\n";
 await writeFile(
-  new URL("../app/(api)/openapi/ovejafiel-api.json", import.meta.url),
+  new URL("../app/(api)/openapi/srtomy-api.json", import.meta.url),
   spec,
 );
 process.stdout.write(`Especificación guardada desde ${url}\n`);

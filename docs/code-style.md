@@ -9,11 +9,11 @@ Dos reglas: **proximidad** para lo que usa una sola pantalla, y **globales con n
 - Una pantalla y todo lo que solo ella usa (componentes, formularios, helpers, pruebas) vive en su carpeta, junto a su `page.tsx`.
 - Lo compartido va en carpetas globales dentro de `app/`: `app/(components)/` para componentes y `app/(hooks)/` para hooks de interfaz. No crees `utils/`, `features/` ni `lib/`.
 - Un componente o hook se mueve a global cuando lo usa una **segunda** pantalla. Antes de eso, se queda junto a la primera.
-- `app/(api)/` es la única frontera con ovejafiel-api:
-  - `openapi/ovejafiel-api.json`: la especificación OpenAPI, versionada. Es la fuente de verdad de la API. Cambiarla forma parte del PR que cambia la API (`pnpm api:sync`).
+- `app/(api)/` es la única frontera con srtomy-api:
+  - `openapi/srtomy-api.json`: la especificación OpenAPI, versionada. Es la fuente de verdad de la API. Cambiarla forma parte del PR que cambia la API (`pnpm api:sync`).
   - `generated/`: generado por orval a partir de la especificación. **No se versiona ni se edita.** Contiene tipos, funciones y hooks SWR por cada tag de OpenAPI. Cambios en él se hacen regenerando, nunca a mano.
   - `client.ts`, `date.ts` y `AuthTokenBridge.tsx`: a mano. El mutator de axios vive en `client.ts`.
-- Si un endpoint que necesitas no existe en la especificación, no lo escribas a mano en `(api)`: pídelo a ovejafiel-api y resincroniza la especificación.
+- Si un endpoint que necesitas no existe en la especificación, no lo escribas a mano en `(api)`: pídelo a srtomy-api y resincroniza la especificación.
 - La lógica de negocio no va en `generated/` ni en `(api)/`. Por ejemplo, convertir valores de un formulario en el cuerpo de una petición se escribe junto al formulario.
 
 ## Lo hace la herramienta, no lo discutas
@@ -35,7 +35,7 @@ Dos reglas: **proximidad** para lo que usa una sola pantalla, y **globales con n
 - No uses `!` (aserción de no nulo) para callar un posible `undefined`: maneja el caso.
 - Los tipos de la API vienen de `app/(api)/generated/`; no los escribas a mano ni los copies a otro archivo. Los de un formulario salen de su esquema (`z.infer`).
 - Importa con `@/` entre carpetas distintas y con ruta relativa dentro de la misma carpeta.
-- El id de cualquier entidad de ovejafiel-api (persona, organización/sede/grupo, evento, cargo) es siempre `string` (UUID), nunca `number`. No lo conviertas con `Number(...)`/`parseInt(...)` ni lo valides con `z.number()`; tampoco lo tipes como `number | string` "por si acaso". Esto aplica a los tipos del frontend, los esquemas zod que validan ids seleccionados en un formulario (cargos, ponentes, miembros, líderes) y los `params` de una ruta `[id]`/`[nodeId]`.
+- El id de cualquier entidad de srtomy-api (persona, organización/sede/grupo, evento, cargo) es siempre `string` (UUID), nunca `number`. No lo conviertas con `Number(...)`/`parseInt(...)` ni lo valides con `z.number()`; tampoco lo tipes como `number | string` "por si acaso". Esto aplica a los tipos del frontend, los esquemas zod que validan ids seleccionados en un formulario (cargos, ponentes, miembros, líderes) y los `params` de una ruta `[id]`/`[nodeId]`.
 
 ## Componentes
 

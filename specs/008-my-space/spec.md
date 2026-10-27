@@ -6,7 +6,7 @@
 
 **Status**: Implemented
 
-**Input**: Fase 008 del rediseño ([`docs/redesign.md`](../../docs/redesign.md) §4.6 y §9; deuda técnica 9). Contrato y reglas en la spec del API: `ovejafiel-api/specs/008-my-space/`. Depende de la 005 (invitaciones), la 006 (directorio) y la 007 (compartidos).
+**Input**: Fase 008 del rediseño ([`docs/redesign.md`](../../docs/redesign.md) §4.6 y §9; deuda técnica 9). Contrato y reglas en la spec del API: `srtomy-api/specs/008-my-space/`. Depende de la 005 (invitaciones), la 006 (directorio) y la 007 (compartidos).
 
 ## User Scenarios & Testing
 

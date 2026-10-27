@@ -6,7 +6,7 @@
 
 **Status**: Implemented
 
-**Input**: Fase 007 del rediseño ([`docs/redesign.md`](../../docs/redesign.md) §7). Contrato y reglas en la spec del API: `ovejafiel-api/specs/007-sharing/`. Depende de la 005 (correo) y la 006 (páginas públicas).
+**Input**: Fase 007 del rediseño ([`docs/redesign.md`](../../docs/redesign.md) §7). Contrato y reglas en la spec del API: `srtomy-api/specs/007-sharing/`. Depende de la 005 (correo) y la 006 (páginas públicas).
 
 ## User Scenarios & Testing
 
