@@ -110,6 +110,18 @@ test.describe("Asistencia con QR y visitantes", () => {
     await expect(
       dialog.getByRole("img", { name: "QR para marcar la asistencia" }),
     ).toBeVisible();
+    // axe reads the colors as painted, so let the dialog finish fading in.
+    await expect
+      .poll(() =>
+        page
+          .locator(".MuiDialog-container")
+          .evaluate((el) => getComputedStyle(el).opacity),
+      )
+      .toBe("1");
+    await page.addStyleTag({
+      content:
+        "*, *::before, *::after { transition: none !important; animation: none !important; }",
+    });
     // Only the dialog: the page behind it has contrast problems of its own
     // (see the technical debt table).
     const { violations } = await new AxeBuilder({ page })

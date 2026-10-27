@@ -344,6 +344,18 @@ test.describe("Inscripción a eventos y cursos", () => {
       .analyze();
     await page.getByRole("button", { name: "Configurar inscripción" }).click();
     await expect(page.getByRole("dialog")).toBeVisible();
+    // axe reads the colors as painted, so let the dialog finish fading in.
+    await expect
+      .poll(() =>
+        page
+          .locator(".MuiDialog-container")
+          .evaluate((el) => getComputedStyle(el).opacity),
+      )
+      .toBe("1");
+    await page.addStyleTag({
+      content:
+        "*, *::before, *::after { transition: none !important; animation: none !important; }",
+    });
     const dialog = await new AxeBuilder({ page })
       .include('[role="dialog"]')
       .withTags(["wcag2a", "wcag2aa"])
