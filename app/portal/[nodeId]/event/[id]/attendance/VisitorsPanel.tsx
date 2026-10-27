@@ -39,11 +39,11 @@ export const VisitorsPanel = ({
   const [visitor, setVisitor] = React.useState<VisitorForm>(emptyVisitor);
   const [tried, setTried] = React.useState(false);
   const [adding, setAdding] = React.useState(false);
-  const [count, setCount] = React.useState(String(guestCount));
+  // What the user typed; until they type, the count shown is the API's, which
+  // changes when people scan the QR without a name.
+  const [typedCount, setTypedCount] = React.useState<string | null>(null);
   const [saving, setSaving] = React.useState(false);
-
-  // The count of the API changes when people scan the QR without a name.
-  React.useEffect(() => setCount(String(guestCount)), [guestCount]);
+  const count = typedCount ?? String(guestCount);
 
   const set =
     (field: keyof VisitorForm) => (change: { target: { value: string } }) =>
@@ -76,6 +76,7 @@ export const VisitorsPanel = ({
     setSaving(true);
     try {
       await onSaveGuests(parsedCount);
+      setTypedCount(null);
     } catch {
       // Already explained to the user.
     } finally {
@@ -169,7 +170,7 @@ export const VisitorsPanel = ({
             helperText="Quienes no quisieron dar su nombre o no se anotaron. Solo se cuentan."
             size="small"
             value={count}
-            onChange={(change) => setCount(change.target.value)}
+            onChange={(change) => setTypedCount(change.target.value)}
             error={parsedCount === null}
             slotProps={{ htmlInput: { inputMode: "numeric" } }}
             sx={{ flex: 1 }}

@@ -1,4 +1,4 @@
-import { cleanup, render, screen } from "@testing-library/react";
+import { cleanup, render, screen, within } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import MySpacePage from "./page";
 
@@ -10,7 +10,10 @@ const hooks = vi.hoisted(() => ({
   useGetMeSharedEvents: vi.fn(),
   useGetMeInvitations: vi.fn(),
 }));
-vi.mock("@/app/(api)/generated", () => hooks);
+vi.mock("@/app/(api)/generated", () => ({
+  ...hooks,
+  deletePublicRegistrationsByCancelCode: vi.fn(),
+}));
 vi.mock("@auth0/auth0-react", () => ({
   useAuth0: () => ({ user: { name: "Bob Prueba" } }),
 }));
@@ -61,6 +64,13 @@ beforeEach(() => {
   hooks.useGetMeSharedEvents.mockReturnValue(ok([]));
   hooks.useGetMeInvitations.mockReturnValue(ok([]));
 });
+
+const sharedRetiro = {
+  title: "Retiro",
+  slug: "abc",
+  isACourse: false,
+  role: "VIEWER",
+};
 
 afterEach(() => {
   cleanup();
@@ -118,6 +128,32 @@ describe("Mi espacio", () => {
     ).toBeNull();
     expect(
       screen.getByRole("heading", { name: "Mis grupos y ministerios" }),
+    ).toBeTruthy();
+  });
+
+  it("does not list as shared what is already mine by a place or by having gone", () => {
+    hooks.useGetMeSharedEvents.mockReturnValue(
+      ok([sharedRetiro, { ...sharedRetiro, title: "Vigilia", slug: "vig" }]),
+    );
+
+    render(<MySpacePage />);
+
+    const shared = screen.getByRole("list", { name: "Compartidos contigo" });
+    // "Retiro" is in "Mis eventos y cursos" (the user went); "Vigilia" is not.
+    expect(within(shared).queryByRole("link", { name: "Retiro" })).toBeNull();
+    expect(within(shared).getByRole("link", { name: "Vigilia" })).toBeTruthy();
+  });
+
+  it("explains in plain words what each of the two sections is", () => {
+    render(<MySpacePage />);
+
+    expect(
+      screen.getByText(/donde tienes un lugar y a los que ya asististe/),
+    ).toBeTruthy();
+    expect(
+      screen.getByText(
+        /que otra persona te compartió y que todavía no son tuyos/,
+      ),
     ).toBeTruthy();
   });
 });

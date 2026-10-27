@@ -5,7 +5,9 @@ import AddIcon from "@mui/icons-material/Add";
 import HomeOutlinedIcon from "@mui/icons-material/HomeOutlined";
 import { Box, Button, Stack, Typography } from "@mui/material";
 import NextLink from "next/link";
+import React from "react";
 import {
+  deletePublicRegistrationsByCancelCode,
   useGetMe,
   useGetMeEvents,
   useGetMeInvitations,
@@ -15,6 +17,8 @@ import {
 } from "@/app/(api)/generated";
 import Loading from "@/app/(components)/Loading";
 import { ResourceError } from "@/app/(components)/ResourceError";
+import { SnackbarContext } from "@/app/(components)/SnackbarContext";
+import { apiErrorMessage } from "@/app/(components)/apiErrorMessage";
 import MenuDrawer from "../MenuDrawer";
 import { PendingInvitations } from "../PendingInvitations";
 import { PortalMenu } from "../PortalMenu";
@@ -33,6 +37,7 @@ const menu = [
 // answers with that). The church directory lives in the menu of each node.
 export default function MySpacePage() {
   const { user } = useAuth0();
+  const alert = React.useContext(SnackbarContext);
   // Registers the user on first sign-in (and refreshes their email).
   const { error: meError } = useGetMe();
   const {
@@ -44,6 +49,26 @@ export default function MySpacePage() {
   const events = useGetMeEvents();
   const shared = useGetMeSharedEvents();
   const invitations = useGetMeInvitations();
+  // What is already theirs by a place or by having gone is not listed again as
+  // shared with them.
+  const mine = new Set((events.data ?? []).map((event) => event.slug));
+  const sharedOnly = (shared.data ?? []).filter(
+    (event) => !mine.has(event.slug),
+  );
+
+  const cancelRegistration = async (cancelCode: string) => {
+    try {
+      await deletePublicRegistrationsByCancelCode(cancelCode);
+    } catch (failure) {
+      alert.showMessage(
+        apiErrorMessage(failure, "No se pudo cancelar. Intenta nuevamente"),
+      );
+      throw failure;
+    }
+    await events.mutate();
+    alert.showMessage("Inscripción cancelada");
+  };
+
   const acceptInvitation = useAcceptInvitation(() => {
     // The new nodes and events show up here once refreshed.
     void nodes.mutate();
@@ -68,7 +93,10 @@ export default function MySpacePage() {
               failed={!events.data}
               error={events.error}
             >
-              <MyEvents events={events.data ?? []} />
+              <MyEvents
+                events={events.data ?? []}
+                onCancel={cancelRegistration}
+              />
             </Section>
             <Section
               loading={nodes.isLoading}
@@ -82,7 +110,11 @@ export default function MySpacePage() {
               failed={!shared.data}
               error={shared.error}
             >
-              <SharedWithMe events={shared.data ?? []} showEmpty />
+              <SharedWithMe
+                events={sharedOnly}
+                showEmpty
+                description="Eventos que otra persona te compartió y que todavía no son tuyos por inscripción ni asistencia."
+              />
             </Section>
             <Section
               loading={invitations.isLoading}

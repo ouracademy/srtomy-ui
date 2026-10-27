@@ -31,8 +31,11 @@ export const useQrScanner = (
 ) => {
   const videoRef = React.useRef<HTMLVideoElement | null>(null);
   const [problem, setProblem] = React.useState<string | null>(null);
+  // The scanner keeps running across renders; it reads the latest handler.
   const onCodeRef = React.useRef(onCode);
-  onCodeRef.current = onCode;
+  React.useEffect(() => {
+    onCodeRef.current = onCode;
+  });
 
   React.useEffect(() => {
     const Detector = detectorConstructor();

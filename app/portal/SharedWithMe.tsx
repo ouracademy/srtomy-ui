@@ -15,8 +15,11 @@ import {
 export const SharedWithMe = ({
   events,
   showEmpty = false,
+  description,
 }: Readonly<{
   events: SharedWithMeResponse[];
+  // What the section is, in plain words, under its title.
+  description?: string;
   // "Mi espacio" always shows the section; the portal home only when needed.
   showEmpty?: boolean;
 }>) => {
@@ -26,6 +29,11 @@ export const SharedWithMe = ({
       <Typography variant="h6" component="h2">
         Compartidos contigo
       </Typography>
+      {description && (
+        <Typography variant="body2" color="text.secondary">
+          {description}
+        </Typography>
+      )}
       {events.length === 0 && (
         <Typography color="text.secondary">
           Nadie ha compartido eventos ni cursos contigo todavía.
