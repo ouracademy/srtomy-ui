@@ -9,7 +9,7 @@ import {
   hasBothNames,
 } from "@/app/(components)/AcceptNameFields";
 import type { PersonName } from "@/app/portal/userNames";
-import type { InvitationPreviewResponse } from "@/app/(api)/generated/aPISrTommy.schemas";
+import type { InvitationPreviewResponse } from "@/app/(api)/generated/aPIOvejafiel.schemas";
 
 type InvitationAcceptProps = Readonly<{
   invitation: InvitationPreviewResponse;

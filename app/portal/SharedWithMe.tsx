@@ -4,7 +4,7 @@ import { List, ListItem, ListItemText, Paper, Typography } from "@mui/material";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import NextLink from "next/link";
-import type { SharedWithMeResponse } from "@/app/(api)/generated/aPISrTommy.schemas";
+import type { SharedWithMeResponse } from "@/app/(api)/generated/aPIOvejafiel.schemas";
 import {
   sharedEventPath,
   shareRoleLabels,

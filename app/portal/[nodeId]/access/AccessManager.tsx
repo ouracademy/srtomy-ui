@@ -17,7 +17,7 @@ import {
   Button,
 } from "@mui/material";
 import React from "react";
-import type { AccessEntryResponse } from "@/app/(api)/generated/aPISrTommy.schemas";
+import type { AccessEntryResponse } from "@/app/(api)/generated/aPIOvejafiel.schemas";
 import { DialogDeleteConfirmation } from "@/app/(components)/DialogDeleteConfirmation";
 
 // Where an access comes from, in words: a position (here or inherited), the

@@ -11,7 +11,7 @@ import {
   deleteOrganizationsById,
   useGetOrganizationsByIdChilds,
 } from "@/app/(api)/generated";
-import type { OrganizationResponse } from "@/app/(api)/generated/aPISrTommy.schemas";
+import type { OrganizationResponse } from "@/app/(api)/generated/aPIOvejafiel.schemas";
 import { nodeTypeLabels } from "@/app/portal/organizationTree";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { DialogDeleteConfirmation } from "@/app/(components)/DialogDeleteConfirmation";

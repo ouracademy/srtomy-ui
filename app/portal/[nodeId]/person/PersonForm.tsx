@@ -17,7 +17,7 @@ import { useGetOrganizationsByIdPositions } from "@/app/(api)/generated";
 import type {
   CreatePersonRequest,
   PositionSummaryResponse,
-} from "@/app/(api)/generated/aPISrTommy.schemas";
+} from "@/app/(api)/generated/aPIOvejafiel.schemas";
 import { formatISO } from "date-fns";
 import {
   toChoice,

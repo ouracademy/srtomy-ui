@@ -11,7 +11,7 @@ import {
   useGetOrganizationsById,
   useGetOrganizationsLocationsChildsByIdMembers,
 } from "@/app/(api)/generated";
-import type { OrganizationResponse } from "@/app/(api)/generated/aPISrTommy.schemas";
+import type { OrganizationResponse } from "@/app/(api)/generated/aPIOvejafiel.schemas";
 import Loading from "@/app/(components)/Loading";
 import { ResourceError } from "@/app/(components)/ResourceError";
 import { copyLink } from "@/app/(components)/copyLink";

@@ -1,6 +1,6 @@
 import { cleanup, render, screen, within } from "@testing-library/react";
 import { afterEach, describe, expect, it } from "vitest";
-import type { MyNodeResponse } from "@/app/(api)/generated/aPISrTommy.schemas";
+import type { MyNodeResponse } from "@/app/(api)/generated/aPIOvejafiel.schemas";
 import { MyNodes } from "./MyNodes";
 
 afterEach(cleanup);

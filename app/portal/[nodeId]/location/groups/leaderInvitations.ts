@@ -1,7 +1,7 @@
 import type {
   CreateInvitationRequest,
   CreateInvitationResponse,
-} from "@/app/(api)/generated/aPISrTommy.schemas";
+} from "@/app/(api)/generated/aPIOvejafiel.schemas";
 import { apiErrorMessage } from "@/app/(components)/apiErrorMessage";
 
 export type Leader = { id: string; label: string; email?: string };

@@ -20,7 +20,7 @@ import type {
   InvitationResponse,
   PersonResponse,
   PositionSummaryResponse,
-} from "@/app/(api)/generated/aPISrTommy.schemas";
+} from "@/app/(api)/generated/aPIOvejafiel.schemas";
 import { primaryButtonSx } from "@/app/(components)/buttonStyles";
 import { DialogDeleteConfirmation } from "@/app/(components)/DialogDeleteConfirmation";
 import { InviteDialog } from "./InviteDialog";

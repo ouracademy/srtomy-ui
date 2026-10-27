@@ -4,7 +4,7 @@ import { z } from "zod";
 import type {
   RecurrenceRequest,
   RecurrenceResponse,
-} from "@/app/(api)/generated/aPISrTommy.schemas";
+} from "@/app/(api)/generated/aPIOvejafiel.schemas";
 
 const FREQUENCIES = ["NONE", "DAILY", "WEEKLY", "MONTHLY", "YEARLY"] as const;
 

@@ -20,7 +20,7 @@ import { useGetPeople } from "@/app/(api)/generated";
 import type {
   PersonResponse,
   PositionSummaryResponse,
-} from "@/app/(api)/generated/aPISrTommy.schemas";
+} from "@/app/(api)/generated/aPIOvejafiel.schemas";
 import { primaryButtonSx } from "@/app/(components)/buttonStyles";
 import {
   emptyInvitation,

@@ -1,6 +1,6 @@
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
-import type { RecurrenceResponse } from "@/app/(api)/generated/aPISrTommy.schemas";
+import type { RecurrenceResponse } from "@/app/(api)/generated/aPIOvejafiel.schemas";
 import {
   describeRecurrence,
   fromRecurrenceResponse,

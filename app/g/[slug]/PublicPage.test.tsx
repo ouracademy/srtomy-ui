@@ -1,6 +1,6 @@
 import { cleanup, render, screen, within } from "@testing-library/react";
 import { afterEach, describe, expect, it } from "vitest";
-import type { PublicPageResponse } from "@/app/(api)/generated/aPISrTommy.schemas";
+import type { PublicPageResponse } from "@/app/(api)/generated/aPIOvejafiel.schemas";
 import { PublicPage } from "./PublicPage";
 
 afterEach(cleanup);

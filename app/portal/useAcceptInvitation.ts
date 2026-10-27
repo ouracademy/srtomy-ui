@@ -5,7 +5,7 @@ import {
   postMeInvitationsByIdAccept,
   useGetMeOrganizations,
 } from "@/app/(api)/generated";
-import type { InvitationResponse } from "@/app/(api)/generated/aPISrTommy.schemas";
+import type { InvitationResponse } from "@/app/(api)/generated/aPIOvejafiel.schemas";
 import { SnackbarContext } from "../(components)/SnackbarContext";
 import { apiErrorMessage } from "../(components)/apiErrorMessage";
 import type { PersonName } from "./userNames";

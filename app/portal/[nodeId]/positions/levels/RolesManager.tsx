@@ -17,7 +17,7 @@ import React from "react";
 import type {
   PermissionGroupResponse,
   RoleResponse,
-} from "@/app/(api)/generated/aPISrTommy.schemas";
+} from "@/app/(api)/generated/aPIOvejafiel.schemas";
 import { DialogDeleteConfirmation } from "@/app/(components)/DialogDeleteConfirmation";
 import { permissionLabel } from "@/app/(components)/permissionLabels";
 import { RoleDialog, type RoleInput } from "./RoleDialog";

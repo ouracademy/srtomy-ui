@@ -49,7 +49,7 @@ Los paréntesis en `(api)`, `(components)` y `(hooks)` son _route groups_ de Nex
 
 | Quiero agregar...                                    | Va en...                                                                                       |
 | ---------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
-| Un endpoint nuevo de srtomy-api                   | Agrégalo en la API, luego `pnpm api:sync` regenera el hook y el tipo en `app/(api)/generated/` |
+| Un endpoint nuevo de srtomy-api                      | Agrégalo en la API, luego `pnpm api:sync` regenera el hook y el tipo en `app/(api)/generated/` |
 | Una pantalla                                         | `app/portal/[nodeId]/<sección>/page.tsx`                                                       |
 | Un componente de una sola pantalla                   | Al lado de su `page.tsx`                                                                       |
 | Un componente que ya usan dos o más pantallas        | `app/(components)/`                                                                            |

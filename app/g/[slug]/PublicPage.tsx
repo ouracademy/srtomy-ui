@@ -15,7 +15,7 @@ import NextLink from "next/link";
 import type {
   OrgChartNode,
   PublicPageResponse,
-} from "@/app/(api)/generated/aPISrTommy.schemas";
+} from "@/app/(api)/generated/aPIOvejafiel.schemas";
 import { socialLinkFields } from "@/app/(components)/SocialLinks";
 import { publicPagePath } from "@/app/(components)/visibility";
 import { nodeTypeLabels } from "@/app/portal/organizationTree";

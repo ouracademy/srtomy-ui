@@ -1,7 +1,7 @@
 "use client";
 
 import { List, ListItem, ListItemText, Typography } from "@mui/material";
-import type { DirectoryEntryResponse } from "@/app/(api)/generated/aPISrTommy.schemas";
+import type { DirectoryEntryResponse } from "@/app/(api)/generated/aPIOvejafiel.schemas";
 
 // The people of a node as the directory gives them: names only, and nothing
 // at all when the node's visibility hides them from this user.

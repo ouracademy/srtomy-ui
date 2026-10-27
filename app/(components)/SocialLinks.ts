@@ -2,7 +2,7 @@ import { z } from "zod";
 import type {
   SocialLinks,
   SocialLinksRequest,
-} from "@/app/(api)/generated/aPISrTommy.schemas";
+} from "@/app/(api)/generated/aPIOvejafiel.schemas";
 
 // Optional public links of a church, location, group or ministry.
 export const socialLinkFields = [

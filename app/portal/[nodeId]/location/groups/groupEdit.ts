@@ -2,7 +2,7 @@ import type {
   GetOrganizationsLocationsChildsByIdMembers200,
   OrganizationResponse,
   UpdateLocationChildRequest,
-} from "@/app/(api)/generated/aPISrTommy.schemas";
+} from "@/app/(api)/generated/aPIOvejafiel.schemas";
 import type { GroupInitialValues } from "./GroupForm";
 import {
   toVisibilityForm,
