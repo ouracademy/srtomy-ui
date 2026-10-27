@@ -31,6 +31,7 @@ test.describe("Accesibilidad", () => {
     { name: "Crear grupo", path: `/portal/${nodeId}/location/groups/create` },
     { name: "Registrar persona", path: `/portal/${nodeId}/person/create` },
     { name: "Cargos", path: `/portal/${nodeId}/positions` },
+    { name: "Mi espacio", path: "/portal/me" },
   ];
 
   for (const { name, path } of pages) {
