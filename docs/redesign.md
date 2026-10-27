@@ -118,14 +118,29 @@ Qué muestra la vista pública (decidido con el usuario):
 - **Grupo o ministerio**: información básica, **líderes destacados** y luego los miembros. De todos solo nombre y apellido, **sin edad, fecha de nacimiento, teléfono ni dirección**. Nunca lista a menores de 18 (protección de datos según la constitución del API).
 - **Iglesia o sede**: además, un **organigrama**: el árbol de sedes, ministerios y grupos con sus líderes, y los cargos ministeriales (pastor, etc.). Lo controla `organization.show_org_chart`, **activado por defecto**. Solo incluye los nodos hijos que no sean `LEADERS`. Página pública: `GET /v1/public/organizations/{slug}` (sin JWT, con slug no adivinable) y la ruta UI `/g/{slug}`.
 
-## 7. Eventos y cursos compartidos como Drive
+## 7. Eventos y cursos: compartir, inscripción y asistencia
+
+Son tres procesos separados.
+
+**Compartir (quién puede ver).** Como Drive.
 
 - Por defecto heredan el acceso del nodo al que pertenecen.
-- **Acceso general** (`event.general_access`): `RESTRICTED` (solo quien tiene acceso por la jerarquía o compartido directo), `CHURCH` (cualquier usuario de la iglesia) o `ANYONE_WITH_LINK`.
-- **Rol del enlace** (`event.link_role`): `VIEWER` (ve la información) o `REGISTRANT` (puede inscribirse; para cursos).
-- **Compartido directo**: tabla `event_share` (`event_id`, `user_id` o `email`, `role` VIEWER/EDITOR). Si es un email sin cuenta, se crea una invitación.
-- Enlace: `share_slug` aleatorio, regenerable para revocar. Ruta pública `/e/{slug}` y `GET /v1/public/events/{slug}`.
-- UI: diálogo "Compartir" con la misma forma que el de Drive: personas con acceso, acceso general, "Copiar enlace".
+- **Acceso general** (`event.general_access`): `RESTRICTED`, `CHURCH` o `ANYONE_WITH_LINK`. El enlace solo deja **ver**; ya no hay rol del enlace.
+- **Compartido directo**: `event_share` (`user_id` o `email`, rol VIEWER/EDITOR). Un correo sin cuenta crea una invitación.
+- Enlace `share_slug` regenerable; ruta pública `/e/{slug}`.
+- UI: diálogo «Compartir» con borrador y botón **Guardar** (nunca guarda solo). Copiar y renovar el enlace sí actúan al instante.
+
+**Inscripción (quién se anota).** Opcional, se configura aparte del compartir (`RegistrationPanel`, `RegistrationSetupDialog`, o la sección «Inscripción» al crear).
+
+- Abierta/cerrada, exige cuenta, lista de espera, cupo total y tickets (nombre, precio informativo, cantidad, ventana de venta). Gratis = un ticket «General» de precio 0. No se cobra.
+- Quien llena un cupo queda `CONFIRMED`; sin cupo, `WAITLISTED` (se promueve en orden al liberarse uno). Se cancela desde Mi espacio o con el enlace `/e/{slug}/cancelar/{código}` (sin cuenta).
+- Mi espacio: «Tengo lugar» (con el QR del ticket y cancelar), «Asistí» y «Compartidos contigo».
+
+**Asistencia (quién vino).** Independiente de la inscripción: un culto dominical no la necesita.
+
+- Las personas con estado (Visitante → Asistente → Miembro; tener un cargo implica Miembro) se marcan a mano en la lista, y «Agregar visitante» crea la persona y la marca.
+- El contador de invitados anónimos (`guest_count`) cubre a quien no quiso dar su nombre.
+- Dos QR: el **del evento** (el ujier lo muestra, rota cada 5 minutos, `/a/{token}`; con o sin cuenta) y el **del ticket** (el ujier lo escanea). Marcar a otros exige `ATTENDANCE_WRITE`.
 
 ## 8. Migración de datos
 
@@ -192,6 +207,7 @@ Sin la Auth0 Action que agrega el email al token, el usuario se registra sin ema
 | 22  | Inscritos de un curso que no son personas                | API y UI | La inscripción por enlace guarda nombre, correo y teléfono, pero no crea la persona de la iglesia ni toma asistencia con ellos.                                                                                                 | Un botón «Agregar a la iglesia» que cree la persona desde la inscripción y la una al nodo del curso.                                                             | Pendiente (consultar) |
 | 23  | Compartir una ocurrencia de una serie                    | API y UI | Las ocurrencias de un evento recurrente se calculan al vuelo y no tienen identidad: el compartido aplica a la serie completa.                                                                                                   | Decidir si hace falta compartir una sola fecha; implicaría persistir la ocurrencia.                                                                              | Pendiente (consultar) |
 | 24  | Código sin uso tras la 008                               | UI       | `/portal` ya no elige un nodo de aterrizaje: `pickLandingNode`, `readLastNode` y `hasManagementAccess` quedan sin quien los llame (con sus pruebas).                                                                            | Borrarlos, o reutilizar el último nodo como atajo en Mi espacio.                                                                                                 | Pendiente (consultar) |
+| 25  | Contraste en la pantalla del evento                      | UI       | axe marca bajo contraste en los botones Evento/Curso (#3b82f6) y en la cabecera «Nombre» de la tabla, ya existentes. Las pruebas de axe de la 011 solo cubren las secciones nuevas.                                             | Corregir los colores y ampliar el alcance de axe a toda la pantalla.                                                                                             | Pendiente (consultar) |
 
 ## 11. Trabajo futuro: centro de notificaciones (campana)
 

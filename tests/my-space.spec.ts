@@ -39,6 +39,20 @@ async function asMember(page: import("@playwright/test").Page) {
           registered: true,
           attended: false,
           slug: "curso",
+          registrationId: "r1",
+          ticketName: "General",
+          registrationStatus: "CONFIRMED",
+          cancelCode: "cancelar-1",
+          ticketCode: "ticket-1",
+        },
+        {
+          title: "Culto dominical",
+          start: "2029-12-29T15:00:00Z",
+          isACourse: false,
+          organizationName: "Sede Central",
+          registered: false,
+          attended: true,
+          slug: "culto",
         },
       ]),
     ),
@@ -89,7 +103,14 @@ test.describe("Mi espacio", () => {
     await expect(
       page.getByRole("link", { name: "Curso de discipulado" }),
     ).toHaveAttribute("href", "/e/curso");
-    await expect(page.getByText("Inscrito")).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: "Tengo lugar" }),
+    ).toBeVisible();
+    await expect(page.getByText("Confirmado")).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Asistí" })).toBeVisible();
+    await expect(
+      page.getByRole("link", { name: "Culto dominical" }),
+    ).toBeVisible();
     await expect(
       page.getByRole("heading", { name: "Mis grupos y ministerios" }),
     ).toBeVisible();

@@ -4,7 +4,7 @@
 
 **Created**: 2026-10-27
 
-**Status**: Plan (sin implementar). Incluye asistencia por QR (decisiones 7 a 9).
+**Status**: Implementado. Incluye asistencia por QR (decisiones 7 a 9).
 
 **Input**: Lo construido en la 007 se juzgó mal: el diálogo Compartir guarda solo, tiene un select con una única opción y la inscripción es un rol del enlace. Contrato y reglas: spec del API (`srtomy-api/specs/011-registration/`).
 
