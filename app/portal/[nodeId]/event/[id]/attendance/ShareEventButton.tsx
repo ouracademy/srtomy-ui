@@ -19,7 +19,7 @@ import { copyLink } from "@/app/(components)/copyLink";
 import { ShareEventDialog } from "./ShareEventDialog";
 
 // "Compartir" of an event or course: opens the dialog and wires it to the API.
-// `eventId` is the saved event to share (the series, for a recurring event).
+// `eventId` is the event to share. Each occurrence of a repeating event is its own event, so sharing applies to that date only.
 export const ShareEventButton = ({
   eventId,
   title,

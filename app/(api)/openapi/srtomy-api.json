@@ -1192,6 +1192,26 @@
         }
       }
     },
+    "/v1/me/calendar-feed/renew": {
+      "post": {
+        "tags": [
+          "calendar-feed"
+        ],
+        "operationId": "renew",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/CalendarFeedResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/invitations/{token}/accept": {
       "post": {
         "tags": [
@@ -1497,6 +1517,36 @@
               "*/*": {
                 "schema": {
                   "$ref": "#/components/schemas/SharedEventResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/public/calendar/{token}.ics": {
+      "get": {
+        "tags": [
+          "calendar-feed"
+        ],
+        "operationId": "feed",
+        "parameters": [
+          {
+            "name": "token",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/calendar;charset=UTF-8": {
+                "schema": {
+                  "type": "string"
                 }
               }
             }
@@ -1936,6 +1986,26 @@
                   "items": {
                     "$ref": "#/components/schemas/MyEventResponse"
                   }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/me/calendar-feed": {
+      "get": {
+        "tags": [
+          "calendar-feed"
+        ],
+        "operationId": "myFeed",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/CalendarFeedResponse"
                 }
               }
             }
@@ -2559,16 +2629,11 @@
           "isACourse": {
             "type": "boolean"
           },
-          "daysOfWeek": {
-            "type": "array",
-            "items": {
-              "type": "integer",
-              "format": "int32"
-            }
+          "recurrence": {
+            "$ref": "#/components/schemas/RecurrenceRequest"
           },
-          "endRecur": {
-            "type": "string",
-            "format": "date"
+          "timeZone": {
+            "type": "string"
           },
           "option": {
             "type": "string",
@@ -2578,10 +2643,7 @@
               "ALL_EVENTS"
             ]
           },
-          "recurrent": {
-            "type": "boolean"
-          },
-          "validDaysOfWeek": {
+          "validTimeZone": {
             "type": "boolean"
           }
         },
@@ -2591,6 +2653,54 @@
           "organizationId",
           "startTime"
         ]
+      },
+      "RecurrenceRequest": {
+        "type": "object",
+        "properties": {
+          "frequency": {
+            "type": "string",
+            "enum": [
+              "DAILY",
+              "WEEKLY",
+              "MONTHLY",
+              "YEARLY"
+            ]
+          },
+          "interval": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "daysOfWeek": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          "monthlyMode": {
+            "type": "string",
+            "enum": [
+              "DAY_OF_MONTH",
+              "NTH_WEEKDAY"
+            ]
+          },
+          "endType": {
+            "type": "string",
+            "enum": [
+              "NEVER",
+              "UNTIL",
+              "COUNT"
+            ]
+          },
+          "until": {
+            "type": "string",
+            "format": "date"
+          },
+          "count": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
       },
       "EventSharingRequest": {
         "type": "object",
@@ -3155,6 +3265,14 @@
           }
         }
       },
+      "CalendarFeedResponse": {
+        "type": "object",
+        "properties": {
+          "path": {
+            "type": "string"
+          }
+        }
+      },
       "EventRequest": {
         "type": "object",
         "properties": {
@@ -3188,21 +3306,13 @@
           "isACourse": {
             "type": "boolean"
           },
-          "daysOfWeek": {
-            "type": "array",
-            "items": {
-              "type": "integer",
-              "format": "int32"
-            }
+          "recurrence": {
+            "$ref": "#/components/schemas/RecurrenceRequest"
           },
-          "endRecur": {
-            "type": "string",
-            "format": "date"
+          "timeZone": {
+            "type": "string"
           },
-          "recurrent": {
-            "type": "boolean"
-          },
-          "validDaysOfWeek": {
+          "validTimeZone": {
             "type": "boolean"
           }
         },
@@ -3442,6 +3552,61 @@
           }
         }
       },
+      "RecurrenceResponse": {
+        "type": "object",
+        "properties": {
+          "seriesId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "frequency": {
+            "type": "string",
+            "enum": [
+              "DAILY",
+              "WEEKLY",
+              "MONTHLY",
+              "YEARLY"
+            ]
+          },
+          "interval": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "daysOfWeek": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          "monthlyMode": {
+            "type": "string",
+            "enum": [
+              "DAY_OF_MONTH",
+              "NTH_WEEKDAY"
+            ]
+          },
+          "endType": {
+            "type": "string",
+            "enum": [
+              "NEVER",
+              "UNTIL",
+              "COUNT"
+            ]
+          },
+          "until": {
+            "type": "string",
+            "format": "date"
+          },
+          "count": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "timeZone": {
+            "type": "string"
+          }
+        }
+      },
       "SharedEventResponse": {
         "type": "object",
         "properties": {
@@ -3468,16 +3633,8 @@
           "organizationName": {
             "type": "string"
           },
-          "daysOfWeek": {
-            "type": "array",
-            "items": {
-              "type": "integer",
-              "format": "int32"
-            }
-          },
-          "endRecur": {
-            "type": "string",
-            "format": "date"
+          "recurrence": {
+            "$ref": "#/components/schemas/RecurrenceResponse"
           },
           "canRegister": {
             "type": "boolean"
@@ -4102,65 +4259,8 @@
           "isACourse": {
             "type": "boolean"
           },
-          "recurrentEvent": {
-            "$ref": "#/components/schemas/RecurrentEventResponse"
-          },
-          "createDate": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "lastModifiedDate": {
-            "type": "string",
-            "format": "date-time"
-          }
-        }
-      },
-      "RecurrentEventResponse": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "title": {
-            "type": "string"
-          },
-          "speakers": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/SpeakerResponse"
-            }
-          },
-          "start": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "end": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "address": {
-            "type": "string"
-          },
-          "organization": {
-            "$ref": "#/components/schemas/OrganizationResponse"
-          },
-          "description": {
-            "type": "string"
-          },
-          "isACourse": {
-            "type": "boolean"
-          },
-          "endRecur": {
-            "type": "string",
-            "format": "date"
-          },
-          "daysOfWeek": {
-            "type": "array",
-            "items": {
-              "type": "integer",
-              "format": "int32"
-            }
+          "recurrence": {
+            "$ref": "#/components/schemas/RecurrenceResponse"
           },
           "createDate": {
             "type": "string",
