@@ -76,9 +76,9 @@ export const ShareEventButton = ({
                   email,
                   role,
                 });
-                if (result.emailSent === false) {
+                if (result.emailStatus === "FAILED") {
                   alert.showMessage(
-                    "Se compartió. El correo aún no sale y se reintenta solo; si lo necesita ya, copie el enlace y envíelo usted.",
+                    "Se compartió, pero el correo no salió. Copie el enlace y envíelo usted.",
                   );
                 }
               },

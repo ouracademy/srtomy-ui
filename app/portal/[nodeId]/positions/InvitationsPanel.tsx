@@ -126,8 +126,8 @@ export const InvitationsPanel = ({
       />
       {notSent && (
         <Alert severity="warning" onClose={() => setNotSent(false)}>
-          La invitación se guardó, pero el correo aún no sale. Se reintenta
-          solo; también puede reenviarlo desde la tabla.
+          La invitación se guardó, pero el correo no salió. Puede reenviarlo
+          desde la tabla.
         </Alert>
       )}
       <TableContainer component={Paper} variant="outlined">

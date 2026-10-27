@@ -112,7 +112,7 @@ export default function PositionsPage(props: {
     alert.showMessage(message);
   };
 
-  // Sends the invitation. Resolves to whether the email went out; a refusal
+  // Sends the invitation. Resolves to false when the email was given up; a refusal
   // (for example a position with more permissions than the user has) is
   // shown and rethrown so the form keeps what was typed.
   const invite = async (
@@ -121,12 +121,16 @@ export default function PositionsPage(props: {
     try {
       const result = await postOrganizationsByIdInvitations(nodeId, request);
       await mutateInvitations();
+      // The email leaves right after the invitation is saved; it is normal to see it queued.
+      const status = result.invitation?.emailStatus;
       alert.showMessage(
-        result.emailSent
+        status === "SENT"
           ? "Invitación enviada"
-          : "Invitación guardada; el correo sale en unos minutos",
+          : status === "FAILED"
+            ? "Invitación guardada; el correo no salió"
+            : "Invitación guardada; el correo sale en unos segundos",
       );
-      return result.emailSent;
+      return status !== "FAILED";
     } catch (failure) {
       alert.showMessage(
         apiErrorMessage(failure, "No se pudo invitar. Intente nuevamente"),

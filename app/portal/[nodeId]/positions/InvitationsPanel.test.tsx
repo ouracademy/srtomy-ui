@@ -279,7 +279,7 @@ describe("InvitationsPanel", () => {
       within(dialog).getByRole("button", { name: "Enviar invitación" }),
     );
 
-    expect(await screen.findByText(/el correo aún no sale/)).toBeTruthy();
+    expect(await screen.findByText(/el correo no salió/)).toBeTruthy();
   });
 
   it("keeps the dialog and what was typed when the request fails", async () => {

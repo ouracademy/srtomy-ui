@@ -42,7 +42,8 @@ export const inviteLeaders = async (
         personId: leader.id,
       });
       result.invited += 1;
-      if (created.emailSent === false) result.notDelivered += 1;
+      if (created.invitation?.emailStatus === "FAILED")
+        result.notDelivered += 1;
     } catch (failure) {
       result.failed.push({
         label: leader.label,
@@ -64,9 +65,7 @@ export const invitationSummary = (result: LeaderInvitationResult): string => {
     );
   }
   if (result.notDelivered > 0) {
-    parts.push(
-      `el correo de ${result.notDelivered} aún no sale y se reintenta solo`,
-    );
+    parts.push(`no se pudo enviar el correo a ${result.notDelivered}`);
   }
   for (const failure of result.failed) {
     parts.push(`${failure.label}: ${failure.reason}`);
