@@ -54,6 +54,7 @@ test.describe("Compartir eventos y cursos", () => {
           {
             share: sharing.shares[0],
             emailSent: true,
+            emailStatus: "SENT",
           },
           201,
         ),

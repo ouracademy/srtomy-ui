@@ -3116,6 +3116,9 @@
           "createDate": {
             "type": "string",
             "format": "date-time"
+          },
+          "emailStatus": {
+            "type": "string"
           }
         }
       },
@@ -3360,6 +3363,9 @@
           },
           "emailSent": {
             "type": "boolean"
+          },
+          "emailStatus": {
+            "type": "string"
           }
         }
       },

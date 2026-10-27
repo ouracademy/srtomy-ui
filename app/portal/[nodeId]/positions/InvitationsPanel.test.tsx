@@ -47,7 +47,10 @@ const pending: InvitationResponse[] = [
     email: "ana@x.org",
     personName: "Ana Ruiz",
     positionName: "Ujier",
+    positionId: "p1",
+    personId: "per9",
     status: "PENDING",
+    emailStatus: "SENT",
     expiresAt: new Date("2026-11-07T10:00:00"),
   },
   {
@@ -55,6 +58,7 @@ const pending: InvitationResponse[] = [
     email: "luis@x.org",
     personName: "Luis Paz",
     status: "EXPIRED",
+    emailStatus: "PENDING",
     expiresAt: new Date("2026-10-01T10:00:00"),
   },
 ];
@@ -92,6 +96,44 @@ describe("InvitationsPanel", () => {
     expect(within(table).getByText("07/11/2026")).toBeTruthy();
     expect(within(table).getByText("Sin cargo")).toBeTruthy();
     expect(within(table).getByText("Vencida")).toBeTruthy();
+  });
+
+  it("shows whether the email of each invitation left", () => {
+    setup({
+      invitations: [
+        ...pending,
+        {
+          id: "i3",
+          email: "eva@x.org",
+          status: "PENDING",
+          emailStatus: "FAILED",
+        },
+      ],
+    });
+
+    const table = screen.getByRole("table", {
+      name: "Invitaciones pendientes",
+    });
+    expect(within(table).getByText("Enviado")).toBeTruthy();
+    expect(within(table).getByText("En cola")).toBeTruthy();
+    expect(within(table).getByText("No salió")).toBeTruthy();
+  });
+
+  it("resends the invitation whose email has not left, keeping its position and person", async () => {
+    const { onInvite, user } = setup();
+
+    expect(
+      screen.queryByRole("button", {
+        name: "Reenviar la invitación a ana@x.org",
+      }),
+    ).toBeNull();
+    await user.click(
+      screen.getByRole("button", {
+        name: "Reenviar la invitación a luis@x.org",
+      }),
+    );
+
+    expect(onInvite).toHaveBeenCalledWith({ email: "luis@x.org" });
   });
 
   it("says when there is nothing pending", () => {
@@ -237,7 +279,7 @@ describe("InvitationsPanel", () => {
       within(dialog).getByRole("button", { name: "Enviar invitación" }),
     );
 
-    expect(await screen.findByText(/no se pudo enviar el correo/)).toBeTruthy();
+    expect(await screen.findByText(/el correo no salió/)).toBeTruthy();
   });
 
   it("keeps the dialog and what was typed when the request fails", async () => {

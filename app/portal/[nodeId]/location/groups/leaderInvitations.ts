@@ -42,7 +42,8 @@ export const inviteLeaders = async (
         personId: leader.id,
       });
       result.invited += 1;
-      if (created.emailSent === false) result.notDelivered += 1;
+      if (created.invitation?.emailStatus === "FAILED")
+        result.notDelivered += 1;
     } catch (failure) {
       result.failed.push({
         label: leader.label,

@@ -20,7 +20,9 @@ describe("leadersToInvite", () => {
 
 describe("inviteLeaders", () => {
   it("invites each leader by their person in the group", async () => {
-    const invite = vi.fn().mockResolvedValue({ emailSent: true });
+    const invite = vi
+      .fn()
+      .mockResolvedValue({ invitation: { emailStatus: "PENDING" } });
 
     const result = await inviteLeaders("g1", [ana, luis, sinCorreo], invite);
 
@@ -37,7 +39,9 @@ describe("inviteLeaders", () => {
   });
 
   it("counts the emails that could not be delivered", async () => {
-    const invite = vi.fn().mockResolvedValue({ emailSent: false });
+    const invite = vi
+      .fn()
+      .mockResolvedValue({ invitation: { emailStatus: "FAILED" } });
 
     expect(await inviteLeaders("g1", [ana], invite)).toEqual({
       invited: 1,
@@ -53,7 +57,7 @@ describe("inviteLeaders", () => {
     const invite = vi
       .fn()
       .mockRejectedValueOnce(refusal)
-      .mockResolvedValueOnce({ emailSent: true });
+      .mockResolvedValueOnce({ invitation: { emailStatus: "SENT" } });
 
     const result = await inviteLeaders("g1", [ana, luis], invite);
 
