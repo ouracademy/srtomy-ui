@@ -11,6 +11,7 @@ import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { EventForm, EventDetailFormData } from "./EventForm";
 import { noRecurrence } from "./recurrence";
+import { noRegistration } from "./registration";
 
 vi.mock("@/app/(api)/generated", () => ({
   useGetOrganizationsById: () => ({ data: undefined }),
@@ -29,9 +30,13 @@ const initialValues: EventDetailFormData = {
   recurrence: noRecurrence(),
   type: 0,
   speakers: [],
+  registration: noRegistration(),
 };
 
-const renderForm = (submit: (values: EventDetailFormData) => void) =>
+const renderForm = (
+  submit: (values: EventDetailFormData) => void,
+  showRegistration = false,
+) =>
   render(
     <LocalizationProvider dateAdapter={AdapterDateFns}>
       <EventForm
@@ -39,6 +44,7 @@ const renderForm = (submit: (values: EventDetailFormData) => void) =>
         initialValues={initialValues}
         submit={submit}
         editable
+        showRegistration={showRegistration}
       />
     </LocalizationProvider>,
   );
@@ -140,5 +146,77 @@ describe("EventForm", () => {
     expect(
       screen.queryByRole("combobox", { name: "Se repite" }),
     ).not.toBeInTheDocument();
+  });
+
+  it("does not offer registration unless the screen asks for it", () => {
+    renderForm(vi.fn());
+
+    expect(screen.queryByRole("radio", { name: /Sin inscripción/ })).toBeNull();
+  });
+
+  it("saves a new event without registration by default", async () => {
+    const user = userEvent.setup();
+    const submit = vi.fn();
+    renderForm(submit, true);
+
+    await user.type(screen.getByPlaceholderText("Agregar título"), "Culto");
+    expect(
+      screen.getByRole("radio", { name: /Sin inscripción/ }),
+    ).toBeChecked();
+    await user.click(screen.getByRole("button", { name: "Guardar" }));
+
+    await waitFor(() => expect(submit).toHaveBeenCalledOnce());
+    expect(submit.mock.calls[0]?.[0]?.registration.mode).toBe("NONE");
+  });
+
+  it("saves a course with free registration and seats", async () => {
+    const user = userEvent.setup();
+    const submit = vi.fn();
+    renderForm(submit, true);
+
+    await user.type(
+      screen.getByPlaceholderText("Agregar título"),
+      "Discipulado",
+    );
+    await user.click(screen.getByRole("radio", { name: /^Gratis/ }));
+    await user.type(screen.getByLabelText("Cupo total"), "25");
+    await user.click(screen.getByRole("button", { name: "Guardar" }));
+
+    await waitFor(() => expect(submit).toHaveBeenCalledOnce());
+    expect(submit.mock.calls[0]?.[0]?.registration).toMatchObject({
+      mode: "FREE",
+      capacity: "25",
+    });
+  });
+
+  it("does not save tickets without a name and says why", async () => {
+    const user = userEvent.setup();
+    const submit = vi.fn();
+    renderForm(submit, true);
+
+    await user.type(screen.getByPlaceholderText("Agregar título"), "Curso");
+    await user.click(
+      screen.getByRole("radio", { name: /Con tipos de ticket/ }),
+    );
+    await user.clear(screen.getByLabelText("Nombre del ticket 1"));
+    await user.click(screen.getByRole("button", { name: "Guardar" }));
+
+    expect(
+      await screen.findByText("Ticket 1: ingrese el nombre"),
+    ).toBeInTheDocument();
+    expect(submit).not.toHaveBeenCalled();
+  });
+
+  it("does not offer registration for a repeating event: each date is its own event", async () => {
+    const user = userEvent.setup();
+    renderForm(vi.fn(), true);
+
+    expect(
+      screen.getByRole("radio", { name: /Sin inscripción/ }),
+    ).toBeInTheDocument();
+    await user.click(screen.getByRole("combobox", { name: "Se repite" }));
+    await user.click(screen.getByRole("option", { name: "Todos los días" }));
+
+    expect(screen.queryByRole("radio", { name: /Sin inscripción/ })).toBeNull();
   });
 });
