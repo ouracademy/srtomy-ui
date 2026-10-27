@@ -33,6 +33,7 @@ test.describe("Invitaciones", () => {
               personName: "Beto Pérez",
               positionName: "Pastor",
               status: "PENDING",
+              emailStatus: "SENT",
               expiresAt: "2030-01-15T10:00:00",
             },
           ];

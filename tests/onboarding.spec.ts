@@ -102,11 +102,9 @@ test.describe("Alta de iglesia", () => {
     ).toBeVisible();
   });
 
-  test("quien ya tiene iglesia entra directo a su sede", async ({ page }) => {
+  test("quien ya tiene iglesia entra a Mi espacio", async ({ page }) => {
     await page.goto("/portal");
 
-    await expect(page).toHaveURL(
-      /\/portal\/11111111-1111-1111-1111-111111111111$/,
-    );
+    await expect(page).toHaveURL(/\/portal\/me$/);
   });
 });
