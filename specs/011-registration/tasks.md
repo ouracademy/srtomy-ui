@@ -7,6 +7,9 @@
 - [ ] T005 Inscritos con ticket, estado y cupos en la pantalla del evento.
 - [ ] T006 Página pública `/e/[slug]` con tickets, espera y cancelación.
 - [ ] T007 Mi espacio: «Tengo lugar» / «Asistí» / «Compartidos contigo» y cancelar.
+- [ ] T011 Asistencia: visitantes (contador y con nombre) e inscritos en la pantalla del evento.
+- [ ] T012 QR del evento (diálogo con renovación) y página pública `/a/[token]`.
+- [ ] T013 QR del ticket en la confirmación y en Mi espacio, y escáner para el ujier.
 - [ ] T008 Pruebas unitarias, e2e y axe.
 - [ ] T009 Docs: `docs/redesign.md` §7, deuda técnica y `docs/architecture.md`.
 - [ ] T010 `pnpm check:fast` y e2e.
