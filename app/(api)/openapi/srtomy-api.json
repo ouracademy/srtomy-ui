@@ -1,8 +1,8 @@
 {
   "openapi": "3.1.0",
   "info": {
-    "title": "API Sr. Tommy",
-    "description": "Contiene las API REST para Sr. Tommy",
+    "title": "API Ovejafiel",
+    "description": "Contiene las API REST para Ovejafiel",
     "contact": {
       "name": "Equipo de desarrollo",
       "email": "dev@ouracademy.org"

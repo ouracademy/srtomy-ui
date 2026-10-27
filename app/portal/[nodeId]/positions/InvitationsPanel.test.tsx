@@ -10,7 +10,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import type {
   InvitationResponse,
   PositionSummaryResponse,
-} from "@/app/(api)/generated/aPISrTommy.schemas";
+} from "@/app/(api)/generated/aPIOvejafiel.schemas";
 import { InvitationsPanel } from "./InvitationsPanel";
 
 vi.mock("@/app/(api)/generated", () => ({

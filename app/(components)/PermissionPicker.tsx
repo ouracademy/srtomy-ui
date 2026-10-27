@@ -6,7 +6,7 @@ import {
   FormGroup,
   Typography,
 } from "@mui/material";
-import type { PermissionGroupResponse } from "@/app/(api)/generated/aPISrTommy.schemas";
+import type { PermissionGroupResponse } from "@/app/(api)/generated/aPIOvejafiel.schemas";
 import { permissionLabel, resourceLabel } from "./permissionLabels";
 import { setGroup, togglePermission } from "./permissionSelection";
 

@@ -1,7 +1,7 @@
 // Remembers the node (church, location, group...) the user last opened, so the
 // portal can take them back there. Storage may be unavailable (private mode,
 // blocked site data); the portal then just lands on a default node.
-const KEY = "srtomy.lastNode";
+const KEY = "ovejafiel.lastNode";
 
 export const readLastNode = (): string | null => {
   try {

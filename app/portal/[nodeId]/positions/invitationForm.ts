@@ -1,5 +1,5 @@
 import { z } from "zod";
-import type { CreateInvitationRequest } from "@/app/(api)/generated/aPISrTommy.schemas";
+import type { CreateInvitationRequest } from "@/app/(api)/generated/aPIOvejafiel.schemas";
 
 export const invitationSchema = z.object({
   email: z

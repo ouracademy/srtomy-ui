@@ -11,7 +11,7 @@ import {
   Typography,
 } from "@mui/material";
 import React from "react";
-import type { SharedEventResponse } from "@/app/(api)/generated/aPISrTommy.schemas";
+import type { SharedEventResponse } from "@/app/(api)/generated/aPIOvejafiel.schemas";
 import { primaryButtonSx } from "@/app/(components)/buttonStyles";
 import { eventWhen } from "./eventWhen";
 

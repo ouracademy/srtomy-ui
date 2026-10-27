@@ -16,7 +16,7 @@ import {
   hasBothNames,
 } from "@/app/(components)/AcceptNameFields";
 import type { PersonName } from "@/app/portal/userNames";
-import type { InvitationResponse } from "@/app/(api)/generated/aPISrTommy.schemas";
+import type { InvitationResponse } from "@/app/(api)/generated/aPIOvejafiel.schemas";
 
 type PendingInvitationsProps = Readonly<{
   invitations: InvitationResponse[];

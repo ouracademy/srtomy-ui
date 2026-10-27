@@ -23,7 +23,7 @@ import {
 import type {
   PermissionGroupResponse,
   PositionSuggestionResponse,
-} from "@/app/(api)/generated/aPISrTommy.schemas";
+} from "@/app/(api)/generated/aPIOvejafiel.schemas";
 import Loading from "../(components)/Loading";
 import { PositionsField } from "../(components)/PositionsField";
 import { SaveButton } from "../(components)/SaveButton";

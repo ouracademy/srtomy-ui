@@ -4,7 +4,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import type {
   EventRegistrationResponse,
   EventSharingResponse,
-} from "@/app/(api)/generated/aPISrTommy.schemas";
+} from "@/app/(api)/generated/aPIOvejafiel.schemas";
 import { ShareEventDialog } from "./ShareEventDialog";
 
 afterEach(cleanup);

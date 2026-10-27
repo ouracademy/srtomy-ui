@@ -1,4 +1,4 @@
-import type { MyOrganizationResponse } from "@/app/(api)/generated/aPISrTommy.schemas";
+import type { MyOrganizationResponse } from "@/app/(api)/generated/aPIOvejafiel.schemas";
 
 // The API returns the user's nodes flat (GET /me/organizations); these helpers
 // rebuild what the screens need: breadcrumbs, the church of a node, and a tree.

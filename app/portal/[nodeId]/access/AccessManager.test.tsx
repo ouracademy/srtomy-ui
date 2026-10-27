@@ -1,7 +1,7 @@
 import { cleanup, render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import type { AccessEntryResponse } from "@/app/(api)/generated/aPISrTommy.schemas";
+import type { AccessEntryResponse } from "@/app/(api)/generated/aPIOvejafiel.schemas";
 import {
   AccessList,
   groupByPerson,

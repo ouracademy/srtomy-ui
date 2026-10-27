@@ -32,7 +32,7 @@ import type {
   PermissionGroupResponse,
   PositionSuggestionResponse,
   PositionSummaryResponse,
-} from "@/app/(api)/generated/aPISrTommy.schemas";
+} from "@/app/(api)/generated/aPIOvejafiel.schemas";
 import { DialogDeleteConfirmation } from "@/app/(components)/DialogDeleteConfirmation";
 import { PermissionPicker } from "@/app/(components)/PermissionPicker";
 import { PermissionsInfo } from "@/app/(components)/PermissionsInfo";

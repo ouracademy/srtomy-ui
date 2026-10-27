@@ -2,7 +2,7 @@ import { z } from "zod";
 import type {
   CreateChurchRequest,
   PositionSuggestionResponse,
-} from "@/app/(api)/generated/aPISrTommy.schemas";
+} from "@/app/(api)/generated/aPIOvejafiel.schemas";
 import {
   emptySocialLinks,
   socialLinksSchema,

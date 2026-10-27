@@ -1,7 +1,7 @@
 import { cleanup, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import type { InvitationResponse } from "@/app/(api)/generated/aPISrTommy.schemas";
+import type { InvitationResponse } from "@/app/(api)/generated/aPIOvejafiel.schemas";
 import { PendingInvitations } from "./PendingInvitations";
 
 afterEach(cleanup);

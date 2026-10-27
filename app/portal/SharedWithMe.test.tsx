@@ -1,6 +1,6 @@
 import { cleanup, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it } from "vitest";
-import type { SharedWithMeResponse } from "@/app/(api)/generated/aPISrTommy.schemas";
+import type { SharedWithMeResponse } from "@/app/(api)/generated/aPIOvejafiel.schemas";
 import { SharedWithMe } from "./SharedWithMe";
 
 afterEach(cleanup);

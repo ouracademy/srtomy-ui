@@ -24,7 +24,7 @@ import React from "react";
 import type {
   EventRegistrationResponse,
   EventSharingResponse,
-} from "@/app/(api)/generated/aPISrTommy.schemas";
+} from "@/app/(api)/generated/aPIOvejafiel.schemas";
 import { primaryButtonSx } from "@/app/(components)/buttonStyles";
 import {
   accessSummary,

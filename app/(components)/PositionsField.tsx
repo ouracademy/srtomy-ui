@@ -17,7 +17,7 @@ import React from "react";
 import type {
   PermissionGroupResponse,
   PositionSuggestionResponse,
-} from "@/app/(api)/generated/aPISrTommy.schemas";
+} from "@/app/(api)/generated/aPIOvejafiel.schemas";
 import { PermissionPicker } from "./PermissionPicker";
 import { PermissionsInfo } from "./PermissionsInfo";
 

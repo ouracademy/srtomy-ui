@@ -12,7 +12,7 @@ import SearchIcon from "@mui/icons-material/Search";
 import { withOutSorting } from "@/app/(components)/helpers/withOutSorting";
 import { usePagination } from "@/app/(components)/hook-customization/usePagination";
 import { useGetPeople } from "@/app/(api)/generated";
-import type { PersonResponse } from "@/app/(api)/generated/aPISrTommy.schemas";
+import type { PersonResponse } from "@/app/(api)/generated/aPIOvejafiel.schemas";
 import { useRouter, useSearchParams } from "next/navigation";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { DialogDeleteConfirmation } from "@/app/(components)/DialogDeleteConfirmation";

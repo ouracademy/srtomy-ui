@@ -1,4 +1,4 @@
-import type { DirectoryNodeResponse } from "@/app/(api)/generated/aPISrTommy.schemas";
+import type { DirectoryNodeResponse } from "@/app/(api)/generated/aPIOvejafiel.schemas";
 
 export type DirectoryNode = DirectoryNodeResponse & { id: string };
 

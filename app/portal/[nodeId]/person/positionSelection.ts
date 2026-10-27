@@ -1,7 +1,7 @@
 import type {
   PositionResponse,
   PositionSummaryResponse,
-} from "@/app/(api)/generated/aPISrTommy.schemas";
+} from "@/app/(api)/generated/aPIOvejafiel.schemas";
 
 // A position picked in the person form: an existing one (with id) or a name
 // typed by the user that the church does not have yet.
