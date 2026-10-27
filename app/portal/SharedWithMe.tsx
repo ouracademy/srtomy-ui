@@ -14,13 +14,23 @@ import {
 // at its shared page.
 export const SharedWithMe = ({
   events,
-}: Readonly<{ events: SharedWithMeResponse[] }>) => {
-  if (events.length === 0) return null;
+  showEmpty = false,
+}: Readonly<{
+  events: SharedWithMeResponse[];
+  // "Mi espacio" always shows the section; the portal home only when needed.
+  showEmpty?: boolean;
+}>) => {
+  if (events.length === 0 && !showEmpty) return null;
   return (
     <Paper variant="outlined" sx={{ p: 2, mb: 3 }}>
       <Typography variant="h6" component="h2">
         Compartidos contigo
       </Typography>
+      {events.length === 0 && (
+        <Typography color="text.secondary">
+          Nadie ha compartido eventos ni cursos contigo todavía.
+        </Typography>
+      )}
       <List aria-label="Compartidos contigo">
         {events.map((event) => (
           <ListItem key={event.slug} disableGutters>

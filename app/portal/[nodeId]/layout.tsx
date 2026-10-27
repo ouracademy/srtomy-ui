@@ -5,24 +5,26 @@ import ChurchOutlinedIcon from "@mui/icons-material/ChurchOutlined";
 import DashboardOutlinedIcon from "@mui/icons-material/DashboardOutlined";
 import EventOutlinedIcon from "@mui/icons-material/EventOutlined";
 import BadgeOutlinedIcon from "@mui/icons-material/BadgeOutlined";
+import HomeOutlinedIcon from "@mui/icons-material/HomeOutlined";
 import PersonOutlinedIcon from "@mui/icons-material/PersonOutlined";
-import List from "@mui/material/List";
-import ListItem from "@mui/material/ListItem";
-import ListItemButton from "@mui/material/ListItemButton";
-import ListItemIcon from "@mui/material/ListItemIcon";
-import ListItemText from "@mui/material/ListItemText";
-import NextLink from "next/link";
 import * as React from "react";
 import MenuDrawer from "../MenuDrawer";
+import { PortalMenu } from "../PortalMenu";
 import { useGetOrganizationsById } from "@/app/(api)/generated";
 import { usePermissions, type Permission } from "@/app/(hooks)/usePermissions";
 import { saveLastNode } from "../lastNode";
 import { nodeTypeLabels } from "../organizationTree";
 
-// `needs` hides an item the user could not use on this node; the API still
-// rejects the requests if they navigate there anyway.
+// `needs` hides an item unless the user holds one of those permissions on this
+// node (so a plain member sees no administration); the API still rejects the
+// requests if they navigate there anyway.
 const menuItems = (type: string | undefined) => [
-  { label: "Dashboard", path: "", Icon: DashboardOutlinedIcon },
+  {
+    label: "Dashboard",
+    path: "",
+    Icon: DashboardOutlinedIcon,
+    needs: ["members.read"] as Permission[],
+  },
   {
     label: nodeTypeLabels[type ?? ""] ?? "Datos",
     path: "/location",
@@ -32,15 +34,26 @@ const menuItems = (type: string | undefined) => [
     label: "Personas",
     path: "/person",
     Icon: PersonOutlinedIcon,
-    needs: "members.read" as Permission,
+    needs: ["members.read"] as Permission[],
   },
   {
     label: "Eventos y cursos",
     path: "/event",
     Icon: EventOutlinedIcon,
-    needs: "events.read" as Permission,
+    needs: ["events.read"] as Permission[],
   },
-  { label: "Cargos y accesos", path: "/positions", Icon: BadgeOutlinedIcon },
+  {
+    label: "Cargos y accesos",
+    path: "/positions",
+    Icon: BadgeOutlinedIcon,
+    needs: [
+      "members.read",
+      "positions.manage",
+      "iam.read",
+      "iam.manage",
+      "invitations.send",
+    ] as Permission[],
+  },
   { label: "Directorio", path: "/directory", Icon: ContactsOutlinedIcon },
 ];
 
@@ -57,48 +70,19 @@ export default function NodeLayout(props: {
 
   React.useEffect(() => saveLastNode(nodeId), [nodeId]);
 
-  const items = menuItems(node?.type).filter(
-    (item) => !item.needs || can(item.needs),
-  );
+  const items = [
+    { label: "Mi espacio", href: "/portal/me", Icon: HomeOutlinedIcon },
+    ...menuItems(node?.type)
+      .filter((item) => !item.needs || item.needs.some(can))
+      .map(({ label, path, Icon }) => ({
+        label,
+        href: `/portal/${nodeId}${path}`,
+        Icon,
+      })),
+  ];
 
   return (
-    <MenuDrawer
-      nodeId={nodeId}
-      listDrawer={
-        <List
-          aria-label="Menú principal"
-          sx={{
-            "& .MuiListItemIcon-root": {
-              minWidth: "40px",
-              color: "#fff",
-              fontSize: "50px",
-            },
-            color: "#fff",
-            fontSize: "50px",
-
-            "& .MuiListItemText-primary": {
-              fontSize: "0.9rem",
-              fontWeight: "200",
-            },
-          }}
-        >
-          {items.map(({ label, path, Icon }) => (
-            <ListItem key={label} disablePadding>
-              <ListItemButton
-                component={NextLink}
-                href={`/portal/${nodeId}${path}`}
-                sx={{ color: "inherit", textDecoration: "none" }}
-              >
-                <ListItemIcon>
-                  <Icon />
-                </ListItemIcon>
-                <ListItemText primary={label} />
-              </ListItemButton>
-            </ListItem>
-          ))}
-        </List>
-      }
-    >
+    <MenuDrawer nodeId={nodeId} listDrawer={<PortalMenu items={items} />}>
       {children}
     </MenuDrawer>
   );

@@ -29,6 +29,7 @@ app/
   g/[slug]/                    Página pública de un nodo (iglesia, sede, grupo o ministerio)
   invitacion/[token]/          Página pública de una invitación (aceptarla); returnTo.ts decide a dónde volver tras el login
   portal/                      Área autenticada
+    me/                        «Mi espacio» (/portal/me): mis eventos y cursos, mis grupos, compartidos e invitaciones
     layout.tsx                 PortalProviders (SWR, fechas en español, RequireAuth)
     MenuDrawer.tsx             Marco: barra superior, menú lateral y contenido
     OrganizationPicker.tsx     Cambiar de iglesia, sede o grupo (lo usa MenuDrawer)
@@ -120,6 +121,8 @@ El formulario de persona muestra, al elegir un cargo, cuántos permisos da.
 **Correos en cola.** El API no envía el correo dentro de la petición: lo guarda en una cola (outbox) junto con la invitación o el compartido, lo intenta al confirmar y lo reintenta solo si el proveedor falla. Por eso `emailSent: false` no es un error: la invitación existe y el correo sale en minutos. La tabla de invitaciones muestra su estado (`emailStatus`: Enviado, En cola, No salió), se refresca sola mientras haya alguno en cola y ofrece «Reenviar», que vuelve a invitar al mismo correo.
 
 **Visibilidad.** Cada nodo decide quién ve su lista de personas (`memberVisibility`: cualquiera con el enlace, toda la iglesia, solo los miembros, solo líderes) y tiene un horario; su información básica y sus líderes están siempre en el **Directorio** de la iglesia. Los formularios lo editan con `VisibilityFields` (sección «Horario y visibilidad»). La UI no calcula quién ve qué: el API ya entrega la lista vacía y `membersVisible=false` cuando corresponde. `/g/{slug}` es la página pública (sin sesión); el API solo nombra a adultos conocidos y nunca da edad, teléfono ni correo.
+
+**Mi espacio.** `/portal/me` está abierta a cualquier usuario con sesión y muestra solo lo propio: `GET /me/events` (donde se inscribió o asistió), `GET /me/nodes` (donde su persona vinculada es miembro o líder), `GET /me/shared-events` y `GET /me/invitations`. Todos aterrizan ahí desde `/portal` tras iniciar sesión y de ahí abren su nodo; el menú de un miembro (solo `org.read` y `events.read`) no trae «Cargos y accesos», «Personas» ni el Dashboard. Cada sección carga y falla por su cuenta.
 
 **Compartir.** Un evento o curso se comparte desde su detalle (`ShareEventButton` → `ShareEventDialog`): con personas por correo (Lector o Editor), con la iglesia o con cualquiera que tenga el enlace, y en un curso el enlace puede permitir inscribirse. `/e/{slug}` es la página del enlace: el API decide si el visitante la puede abrir (404 si no) y si puede inscribirse (`canRegister`); la inscripción no necesita cuenta. El nivel de acceso a un evento lo calcula el API (árbol de la iglesia, compartido con tu correo verificado o acceso general) y `GET/PUT/DELETE /events/{id}` lo respetan.
 
