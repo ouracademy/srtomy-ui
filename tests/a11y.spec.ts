@@ -113,6 +113,40 @@ test.describe("Accesibilidad", () => {
           isACourse: true,
           organizationName: "Jóvenes",
           canRegister: true,
+          registration: {
+            open: true,
+            requiresAccount: false,
+            waitlistEnabled: true,
+            soldOut: false,
+            tickets: [
+              {
+                id: "t1",
+                name: "General",
+                priceCents: 0,
+                currency: "PEN",
+                onSale: true,
+                remaining: 12,
+              },
+              {
+                id: "t2",
+                name: "VIP",
+                priceCents: 2500,
+                currency: "PEN",
+                onSale: true,
+                remaining: 0,
+              },
+            ],
+          },
+        }),
+      ),
+    );
+    await page.route("**/v1/public/attendance/tok", (route) =>
+      route.fulfill(
+        json({
+          title: "Culto dominical",
+          start: "2030-01-05T15:00:00Z",
+          organizationName: "Iglesia E2E",
+          status: "OPEN",
         }),
       ),
     );
@@ -120,6 +154,8 @@ test.describe("Accesibilidad", () => {
     for (const path of [
       "/g/abc",
       "/e/curso",
+      "/a/tok",
+      "/e/curso/cancelar/codigo",
       "/invitacion/tok",
       `/portal/${nodeId}/directory`,
     ]) {

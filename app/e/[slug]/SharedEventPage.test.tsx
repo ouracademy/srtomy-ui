@@ -1,10 +1,45 @@
-import { cleanup, render, screen } from "@testing-library/react";
+import { cleanup, render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import type { SharedEventResponse } from "@/app/(api)/generated/aPIOvejafiel.schemas";
-import { SharedEventPage } from "./SharedEventPage";
+import type {
+  RegistrationOutcomeResponse,
+  SharedEventResponse,
+} from "@/app/(api)/generated/aPIOvejafiel.schemas";
+import { SharedEventPage, type SignUp } from "./SharedEventPage";
 
 afterEach(cleanup);
+
+const registration = {
+  open: true,
+  requiresAccount: false,
+  waitlistEnabled: false,
+  soldOut: false,
+  tickets: [
+    {
+      id: "t1",
+      name: "General",
+      priceCents: 0,
+      currency: "PEN",
+      onSale: true,
+      remaining: 12,
+    },
+    {
+      id: "t2",
+      name: "VIP",
+      priceCents: 2500,
+      currency: "PEN",
+      onSale: true,
+      remaining: 1,
+    },
+    {
+      id: "t3",
+      name: "Anticipada",
+      priceCents: 1000,
+      currency: "PEN",
+      onSale: false,
+    },
+  ],
+};
 
 const course: SharedEventResponse = {
   title: "Curso de discipulado",
@@ -14,23 +49,48 @@ const course: SharedEventResponse = {
   end: new Date(2030, 0, 5, 21, 0),
   isACourse: true,
   organizationName: "Jóvenes",
+  registration,
   canRegister: true,
-  registered: false,
+};
+
+const confirmed: RegistrationOutcomeResponse = {
+  alreadyRegistered: false,
+  status: "CONFIRMED",
+  cancelCode: "cancel-code",
+  ticketCode: "ticket-code",
 };
 
 const setup = (
-  event: SharedEventResponse = course,
-  onRegister = vi.fn().mockResolvedValue(false),
-  defaults = {},
+  props: {
+    event?: SharedEventResponse;
+    onRegister?: (
+      values: SignUp,
+    ) => Promise<RegistrationOutcomeResponse | string>;
+    onCancel?: (code: string) => Promise<boolean>;
+    signedIn?: boolean;
+    defaults?: { firstName?: string; lastName?: string; email?: string };
+  } = {},
 ) => {
+  const handlers = {
+    onRegister: vi.fn<
+      (values: SignUp) => Promise<RegistrationOutcomeResponse | string>
+    >(props.onRegister ?? (() => Promise.resolve(confirmed))),
+    onCancel: vi.fn<(code: string) => Promise<boolean>>(
+      props.onCancel ?? (() => Promise.resolve(true)),
+    ),
+    onSignIn: vi.fn(),
+    onCopy: vi.fn(),
+  };
   render(
     <SharedEventPage
-      event={event}
-      defaults={defaults}
-      onRegister={onRegister}
+      event={props.event ?? course}
+      signedIn={props.signedIn}
+      defaults={props.defaults}
+      cancelLink={(code) => `https://app.test/e/abc/cancelar/${code}`}
+      {...handlers}
     />,
   );
-  return { onRegister, user: userEvent.setup() };
+  return { ...handlers, user: userEvent.setup() };
 };
 
 const fill = async (user: ReturnType<typeof userEvent.setup>) => {
@@ -54,14 +114,43 @@ describe("SharedEventPage", () => {
     expect(screen.getByText("Ocho semanas de estudio")).toBeTruthy();
   });
 
-  it("signs up with the data, then thanks the person", async () => {
+  it("offers each ticket with its price and the seats left", () => {
+    setup();
+
+    const tickets = screen.getByRole("radiogroup", { name: "Tipo de ticket" });
+    expect(
+      within(tickets).getByRole("radio", {
+        name: "General · Gratis · Quedan 12 lugares",
+      }),
+    ).toBeTruthy();
+    expect(
+      within(tickets).getByRole("radio", {
+        name: "VIP · S/ 25.00 · Queda 1 lugar",
+      }),
+    ).toBeTruthy();
+    const closed = within(tickets).getByRole("radio", {
+      name: "Anticipada · S/ 10.00 · Venta cerrada",
+    });
+    expect((closed as HTMLInputElement).disabled).toBe(true);
+    expect(
+      (
+        within(tickets).getByRole("radio", {
+          name: /^General/,
+        }) as HTMLInputElement
+      ).checked,
+    ).toBe(true);
+  });
+
+  it("signs up with the chosen ticket and the data, then shows the ticket QR", async () => {
     const { onRegister, user } = setup();
 
+    await user.click(screen.getByRole("radio", { name: /^VIP/ }));
     await fill(user);
     await user.type(screen.getByLabelText("Teléfono"), "999");
     await user.click(screen.getByRole("button", { name: "Inscribirme" }));
 
     expect(onRegister).toHaveBeenCalledWith({
+      ticketTypeId: "t2",
       firstName: "Lucía",
       lastName: "Mora",
       email: "lucia@x.org",
@@ -70,34 +159,134 @@ describe("SharedEventPage", () => {
     expect(
       await screen.findByText("Listo, quedó inscrito. Gracias."),
     ).toBeTruthy();
+    expect(
+      await screen.findByRole("img", { name: "QR de su ticket" }),
+    ).toBeTruthy();
     expect(screen.queryByRole("form", { name: "Inscripción" })).toBeNull();
   });
 
-  it("says when that email was already signed up", async () => {
-    const { user } = setup(course, vi.fn().mockResolvedValue(true));
+  it("gives the link to cancel and copies it", async () => {
+    const { onCopy, user } = setup();
+
+    await fill(user);
+    await user.click(screen.getByRole("button", { name: "Inscribirme" }));
+
+    const link = await screen.findByLabelText("Enlace para cancelar");
+    expect((link as HTMLInputElement).value).toBe(
+      "https://app.test/e/abc/cancelar/cancel-code",
+    );
+    await user.click(screen.getByRole("button", { name: "Copiar enlace" }));
+    expect(onCopy).toHaveBeenCalledWith(
+      "https://app.test/e/abc/cancelar/cancel-code",
+    );
+  });
+
+  it("cancels the sign-up with the code it got", async () => {
+    const { onCancel, user } = setup();
+
+    await fill(user);
+    await user.click(screen.getByRole("button", { name: "Inscribirme" }));
+    await user.click(
+      await screen.findByRole("button", { name: "Cancelar mi inscripción" }),
+    );
+
+    expect(onCancel).toHaveBeenCalledWith("cancel-code");
+    expect(await screen.findByText("Su inscripción se canceló.")).toBeTruthy();
+    expect(screen.queryByRole("img", { name: "QR de su ticket" })).toBeNull();
+  });
+
+  it("keeps the sign-up when cancelling fails", async () => {
+    const { user } = setup({ onCancel: () => Promise.resolve(false) });
+
+    await fill(user);
+    await user.click(screen.getByRole("button", { name: "Inscribirme" }));
+    await user.click(
+      await screen.findByRole("button", { name: "Cancelar mi inscripción" }),
+    );
+
+    expect(screen.queryByText("Su inscripción se canceló.")).toBeNull();
+    expect(
+      screen.getByRole("button", { name: "Cancelar mi inscripción" }),
+    ).toBeTruthy();
+  });
+
+  it("says when the person went to the waitlist and shows no ticket", async () => {
+    const { user } = setup({
+      onRegister: () => Promise.resolve({ ...confirmed, status: "WAITLISTED" }),
+    });
 
     await fill(user);
     await user.click(screen.getByRole("button", { name: "Inscribirme" }));
 
     expect(
-      await screen.findByText("Ya estaba inscrito con ese correo."),
+      await screen.findByText(
+        "Quedó en lista de espera. Si se libera un lugar, quedará confirmado.",
+      ),
+    ).toBeTruthy();
+    expect(screen.queryByRole("img", { name: "QR de su ticket" })).toBeNull();
+  });
+
+  it("offers the waitlist when a ticket is sold out", async () => {
+    const soldOut = {
+      ...registration,
+      waitlistEnabled: true,
+      soldOut: true,
+      tickets: [{ ...registration.tickets[0], remaining: 0 }],
+    };
+    const { onRegister, user } = setup({
+      event: { ...course, registration: soldOut },
+    });
+
+    expect(
+      screen.getByText(/Los lugares de este ticket se agotaron/),
+    ).toBeTruthy();
+    await fill(user);
+    await user.click(
+      screen.getByRole("button", { name: "Anotarme en la lista de espera" }),
+    );
+
+    expect(onRegister).toHaveBeenCalledWith(
+      expect.objectContaining({ ticketTypeId: "t1" }),
+    );
+  });
+
+  it("does not let anyone pick a sold out ticket without a waitlist", () => {
+    const soldOut = {
+      ...registration,
+      tickets: [{ ...registration.tickets[0], remaining: 0 }],
+    };
+    setup({ event: { ...course, registration: soldOut } });
+
+    expect(
+      (screen.getByRole("radio", { name: /^General/ }) as HTMLInputElement)
+        .disabled,
+    ).toBe(true);
+    expect(screen.getByText("General · Gratis · Agotado")).toBeTruthy();
+  });
+
+  it("says when that email was already signed up", async () => {
+    const { user } = setup({
+      onRegister: () =>
+        Promise.resolve({ ...confirmed, alreadyRegistered: true }),
+    });
+
+    await fill(user);
+    await user.click(screen.getByRole("button", { name: "Inscribirme" }));
+
+    expect(
+      await screen.findByText("Ya estaba inscrito con ese correo: confirmado."),
     ).toBeTruthy();
   });
 
   it("shows why the API refused and keeps the form", async () => {
-    const { user } = setup(
-      course,
-      vi
-        .fn()
-        .mockResolvedValue("La inscripción por este enlace no está abierta"),
-    );
+    const { user } = setup({
+      onRegister: () => Promise.resolve("La inscripción está cerrada"),
+    });
 
     await fill(user);
     await user.click(screen.getByRole("button", { name: "Inscribirme" }));
 
-    expect(
-      await screen.findByText("La inscripción por este enlace no está abierta"),
-    ).toBeTruthy();
+    expect(await screen.findByText("La inscripción está cerrada")).toBeTruthy();
     expect(screen.getByRole("button", { name: "Inscribirme" })).toBeTruthy();
   });
 
@@ -114,10 +303,8 @@ describe("SharedEventPage", () => {
   });
 
   it("fills the form for someone who is signed in", () => {
-    setup(course, vi.fn(), {
-      firstName: "Ana",
-      lastName: "Paz",
-      email: "ana@x.org",
+    setup({
+      defaults: { firstName: "Ana", lastName: "Paz", email: "ana@x.org" },
     });
 
     expect((screen.getByLabelText(/Nombre/) as HTMLInputElement).value).toBe(
@@ -128,22 +315,68 @@ describe("SharedEventPage", () => {
     );
   });
 
-  it("has no form when the link does not allow signing up", () => {
-    setup({ ...course, canRegister: false });
+  it("has no form when the event takes no sign-ups", () => {
+    setup({
+      event: { ...course, registration: undefined, canRegister: false },
+    });
 
     expect(screen.queryByRole("form", { name: "Inscripción" })).toBeNull();
     expect(screen.queryByRole("button", { name: "Inscribirme" })).toBeNull();
+    expect(screen.queryByText("La inscripción está cerrada.")).toBeNull();
   });
 
-  it("says so when the person is already signed up", () => {
-    setup({ ...course, registered: true });
+  it("says when the registration is closed", () => {
+    setup({
+      event: {
+        ...course,
+        registration: { ...registration, open: false },
+        canRegister: false,
+      },
+    });
 
-    expect(screen.getByText("Ya está inscrito en este curso.")).toBeTruthy();
+    expect(screen.getByText("La inscripción está cerrada.")).toBeTruthy();
+    expect(screen.queryByRole("button", { name: "Inscribirme" })).toBeNull();
+  });
+
+  it("asks someone who is not signed in to sign in when the registration needs an account", async () => {
+    const { onSignIn, user } = setup({
+      event: {
+        ...course,
+        registration: { ...registration, requiresAccount: true },
+        canRegister: false,
+      },
+    });
+
+    expect(screen.queryByRole("button", { name: "Inscribirme" })).toBeNull();
+    await user.click(screen.getByRole("button", { name: "Iniciar sesión" }));
+
+    expect(onSignIn).toHaveBeenCalledOnce();
+  });
+
+  it("says so when the person already has a place", () => {
+    setup({
+      event: {
+        ...course,
+        canRegister: false,
+        registrationStatus: "WAITLISTED",
+      },
+    });
+
+    expect(
+      screen.getByText(/Ya tiene un lugar en este curso: en lista de espera\./),
+    ).toBeTruthy();
     expect(screen.queryByRole("button", { name: "Inscribirme" })).toBeNull();
   });
 
   it("an event that is not a course is called an event", () => {
-    setup({ ...course, isACourse: false, canRegister: false });
+    setup({
+      event: {
+        ...course,
+        isACourse: false,
+        registration: undefined,
+        canRegister: false,
+      },
+    });
 
     expect(screen.getByText("Evento · Jóvenes")).toBeTruthy();
   });

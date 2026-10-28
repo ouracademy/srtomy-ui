@@ -1,42 +1,39 @@
 "use client";
 
-import LoadingButton from "@mui/lab/LoadingButton";
-import CloseIcon from "@mui/icons-material/Close";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
+import LoadingButton from "@mui/lab/LoadingButton";
 import {
+  Alert,
   Button,
+  Chip,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
-  IconButton,
   List,
   ListItem,
   ListItemText,
   MenuItem,
   Stack,
-  Tab,
-  Tabs,
   TextField,
   Typography,
 } from "@mui/material";
 import React from "react";
-import type {
-  EventRegistrationResponse,
-  EventSharingResponse,
-} from "@/app/(api)/generated/aPIOvejafiel.schemas";
+import type { EventSharingResponse } from "@/app/(api)/generated/aPIOvejafiel.schemas";
 import { primaryButtonSx } from "@/app/(components)/buttonStyles";
 import {
   accessSummary,
+  emailLooksValid,
   generalAccessLabels,
   generalAccessOptions,
-  linkRoleLabels,
-  linkRolesFor,
+  hasUnsavedChanges,
   sharedEventPath,
   shareRoleLabels,
+  withShare,
   type GeneralAccess,
-  type LinkRole,
+  type PendingShare,
   type ShareRole,
+  type SharingDraft,
 } from "@/app/(components)/eventSharing";
 
 type ShareEventDialogProps = Readonly<{
@@ -44,62 +41,69 @@ type ShareEventDialogProps = Readonly<{
   close: () => void;
   title: string;
   sharing: EventSharingResponse;
-  registrations: EventRegistrationResponse[];
-  // Each one resolves when the API answered; failures are reported by the
-  // caller and rethrown so the dialog keeps what was typed.
-  onShare: (email: string, role: ShareRole) => Promise<void>;
-  onUnshare: (shareId: string) => Promise<void>;
-  onChangeAccess: (access: GeneralAccess, role: LinkRole) => Promise<void>;
+  // Applies everything the user changed. Resolves when the API accepted it;
+  // failures are reported by the caller and rethrown so the dialog keeps the
+  // draft.
+  onSave: (draft: SharingDraft) => Promise<void>;
+  // These two act right away and are not part of "Guardar".
   onRenewLink: () => Promise<void>;
-  onRemoveRegistration: (registrationId: string) => Promise<void>;
   onCopy: (url: string) => void;
 }>;
 
-const emailLooksValid = (email: string) => /^\S+@\S+\.\S+$/.test(email.trim());
-
-// "Compartir", as in Drive: who has the event (people by email), who can open
-// it through the link, and, for a course, who signed up.
+// "Compartir", as in Drive: who has the event (people by email) and who can
+// open it through the link. Nothing is saved until the user presses "Guardar".
+// Signing up is not here: it is its own setup of the event.
 export const ShareEventDialog = ({
   open,
   close,
   title,
   sharing,
-  registrations,
-  onShare,
-  onUnshare,
-  onChangeAccess,
+  onSave,
   onRenewLink,
-  onRemoveRegistration,
   onCopy,
 }: ShareEventDialogProps) => {
-  const [tab, setTab] = React.useState<"share" | "registrations">("share");
+  const saved = (sharing.generalAccess ?? "RESTRICTED") as GeneralAccess;
+  const [generalAccess, setGeneralAccess] =
+    React.useState<GeneralAccess>(saved);
+  const [added, setAdded] = React.useState<PendingShare[]>([]);
+  const [removed, setRemoved] = React.useState<string[]>([]);
   const [email, setEmail] = React.useState("");
   const [role, setRole] = React.useState<ShareRole>("VIEWER");
   const [invalid, setInvalid] = React.useState(false);
-  const [sharingNow, setSharingNow] = React.useState(false);
+  const [saving, setSaving] = React.useState(false);
   const [renewing, setRenewing] = React.useState(false);
+  const [askingToDiscard, setAskingToDiscard] = React.useState(false);
 
-  const isACourse = Boolean(sharing.isACourse);
-  const generalAccess = (sharing.generalAccess ??
-    "RESTRICTED") as GeneralAccess;
-  const linkRole = (sharing.linkRole ?? "VIEWER") as LinkRole;
+  const draft: SharingDraft = { generalAccess, added, removed };
+  const dirty = hasUnsavedChanges(saved, draft);
   const url = `${globalThis.location?.origin ?? ""}${sharedEventPath(sharing.slug ?? "")}`;
+  const people = (sharing.shares ?? []).filter(
+    (share) =>
+      !added.some(
+        (item) => item.email.toLowerCase() === share.email?.toLowerCase(),
+      ),
+  );
 
-  const share = async (event: React.FormEvent) => {
+  const add = (event: React.FormEvent) => {
     event.preventDefault();
     if (!emailLooksValid(email)) {
       setInvalid(true);
       return;
     }
-    setSharingNow(true);
+    setAdded(withShare(added, { email: email.trim(), role }));
+    setEmail("");
+    setInvalid(false);
+  };
+
+  const save = async () => {
+    setSaving(true);
     try {
-      await onShare(email.trim(), role);
-      setEmail("");
-      setInvalid(false);
+      await onSave(draft);
+      close();
     } catch {
-      // Already explained to the user; keep what was typed to try again.
+      // Already explained to the user; the draft stays to try again.
     } finally {
-      setSharingNow(false);
+      setSaving(false);
     }
   };
 
@@ -114,213 +118,216 @@ export const ShareEventDialog = ({
     }
   };
 
+  const cancel = () => {
+    if (dirty) {
+      setAskingToDiscard(true);
+      return;
+    }
+    close();
+  };
+
   return (
-    <Dialog open={open} onClose={close} fullWidth maxWidth="sm">
+    <Dialog open={open} onClose={cancel} fullWidth maxWidth="sm">
       <DialogTitle>Compartir «{title}»</DialogTitle>
       <DialogContent>
-        {isACourse && (
-          <Tabs
-            value={tab}
-            onChange={(_event, value) => setTab(value)}
-            aria-label="Compartir"
-            sx={{ mb: 2 }}
+        <Stack spacing={3}>
+          <Stack
+            component="form"
+            noValidate
+            onSubmit={add}
+            direction="row"
+            spacing={1}
+            aria-label="Agregar personas"
           >
-            <Tab value="share" label="Compartir" />
-            <Tab
-              value="registrations"
-              label={`Inscritos (${sharing.registrations ?? registrations.length})`}
+            <TextField
+              label="Correo de la persona"
+              type="email"
+              size="small"
+              value={email}
+              onChange={(event) => setEmail(event.target.value)}
+              error={invalid}
+              helperText={invalid ? "Ingrese un correo válido" : undefined}
+              sx={{ flex: 1 }}
             />
-          </Tabs>
-        )}
-        {tab === "share" || !isACourse ? (
-          <Stack spacing={3}>
-            <Stack
-              component="form"
-              noValidate
-              onSubmit={share}
-              direction="row"
-              spacing={1}
-              aria-label="Agregar personas"
+            <TextField
+              select
+              label="Rol"
+              size="small"
+              value={role}
+              onChange={(event) => setRole(event.target.value as ShareRole)}
+              sx={{ minWidth: 110 }}
             >
-              <TextField
-                label="Correo de la persona"
-                type="email"
-                size="small"
-                value={email}
-                onChange={(event) => setEmail(event.target.value)}
-                error={invalid}
-                helperText={invalid ? "Ingrese un correo válido" : undefined}
-                sx={{ flex: 1 }}
-              />
-              <TextField
-                select
-                label="Rol"
-                size="small"
-                value={role}
-                onChange={(event) => setRole(event.target.value as ShareRole)}
-                sx={{ minWidth: 110 }}
-              >
-                {(Object.keys(shareRoleLabels) as ShareRole[]).map((value) => (
-                  <MenuItem key={value} value={value}>
-                    {shareRoleLabels[value]}
-                  </MenuItem>
-                ))}
-              </TextField>
-              <LoadingButton
-                type="submit"
-                variant="contained"
-                sx={primaryButtonSx}
-                loading={sharingNow}
-              >
-                Compartir
-              </LoadingButton>
-            </Stack>
-            <div>
-              <Typography variant="subtitle2">Personas con acceso</Typography>
-              {(sharing.shares ?? []).length === 0 ? (
-                <Typography color="text.secondary">
-                  Aún no se compartió con nadie.
-                </Typography>
-              ) : (
-                <List dense aria-label="Personas con acceso">
-                  {(sharing.shares ?? []).map((item) => (
+              {(Object.keys(shareRoleLabels) as ShareRole[]).map((value) => (
+                <MenuItem key={value} value={value}>
+                  {shareRoleLabels[value]}
+                </MenuItem>
+              ))}
+            </TextField>
+            <Button type="submit" variant="outlined">
+              Agregar
+            </Button>
+          </Stack>
+          <div>
+            <Typography variant="subtitle2">Personas con acceso</Typography>
+            {people.length === 0 && added.length === 0 ? (
+              <Typography color="text.secondary">
+                Aún no se compartió con nadie.
+              </Typography>
+            ) : (
+              <List dense aria-label="Personas con acceso">
+                {people.map((item) => {
+                  const willBeRemoved = removed.includes(item.id ?? "");
+                  return (
                     <ListItem
                       key={item.id}
                       disableGutters
                       secondaryAction={
-                        <Button
-                          size="small"
-                          aria-label={`Quitar a ${item.email}`}
-                          onClick={() => onUnshare(item.id ?? "")}
-                        >
-                          Quitar
-                        </Button>
+                        willBeRemoved ? (
+                          <Button
+                            size="small"
+                            aria-label={`Conservar a ${item.email}`}
+                            onClick={() =>
+                              setRemoved(removed.filter((id) => id !== item.id))
+                            }
+                          >
+                            Deshacer
+                          </Button>
+                        ) : (
+                          <Button
+                            size="small"
+                            aria-label={`Quitar a ${item.email}`}
+                            onClick={() =>
+                              setRemoved([...removed, item.id ?? ""])
+                            }
+                          >
+                            Quitar
+                          </Button>
+                        )
                       }
                     >
                       <ListItemText
                         primary={item.email}
-                        secondary={shareRoleLabels[item.role ?? "VIEWER"]}
+                        secondary={
+                          willBeRemoved
+                            ? "Se quitará al guardar"
+                            : shareRoleLabels[item.role ?? "VIEWER"]
+                        }
                       />
                     </ListItem>
-                  ))}
-                </List>
-              )}
-            </div>
-            <Stack spacing={2}>
-              <Typography variant="subtitle2">Acceso general</Typography>
-              <TextField
-                select
-                label="Quién abre el enlace"
-                size="small"
-                value={generalAccess}
-                onChange={(event) =>
-                  onChangeAccess(event.target.value as GeneralAccess, linkRole)
-                }
-                helperText={generalAccessLabels[generalAccess].help}
-              >
-                {generalAccessOptions.map((value) => (
-                  <MenuItem key={value} value={value}>
-                    {generalAccessLabels[value].label}
-                  </MenuItem>
+                  );
+                })}
+                {added.map((item) => (
+                  <ListItem
+                    key={item.email}
+                    disableGutters
+                    secondaryAction={
+                      <Button
+                        size="small"
+                        aria-label={`Quitar a ${item.email}`}
+                        onClick={() =>
+                          setAdded(added.filter((other) => other !== item))
+                        }
+                      >
+                        Quitar
+                      </Button>
+                    }
+                  >
+                    <ListItemText
+                      primary={
+                        <>
+                          {item.email} <Chip size="small" label="Sin guardar" />
+                        </>
+                      }
+                      secondary={shareRoleLabels[item.role]}
+                    />
+                  </ListItem>
                 ))}
-              </TextField>
-              {generalAccess !== "RESTRICTED" && (
-                <TextField
-                  select
-                  label="Con el enlace"
-                  size="small"
-                  value={linkRole}
-                  onChange={(event) =>
-                    onChangeAccess(
-                      generalAccess,
-                      event.target.value as LinkRole,
-                    )
-                  }
-                >
-                  {linkRolesFor(isACourse).map((value) => (
-                    <MenuItem key={value} value={value}>
-                      {linkRoleLabels[value]}
-                    </MenuItem>
-                  ))}
-                </TextField>
-              )}
-              <Typography variant="body2" color="text.secondary">
-                {accessSummary(generalAccess, linkRole)}
-              </Typography>
-              <Stack direction="row" spacing={1} alignItems="center">
-                <TextField
-                  label="Enlace"
-                  size="small"
-                  value={url}
-                  slotProps={{ input: { readOnly: true } }}
-                  sx={{ flex: 1 }}
-                />
-                <Button
-                  startIcon={<ContentCopyIcon />}
-                  onClick={() => onCopy(url)}
-                >
-                  Copiar enlace
-                </Button>
-              </Stack>
-              <LoadingButton
-                variant="outlined"
-                loading={renewing}
-                onClick={renew}
-                sx={{ alignSelf: "flex-start" }}
+              </List>
+            )}
+          </div>
+          <Stack spacing={2}>
+            <Typography variant="subtitle2">Acceso general</Typography>
+            <TextField
+              select
+              label="Quién abre el enlace"
+              size="small"
+              value={generalAccess}
+              onChange={(event) =>
+                setGeneralAccess(event.target.value as GeneralAccess)
+              }
+              helperText={generalAccessLabels[generalAccess].help}
+            >
+              {generalAccessOptions.map((value) => (
+                <MenuItem key={value} value={value}>
+                  {generalAccessLabels[value].label}
+                </MenuItem>
+              ))}
+            </TextField>
+            <Typography variant="body2" color="text.secondary">
+              {accessSummary(generalAccess)} Para que la gente pueda
+              inscribirse, configure la inscripción del evento.
+            </Typography>
+            <Stack direction="row" spacing={1} alignItems="center">
+              <TextField
+                label="Enlace"
+                size="small"
+                value={url}
+                slotProps={{ input: { readOnly: true } }}
+                sx={{ flex: 1 }}
+              />
+              <Button
+                startIcon={<ContentCopyIcon />}
+                onClick={() => onCopy(url)}
               >
-                Crear un enlace nuevo
-              </LoadingButton>
-              <Typography variant="caption" color="text.secondary">
-                Un enlace nuevo deja sin efecto el anterior.
-              </Typography>
+                Copiar enlace
+              </Button>
             </Stack>
+            <LoadingButton
+              variant="outlined"
+              loading={renewing}
+              onClick={renew}
+              sx={{ alignSelf: "flex-start" }}
+            >
+              Crear un enlace nuevo
+            </LoadingButton>
+            <Typography variant="caption" color="text.secondary">
+              Un enlace nuevo se crea al momento y deja sin efecto el anterior.
+            </Typography>
           </Stack>
-        ) : (
-          <Registrations
-            registrations={registrations}
-            onRemove={onRemoveRegistration}
-          />
-        )}
+          {askingToDiscard && (
+            <Alert
+              severity="warning"
+              action={
+                <>
+                  <Button
+                    color="inherit"
+                    onClick={() => setAskingToDiscard(false)}
+                  >
+                    Seguir editando
+                  </Button>
+                  <Button color="inherit" onClick={close}>
+                    Descartar
+                  </Button>
+                </>
+              }
+            >
+              Tiene cambios sin guardar.
+            </Alert>
+          )}
+        </Stack>
       </DialogContent>
       <DialogActions>
-        <Button onClick={close}>Cerrar</Button>
+        <Button onClick={cancel}>Cancelar</Button>
+        <LoadingButton
+          variant="contained"
+          sx={primaryButtonSx}
+          disabled={!dirty}
+          loading={saving}
+          onClick={save}
+        >
+          Guardar
+        </LoadingButton>
       </DialogActions>
     </Dialog>
   );
 };
-
-const Registrations = ({
-  registrations,
-  onRemove,
-}: {
-  registrations: EventRegistrationResponse[];
-  onRemove: (registrationId: string) => Promise<void>;
-}) =>
-  registrations.length === 0 ? (
-    <Typography color="text.secondary">Aún no hay inscritos.</Typography>
-  ) : (
-    <List dense aria-label="Inscritos">
-      {registrations.map((item) => (
-        <ListItem
-          key={item.id}
-          disableGutters
-          secondaryAction={
-            <IconButton
-              size="small"
-              aria-label={`Quitar la inscripción de ${item.firstName} ${item.lastName}`}
-              onClick={() => onRemove(item.id ?? "")}
-            >
-              <CloseIcon fontSize="small" />
-            </IconButton>
-          }
-        >
-          <ListItemText
-            primary={`${item.firstName} ${item.lastName}`}
-            secondary={[item.email, item.phoneNumber]
-              .filter(Boolean)
-              .join(" · ")}
-          />
-        </ListItem>
-      ))}
-    </List>
-  );

@@ -11,9 +11,11 @@ import {
 import {
   postOrganizationsByIdPositions,
   useGetOrganizationsByIdPeopleByPersonIdPositions,
+  useGetOrganizationsByIdMemberState,
   useGetPeopleById,
   putPeopleById,
 } from "@/app/(api)/generated";
+import { isMemberState } from "@/app/(components)/memberState";
 import {
   resolvePositionIds,
   toPositionChoice,
@@ -21,6 +23,16 @@ import {
 import { Box } from "@mui/material";
 import { useRouter } from "next/navigation";
 import React from "react";
+
+// The state the person has in this node; a visitor when none is recorded.
+const stateOf = (
+  states: { child?: { id?: string }; type?: { name?: string } }[] | undefined,
+  personId: string,
+) => {
+  const name = states?.find((state) => state.child?.id === personId)?.type
+    ?.name;
+  return isMemberState(name) ? name : "VISITOR";
+};
 
 export default function PersonEdit(props: {
   params: Promise<{ id: string; nodeId: string }>;
@@ -38,10 +50,13 @@ export default function PersonEdit(props: {
     isLoading: positionsLoading,
   } = useGetOrganizationsByIdPeopleByPersonIdPositions(nodeId, id);
 
+  const { data: states, isLoading: statesLoading } =
+    useGetOrganizationsByIdMemberState(nodeId);
+
   const alert = React.useContext(SnackbarContext);
   const router = useRouter();
 
-  if (isLoading || positionsLoading) return <Loading />;
+  if (isLoading || positionsLoading || statesLoading) return <Loading />;
   if (!positions) return <ResourceError error={positionsError} />;
 
   return (
@@ -53,6 +68,7 @@ export default function PersonEdit(props: {
           initialValues={{
             ...person,
             hasBeenBaptized: person.hasBeenBaptized ? "YES" : "NO",
+            memberState: stateOf(states, id),
             positions: positions.map(toPositionChoice),
           }}
           submit={async (formValues) => {

@@ -1,12 +1,16 @@
 "use client";
 
-import { postEvents } from "@/app/(api)/generated";
+import { postEvents, putEventsByIdRegistration } from "@/app/(api)/generated";
 import { EventForm } from "@/app/(components)/EventForm";
 import {
   noRecurrence,
   toRecurrenceRequest,
 } from "@/app/(components)/recurrence";
 import { SnackbarContext } from "@/app/(components)/SnackbarContext";
+import {
+  noRegistration,
+  toSetupRequest,
+} from "@/app/(components)/registration";
 import CloseIcon from "@mui/icons-material/Close";
 import { Dialog, IconButton, Stack, Typography } from "@mui/material";
 import React, { useContext, useState } from "react";
@@ -72,7 +76,9 @@ export default function EventListPage(props: {
               recurrence: noRecurrence(),
               type: 0,
               speakers: [],
+              registration: noRegistration(),
             }}
+            showRegistration
             submit={async (values) => {
               const data = {
                 name: values.name,
@@ -88,8 +94,19 @@ export default function EventListPage(props: {
                 isACourse: values.type === 1,
               };
 
-              await postEvents(data);
+              const eventId = await postEvents(data);
               close();
+              const registration = toSetupRequest(values.registration);
+              if (registration && values.recurrence.frequency === "NONE") {
+                try {
+                  await putEventsByIdRegistration(eventId, registration);
+                } catch {
+                  alert.showMessage(
+                    "El evento se guardó, pero no se pudo configurar la inscripción. Configúrela desde el evento.",
+                  );
+                  return;
+                }
+              }
               alert.showMessage("Guardado exitosamente");
             }}
             editable={true}

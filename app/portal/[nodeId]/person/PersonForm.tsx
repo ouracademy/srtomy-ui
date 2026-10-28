@@ -1,5 +1,6 @@
 "use client";
 
+import React from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Autocomplete, Chip, Grid, TextField, Typography } from "@mui/material";
 import { differenceInYears } from "date-fns";
@@ -7,6 +8,7 @@ import {
   Controller,
   FormContainer,
   RadioButtonGroup,
+  SelectElement,
   TextFieldElement,
   useForm,
   useFormContext,
@@ -26,6 +28,12 @@ import {
   type PositionChoice,
 } from "./positionSelection";
 import { SaveButton } from "@/app/(components)/SaveButton";
+import {
+  effectiveMemberState,
+  memberStateHelp,
+  memberStateLabels,
+  memberStates,
+} from "@/app/(components)/memberState";
 import { TelFieldElement } from "@/app/(components)/TelFieldElement";
 import Loading from "@/app/(components)/Loading";
 import { ResourceError } from "@/app/(components)/ResourceError";
@@ -42,6 +50,8 @@ const schema = z.object({
   age: z.number().optional(),
   birthdate: z.date().optional().nullable(),
   hasBeenBaptized: z.enum(["YES", "NO"]).optional(),
+  // Visitor, attending or member. Whoever holds a position is a member.
+  memberState: z.enum(memberStates),
   positions: z.array(
     z.object({
       id: z.string().optional(),
@@ -68,6 +78,7 @@ export const toPersonPayload = (
     ? formatISO(data.birthdate, { representation: "date" })
     : undefined,
   hasBeenBaptized: data.hasBeenBaptized === "YES",
+  memberState: effectiveMemberState(data.memberState, positionIds.length),
   organizationId,
   positionIds,
 });
@@ -76,6 +87,30 @@ type PersonFormProps = {
   initialValues: PersonDetailFormData;
   submit: (data: PersonDetailFormData) => Promise<void>;
   nodeId: string;
+};
+
+// How involved the person is. With a position they are a member, and it cannot
+// be lowered while they hold it.
+const MemberStateField = () => {
+  const { watch, setValue } = useFormContext<PersonDetailFormData>();
+  const holdsPosition = watch("positions").length > 0;
+  // The select shows the state the person will be saved with.
+  React.useEffect(() => {
+    if (holdsPosition) setValue("memberState", "MEMBER");
+  }, [holdsPosition, setValue]);
+  return (
+    <SelectElement
+      name="memberState"
+      label="Estado en la iglesia"
+      fullWidth
+      disabled={holdsPosition}
+      options={memberStates.map((state) => ({
+        id: state,
+        label: memberStateLabels[state],
+      }))}
+      helperText={memberStateHelp}
+    />
+  );
 };
 
 function isValidDate(date: Date) {
@@ -179,6 +214,9 @@ export const PersonForm = ({
             ]}
             row
           />
+        </Grid>
+        <Grid size={{ xs: 12, sm: 6 }}>
+          <MemberStateField />
         </Grid>
         <Grid size={{ xs: 12 }}>
           <Grid sx={{ paddingBottom: "10px" }}>

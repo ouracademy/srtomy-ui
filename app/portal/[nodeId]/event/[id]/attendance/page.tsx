@@ -21,7 +21,10 @@ import { useRouter } from "next/navigation";
 import { RegisterButton } from "@/app/(components)/RegisterButton";
 import { usePermissions } from "@/app/(hooks)/usePermissions";
 import { ShareEventButton } from "./ShareEventButton";
+import { AttendanceTools } from "./AttendanceTools";
+import { RegistrationPanel } from "./RegistrationPanel";
 import { SaveButton } from "@/app/(components)/SaveButton";
+import { noRegistration } from "@/app/(components)/registration";
 import {
   DeleteRecurrentEventDialog,
   type DeleteEventRecurrentForm,
@@ -42,7 +45,11 @@ export default function AttendanceEvent(props: {
     error: eventError,
     isLoading: eventLoading,
   } = useGetEventsById(id);
-  const { data: eventAttendance, isLoading } = useGetEventsByIdAttendance(id);
+  const {
+    data: eventAttendance,
+    isLoading,
+    mutate: mutateAttendance,
+  } = useGetEventsByIdAttendance(id);
 
   const [saving, setSaving] = React.useState(false);
   const [openDeleteDialog, setOpenDeleteDialog] = React.useState(false);
@@ -64,6 +71,17 @@ export default function AttendanceEvent(props: {
     [eventAttendance],
   );
   const rowSelectionModel = selection ?? savedSelection;
+
+  // A visitor added while the list is being edited stays in it, so saving the
+  // list does not take them out of the attendance.
+  const addVisitorToSelection = (personId: string) => {
+    setSelection((current) => {
+      const ids = new Set((current ?? savedSelection).ids);
+      ids.add(personId);
+      return { type: "include", ids };
+    });
+    void mutateAttendance();
+  };
 
   if (isLoading || eventLoading) return <Loading />;
   if (!event) return <ResourceError error={eventError} />;
@@ -101,6 +119,8 @@ export default function AttendanceEvent(props: {
       label: fullName(speaker),
     })),
     description: event.description,
+    // Shown and changed in its own panel, not in this read-only form.
+    registration: noRegistration(),
   };
 
   return (
@@ -110,11 +130,7 @@ export default function AttendanceEvent(props: {
           <Box>
             <div style={{ display: "flex", justifyContent: "flex-end" }}>
               {can("events.write") && (
-                <ShareEventButton
-                  eventId={id}
-                  title={event.title ?? ""}
-                  isACourse={Boolean(event.isACourse)}
-                />
+                <ShareEventButton eventId={id} title={event.title ?? ""} />
               )}
               <Tooltip title="Eliminar">
                 <RegisterButton
@@ -155,11 +171,31 @@ export default function AttendanceEvent(props: {
             onDelete={deleteEvent}
           />
         </Grid>
+        {can("events.write") && (
+          <Grid size={{ xs: 12 }}>
+            <RegistrationPanel
+              eventId={id}
+              title={event.title ?? ""}
+              canCheckIn={can("attendance.write")}
+            />
+          </Grid>
+        )}
         <Grid size={{ xs: 12 }} display="flex" alignItems="center">
           <Typography variant="h6" gutterBottom>
             Toma de asistencia
           </Typography>
         </Grid>
+        {can("attendance.write") && (
+          <Grid size={{ xs: 12 }}>
+            <AttendanceTools
+              eventId={id}
+              title={event.title ?? ""}
+              guestCount={eventAttendance?.guestCount ?? 0}
+              onChanged={() => void mutateAttendance()}
+              onVisitorAdded={addVisitorToSelection}
+            />
+          </Grid>
+        )}
         <Grid size={{ xs: 12 }}>
           <Stack spacing={2}>
             <PersonTable

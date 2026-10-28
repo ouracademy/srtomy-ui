@@ -21,6 +21,8 @@ import { ToggleButton } from "./ToggleButton";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { SaveButton } from "./SaveButton";
+import { RegistrationFields } from "./RegistrationFields";
+import { registrationErrors, type RegistrationFormData } from "./registration";
 
 const schema = z.object({
   name: z.string().trim().min(1, { message: "Por favor ingrese el título" }),
@@ -37,6 +39,15 @@ const schema = z.object({
       label: z.string(),
     }),
   ),
+  // How the event takes sign-ups. Only new events that do not repeat set it
+  // here; for an existing event it is set from the event itself.
+  registration: z
+    .custom<RegistrationFormData>()
+    .superRefine((value, context) => {
+      for (const message of registrationErrors(value)) {
+        context.addIssue({ code: "custom", message });
+      }
+    }),
 });
 
 export type EventDetailFormData = z.infer<typeof schema>;
@@ -46,6 +57,9 @@ type EventFormProps = {
   initialValues: EventDetailFormData;
   submit: SubmitHandler<EventDetailFormData>;
   editable: boolean;
+  // Offers the sign-up setup (new events only; a repeating event is not offered
+  // it because each date is its own event).
+  showRegistration?: boolean;
 };
 
 export const EventForm = ({
@@ -53,6 +67,7 @@ export const EventForm = ({
   initialValues,
   submit,
   editable,
+  showRegistration = false,
 }: EventFormProps) => {
   const [searchTextSpeaker, setSearchTextSpeaker] = React.useState("");
 
@@ -78,6 +93,8 @@ export const EventForm = ({
   const type = watch("type");
   const startTime = watch("startTime");
   const endTime = watch("endTime");
+  const registration = watch("registration");
+  const repeats = watch("recurrence").frequency !== "NONE";
 
   return (
     <FormContainer formContext={formContext} onSuccess={submit}>
@@ -206,6 +223,23 @@ export const EventForm = ({
             variant="standard"
           />
         </Grid>
+        {showRegistration && editable && !repeats && (
+          <Grid size={{ xs: 12 }}>
+            <RegistrationFields
+              value={registration}
+              onChange={(value) =>
+                formContext.setValue("registration", value, {
+                  shouldDirty: true,
+                })
+              }
+              errors={
+                formContext.formState.isSubmitted
+                  ? registrationErrors(registration)
+                  : []
+              }
+            />
+          </Grid>
+        )}
         <Grid size={{ xs: 6 }}>
           {editable && (
             <SaveButton

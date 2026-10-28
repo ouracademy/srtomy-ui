@@ -1,49 +1,28 @@
 import { cleanup, render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import type {
-  EventRegistrationResponse,
-  EventSharingResponse,
-} from "@/app/(api)/generated/aPIOvejafiel.schemas";
+import type { EventSharingResponse } from "@/app/(api)/generated/aPIOvejafiel.schemas";
+import type { SharingDraft } from "@/app/(components)/eventSharing";
 import { ShareEventDialog } from "./ShareEventDialog";
 
 afterEach(cleanup);
 
 const sharing: EventSharingResponse = {
   generalAccess: "RESTRICTED",
-  linkRole: "VIEWER",
   slug: "abc123",
   isACourse: false,
   shares: [{ id: "s1", email: "ana@x.org", role: "EDITOR" }],
   registrations: 0,
 };
 
-const registrations: EventRegistrationResponse[] = [
-  {
-    id: "r1",
-    firstName: "Lucía",
-    lastName: "Mora",
-    email: "lucia@x.org",
-    phoneNumber: "999",
-  },
-];
-
 const setup = (
-  props: {
-    sharing?: EventSharingResponse;
-    registrations?: EventRegistrationResponse[];
-    onShare?: (email: string, role: string) => Promise<void>;
-  } = {},
+  props: { sharing?: EventSharingResponse; onSave?: () => Promise<void> } = {},
 ) => {
-  const onShare = vi.fn<(email: string, role: string) => Promise<void>>(
-    props.onShare ?? (() => Promise.resolve()),
-  );
   const handlers = {
-    onShare,
-    onUnshare: vi.fn().mockResolvedValue(undefined),
-    onChangeAccess: vi.fn().mockResolvedValue(undefined),
+    onSave: vi.fn<(draft: SharingDraft) => Promise<void>>(
+      props.onSave ?? (() => Promise.resolve()),
+    ),
     onRenewLink: vi.fn().mockResolvedValue(undefined),
-    onRemoveRegistration: vi.fn().mockResolvedValue(undefined),
     onCopy: vi.fn(),
     close: vi.fn(),
   };
@@ -52,12 +31,13 @@ const setup = (
       open
       title="Retiro"
       sharing={props.sharing ?? sharing}
-      registrations={props.registrations ?? []}
       {...handlers}
     />,
   );
   return { ...handlers, user: userEvent.setup() };
 };
+
+const guardar = () => screen.getByRole("button", { name: "Guardar" });
 
 describe("ShareEventDialog", () => {
   it("lists who the event is shared with and their role", () => {
@@ -71,64 +51,54 @@ describe("ShareEventDialog", () => {
     expect(within(people).getByText("Editor")).toBeTruthy();
   });
 
-  it("shares with an email and a role, then clears the form", async () => {
-    const { onShare, user } = setup();
-
-    await user.type(
-      screen.getByLabelText("Correo de la persona"),
-      "luis@x.org",
-    );
-    await user.click(screen.getByRole("combobox", { name: "Rol" }));
-    await user.click(screen.getByRole("option", { name: "Editor" }));
-    await user.click(screen.getByRole("button", { name: "Compartir" }));
-
-    expect(onShare).toHaveBeenCalledWith("luis@x.org", "EDITOR");
-    expect(
-      (screen.getByLabelText("Correo de la persona") as HTMLInputElement).value,
-    ).toBe("");
-  });
-
-  it("does not send an email that is not one", async () => {
-    const { onShare, user } = setup();
-
-    await user.type(screen.getByLabelText("Correo de la persona"), "luis");
-    await user.click(screen.getByRole("button", { name: "Compartir" }));
-
-    expect(screen.getByText("Ingrese un correo válido")).toBeTruthy();
-    expect(onShare).not.toHaveBeenCalled();
-  });
-
-  it("keeps what was typed when the API refuses", async () => {
-    const { user } = setup({
-      onShare: vi.fn().mockRejectedValue(new Error("400")),
-    });
-
-    await user.type(
-      screen.getByLabelText("Correo de la persona"),
-      "luis@x.org",
-    );
-    await user.click(screen.getByRole("button", { name: "Compartir" }));
+  it("has no select for what the link allows: it only lets people see", () => {
+    setup();
 
     expect(
-      (screen.getByLabelText("Correo de la persona") as HTMLInputElement).value,
-    ).toBe("luis@x.org");
+      screen.queryByRole("combobox", { name: "Con el enlace" }),
+    ).toBeNull();
+    expect(screen.queryByText("Puede ver e inscribirse")).toBeNull();
+    // The only selects are the role of a new person and who opens the link,
+    // and each has more than one option.
+    expect(screen.getAllByRole("combobox")).toHaveLength(2);
   });
 
-  it("stops sharing with someone", async () => {
-    const { onUnshare, user } = setup();
+  it("never saves by itself and keeps Guardar off until something changes", async () => {
+    const { onSave, user } = setup();
+
+    expect(guardar().hasAttribute("disabled")).toBe(true);
+    await user.click(
+      screen.getByRole("combobox", { name: "Quién abre el enlace" }),
+    );
+    await user.click(
+      screen.getByRole("option", { name: "Cualquiera con el enlace" }),
+    );
+
+    expect(onSave).not.toHaveBeenCalled();
+    expect(guardar().hasAttribute("disabled")).toBe(false);
+  });
+
+  it("goes back to disabled when the change is undone", async () => {
+    const { user } = setup();
 
     await user.click(
-      screen.getByRole("button", { name: "Quitar a ana@x.org" }),
+      screen.getByRole("combobox", { name: "Quién abre el enlace" }),
     );
+    await user.click(screen.getByRole("option", { name: "Toda la iglesia" }));
+    expect(guardar().hasAttribute("disabled")).toBe(false);
+    await user.click(
+      screen.getByRole("combobox", { name: "Quién abre el enlace" }),
+    );
+    await user.click(screen.getByRole("option", { name: "Restringido" }));
 
-    expect(onUnshare).toHaveBeenCalledWith("s1");
+    expect(guardar().hasAttribute("disabled")).toBe(true);
   });
 
-  it("changes who opens the link and explains it", async () => {
-    const { onChangeAccess, user } = setup();
+  it("explains who opens the link", async () => {
+    const { user } = setup();
 
     expect(
-      screen.getByText("Solo ven el evento las personas con acceso."),
+      screen.getByText(/Solo ven el evento las personas con acceso\./),
     ).toBeTruthy();
     await user.click(
       screen.getByRole("combobox", { name: "Quién abre el enlace" }),
@@ -137,42 +107,181 @@ describe("ShareEventDialog", () => {
       screen.getByRole("option", { name: "Cualquiera con el enlace" }),
     );
 
-    expect(onChangeAccess).toHaveBeenCalledWith("ANYONE_WITH_LINK", "VIEWER");
-  });
-
-  it("only a course offers signing up through the link", async () => {
-    const open = { ...sharing, generalAccess: "ANYONE_WITH_LINK" as const };
-    const first = setup({ sharing: open });
-    await first.user.click(
-      screen.getByRole("combobox", { name: "Con el enlace" }),
-    );
     expect(
-      screen.queryByRole("option", { name: "Puede ver e inscribirse" }),
-    ).toBeNull();
-    cleanup();
-
-    const second = setup({ sharing: { ...open, isACourse: true } });
-    await second.user.click(
-      screen.getByRole("combobox", { name: "Con el enlace" }),
-    );
-    await second.user.click(
-      screen.getByRole("option", { name: "Puede ver e inscribirse" }),
-    );
-    expect(second.onChangeAccess).toHaveBeenCalledWith(
-      "ANYONE_WITH_LINK",
-      "REGISTRANT",
-    );
+      screen.getByText(/Cualquiera con el enlace puede ver el evento\./),
+    ).toBeTruthy();
   });
 
-  it("hides the link role while the event is restricted", () => {
-    setup();
+  it("adds a person to the draft, marks it unsaved and clears the form", async () => {
+    const { onSave, user } = setup();
 
+    await user.type(
+      screen.getByLabelText("Correo de la persona"),
+      "luis@x.org",
+    );
+    await user.click(screen.getByRole("combobox", { name: "Rol" }));
+    await user.click(screen.getByRole("option", { name: "Editor" }));
+    await user.click(screen.getByRole("button", { name: "Agregar" }));
+
+    const people = screen.getByRole("list", { name: "Personas con acceso" });
+    expect(within(people).getByText("luis@x.org")).toBeTruthy();
+    expect(within(people).getByText("Sin guardar")).toBeTruthy();
     expect(
-      screen.queryByRole("combobox", { name: "Con el enlace" }),
-    ).toBeNull();
+      (screen.getByLabelText("Correo de la persona") as HTMLInputElement).value,
+    ).toBe("");
+    expect(onSave).not.toHaveBeenCalled();
   });
 
-  it("copies the link and renews it", async () => {
+  it("does not add an email that is not one", async () => {
+    const { user } = setup();
+
+    await user.type(screen.getByLabelText("Correo de la persona"), "luis");
+    await user.click(screen.getByRole("button", { name: "Agregar" }));
+
+    expect(screen.getByText("Ingrese un correo válido")).toBeTruthy();
+    expect(guardar().hasAttribute("disabled")).toBe(true);
+  });
+
+  it("saves everything at once with Guardar and closes", async () => {
+    const { onSave, close, user } = setup();
+
+    await user.type(
+      screen.getByLabelText("Correo de la persona"),
+      "luis@x.org",
+    );
+    await user.click(screen.getByRole("button", { name: "Agregar" }));
+    await user.click(
+      screen.getByRole("button", { name: "Quitar a ana@x.org" }),
+    );
+    await user.click(
+      screen.getByRole("combobox", { name: "Quién abre el enlace" }),
+    );
+    await user.click(screen.getByRole("option", { name: "Toda la iglesia" }));
+    await user.click(guardar());
+
+    expect(onSave).toHaveBeenCalledWith({
+      generalAccess: "CHURCH",
+      added: [{ email: "luis@x.org", role: "VIEWER" }],
+      removed: ["s1"],
+    });
+    expect(close).toHaveBeenCalledOnce();
+  });
+
+  it("shows a person that will be removed and lets the user keep them", async () => {
+    const { onSave, user } = setup();
+
+    await user.click(
+      screen.getByRole("button", { name: "Quitar a ana@x.org" }),
+    );
+    expect(screen.getByText("Se quitará al guardar")).toBeTruthy();
+    await user.click(
+      screen.getByRole("button", { name: "Conservar a ana@x.org" }),
+    );
+
+    expect(screen.getByText("Editor")).toBeTruthy();
+    expect(guardar().hasAttribute("disabled")).toBe(true);
+    expect(onSave).not.toHaveBeenCalled();
+  });
+
+  it("changes the role of someone already there by adding them again", async () => {
+    const { onSave, user } = setup();
+
+    await user.type(screen.getByLabelText("Correo de la persona"), "ana@x.org");
+    await user.click(screen.getByRole("button", { name: "Agregar" }));
+    await user.click(guardar());
+
+    expect(onSave).toHaveBeenCalledWith(
+      expect.objectContaining({
+        added: [{ email: "ana@x.org", role: "VIEWER" }],
+      }),
+    );
+  });
+
+  it("removes a person it had only added, without asking the API", async () => {
+    const { onSave, user } = setup();
+
+    await user.type(
+      screen.getByLabelText("Correo de la persona"),
+      "luis@x.org",
+    );
+    await user.click(screen.getByRole("button", { name: "Agregar" }));
+    await user.click(
+      screen.getByRole("button", { name: "Quitar a luis@x.org" }),
+    );
+
+    expect(screen.queryByText("luis@x.org")).toBeNull();
+    expect(guardar().hasAttribute("disabled")).toBe(true);
+    expect(onSave).not.toHaveBeenCalled();
+  });
+
+  it("keeps the draft and stays open when the API refuses", async () => {
+    const { close, user } = setup({
+      onSave: vi.fn().mockRejectedValue(new Error("400")),
+    });
+
+    await user.type(
+      screen.getByLabelText("Correo de la persona"),
+      "luis@x.org",
+    );
+    await user.click(screen.getByRole("button", { name: "Agregar" }));
+    await user.click(guardar());
+
+    expect(close).not.toHaveBeenCalled();
+    expect(screen.getByText("luis@x.org")).toBeTruthy();
+    expect(guardar().hasAttribute("disabled")).toBe(false);
+  });
+
+  it("blocks a second click while saving", async () => {
+    let finish: () => void = () => undefined;
+    const { onSave, user } = setup({
+      onSave: () =>
+        new Promise<void>((resolve) => {
+          finish = resolve;
+        }),
+    });
+
+    await user.click(
+      screen.getByRole("combobox", { name: "Quién abre el enlace" }),
+    );
+    await user.click(screen.getByRole("option", { name: "Toda la iglesia" }));
+    await user.click(guardar());
+
+    // While the API answers the button is blocked, so a second click cannot
+    // even be made.
+    expect(onSave).toHaveBeenCalledOnce();
+    expect(guardar().hasAttribute("disabled")).toBe(true);
+    await expect(user.click(guardar())).rejects.toThrow(/pointer-events/);
+    expect(onSave).toHaveBeenCalledOnce();
+    finish();
+  });
+
+  it("asks before throwing away unsaved changes", async () => {
+    const { close, user } = setup();
+
+    await user.click(
+      screen.getByRole("combobox", { name: "Quién abre el enlace" }),
+    );
+    await user.click(screen.getByRole("option", { name: "Toda la iglesia" }));
+    await user.click(screen.getByRole("button", { name: "Cancelar" }));
+
+    expect(screen.getByText("Tiene cambios sin guardar.")).toBeTruthy();
+    expect(close).not.toHaveBeenCalled();
+    await user.click(screen.getByRole("button", { name: "Seguir editando" }));
+    expect(screen.queryByText("Tiene cambios sin guardar.")).toBeNull();
+    await user.click(screen.getByRole("button", { name: "Cancelar" }));
+    await user.click(screen.getByRole("button", { name: "Descartar" }));
+    expect(close).toHaveBeenCalledOnce();
+  });
+
+  it("closes right away when nothing changed", async () => {
+    const { close, user } = setup();
+
+    await user.click(screen.getByRole("button", { name: "Cancelar" }));
+
+    expect(close).toHaveBeenCalledOnce();
+  });
+
+  it("copies the link and renews it at once, without Guardar", async () => {
     const { onCopy, onRenewLink, user } = setup();
 
     await user.click(screen.getByRole("button", { name: "Copiar enlace" }));
@@ -180,41 +289,17 @@ describe("ShareEventDialog", () => {
     await user.click(
       screen.getByRole("button", { name: "Crear un enlace nuevo" }),
     );
+
     expect(onRenewLink).toHaveBeenCalledOnce();
+    expect(guardar().hasAttribute("disabled")).toBe(true);
   });
 
-  it("shows the sign-ups of a course and removes one", async () => {
-    const { onRemoveRegistration, user } = setup({
-      sharing: { ...sharing, isACourse: true, registrations: 1 },
-      registrations,
-    });
-
-    await user.click(screen.getByRole("tab", { name: "Inscritos (1)" }));
-    const list = screen.getByRole("list", { name: "Inscritos" });
-    expect(within(list).getByText("Lucía Mora")).toBeTruthy();
-    expect(within(list).getByText("lucia@x.org · 999")).toBeTruthy();
-    await user.click(
-      screen.getByRole("button", {
-        name: "Quitar la inscripción de Lucía Mora",
-      }),
-    );
-
-    expect(onRemoveRegistration).toHaveBeenCalledWith("r1");
-  });
-
-  it("has no tabs for an event that is not a course", () => {
+  it("points to the registration setup instead of offering it here", () => {
     setup();
 
+    expect(
+      screen.getByText(/configure la inscripción del evento/),
+    ).toBeTruthy();
     expect(screen.queryByRole("tab")).toBeNull();
-  });
-
-  it("says when nobody has signed up", async () => {
-    const { user } = setup({
-      sharing: { ...sharing, isACourse: true, registrations: 0 },
-    });
-
-    await user.click(screen.getByRole("tab", { name: "Inscritos (0)" }));
-
-    expect(screen.getByText("Aún no hay inscritos.")).toBeTruthy();
   });
 });

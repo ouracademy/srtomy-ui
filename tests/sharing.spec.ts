@@ -10,17 +10,17 @@ const json = (body: unknown, status = 200) => ({
 const eventId = "33333333-3333-3333-3333-333333333333";
 
 test.describe("Compartir eventos y cursos", () => {
-  test("comparte un curso con una persona, abre el enlace a cualquiera y ve los inscritos", async ({
+  test("compartir guarda solo al pulsar Guardar, sin selector de rol del enlace", async ({
     page,
   }) => {
     let sharing = {
       generalAccess: "RESTRICTED",
-      linkRole: "VIEWER",
       slug: "slug-del-curso",
       isACourse: true,
       shares: [] as unknown[],
-      registrations: 1,
+      registrations: 0,
     };
+    const calls: string[] = [];
     let shared: unknown;
     let access: unknown;
 
@@ -39,14 +39,22 @@ test.describe("Compartir eventos y cursos", () => {
     await page.route("**/people*", (route) =>
       route.fulfill(json({ content: [] })),
     );
+    await page.route(`**/v1/events/${eventId}/registration`, (route) =>
+      route.fulfill(json({ enabled: false, tickets: [] })),
+    );
+    await page.route(`**/v1/events/${eventId}/registrations`, (route) =>
+      route.fulfill(json([])),
+    );
     await page.route(`**/v1/events/${eventId}/sharing`, async (route) => {
       if (route.request().method() === "PUT") {
+        calls.push("PUT sharing");
         access = route.request().postDataJSON();
         sharing = { ...sharing, ...(access as object) };
       }
       await route.fulfill(json(sharing));
     });
     await page.route(`**/v1/events/${eventId}/shares`, async (route) => {
+      calls.push("POST shares");
       shared = route.request().postDataJSON();
       sharing.shares = [{ id: "s1", email: "ana@example.com", role: "EDITOR" }];
       await route.fulfill(
@@ -60,56 +68,45 @@ test.describe("Compartir eventos y cursos", () => {
         ),
       );
     });
-    await page.route(`**/v1/events/${eventId}/registrations`, (route) =>
-      route.fulfill(
-        json([
-          {
-            id: "r1",
-            firstName: "Lucía",
-            lastName: "Mora",
-            email: "lucia@example.com",
-            phoneNumber: "999",
-            hasAccount: false,
-          },
-        ]),
-      ),
-    );
 
     await page.goto(`/portal/${NODE_ID}/event/${eventId}/attendance`);
     await page.getByRole("button", { name: "Compartir", exact: true }).click();
+    const dialog = page.getByRole("dialog", {
+      name: "Compartir «Curso de discipulado»",
+    });
+    await expect(dialog).toBeVisible();
+    // The link only lets people see: there is no second select.
     await expect(
-      page.getByRole("dialog", { name: "Compartir «Curso de discipulado»" }),
-    ).toBeVisible();
+      dialog.getByRole("combobox", { name: "Con el enlace" }),
+    ).toHaveCount(0);
+    await expect(
+      dialog.getByRole("button", { name: "Guardar" }),
+    ).toBeDisabled();
 
-    await page.getByLabel("Correo de la persona").fill("ana@example.com");
-    await page.getByRole("combobox", { name: "Rol" }).click();
+    await dialog.getByLabel("Correo de la persona").fill("ana@example.com");
+    await dialog.getByRole("combobox", { name: "Rol" }).click();
     await page.getByRole("option", { name: "Editor" }).click();
-    await page
-      .getByRole("dialog")
-      .getByRole("button", { name: "Compartir", exact: true })
+    await dialog.getByRole("button", { name: "Agregar" }).click();
+    await dialog
+      .getByRole("combobox", { name: "Quién abre el enlace" })
       .click();
-    await expect(page.getByText("Compartido", { exact: true })).toBeVisible();
-    expect(shared).toEqual({ email: "ana@example.com", role: "EDITOR" });
-    await expect(page.getByText("ana@example.com")).toBeVisible();
-
-    await page.getByRole("combobox", { name: "Quién abre el enlace" }).click();
     await page
       .getByRole("option", { name: "Cualquiera con el enlace" })
       .click();
-    await expect(page.getByText("Acceso actualizado")).toBeVisible();
-    expect(access).toEqual({
-      generalAccess: "ANYONE_WITH_LINK",
-      linkRole: "VIEWER",
-    });
-    await expect(page.getByLabel("Enlace", { exact: true })).toHaveValue(
-      /\/e\/slug-del-curso$/,
-    );
 
-    await page.getByRole("tab", { name: "Inscritos (1)" }).click();
-    await expect(page.getByText("Lucía Mora")).toBeVisible();
+    // Nothing is saved yet.
+    await expect(dialog.getByText("Sin guardar")).toBeVisible();
+    expect(calls).toEqual([]);
+
+    await dialog.getByRole("button", { name: "Guardar" }).click();
+    await expect(page.getByText("Cambios guardados")).toBeVisible();
+    expect(access).toEqual({ generalAccess: "ANYONE_WITH_LINK" });
+    expect(shared).toEqual({ email: "ana@example.com", role: "EDITOR" });
+    expect(calls).toEqual(["PUT sharing", "POST shares"]);
+    await expect(dialog).toBeHidden();
   });
 
-  test("quien abre el enlace de un curso se inscribe sin cuenta", async ({
+  test("quien abre el enlace de un curso se inscribe sin cuenta con un ticket", async ({
     page,
   }) => {
     let registration: unknown;
@@ -124,7 +121,22 @@ test.describe("Compartir eventos y cursos", () => {
           isACourse: true,
           organizationName: "Jóvenes",
           canRegister: true,
-          registered: false,
+          registration: {
+            open: true,
+            requiresAccount: false,
+            waitlistEnabled: false,
+            soldOut: false,
+            tickets: [
+              {
+                id: "t1",
+                name: "General",
+                priceCents: 0,
+                currency: "PEN",
+                onSale: true,
+                remaining: 12,
+              },
+            ],
+          },
         }),
       ),
     );
@@ -132,7 +144,17 @@ test.describe("Compartir eventos y cursos", () => {
       "**/v1/public/events/curso/registrations",
       async (route) => {
         registration = route.request().postDataJSON();
-        await route.fulfill(json({ alreadyRegistered: false }, 201));
+        await route.fulfill(
+          json(
+            {
+              alreadyRegistered: false,
+              status: "CONFIRMED",
+              cancelCode: "codigo-cancelar",
+              ticketCode: "codigo-ticket",
+            },
+            201,
+          ),
+        );
       },
     );
 
@@ -148,7 +170,11 @@ test.describe("Compartir eventos y cursos", () => {
     await expect(
       page.getByText("Listo, quedó inscrito. Gracias."),
     ).toBeVisible();
+    await expect(
+      page.getByRole("img", { name: "QR de su ticket" }),
+    ).toBeVisible();
     expect(registration).toEqual({
+      ticketTypeId: "t1",
       firstName: "Lucía",
       lastName: "Mora",
       email: "lucia@example.com",

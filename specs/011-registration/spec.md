@@ -4,7 +4,7 @@
 
 **Created**: 2026-10-27
 
-**Status**: Plan (sin implementar). Pendiente de visto bueno del dueño del producto.
+**Status**: Implementado. Incluye asistencia por QR (decisiones 7 a 9).
 
 **Input**: Lo construido en la 007 se juzgó mal: el diálogo Compartir guarda solo, tiene un select con una única opción y la inscripción es un rol del enlace. Contrato y reglas: spec del API (`srtomy-api/specs/011-registration/`).
 
@@ -19,6 +19,10 @@
    - **Mis eventos y cursos**: «Tengo lugar» (inscripción confirmada o en espera, con ticket, estado y botón _Cancelar inscripción_) y «Asistí» (por asistencia). Cada tarjeta dice por qué aparece.
    - **Compartidos contigo**: eventos que alguien te dejó ver por correo y que aún no son tuyos por inscripción ni asistencia. Cada tarjeta dice quién/qué rol.
 
+7. **El visitante es una persona con estado**: al registrar a alguien (en Personas y en la asistencia) se elige su estado, **Visitante**, **Asistente** o **Miembro**; con un cargo es Miembro y no se puede bajar. La pantalla de asistencia marca personas, inscritos (con su ticket) y permite «Agregar visitante» (solo el nombre es obligatorio; teléfono y correo, opcionales). Además hay un contador «Visitantes sin nombre» para quien no quiere dar su nombre o se le pasó al ujier anotarlo. Un culto sin inscripción solo usa personas y visitantes.
+8. **QR del evento**: el ujier abre «Mostrar QR de asistencia» (pantalla completa, se renueva solo cada 5 minutos) y pide a la gente que lo escanee. Ruta pública `/a/[token]`: con sesión, «Marcar mi asistencia» (y su ticket, si tiene); sin sesión, un nombre opcional: con nombre queda como visitante, «Entrar sin nombre» suma al contador. Resultado claro: marcado, ya estaba marcado, venció.
+9. **QR del ticket**: se dibuja en la confirmación de la inscripción y en la tarjeta de Mi espacio (con _ticketCode_). El ujier usa «Escanear tickets» (cámara del teléfono, con campo para escribir el código como alternativa accesible) y ve el resultado de cada lectura: nombre, ticket, «ingresó» o «ya había ingresado a las HH:MM». La lista de inscritos muestra quién ingresó y permite marcar a mano. Son los dos flujos de Eventbrite y Meetup: el organizador escanea el ticket, o el asistente escanea el QR del evento.
+
 ## User Scenarios & Testing
 
 - **US1** Compartir: cambiar el acceso general no llama al API hasta pulsar Guardar; Guardar queda deshabilitado sin cambios; el select de rol del enlace no existe.
@@ -26,6 +30,9 @@
 - **US3** Inscribirse en la página pública: ticket, datos, resultado (confirmado / en espera / agotado / cerrado / exige cuenta).
 - **US4** Los organizadores ven y quitan inscritos con su ticket y estado.
 - **US5** Mi espacio muestra las dos secciones con el motivo de cada tarjeta y permite cancelar.
+- **US6** Culto sin inscripción: marcar personas, agregar un visitante (queda con estado Visitante), sumar visitantes sin nombre, y ver el estado en Personas.
+- **US7** `/a/[token]`: marcar con sesión, sin sesión con nombre (visitante) y sin nombre (contador), token vencido, ya marcado.
+- **US8** Escanear un ticket: ingresó, ya había ingresado, no confirmada; alternativa de escribir el código; el QR del ticket se ve en la confirmación y en Mi espacio.
 - **Accesibilidad**: axe sin violaciones serias en la página pública con inscripción, el diálogo Compartir y la sección Inscripción.
 
 ## Fuera de alcance

@@ -30,6 +30,7 @@ export default function CreatePerson(props: {
         lastName: "",
         phoneNumber: "+51",
         email: "",
+        memberState: "VISITOR",
         positions: [],
       }}
       submit={async (data) => {

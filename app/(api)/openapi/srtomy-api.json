@@ -604,6 +604,148 @@
         }
       }
     },
+    "/v1/events/{id}/registrations/{registrationId}/check-in": {
+      "put": {
+        "tags": [
+          "events"
+        ],
+        "operationId": "setCheckIn",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "registrationId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegistrationCheckInRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/CheckInResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/events/{id}/registration": {
+      "get": {
+        "tags": [
+          "event-sharing"
+        ],
+        "operationId": "registration",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/EventRegistrationSetupResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "event-sharing"
+        ],
+        "operationId": "setRegistration",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EventRegistrationSetupRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/EventRegistrationSetupResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "event-sharing"
+        ],
+        "operationId": "removeRegistration",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/v1/events/{id}/attendance": {
       "get": {
         "tags": [
@@ -667,6 +809,47 @@
         }
       }
     },
+    "/v1/events/{id}/attendance/guests": {
+      "put": {
+        "tags": [
+          "events"
+        ],
+        "operationId": "setGuests",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GuestsRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/GuestsResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/public/events/{slug}/registrations": {
       "post": {
         "tags": [
@@ -700,6 +883,73 @@
               "*/*": {
                 "schema": {
                   "$ref": "#/components/schemas/RegistrationOutcomeResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/public/attendance/{token}": {
+      "get": {
+        "tags": [
+          "events"
+        ],
+        "operationId": "welcome",
+        "parameters": [
+          {
+            "name": "token",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/AttendanceWelcomeResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "events"
+        ],
+        "operationId": "markMyself",
+        "parameters": [
+          {
+            "name": "token",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SelfAttendanceRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/SelfAttendanceResponse"
                 }
               }
             }
@@ -1404,6 +1654,88 @@
         }
       }
     },
+    "/v1/events/{id}/attendance/visitors": {
+      "post": {
+        "tags": [
+          "events"
+        ],
+        "operationId": "addVisitor",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VisitorRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/VisitorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/events/{id}/attendance/check-in": {
+      "post": {
+        "tags": [
+          "events"
+        ],
+        "operationId": "checkInWithTicket",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TicketCheckInRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/CheckInResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/complaints": {
       "post": {
         "tags": [
@@ -2093,6 +2425,60 @@
         }
       }
     },
+    "/v1/events/{id}/attendance/qr": {
+      "get": {
+        "tags": [
+          "events"
+        ],
+        "operationId": "qr",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/AttendanceQrResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/public/registrations/{cancelCode}": {
+      "delete": {
+        "tags": [
+          "event-sharing"
+        ],
+        "operationId": "cancelWithCode",
+        "parameters": [
+          {
+            "name": "cancelCode",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/v1/organizations/{id}/owners/{bindingId}": {
       "delete": {
         "tags": [
@@ -2356,6 +2742,14 @@
           },
           "hasBeenBaptized": {
             "type": "boolean"
+          },
+          "memberState": {
+            "type": "string",
+            "enum": [
+              "VISITOR",
+              "MEMBERSHIP_IN_PROGRESS",
+              "MEMBER"
+            ]
           },
           "positionIds": {
             "type": "array",
@@ -2712,18 +3106,10 @@
               "CHURCH",
               "ANYONE_WITH_LINK"
             ]
-          },
-          "linkRole": {
-            "type": "string",
-            "enum": [
-              "VIEWER",
-              "REGISTRANT"
-            ]
           }
         },
         "required": [
-          "generalAccess",
-          "linkRole"
+          "generalAccess"
         ]
       },
       "EventSharingResponse": {
@@ -2735,13 +3121,6 @@
               "RESTRICTED",
               "CHURCH",
               "ANYONE_WITH_LINK"
-            ]
-          },
-          "linkRole": {
-            "type": "string",
-            "enum": [
-              "VIEWER",
-              "REGISTRANT"
             ]
           },
           "slug": {
@@ -2781,6 +3160,179 @@
           }
         }
       },
+      "RegistrationCheckInRequest": {
+        "type": "object",
+        "properties": {
+          "checkedIn": {
+            "type": "boolean"
+          }
+        }
+      },
+      "CheckInResponse": {
+        "type": "object",
+        "properties": {
+          "registrationId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "ticketName": {
+            "type": "string"
+          },
+          "alreadyCheckedIn": {
+            "type": "boolean"
+          },
+          "checkedInAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "EventRegistrationSetupRequest": {
+        "type": "object",
+        "properties": {
+          "open": {
+            "type": "boolean"
+          },
+          "requiresAccount": {
+            "type": "boolean"
+          },
+          "waitlistEnabled": {
+            "type": "boolean"
+          },
+          "capacity": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 1
+          },
+          "tickets": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TicketRequest"
+            },
+            "minItems": 1
+          }
+        },
+        "required": [
+          "tickets"
+        ]
+      },
+      "TicketRequest": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string",
+            "maxLength": 100,
+            "minLength": 0
+          },
+          "priceCents": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0
+          },
+          "currency": {
+            "type": "string",
+            "maxLength": 3,
+            "minLength": 0
+          },
+          "quantity": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 1
+          },
+          "salesStart": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "salesEnd": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "name"
+        ]
+      },
+      "EventRegistrationSetupResponse": {
+        "type": "object",
+        "properties": {
+          "enabled": {
+            "type": "boolean"
+          },
+          "open": {
+            "type": "boolean"
+          },
+          "requiresAccount": {
+            "type": "boolean"
+          },
+          "waitlistEnabled": {
+            "type": "boolean"
+          },
+          "capacity": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "confirmed": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "waitlisted": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "checkedIn": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "tickets": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TicketSetup"
+            }
+          }
+        }
+      },
+      "TicketSetup": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "priceCents": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "currency": {
+            "type": "string"
+          },
+          "quantity": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "salesStart": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "salesEnd": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "sold": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
       "AttendanceRequest": {
         "type": "object",
         "properties": {
@@ -2796,9 +3348,32 @@
           "personIds"
         ]
       },
+      "GuestsRequest": {
+        "type": "object",
+        "properties": {
+          "guestCount": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0
+          }
+        }
+      },
+      "GuestsResponse": {
+        "type": "object",
+        "properties": {
+          "guestCount": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
       "EventRegistrationRequest": {
         "type": "object",
         "properties": {
+          "ticketTypeId": {
+            "type": "string",
+            "format": "uuid"
+          },
           "firstName": {
             "type": "string",
             "maxLength": 100,
@@ -2824,13 +3399,55 @@
         "required": [
           "email",
           "firstName",
-          "lastName"
+          "lastName",
+          "ticketTypeId"
         ]
       },
       "RegistrationOutcomeResponse": {
         "type": "object",
         "properties": {
           "alreadyRegistered": {
+            "type": "boolean"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "CONFIRMED",
+              "WAITLISTED",
+              "CANCELLED"
+            ]
+          },
+          "cancelCode": {
+            "type": "string"
+          },
+          "ticketCode": {
+            "type": "string"
+          }
+        }
+      },
+      "SelfAttendanceRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 150,
+            "minLength": 0
+          }
+        }
+      },
+      "SelfAttendanceResponse": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": [
+              "PERSON",
+              "REGISTRATION",
+              "VISITOR",
+              "ANONYMOUS"
+            ]
+          },
+          "alreadyMarked": {
             "type": "boolean"
           }
         }
@@ -2864,6 +3481,14 @@
           },
           "hasBeenBaptized": {
             "type": "boolean"
+          },
+          "memberState": {
+            "type": "string",
+            "enum": [
+              "VISITOR",
+              "MEMBERSHIP_IN_PROGRESS",
+              "MEMBER"
+            ]
           },
           "positionIds": {
             "type": "array",
@@ -3369,6 +3994,56 @@
           }
         }
       },
+      "VisitorRequest": {
+        "type": "object",
+        "properties": {
+          "firstName": {
+            "type": "string",
+            "maxLength": 100,
+            "minLength": 0
+          },
+          "lastName": {
+            "type": "string",
+            "maxLength": 100,
+            "minLength": 0
+          },
+          "phoneNumber": {
+            "type": "string",
+            "maxLength": 40,
+            "minLength": 0
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "maxLength": 200,
+            "minLength": 0
+          }
+        },
+        "required": [
+          "firstName"
+        ]
+      },
+      "VisitorResponse": {
+        "type": "object",
+        "properties": {
+          "personId": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+      "TicketCheckInRequest": {
+        "type": "object",
+        "properties": {
+          "ticketCode": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "ticketCode"
+        ]
+      },
       "CreateComplaintRequest": {
         "type": "object",
         "properties": {
@@ -3613,6 +4288,29 @@
           }
         }
       },
+      "RegistrationResponse": {
+        "type": "object",
+        "properties": {
+          "open": {
+            "type": "boolean"
+          },
+          "requiresAccount": {
+            "type": "boolean"
+          },
+          "waitlistEnabled": {
+            "type": "boolean"
+          },
+          "soldOut": {
+            "type": "boolean"
+          },
+          "tickets": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TicketResponse"
+            }
+          }
+        }
+      },
       "SharedEventResponse": {
         "type": "object",
         "properties": {
@@ -3642,11 +4340,68 @@
           "recurrence": {
             "$ref": "#/components/schemas/RecurrenceResponse"
           },
+          "registration": {
+            "$ref": "#/components/schemas/RegistrationResponse"
+          },
           "canRegister": {
             "type": "boolean"
           },
-          "registered": {
+          "registrationStatus": {
+            "type": "string",
+            "enum": [
+              "CONFIRMED",
+              "WAITLISTED",
+              "CANCELLED"
+            ]
+          }
+        }
+      },
+      "TicketResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "priceCents": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "currency": {
+            "type": "string"
+          },
+          "onSale": {
             "type": "boolean"
+          },
+          "remaining": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "AttendanceWelcomeResponse": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "start": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "organizationName": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "OPEN",
+              "EXPIRED_CODE",
+              "OUT_OF_WINDOW"
+            ]
           }
         }
       },
@@ -4212,6 +4967,27 @@
           },
           "slug": {
             "type": "string"
+          },
+          "registrationId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "ticketName": {
+            "type": "string"
+          },
+          "registrationStatus": {
+            "type": "string",
+            "enum": [
+              "CONFIRMED",
+              "WAITLISTED",
+              "CANCELLED"
+            ]
+          },
+          "cancelCode": {
+            "type": "string"
+          },
+          "ticketCode": {
+            "type": "string"
           }
         }
       },
@@ -4349,9 +5125,32 @@
           "hasAccount": {
             "type": "boolean"
           },
+          "ticketName": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "CONFIRMED",
+              "WAITLISTED",
+              "CANCELLED"
+            ]
+          },
           "registeredAt": {
             "type": "string",
             "format": "date-time"
+          },
+          "checkedInAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "checkInSource": {
+            "type": "string",
+            "enum": [
+              "MANUAL",
+              "QR_EVENT",
+              "QR_TICKET"
+            ]
           }
         }
       },
@@ -4364,6 +5163,49 @@
               "type": "string",
               "format": "uuid"
             }
+          },
+          "guestCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "marks": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Mark"
+            }
+          }
+        }
+      },
+      "Mark": {
+        "type": "object",
+        "properties": {
+          "personId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "source": {
+            "type": "string",
+            "enum": [
+              "MANUAL",
+              "QR_EVENT",
+              "QR_TICKET"
+            ]
+          },
+          "markedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "AttendanceQrResponse": {
+        "type": "object",
+        "properties": {
+          "token": {
+            "type": "string"
+          },
+          "refreshAt": {
+            "type": "string",
+            "format": "date-time"
           }
         }
       },

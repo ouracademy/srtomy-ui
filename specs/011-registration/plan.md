@@ -12,8 +12,9 @@
 6. **Inscritos** en la pantalla `attendance`: tabla con ticket, estado y cupos.
 7. **`app/e/[slug]`**: formulario con selección de ticket y estados; pantalla de cancelación.
 8. **`app/portal/me`**: `MyEvents` con «Tengo lugar» / «Asistí» y cancelar; `Compartidos contigo` excluye lo que ya es mío; textos nuevos.
-9. **Pruebas**: unitarias con user-event y `@/app/(api)/generated` simulado; e2e (`tests/sharing.spec.ts`, `tests/course-reg.spec.ts`, `tests/event-registration.spec.ts`, `tests/my-space.spec.ts`) y axe en `tests/a11y.spec.ts`.
-10. **Docs**: `docs/redesign.md` §7 y deuda técnica; `docs/architecture.md`.
+9. **Asistencia por QR**: `AttendanceQrDialog` (QR del evento con renovación), página pública `app/a/[token]`, `TicketQr` (dibuja el QR del ticket en el cliente), `TicketScanner` (cámara con `BarcodeDetector` y respaldo manual; la librería se elige al implementar) la lista de asistencia con inscritos, visitantes y contador, y el selector de estado (Visitante/Asistente/Miembro) en el formulario y el listado de personas. Servicios nuevos en `app/(api)/services/attendance`.
+10. **Pruebas**: unitarias con user-event y `@/app/(api)/generated` simulado; e2e (`tests/sharing.spec.ts`, `tests/course-reg.spec.ts`, `tests/event-registration.spec.ts`, `tests/my-space.spec.ts`) y axe en `tests/a11y.spec.ts`.
+11. **Docs**: `docs/redesign.md` §7 y deuda técnica; `docs/architecture.md`.
 
 ## Constitution Check
 

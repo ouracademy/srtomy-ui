@@ -1,5 +1,6 @@
 // How an event or course is shared, in the words of the screens. The values
-// are the API's; the labels are Spanish.
+// are the API's; the labels are Spanish. Signing up is not part of sharing: the
+// link only lets people see the event (see registration.ts).
 export const generalAccessOptions = [
   "RESTRICTED",
   "CHURCH",
@@ -25,37 +26,53 @@ export const generalAccessLabels: Record<
   },
 };
 
-export const linkRoleOptions = ["VIEWER", "REGISTRANT"] as const;
-export type LinkRole = (typeof linkRoleOptions)[number];
-
-export const linkRoleLabels: Record<LinkRole, string> = {
-  VIEWER: "Puede ver",
-  REGISTRANT: "Puede ver e inscribirse",
-};
-
 export const shareRoleLabels = { VIEWER: "Lector", EDITOR: "Editor" } as const;
 export type ShareRole = keyof typeof shareRoleLabels;
-
-// Signing up through the link is only for courses.
-export const linkRolesFor = (isACourse: boolean): LinkRole[] =>
-  isACourse ? [...linkRoleOptions] : ["VIEWER"];
 
 // Address of the shared page of an event.
 export const sharedEventPath = (slug: string) => `/e/${slug}`;
 
 // A short sentence on who opens the event now, for the dialog.
-export const accessSummary = (
-  generalAccess: GeneralAccess,
-  linkRole: LinkRole,
-): string => {
-  if (generalAccess === "RESTRICTED") {
-    return "Solo ven el evento las personas con acceso.";
+export const accessSummary = (generalAccess: GeneralAccess): string => {
+  switch (generalAccess) {
+    case "RESTRICTED":
+      return "Solo ven el evento las personas con acceso.";
+    case "CHURCH":
+      return "Las personas de la iglesia con el enlace pueden ver el evento.";
+    case "ANYONE_WITH_LINK":
+      return "Cualquiera con el enlace puede ver el evento.";
   }
-  const who =
-    generalAccess === "ANYONE_WITH_LINK"
-      ? "Cualquiera con el enlace puede"
-      : "Las personas de la iglesia con el enlace pueden";
-  return linkRole === "REGISTRANT"
-    ? `${who} ver el curso e inscribirse.`
-    : `${who} ver el evento.`;
 };
+
+export type PendingShare = { email: string; role: ShareRole };
+
+// What the user changed in the dialog and has not saved yet.
+export type SharingDraft = {
+  generalAccess: GeneralAccess;
+  // People to share with (or whose role changes), by email.
+  added: PendingShare[];
+  // Ids of the shares to take away.
+  removed: string[];
+};
+
+export const emailLooksValid = (email: string) =>
+  /^\S+@\S+\.\S+$/.test(email.trim());
+
+export const hasUnsavedChanges = (
+  saved: GeneralAccess,
+  draft: SharingDraft,
+): boolean =>
+  draft.generalAccess !== saved ||
+  draft.added.length > 0 ||
+  draft.removed.length > 0;
+
+// Adds a person to the draft; adding the same email again replaces the role.
+export const withShare = (
+  added: PendingShare[],
+  share: PendingShare,
+): PendingShare[] => [
+  ...added.filter(
+    (item) => item.email.toLowerCase() !== share.email.toLowerCase(),
+  ),
+  share,
+];

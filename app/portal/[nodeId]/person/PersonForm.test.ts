@@ -10,6 +10,7 @@ const data: PersonDetailFormData = {
   lastName: "Ruiz",
   phoneNumber: "+51999",
   email: " ana@x.org ",
+  memberState: "VISITOR",
   positions: [],
 };
 
@@ -22,5 +23,21 @@ describe("toPersonPayload", () => {
     expect(toPersonPayload({ ...data, email: "  " }, "n1", []).email).toBe(
       undefined,
     );
+  });
+});
+
+describe("toPersonPayload member state", () => {
+  it("sends the state the person was given", () => {
+    expect(
+      toPersonPayload(
+        { ...data, memberState: "MEMBERSHIP_IN_PROGRESS" },
+        "n1",
+        [],
+      ).memberState,
+    ).toBe("MEMBERSHIP_IN_PROGRESS");
+  });
+
+  it("a position makes them a member whatever the state says", () => {
+    expect(toPersonPayload(data, "n1", ["p1"]).memberState).toBe("MEMBER");
   });
 });
