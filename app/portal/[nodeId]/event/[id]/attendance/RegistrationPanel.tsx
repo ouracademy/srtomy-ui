@@ -5,6 +5,7 @@ import {
   deleteEventsByIdRegistration,
   deleteEventsByIdRegistrationsByRegistrationId,
   putEventsByIdRegistration,
+  putEventsByIdRegistrationOpen,
   putEventsByIdRegistrationsByRegistrationIdCheckIn,
   useGetEventsByIdRegistration,
   useGetEventsByIdRegistrations,
@@ -14,7 +15,10 @@ import Loading from "@/app/(components)/Loading";
 import { ResourceError } from "@/app/(components)/ResourceError";
 import { SnackbarContext } from "@/app/(components)/SnackbarContext";
 import { apiErrorMessage } from "@/app/(components)/apiErrorMessage";
-import { RegistrationPanelView } from "./RegistrationPanelView";
+import {
+  RegistrationPanelView,
+  type RegistrationActions,
+} from "./RegistrationPanelView";
 import { RegistrationSetupDialog } from "./RegistrationSetupDialog";
 
 // The registration of an event, wired to the API: set it up, see who signed up
@@ -22,8 +26,12 @@ import { RegistrationSetupDialog } from "./RegistrationSetupDialog";
 export const RegistrationPanel = ({
   eventId,
   title,
-  canCheckIn,
-}: Readonly<{ eventId: string; title: string; canCheckIn: boolean }>) => {
+  can,
+}: Readonly<{
+  eventId: string;
+  title: string;
+  can: RegistrationActions;
+}>) => {
   const alert = React.useContext(SnackbarContext);
   const [configuring, setConfiguring] = React.useState(false);
   // A refusal does not get better by asking again, so it is not retried.
@@ -81,8 +89,17 @@ export const RegistrationPanel = ({
       <RegistrationPanelView
         setup={setup}
         registrations={registrations ?? []}
-        canCheckIn={canCheckIn}
+        can={can}
         onConfigure={() => setConfiguring(true)}
+        onSetOpen={(open) =>
+          run(
+            () => putEventsByIdRegistrationOpen(eventId, { open }),
+            open ? "Inscripciones abiertas" : "Inscripciones cerradas",
+            open
+              ? "No se pudo reabrir la inscripción"
+              : "No se pudo cerrar la inscripción",
+          )
+        }
         onCheckIn={(registrationId, checkedIn) =>
           run(
             () =>

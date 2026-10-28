@@ -14,9 +14,7 @@ const none: EventRegistrationSetupResponse = { enabled: false };
 const withTickets: EventRegistrationSetupResponse = {
   enabled: true,
   open: true,
-  waitlistEnabled: false,
   requiresAccount: false,
-  capacity: 50,
   tickets: [
     { id: "t1", name: "General", priceCents: 0, quantity: 30, sold: 4 },
     { id: "t2", name: "VIP", priceCents: 2500, quantity: 10, sold: 0 },
@@ -59,8 +57,8 @@ describe("RegistrationSetupDialog", () => {
     ).toBeTruthy();
     expect(
       (
-        screen.getByRole("radio", {
-          name: /Con tipos de ticket/,
+        screen.getByRole("switch", {
+          name: "Pedir inscripción",
         }) as HTMLInputElement
       ).checked,
     ).toBe(true);
@@ -70,19 +68,26 @@ describe("RegistrationSetupDialog", () => {
     expect(guardar().hasAttribute("disabled")).toBe(true);
   });
 
-  it("turns on a free registration with seats", async () => {
+  it("turns on the registration with just the seats", async () => {
     const { onSave, close, user } = setup();
 
-    await user.click(screen.getByRole("radio", { name: /^Gratis/ }));
-    await user.type(screen.getByLabelText("Cupo total"), "40");
+    await user.click(screen.getByRole("switch", { name: "Pedir inscripción" }));
+    await user.type(screen.getByLabelText("Cupos"), "40");
     await user.click(guardar());
 
     expect(onSave).toHaveBeenCalledWith({
-      open: true,
       requiresAccount: false,
-      waitlistEnabled: false,
-      capacity: 40,
-      tickets: [{ name: "General", priceCents: 0, currency: "PEN" }],
+      tickets: [
+        {
+          id: undefined,
+          name: "General",
+          priceCents: 0,
+          currency: "PEN",
+          quantity: 40,
+          salesStart: undefined,
+          salesEnd: undefined,
+        },
+      ],
     });
     expect(close).toHaveBeenCalledOnce();
   });
@@ -90,8 +95,8 @@ describe("RegistrationSetupDialog", () => {
   it("updates a ticket keeping its id so its sign-ups stay with it", async () => {
     const { onSave, user } = setup({ setup: withTickets });
 
-    await user.clear(screen.getByLabelText("Cantidad del ticket 1"));
-    await user.type(screen.getByLabelText("Cantidad del ticket 1"), "35");
+    await user.clear(screen.getByLabelText("Cupos del ticket 1"));
+    await user.type(screen.getByLabelText("Cupos del ticket 1"), "35");
     await user.click(guardar());
 
     const request = onSave.mock.calls[0]?.[0];
@@ -117,7 +122,7 @@ describe("RegistrationSetupDialog", () => {
   it("asks the API to take the registration away when the user picks none", async () => {
     const { onSave, user } = setup({ setup: withTickets });
 
-    await user.click(screen.getByRole("radio", { name: /Sin inscripción/ }));
+    await user.click(screen.getByRole("switch", { name: "Pedir inscripción" }));
     await user.click(guardar());
 
     expect(onSave).toHaveBeenCalledWith(null);
@@ -126,14 +131,12 @@ describe("RegistrationSetupDialog", () => {
   it("does not send an invalid setup and says why", async () => {
     const { onSave, user } = setup();
 
-    await user.click(
-      screen.getByRole("radio", { name: /Con tipos de ticket/ }),
-    );
-    await user.clear(screen.getByLabelText("Nombre del ticket 1"));
+    await user.click(screen.getByRole("switch", { name: "Pedir inscripción" }));
+    await user.type(screen.getByLabelText("Cupos"), "0");
     await user.click(guardar());
 
     expect(screen.getByRole("alert").textContent).toContain(
-      "Ticket 1: ingrese el nombre",
+      "Inscripción: los cupos deben ser un número mayor que cero",
     );
     expect(onSave).not.toHaveBeenCalled();
   });
@@ -143,21 +146,21 @@ describe("RegistrationSetupDialog", () => {
       onSave: vi.fn().mockRejectedValue(new Error("400")),
     });
 
-    await user.click(screen.getByRole("radio", { name: /^Gratis/ }));
-    await user.type(screen.getByLabelText("Cupo total"), "40");
+    await user.click(screen.getByRole("switch", { name: "Pedir inscripción" }));
+    await user.type(screen.getByLabelText("Cupos"), "40");
     await user.click(guardar());
 
     expect(close).not.toHaveBeenCalled();
-    expect(
-      (screen.getByLabelText("Cupo total") as HTMLInputElement).value,
-    ).toBe("40");
+    expect((screen.getByLabelText("Cupos") as HTMLInputElement).value).toBe(
+      "40",
+    );
     expect(guardar().hasAttribute("disabled")).toBe(false);
   });
 
   it("asks before throwing away unsaved changes", async () => {
     const { close, user } = setup();
 
-    await user.click(screen.getByRole("radio", { name: /^Gratis/ }));
+    await user.click(screen.getByRole("switch", { name: "Pedir inscripción" }));
     await user.click(screen.getByRole("button", { name: "Cancelar" }));
     expect(screen.getByText("Tiene cambios sin guardar.")).toBeTruthy();
     expect(close).not.toHaveBeenCalled();

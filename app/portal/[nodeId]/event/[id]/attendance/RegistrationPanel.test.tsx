@@ -21,6 +21,7 @@ vi.mock("@/app/(api)/generated", () => ({
     mutate: vi.fn(),
   }),
   putEventsByIdRegistration: vi.fn(),
+  putEventsByIdRegistrationOpen: vi.fn(),
   deleteEventsByIdRegistration: vi.fn(),
   putEventsByIdRegistrationsByRegistrationIdCheckIn: vi.fn(),
   deleteEventsByIdRegistrationsByRegistrationId: vi.fn(),
@@ -34,7 +35,11 @@ beforeEach(() => {
 afterEach(cleanup);
 
 const panel = () => (
-  <RegistrationPanel eventId="e1" title="Retiro" canCheckIn />
+  <RegistrationPanel
+    eventId="e1"
+    title="Retiro"
+    can={{ configure: true, close: true, remove: true, checkIn: true }}
+  />
 );
 
 describe("RegistrationPanel", () => {

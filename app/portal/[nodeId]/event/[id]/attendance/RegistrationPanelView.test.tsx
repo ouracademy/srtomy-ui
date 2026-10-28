@@ -5,15 +5,16 @@ import type {
   EventRegistrationResponse,
   EventRegistrationSetupResponse,
 } from "@/app/(api)/generated/aPIOvejafiel.schemas";
-import { RegistrationPanelView } from "./RegistrationPanelView";
+import {
+  RegistrationPanelView,
+  type RegistrationActions,
+} from "./RegistrationPanelView";
 
 afterEach(cleanup);
 
 const setup: EventRegistrationSetupResponse = {
   enabled: true,
   open: true,
-  waitlistEnabled: true,
-  capacity: 20,
   confirmed: 2,
   waitlisted: 1,
   checkedIn: 1,
@@ -56,11 +57,12 @@ const setupView = (
   props: {
     setup?: EventRegistrationSetupResponse;
     registrations?: EventRegistrationResponse[];
-    canCheckIn?: boolean;
+    can?: Partial<RegistrationActions>;
   } = {},
 ) => {
   const handlers = {
     onConfigure: vi.fn(),
+    onSetOpen: vi.fn().mockResolvedValue(undefined),
     onCheckIn: vi.fn().mockResolvedValue(undefined),
     onRemove: vi.fn().mockResolvedValue(undefined),
   };
@@ -68,7 +70,13 @@ const setupView = (
     <RegistrationPanelView
       setup={props.setup ?? setup}
       registrations={props.registrations ?? registrations}
-      canCheckIn={props.canCheckIn ?? true}
+      can={{
+        configure: true,
+        close: true,
+        remove: true,
+        checkIn: true,
+        ...props.can,
+      }}
       {...handlers}
     />,
   );
@@ -99,7 +107,7 @@ describe("RegistrationPanelView", () => {
     expect(screen.getByText("Confirmados: 2")).toBeTruthy();
     expect(screen.getByText("En espera: 1")).toBeTruthy();
     expect(screen.getByText("Ingresaron: 1")).toBeTruthy();
-    expect(screen.getByText("Cupo total: 20")).toBeTruthy();
+    expect(screen.queryByText(/Cupo total/)).toBeNull();
     const tickets = screen.getByRole("table", { name: "Tickets" });
     expect(within(tickets).getByText("2 de 10")).toBeTruthy();
     expect(within(tickets).getByText("S/ 25.00")).toBeTruthy();
@@ -149,7 +157,7 @@ describe("RegistrationPanelView", () => {
   });
 
   it("hides the check-in buttons from who cannot take attendance", () => {
-    setupView({ canCheckIn: false });
+    setupView({ can: { checkIn: false } });
 
     expect(screen.queryByRole("button", { name: /el ingreso de/ })).toBeNull();
     expect(
@@ -162,5 +170,91 @@ describe("RegistrationPanelView", () => {
 
     expect(screen.getByText("Aún no hay inscritos.")).toBeTruthy();
     expect(screen.getByText("Cerrada")).toBeTruthy();
+    expect(
+      screen.getByText(
+        "Las inscripciones están cerradas: nadie más puede anotarse.",
+      ),
+    ).toBeTruthy();
+  });
+
+  it("closes the registration with its own button and reopens it", async () => {
+    const closed = setupView();
+    await closed.user.click(
+      screen.getByRole("button", { name: "Cerrar inscripciones" }),
+    );
+    expect(closed.onSetOpen).toHaveBeenCalledWith(false);
+    cleanup();
+
+    const reopened = setupView({ setup: { ...setup, open: false } });
+    await reopened.user.click(
+      screen.getByRole("button", { name: "Reabrir inscripciones" }),
+    );
+    expect(reopened.onSetOpen).toHaveBeenCalledWith(true);
+  });
+
+  it("blocks the button while the API answers and survives a refusal", async () => {
+    let finish: () => void = () => undefined;
+    const { onSetOpen, user } = setupView();
+    onSetOpen.mockImplementationOnce(
+      () =>
+        new Promise<void>((_resolve, reject) => {
+          finish = () => reject(new Error("500"));
+        }),
+    );
+
+    await user.click(
+      screen.getByRole("button", { name: "Cerrar inscripciones" }),
+    );
+    expect(
+      screen
+        .getByRole("button", { name: "Cerrar inscripciones" })
+        .hasAttribute("disabled"),
+    ).toBe(true);
+    finish();
+
+    expect(
+      await screen.findByRole("button", { name: "Cerrar inscripciones" }),
+    ).toBeTruthy();
+    expect(
+      screen
+        .getByRole("button", { name: "Cerrar inscripciones" })
+        .hasAttribute("disabled"),
+    ).toBe(false);
+  });
+
+  it("each action shows only to who has its permission", () => {
+    setupView({
+      can: { configure: false, close: false, remove: false, checkIn: false },
+    });
+
+    expect(
+      screen.queryByRole("button", { name: "Configurar inscripción" }),
+    ).toBeNull();
+    expect(
+      screen.queryByRole("button", { name: "Cerrar inscripciones" }),
+    ).toBeNull();
+    expect(
+      screen.queryByRole("button", { name: /Quitar la inscripción/ }),
+    ).toBeNull();
+    expect(screen.getByRole("table", { name: "Inscritos" })).toBeTruthy();
+  });
+
+  it("who can only close does not get the setup button, and vice versa", () => {
+    setupView({ can: { configure: false } });
+    expect(
+      screen.queryByRole("button", { name: "Configurar inscripción" }),
+    ).toBeNull();
+    expect(
+      screen.getByRole("button", { name: "Cerrar inscripciones" }),
+    ).toBeTruthy();
+    cleanup();
+
+    setupView({ can: { close: false } });
+    expect(
+      screen.queryByRole("button", { name: "Cerrar inscripciones" }),
+    ).toBeNull();
+    expect(
+      screen.getByRole("button", { name: "Configurar inscripción" }),
+    ).toBeTruthy();
   });
 });

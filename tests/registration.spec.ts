@@ -14,8 +14,6 @@ const setupWithTickets = {
   enabled: true,
   open: true,
   requiresAccount: false,
-  waitlistEnabled: true,
-  capacity: 40,
   confirmed: 2,
   waitlisted: 1,
   checkedIn: 1,
@@ -115,10 +113,10 @@ test.describe("Inscripción a eventos y cursos", () => {
     await dialog.getByRole("button", { name: "Curso", exact: true }).click();
     await dialog.getByPlaceholder(/Agregar título/i).fill("Discipulado");
     await expect(
-      dialog.getByRole("radio", { name: /Sin inscripción/ }),
-    ).toBeChecked();
-    await dialog.getByRole("radio", { name: /^Gratis/ }).click();
-    await dialog.getByLabel("Cupo total", { exact: true }).fill("25");
+      dialog.getByRole("switch", { name: "Pedir inscripción" }),
+    ).not.toBeChecked();
+    await dialog.getByRole("switch", { name: "Pedir inscripción" }).click();
+    await dialog.getByLabel("Cupos", { exact: true }).fill("25");
     await dialog.getByRole("button", { name: /Guardar/i }).click();
 
     await expect(
@@ -126,10 +124,13 @@ test.describe("Inscripción a eventos y cursos", () => {
     ).toBeVisible();
     expect(created).toMatchObject({ name: "Discipulado", isACourse: true });
     expect(registration).toMatchObject({
-      open: true,
-      capacity: 25,
-      tickets: [{ name: "General", priceCents: 0 }],
+      requiresAccount: false,
+      tickets: [{ name: "General", priceCents: 0, quantity: 25 }],
     });
+    // Only what is still offered is sent.
+    expect(registration).not.toHaveProperty("capacity");
+    expect(registration).not.toHaveProperty("waitlistEnabled");
+    expect(registration).not.toHaveProperty("open");
   });
 
   test("los organizadores configuran la inscripción de un evento que ya existe", async ({
@@ -162,27 +163,23 @@ test.describe("Inscripción a eventos y cursos", () => {
     await expect(
       dialog.getByRole("button", { name: "Guardar" }),
     ).toBeDisabled();
-    await dialog.getByRole("radio", { name: /Con tipos de ticket/ }).click();
-    await dialog.getByLabel("Cantidad del ticket 1").fill("30");
+    await dialog.getByRole("switch", { name: "Pedir inscripción" }).click();
+    await dialog.getByRole("button", { name: "Más opciones" }).click();
+    await dialog
+      .getByRole("button", { name: "Usar varios tipos de ticket" })
+      .click();
+    await dialog.getByLabel("Cupos del ticket 1").fill("30");
     await dialog
       .getByRole("button", { name: "Agregar tipo de ticket" })
       .click();
     await dialog.getByLabel("Nombre del ticket 2").fill("VIP");
     await dialog.getByLabel("Precio (S/) del ticket 2").fill("25");
-    await dialog.getByLabel("Cantidad del ticket 2").fill("10");
-    await dialog.getByLabel("Cupo total", { exact: true }).fill("40");
-    await dialog
-      .getByRole("switch", {
-        name: "Lista de espera cuando se agoten los lugares",
-      })
-      .click();
+    await dialog.getByLabel("Cupos del ticket 2").fill("10");
     await dialog.getByRole("button", { name: "Guardar" }).click();
 
     await expect(page.getByText("Inscripción guardada")).toBeVisible();
     expect(saved).toMatchObject({
-      open: true,
-      waitlistEnabled: true,
-      capacity: 40,
+      requiresAccount: false,
       tickets: [
         { name: "General", priceCents: 0, quantity: 30 },
         { name: "VIP", priceCents: 2500, quantity: 10 },
@@ -319,6 +316,85 @@ test.describe("Inscripción a eventos y cursos", () => {
 
     await expect(page.getByText(/Su inscripción se canceló/)).toBeVisible();
     expect(cancelled).toBe(true);
+  });
+
+  test("el organizador cierra y reabre las inscripciones con su propio botón", async ({
+    page,
+  }) => {
+    const calls: unknown[] = [];
+    let open = true;
+    await mockEvent(page);
+    await page.route(`**/v1/events/${eventId}/registrations`, (route) =>
+      route.fulfill(json(registrations)),
+    );
+    await page.route(`**/v1/events/${eventId}/registration`, (route) =>
+      route.fulfill(json({ ...setupWithTickets, open })),
+    );
+    await page.route(`**/v1/events/${eventId}/registration/open`, (route) => {
+      const body = route.request().postDataJSON() as { open: boolean };
+      calls.push(body);
+      open = body.open;
+      return route.fulfill(json({ ...setupWithTickets, open }));
+    });
+
+    await page.goto(`/portal/${NODE_ID}/event/${eventId}/attendance`);
+    await page.getByRole("button", { name: "Cerrar inscripciones" }).click();
+
+    await expect(page.getByText("Inscripciones cerradas")).toBeVisible();
+    await expect(
+      page.getByText(
+        "Las inscripciones están cerradas: nadie más puede anotarse.",
+      ),
+    ).toBeVisible();
+    await page.getByRole("button", { name: "Reabrir inscripciones" }).click();
+    await expect(page.getByText("Inscripciones abiertas")).toBeVisible();
+    expect(calls).toEqual([{ open: false }, { open: true }]);
+  });
+
+  test("cada acción se muestra solo a quien tiene su permiso", async ({
+    page,
+  }) => {
+    await mockEvent(page);
+    await page.route("**/v1/me/permissions**", (route) =>
+      route.fulfill(json(["org.read", "events.read", "registrations.read"])),
+    );
+    await page.route(`**/v1/events/${eventId}/registration`, (route) =>
+      route.fulfill(json(setupWithTickets)),
+    );
+    await page.route(`**/v1/events/${eventId}/registrations`, (route) =>
+      route.fulfill(json(registrations)),
+    );
+
+    await page.goto(`/portal/${NODE_ID}/event/${eventId}/attendance`);
+
+    await expect(page.getByRole("table", { name: "Inscritos" })).toBeVisible();
+    await expect(
+      page.getByRole("button", { name: "Configurar inscripción" }),
+    ).toHaveCount(0);
+    await expect(
+      page.getByRole("button", { name: "Cerrar inscripciones" }),
+    ).toHaveCount(0);
+    await expect(
+      page.getByRole("button", { name: /Quitar la inscripción de/ }),
+    ).toHaveCount(0);
+  });
+
+  test("quien no puede ver las inscripciones no ve el panel", async ({
+    page,
+  }) => {
+    await mockEvent(page);
+    await page.route("**/v1/me/permissions**", (route) =>
+      route.fulfill(json(["org.read", "events.read"])),
+    );
+
+    await page.goto(`/portal/${NODE_ID}/event/${eventId}/attendance`);
+
+    await expect(
+      page.getByRole("heading", { name: "Toma de asistencia" }),
+    ).toBeVisible();
+    await expect(page.locator('section[aria-label="Inscripción"]')).toHaveCount(
+      0,
+    );
   });
 
   test("la pantalla del evento con inscripción no tiene violaciones graves", async ({
