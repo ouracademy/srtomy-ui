@@ -7,7 +7,7 @@ test.describe("PWA", () => {
     expect(response.status()).toBe(200);
     const manifest = await response.json();
     expect(manifest).toMatchObject({
-      name: "Sr. Tommy",
+      name: "Oveja fiel",
       display: "standalone",
       start_url: "/portal",
     });

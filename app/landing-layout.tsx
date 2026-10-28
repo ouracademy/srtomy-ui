@@ -16,7 +16,7 @@ export default function LandingLayout({
         justifyContent: "space-between",
       }}
     >
-      <Header src={bowTie} alt="Company Logo"></Header>
+      <Header src={bowTie} alt="Logo de Oveja fiel"></Header>
       <main>{children}</main>
       <Footer
         socialLinks={[

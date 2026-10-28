@@ -99,7 +99,7 @@ export default function PortalHome() {
         />
         <Typography gutterBottom>
           Registre su iglesia y su primera sede para empezar. Si su iglesia ya
-          usa Sr. Tommy, pida a su pastor o líder que lo invite.
+          usa Oveja fiel, pida a su pastor o líder que lo invite.
         </Typography>
         <CreateChurchForm
           submit={createChurch}
