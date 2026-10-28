@@ -161,7 +161,7 @@ export default function MenuDrawer({
               <p
                 style={{ fontSize: "10px", paddingLeft: "30px", color: "#fff" }}
               >
-                &copy;Sr Tommy all right reserved
+                &copy;Oveja fiel all right reserved
               </p>
             </div>
           </Box>

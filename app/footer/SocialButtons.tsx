@@ -7,7 +7,7 @@ interface SocialButtonsProps {
 }
 
 const WHATSAPP_NUMBER = "941475889";
-const WHATSAPP_MESSAGE = "Hola estoy interesado en Sr.Tommy";
+const WHATSAPP_MESSAGE = "Hola estoy interesado en Oveja fiel";
 
 const whatsappURL = `https://wa.me/${WHATSAPP_NUMBER}?text=${WHATSAPP_MESSAGE}`;
 
