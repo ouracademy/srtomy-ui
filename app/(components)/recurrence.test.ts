@@ -4,6 +4,7 @@ import {
   fromRecurrenceResponse,
   noRecurrence,
   nthWeekdayLabel,
+  recurrencePreset,
   recurrenceSchema,
   toRecurrenceRequest,
   unitLabel,
@@ -215,5 +216,58 @@ describe("recurrenceSchema", () => {
         recurrence({ frequency: "DAILY", endType: "COUNT", count: 1001 }),
       ),
     ).toHaveLength(1);
+  });
+});
+
+describe("recurrencePreset", () => {
+  it("is NONE for an event that does not repeat", () => {
+    expect(recurrencePreset(noRecurrence(), FRIDAY)).toBe("NONE");
+  });
+
+  it("is DAILY for every day, forever", () => {
+    expect(recurrencePreset(recurrence({ frequency: "DAILY" }), FRIDAY)).toBe(
+      "DAILY",
+    );
+  });
+
+  it("is WEEKLY for every week on the weekday of the event", () => {
+    const weekly = recurrence({ frequency: "WEEKLY", daysOfWeek: [5] });
+    expect(recurrencePreset(weekly, FRIDAY)).toBe("WEEKLY");
+    expect(recurrencePreset(recurrence({ frequency: "WEEKLY" }), FRIDAY)).toBe(
+      "WEEKLY",
+    );
+  });
+
+  it("is CUSTOM when the weekdays differ from the date", () => {
+    expect(
+      recurrencePreset(
+        recurrence({ frequency: "WEEKLY", daysOfWeek: [1] }),
+        FRIDAY,
+      ),
+    ).toBe("CUSTOM");
+    expect(
+      recurrencePreset(
+        recurrence({ frequency: "WEEKLY", daysOfWeek: [5, 1] }),
+        FRIDAY,
+      ),
+    ).toBe("CUSTOM");
+  });
+
+  it("is CUSTOM with an interval, an end, or a monthly or yearly rule", () => {
+    expect(
+      recurrencePreset(recurrence({ frequency: "DAILY", interval: 2 }), FRIDAY),
+    ).toBe("CUSTOM");
+    expect(
+      recurrencePreset(
+        recurrence({ frequency: "DAILY", endType: "COUNT" }),
+        FRIDAY,
+      ),
+    ).toBe("CUSTOM");
+    expect(recurrencePreset(recurrence({ frequency: "MONTHLY" }), FRIDAY)).toBe(
+      "CUSTOM",
+    );
+    expect(recurrencePreset(recurrence({ frequency: "YEARLY" }), FRIDAY)).toBe(
+      "CUSTOM",
+    );
   });
 });

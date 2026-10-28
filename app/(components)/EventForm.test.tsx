@@ -115,10 +115,10 @@ describe("EventForm", () => {
 
     await user.type(screen.getByPlaceholderText("Agregar título"), "Servicio");
     await user.click(screen.getByRole("combobox", { name: "Se repite" }));
-    await user.click(screen.getByRole("option", { name: "Semanalmente" }));
+    await user.click(screen.getByRole("option", { name: "Personalizar…" }));
     // The weekday of the event is selected; clear it.
     await user.click(screen.getByText("V"));
-    await user.click(screen.getByRole("button", { name: "Guardar" }));
+    await user.click(screen.getByRole("button", { name: "Listo" }));
 
     expect(
       await screen.findByText("Elige al menos un día de la semana"),

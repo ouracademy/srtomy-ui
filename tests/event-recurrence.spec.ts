@@ -48,13 +48,18 @@ test.describe("Eventos recurrentes", () => {
     await dialog.getByPlaceholder(/Agregar título/i).fill("Servicio");
 
     await dialog.getByRole("combobox", { name: "Se repite" }).click();
-    await page.getByRole("option", { name: "Semanalmente" }).click();
-    await dialog.getByLabel("Cada").fill("2");
-    await dialog.getByRole("radio", { name: "Después de" }).check();
-    await dialog.getByLabel("Repeticiones").fill("5");
+    await page.getByRole("option", { name: "Personalizar…" }).click();
+    const custom = page.getByRole("dialog", {
+      name: "Recurrencia personalizada",
+    });
+    await custom.getByLabel("Repetir cada").fill("2");
+    await custom.getByRole("radio", { name: "Después de" }).check();
+    await custom.getByLabel("Repeticiones").fill("5");
+    await custom.getByRole("button", { name: "Listo" }).click();
+    await expect(custom).toBeHidden();
     await expect(
-      dialog.getByText(/^Cada 2 semanas el .*, 5 veces$/),
-    ).toBeVisible();
+      dialog.getByRole("combobox", { name: "Se repite" }),
+    ).toHaveText(/^Cada 2 semanas el .*, 5 veces$/);
 
     await dialog.getByRole("button", { name: /Guardar/i }).click();
 
