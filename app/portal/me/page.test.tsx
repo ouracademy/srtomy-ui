@@ -103,15 +103,15 @@ describe("Mi espacio", () => {
     ).toBeNull();
   });
 
-  it("offers to register a church to someone who belongs to none", () => {
-    hooks.useGetMeOrganizations.mockReturnValue(ok([]));
+  // it("offers to register a church to someone who belongs to none", () => {
+  //   hooks.useGetMeOrganizations.mockReturnValue(ok([]));
 
-    render(<MySpacePage />);
+  //   render(<MySpacePage />);
 
-    expect(
-      screen.getByRole("link", { name: "Registrar otra iglesia" }),
-    ).toBeTruthy();
-  });
+  //   expect(
+  //     screen.getByRole("link", { name: "Registrar otra iglesia" }),
+  //   ).toBeTruthy();
+  // });
 
   it("keeps the other sections when one request fails", () => {
     hooks.useGetMeEvents.mockReturnValue({

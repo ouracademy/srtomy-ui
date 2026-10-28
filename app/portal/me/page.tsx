@@ -128,7 +128,7 @@ export default function MySpacePage() {
                 showEmpty
               />
             </Section>
-            <Box>
+            {/* <Box>
               <Button
                 component={NextLink}
                 href="/portal?nueva=1"
@@ -136,7 +136,7 @@ export default function MySpacePage() {
               >
                 Registrar otra iglesia
               </Button>
-            </Box>
+            </Box> */}
           </Stack>
         )}
       </Box>
