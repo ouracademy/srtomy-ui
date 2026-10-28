@@ -32,7 +32,7 @@ type RegistrationSetupDialogProps = Readonly<{
   onSave: (request: EventRegistrationSetupRequest | null) => Promise<void>;
 }>;
 
-// The registration of an event: free or with tickets, seats and a waitlist.
+// The registration of an event: just the seats and a price, or several tickets.
 // Nothing is saved until the user presses "Guardar".
 export const RegistrationSetupDialog = ({
   open,

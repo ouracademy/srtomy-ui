@@ -15,7 +15,6 @@ const setupWithTickets = {
   open: true,
   requiresAccount: false,
   confirmed: 2,
-  waitlisted: 1,
   checkedIn: 1,
   tickets: [
     { id: "t1", name: "General", priceCents: 0, quantity: 30, sold: 2 },
@@ -48,7 +47,7 @@ const registrations = [
     lastName: "Sol",
     email: "eva@example.com",
     ticketName: "VIP",
-    status: "WAITLISTED",
+    status: "CONFIRMED",
   },
 ];
 
@@ -187,9 +186,7 @@ test.describe("Inscripción a eventos y cursos", () => {
     });
   });
 
-  test("se ve quién se inscribió, quién está en espera y se marca el ingreso", async ({
-    page,
-  }) => {
+  test("se ve quién se inscribió y se marca el ingreso", async ({ page }) => {
     let checkIn: unknown;
     await mockEvent(page);
     await page.route(`**/v1/events/${eventId}/registration`, (route) =>
@@ -218,8 +215,9 @@ test.describe("Inscripción a eventos y cursos", () => {
       "Ingresó a las",
     );
     await expect(table.getByRole("row", { name: /Eva Sol/ })).toContainText(
-      "En espera",
+      "Aún no",
     );
+    await expect(page.getByText(/En espera/)).toHaveCount(0);
     await page
       .getByRole("button", { name: "Marcar el ingreso de Ana Paz" })
       .click();
@@ -228,76 +226,86 @@ test.describe("Inscripción a eventos y cursos", () => {
     expect(checkIn).toEqual({ checkedIn: true });
   });
 
-  test("quien se inscribe en la lista de espera lo ve y puede cancelar con su enlace", async ({
+  const publicCourse = (remaining: number, soldOut: boolean) =>
+    json({
+      title: "Curso de discipulado",
+      start: "2030-01-05T15:00:00Z",
+      end: "2030-01-05T17:00:00Z",
+      isACourse: true,
+      organizationName: "Jóvenes",
+      canRegister: true,
+      registration: {
+        open: true,
+        requiresAccount: false,
+        soldOut,
+        tickets: [
+          {
+            id: "t1",
+            name: "General",
+            priceCents: 0,
+            currency: "PEN",
+            onSale: true,
+            remaining,
+          },
+        ],
+      },
+    });
+
+  test("al agotarse los lugares la página lo dice y no deja inscribirse", async ({
     page,
   }) => {
     await page.route("**/v1/public/events/curso", (route) =>
-      route.fulfill(
-        json({
-          title: "Curso de discipulado",
-          start: "2030-01-05T15:00:00Z",
-          end: "2030-01-05T17:00:00Z",
-          isACourse: true,
-          organizationName: "Jóvenes",
-          canRegister: true,
-          registration: {
-            open: true,
-            requiresAccount: false,
-            waitlistEnabled: true,
-            soldOut: true,
-            tickets: [
-              {
-                id: "t1",
-                name: "General",
-                priceCents: 0,
-                currency: "PEN",
-                onSale: true,
-                remaining: 0,
-              },
-            ],
-          },
-        }),
-      ),
+      route.fulfill(publicCourse(0, true)),
+    );
+
+    await page.goto("/e/curso");
+
+    await expect(page.getByText("Se agotaron los lugares.")).toBeVisible();
+    await expect(page.getByRole("button", { name: "Inscribirme" })).toHaveCount(
+      0,
+    );
+    await expect(page.getByText(/lista de espera/i)).toHaveCount(0);
+  });
+
+  test("quien se inscribe ve su ticket y puede cancelar con su enlace", async ({
+    page,
+  }) => {
+    await page.route("**/v1/public/events/curso", (route) =>
+      route.fulfill(publicCourse(5, false)),
     );
     await page.route("**/v1/public/events/curso/registrations", (route) =>
       route.fulfill(
         json(
           {
             alreadyRegistered: false,
-            status: "WAITLISTED",
-            cancelCode: "cancel-wait",
-            ticketCode: "ticket-wait",
+            status: "CONFIRMED",
+            cancelCode: "cancel-1",
+            ticketCode: "ticket-1",
           },
           201,
         ),
       ),
     );
     let cancelled = false;
-    await page.route(
-      "**/v1/public/registrations/cancel-wait",
-      async (route) => {
-        cancelled = true;
-        await route.fulfill({ status: 204 });
-      },
-    );
+    await page.route("**/v1/public/registrations/cancel-1", async (route) => {
+      cancelled = true;
+      await route.fulfill({ status: 204 });
+    });
 
     await page.goto("/e/curso");
-    await expect(
-      page.getByText(/Los lugares de este ticket se agotaron/),
-    ).toBeVisible();
     await page.getByLabel(/Nombre/).fill("Eva");
     await page.getByLabel(/Apellido/).fill("Sol");
     await page.getByLabel(/Correo/).fill("eva@example.com");
-    await page
-      .getByRole("button", { name: "Anotarme en la lista de espera" })
-      .click();
+    await page.getByRole("button", { name: "Inscribirme" }).click();
 
-    await expect(page.getByText(/Quedó en lista de espera/)).toBeVisible();
+    await expect(
+      page.getByText("Listo, quedó inscrito. Gracias."),
+    ).toBeVisible();
     await expect(
       page.getByRole("img", { name: "QR de su ticket" }),
-    ).toHaveCount(0);
+    ).toBeVisible();
     await expect(page.getByLabel("Enlace para cancelar")).toHaveValue(
-      /\/e\/curso\/cancelar\/cancel-wait$/,
+      /\/e\/curso\/cancelar\/cancel-1$/,
     );
     await page.getByRole("button", { name: "Cancelar mi inscripción" }).click();
     await expect(page.getByText("Su inscripción se canceló.")).toBeVisible();

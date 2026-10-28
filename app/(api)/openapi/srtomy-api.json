@@ -3305,10 +3305,6 @@
             "type": "integer",
             "format": "int64"
           },
-          "waitlisted": {
-            "type": "integer",
-            "format": "int64"
-          },
           "checkedIn": {
             "type": "integer",
             "format": "int64"
@@ -3444,7 +3440,6 @@
             "type": "string",
             "enum": [
               "CONFIRMED",
-              "WAITLISTED",
               "CANCELLED"
             ]
           },
@@ -4328,9 +4323,6 @@
           "requiresAccount": {
             "type": "boolean"
           },
-          "waitlistEnabled": {
-            "type": "boolean"
-          },
           "soldOut": {
             "type": "boolean"
           },
@@ -4381,7 +4373,6 @@
             "type": "string",
             "enum": [
               "CONFIRMED",
-              "WAITLISTED",
               "CANCELLED"
             ]
           }
@@ -5010,7 +5001,6 @@
             "type": "string",
             "enum": [
               "CONFIRMED",
-              "WAITLISTED",
               "CANCELLED"
             ]
           },
@@ -5163,7 +5153,6 @@
             "type": "string",
             "enum": [
               "CONFIRMED",
-              "WAITLISTED",
               "CANCELLED"
             ]
           },

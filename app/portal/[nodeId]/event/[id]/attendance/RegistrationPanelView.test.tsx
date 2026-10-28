@@ -16,7 +16,6 @@ const setup: EventRegistrationSetupResponse = {
   enabled: true,
   open: true,
   confirmed: 2,
-  waitlisted: 1,
   checkedIn: 1,
   tickets: [
     { id: "t1", name: "General", priceCents: 0, quantity: 10, sold: 2 },
@@ -49,7 +48,7 @@ const registrations: EventRegistrationResponse[] = [
     lastName: "Sol",
     email: "eva@x.org",
     ticketName: "VIP",
-    status: "WAITLISTED",
+    status: "CONFIRMED",
   },
 ];
 
@@ -105,7 +104,7 @@ describe("RegistrationPanelView", () => {
 
     expect(screen.getByText("Abierta")).toBeTruthy();
     expect(screen.getByText("Confirmados: 2")).toBeTruthy();
-    expect(screen.getByText("En espera: 1")).toBeTruthy();
+    expect(screen.queryByText(/En espera/)).toBeNull();
     expect(screen.getByText("Ingresaron: 1")).toBeTruthy();
     expect(screen.queryByText(/Cupo total/)).toBeNull();
     const tickets = screen.getByRole("table", { name: "Tickets" });
@@ -114,7 +113,7 @@ describe("RegistrationPanelView", () => {
     expect(within(tickets).getByText("Gratis")).toBeTruthy();
   });
 
-  it("lists who signed up with their ticket, state and whether they came", () => {
+  it("lists who signed up with their ticket and whether they came", () => {
     setupView();
 
     const table = screen.getByRole("table", { name: "Inscritos" });
@@ -127,8 +126,7 @@ describe("RegistrationPanelView", () => {
       ),
     ).toBeTruthy();
     const eva = within(table).getByRole("row", { name: /Eva Sol/ });
-    expect(within(eva).getByText("En espera")).toBeTruthy();
-    expect(within(eva).getByText("—")).toBeTruthy();
+    expect(within(eva).getByText("Aún no")).toBeTruthy();
   });
 
   it("marks who came, takes the mark back and removes a sign-up", async () => {
@@ -146,14 +144,6 @@ describe("RegistrationPanelView", () => {
       screen.getByRole("button", { name: "Quitar la inscripción de Eva Sol" }),
     );
     expect(onRemove).toHaveBeenCalledWith("r3");
-  });
-
-  it("does not offer to check in someone who waits", () => {
-    setupView();
-
-    expect(
-      screen.queryByRole("button", { name: "Marcar el ingreso de Eva Sol" }),
-    ).toBeNull();
   });
 
   it("hides the check-in buttons from who cannot take attendance", () => {

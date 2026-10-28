@@ -12,7 +12,6 @@ afterEach(cleanup);
 const registration = {
   open: true,
   requiresAccount: false,
-  waitlistEnabled: false,
   soldOut: false,
   tickets: [
     {
@@ -210,47 +209,22 @@ describe("SharedEventPage", () => {
     ).toBeTruthy();
   });
 
-  it("says when the person went to the waitlist and shows no ticket", async () => {
-    const { user } = setup({
-      onRegister: () => Promise.resolve({ ...confirmed, status: "WAITLISTED" }),
-    });
-
-    await fill(user);
-    await user.click(screen.getByRole("button", { name: "Inscribirme" }));
-
-    expect(
-      await screen.findByText(
-        "Quedó en lista de espera. Si se libera un lugar, quedará confirmado.",
-      ),
-    ).toBeTruthy();
-    expect(screen.queryByRole("img", { name: "QR de su ticket" })).toBeNull();
-  });
-
-  it("offers the waitlist when a ticket is sold out", async () => {
+  it("says the seats ran out and offers no form when everything is sold out", () => {
     const soldOut = {
       ...registration,
-      waitlistEnabled: true,
       soldOut: true,
       tickets: [{ ...registration.tickets[0], remaining: 0 }],
     };
-    const { onRegister, user } = setup({
-      event: { ...course, registration: soldOut },
-    });
+    setup({ event: { ...course, registration: soldOut } });
 
+    expect(screen.getByText("Se agotaron los lugares.")).toBeTruthy();
+    expect(screen.queryByRole("button", { name: "Inscribirme" })).toBeNull();
     expect(
-      screen.getByText(/Los lugares de este ticket se agotaron/),
-    ).toBeTruthy();
-    await fill(user);
-    await user.click(
-      screen.getByRole("button", { name: "Anotarme en la lista de espera" }),
-    );
-
-    expect(onRegister).toHaveBeenCalledWith(
-      expect.objectContaining({ ticketTypeId: "t1" }),
-    );
+      screen.queryByRole("button", { name: /lista de espera/ }),
+    ).toBeNull();
   });
 
-  it("does not let anyone pick a sold out ticket without a waitlist", () => {
+  it("does not let anyone pick a sold out ticket", () => {
     const soldOut = {
       ...registration,
       tickets: [{ ...registration.tickets[0], remaining: 0 }],
@@ -274,7 +248,7 @@ describe("SharedEventPage", () => {
     await user.click(screen.getByRole("button", { name: "Inscribirme" }));
 
     expect(
-      await screen.findByText("Ya estaba inscrito con ese correo: confirmado."),
+      await screen.findByText("Ya estaba inscrito con ese correo."),
     ).toBeTruthy();
   });
 
@@ -358,13 +332,11 @@ describe("SharedEventPage", () => {
       event: {
         ...course,
         canRegister: false,
-        registrationStatus: "WAITLISTED",
+        registrationStatus: "CONFIRMED",
       },
     });
 
-    expect(
-      screen.getByText(/Ya tiene un lugar en este curso: en lista de espera\./),
-    ).toBeTruthy();
+    expect(screen.getByText(/Ya tiene un lugar en este curso\./)).toBeTruthy();
     expect(screen.queryByRole("button", { name: "Inscribirme" })).toBeNull();
   });
 

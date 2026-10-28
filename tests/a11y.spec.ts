@@ -116,7 +116,6 @@ test.describe("Accesibilidad", () => {
           registration: {
             open: true,
             requiresAccount: false,
-            waitlistEnabled: true,
             soldOut: false,
             tickets: [
               {

@@ -124,7 +124,6 @@ test.describe("Compartir eventos y cursos", () => {
           registration: {
             open: true,
             requiresAccount: false,
-            waitlistEnabled: false,
             soldOut: false,
             tickets: [
               {

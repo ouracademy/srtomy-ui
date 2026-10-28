@@ -54,11 +54,6 @@ type SharedEventPageProps = Readonly<{
 
 const emailLooksValid = (email: string) => /^\S+@\S+\.\S+$/.test(email.trim());
 
-const stateLabel = {
-  CONFIRMED: "confirmado",
-  WAITLISTED: "en lista de espera",
-} as const;
-
 // The page someone gets with the link of an event or course: what it is and
 // when and, when it takes sign-ups, the tickets and the form to sign up.
 export const SharedEventPage = ({
@@ -74,8 +69,7 @@ export const SharedEventPage = ({
   const registration = event.registration;
   const tickets = registration?.tickets ?? [];
   const canPick = (ticket: (typeof tickets)[number]) =>
-    Boolean(ticket.onSale) &&
-    (ticket.remaining !== 0 || Boolean(registration?.waitlistEnabled));
+    Boolean(ticket.onSale) && ticket.remaining !== 0;
   const firstPickable = tickets.find(canPick)?.id ?? "";
 
   const [ticketId, setTicketId] = React.useState(firstPickable);
@@ -101,9 +95,6 @@ export const SharedEventPage = ({
   const set =
     (field: keyof Fields) => (change: { target: { value: string } }) =>
       setValues({ ...values, [field]: change.target.value });
-
-  const chosen = tickets.find((ticket) => ticket.id === ticketId);
-  const joinsTheWaitlist = chosen?.remaining === 0;
 
   const submit = async (change: React.FormEvent) => {
     change.preventDefault();
@@ -156,9 +147,8 @@ export const SharedEventPage = ({
         {event.description && <Typography>{event.description}</Typography>}
         {hasPlace && event.registrationStatus && (
           <Alert severity="success">
-            Ya tiene un lugar en este {kind}:{" "}
-            {stateLabel[event.registrationStatus as keyof typeof stateLabel]}.
-            Si tiene cuenta, encuentre su ticket en «Mi espacio».
+            Ya tiene un lugar en este {kind}. Si tiene cuenta, encuentre su
+            ticket en «Mi espacio».
           </Alert>
         )}
         {registration && !registration.open && !done && !hasPlace && (
@@ -169,14 +159,10 @@ export const SharedEventPage = ({
         )}
         {done && !cancelled && (
           <Stack spacing={2}>
-            <Alert
-              severity={outcome.status === "WAITLISTED" ? "info" : "success"}
-            >
+            <Alert severity="success">
               {outcome.alreadyRegistered
-                ? `Ya estaba inscrito con ese correo: ${stateLabel[outcome.status as keyof typeof stateLabel]}.`
-                : outcome.status === "WAITLISTED"
-                  ? "Quedó en lista de espera. Si se libera un lugar, quedará confirmado."
-                  : "Listo, quedó inscrito. Gracias."}
+                ? "Ya estaba inscrito con ese correo."
+                : "Listo, quedó inscrito. Gracias."}
             </Alert>
             {outcome.status === "CONFIRMED" && outcome.ticketCode && (
               <Paper variant="outlined" sx={{ p: 2 }}>
@@ -232,7 +218,10 @@ export const SharedEventPage = ({
           </Stack>
         )}
         {cancelled && <Alert severity="info">Su inscripción se canceló.</Alert>}
-        {event.canRegister && !done && !hasPlace && (
+        {registration?.open && registration.soldOut && !done && !hasPlace && (
+          <Alert severity="info">Se agotaron los lugares.</Alert>
+        )}
+        {event.canRegister && !done && !hasPlace && !registration?.soldOut && (
           <Stack
             component="form"
             noValidate
@@ -269,12 +258,6 @@ export const SharedEventPage = ({
                 ))}
               </RadioGroup>
             </FormControl>
-            {joinsTheWaitlist && (
-              <Alert severity="info">
-                Los lugares de este ticket se agotaron. Puede anotarse en la
-                lista de espera.
-              </Alert>
-            )}
             <TextField
               label="Nombre"
               required
@@ -318,9 +301,7 @@ export const SharedEventPage = ({
               sx={primaryButtonSx}
               loading={sending}
             >
-              {joinsTheWaitlist
-                ? "Anotarme en la lista de espera"
-                : "Inscribirme"}
+              Inscribirme
             </LoadingButton>
           </Stack>
         )}

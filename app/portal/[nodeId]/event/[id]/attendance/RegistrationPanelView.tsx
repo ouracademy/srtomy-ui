@@ -41,11 +41,6 @@ type RegistrationPanelViewProps = Readonly<{
   onRemove: (registrationId: string) => Promise<void>;
 }>;
 
-const statusLabel = {
-  CONFIRMED: "Confirmado",
-  WAITLISTED: "En espera",
-} as const;
-
 const timeOf = (value?: Date) =>
   value
     ? new Date(value).toLocaleTimeString("es-PE", {
@@ -120,9 +115,6 @@ export const RegistrationPanelView = ({
                 size="small"
                 label={`Confirmados: ${setup.confirmed ?? 0}`}
               />
-              {(setup.waitlisted ?? 0) > 0 && (
-                <Chip size="small" label={`En espera: ${setup.waitlisted}`} />
-              )}
               <Chip
                 size="small"
                 label={`Ingresaron: ${setup.checkedIn ?? 0}`}
@@ -168,7 +160,6 @@ export const RegistrationPanelView = ({
                     <TableCell>Nombre</TableCell>
                     <TableCell>Contacto</TableCell>
                     <TableCell>Ticket</TableCell>
-                    <TableCell>Estado</TableCell>
                     <TableCell>Ingreso</TableCell>
                     <TableCell>Acciones</TableCell>
                   </TableRow>
@@ -176,7 +167,6 @@ export const RegistrationPanelView = ({
                 <TableBody>
                   {registrations.map((item) => {
                     const name = `${item.firstName} ${item.lastName}`;
-                    const confirmed = item.status === "CONFIRMED";
                     return (
                       <TableRow key={item.id}>
                         <TableCell>{name}</TableCell>
@@ -187,17 +177,12 @@ export const RegistrationPanelView = ({
                         </TableCell>
                         <TableCell>{item.ticketName}</TableCell>
                         <TableCell>
-                          {statusLabel[item.status as keyof typeof statusLabel]}
-                        </TableCell>
-                        <TableCell>
                           {item.checkedInAt
                             ? `Ingresó a las ${timeOf(item.checkedInAt)}`
-                            : confirmed
-                              ? "Aún no"
-                              : "—"}
+                            : "Aún no"}
                         </TableCell>
                         <TableCell>
-                          {can.checkIn && confirmed && (
+                          {can.checkIn && (
                             <Button
                               size="small"
                               aria-label={

@@ -134,7 +134,7 @@ Son tres procesos separados.
 
 - Un interruptor «Pedir inscripción» y, encendido, **Cupos** y **Precio** (informativo). En «Más opciones»: «Solo con cuenta» y varios tipos de ticket (nombre, cupos, precio, ventana de venta). Un solo ticket es «General». No se cobra. **Cerrar y reabrir** es un botón del panel de inscritos.
 - **Un permiso por acción**: el panel pide `registrations.read`; configurar, `registrations.configure`; cerrar y reabrir, `registrations.close`; quitar a alguien, `registrations.remove`; marcar el ingreso, `attendance.write`.
-- Quien llena un cupo queda `CONFIRMED`; con todo lleno la página dice «Agotado» (la lista de espera no se ofrece por ahora; quien ya esperaba conserva su lugar). Se cancela desde Mi espacio o con el enlace `/e/{slug}/cancelar/{código}` (sin cuenta).
+- Quien llena un cupo queda `CONFIRMED`; con todo lleno la página dice «Se agotaron los lugares» (no hay lista de espera: se quitó del todo porque nadie avisaba a quien esperaba). Se cancela desde Mi espacio o con el enlace `/e/{slug}/cancelar/{código}` (sin cuenta).
 - Mi espacio: «Tengo lugar» (con el QR del ticket y cancelar), «Asistí» y «Compartidos contigo».
 
 **Asistencia (quién vino).** Independiente de la inscripción: un culto dominical no la necesita.

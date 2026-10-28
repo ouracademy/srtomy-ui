@@ -26,11 +26,6 @@ type MyEventsProps = Readonly<{
   onCancel: (cancelCode: string) => Promise<void>;
 }>;
 
-const stateLabel = {
-  CONFIRMED: "Confirmado",
-  WAITLISTED: "En espera",
-} as const;
-
 const details = (event: MyEventResponse) =>
   [
     event.isACourse ? "Curso" : "Evento",
@@ -169,11 +164,7 @@ const PlaceItem = ({
               <Chip
                 size="small"
                 color={confirmed ? "success" : "default"}
-                label={
-                  stateLabel[
-                    event.registrationStatus as keyof typeof stateLabel
-                  ]
-                }
+                label="Confirmado"
               />
             )}
           </Stack>
