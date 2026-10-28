@@ -18,7 +18,9 @@ export const QrImage = ({ value, label, size = 220 }: QrImageProps) => {
 
   React.useEffect(() => {
     let current = true;
-    QRCode.toString(value, { type: "svg", margin: 1, width: size })
+    // A margin of 2 modules of white around it, so a scanner finds its edges
+    // even on a dark or busy background.
+    QRCode.toString(value, { type: "svg", margin: 2, width: size })
       .then((svg) => {
         if (current) {
           setSrc(`data:image/svg+xml;utf8,${encodeURIComponent(svg)}`);
@@ -34,8 +36,23 @@ export const QrImage = ({ value, label, size = 220 }: QrImageProps) => {
 
   if (!src) return null;
   return (
-    // A data URL: there is nothing for next/image to optimize.
+    // A data URL: there is nothing for next/image to optimize. It is `size`
+    // wide at most and shrinks to fit a narrow screen, with some air around it
+    // instead of touching the edges of what holds it.
     // eslint-disable-next-line @next/next/no-img-element
-    <img src={src} alt={label} width={size} height={size} />
+    <img
+      src={src}
+      alt={label}
+      width={size}
+      height={size}
+      style={{
+        width: "100%",
+        maxWidth: size,
+        height: "auto",
+        padding: 8,
+        boxSizing: "border-box",
+        background: "#fff",
+      }}
+    />
   );
 };

@@ -72,7 +72,7 @@ describe("RegistrationSetupDialog", () => {
     const { onSave, close, user } = setup();
 
     await user.click(screen.getByRole("switch", { name: "Pedir inscripción" }));
-    await user.type(screen.getByLabelText("Cupos"), "40");
+    await user.type(screen.getByLabelText("Cupos del ticket 1"), "40");
     await user.click(guardar());
 
     expect(onSave).toHaveBeenCalledWith({
@@ -132,11 +132,11 @@ describe("RegistrationSetupDialog", () => {
     const { onSave, user } = setup();
 
     await user.click(screen.getByRole("switch", { name: "Pedir inscripción" }));
-    await user.type(screen.getByLabelText("Cupos"), "0");
+    await user.type(screen.getByLabelText("Cupos del ticket 1"), "0");
     await user.click(guardar());
 
     expect(screen.getByRole("alert").textContent).toContain(
-      "Inscripción: los cupos deben ser un número mayor que cero",
+      "Ticket 1: los cupos deben ser un número mayor que cero",
     );
     expect(onSave).not.toHaveBeenCalled();
   });
@@ -147,13 +147,13 @@ describe("RegistrationSetupDialog", () => {
     });
 
     await user.click(screen.getByRole("switch", { name: "Pedir inscripción" }));
-    await user.type(screen.getByLabelText("Cupos"), "40");
+    await user.type(screen.getByLabelText("Cupos del ticket 1"), "40");
     await user.click(guardar());
 
     expect(close).not.toHaveBeenCalled();
-    expect((screen.getByLabelText("Cupos") as HTMLInputElement).value).toBe(
-      "40",
-    );
+    expect(
+      (screen.getByLabelText("Cupos del ticket 1") as HTMLInputElement).value,
+    ).toBe("40");
     expect(guardar().hasAttribute("disabled")).toBe(false);
   });
 

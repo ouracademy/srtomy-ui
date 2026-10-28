@@ -35,6 +35,8 @@ export default function EventListPage(props: {
   const { can } = usePermissions(nodeId);
 
   const [spanSelected, setSpanSelected] = useState<DatesSelection>();
+  // Changes after creating an event, so the calendar shows it.
+  const [eventsVersion, setEventsVersion] = useState(0);
 
   const close = () => setSpanSelected(undefined);
   // Stable, so the calendar does not render again when the dialog opens.
@@ -48,7 +50,11 @@ export default function EventListPage(props: {
       <Stack direction="row" alignItems="center" spacing={2}>
         <Typography variant="h4">Eventos y cursos</Typography>
       </Stack>
-      <Calendar organizationId={nodeId} onSelect={selectDates} />
+      <Calendar
+        organizationId={nodeId}
+        onSelect={selectDates}
+        refreshKey={eventsVersion}
+      />
       <Dialog
         open={Boolean(spanSelected)}
         sx={{
@@ -98,6 +104,7 @@ export default function EventListPage(props: {
 
               const eventId = await postEvents(data);
               close();
+              setEventsVersion((version) => version + 1);
               const registration = toSetupRequest(values.registration);
               if (registration && values.recurrence.frequency === "NONE") {
                 try {

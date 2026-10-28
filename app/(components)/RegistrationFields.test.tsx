@@ -49,9 +49,6 @@ const ticket = (change: Partial<RegistrationFormData["tickets"][number]>) => ({
 const turnOn = async (user: ReturnType<typeof userEvent.setup>) =>
   user.click(screen.getByRole("switch", { name: "Pedir inscripción" }));
 
-const openMoreOptions = async (user: ReturnType<typeof userEvent.setup>) =>
-  user.click(screen.getByRole("button", { name: "Más opciones" }));
-
 describe("RegistrationFields", () => {
   it("starts without registration and shows nothing else", () => {
     render(<Harness />);
@@ -66,26 +63,54 @@ describe("RegistrationFields", () => {
     expect(
       screen.getByText(/cualquiera puede venir sin anotarse/),
     ).toBeTruthy();
-    expect(screen.queryByLabelText("Cupos")).toBeNull();
-    expect(screen.queryByRole("button", { name: "Más opciones" })).toBeNull();
+    expect(screen.queryByLabelText("Nombre del ticket 1")).toBeNull();
+    expect(
+      screen.queryByRole("switch", { name: "Solo con cuenta" }),
+    ).toBeNull();
   });
 
-  it("turning it on asks only for the seats and a price", async () => {
+  it("turning it on shows the ticket General, free and without limit", async () => {
     const user = userEvent.setup();
     const onValue = vi.fn();
     render(<Harness onValue={onValue} />);
 
     await turnOn(user);
-    await user.type(screen.getByLabelText("Cupos"), "30");
-    await user.type(screen.getByLabelText("Precio (S/)"), "15");
 
-    expect(screen.getByText(/Solo informativo: no se cobra/)).toBeTruthy();
-    expect(screen.queryByRole("group", { name: "Tipos de ticket" })).toBeNull();
     expect(
-      screen.queryByRole("switch", { name: "Lista de espera" }),
-    ).toBeNull();
-    const value = onValue.mock.lastCall?.[0] as RegistrationFormData;
-    expect(toSetupRequest(value)).toEqual({
+      (screen.getByLabelText("Nombre del ticket 1") as HTMLInputElement).value,
+    ).toBe("General");
+    expect(
+      (screen.getByLabelText("Precio (S/) del ticket 1") as HTMLInputElement)
+        .value,
+    ).toBe("");
+    expect(screen.getByText("Vacío es gratis.")).toBeTruthy();
+    expect(screen.getByText("Vacío es sin límite.")).toBeTruthy();
+    expect(onValue.mock.lastCall?.[0]).toMatchObject({ enabled: true });
+  });
+
+  it("does not say the price is informative or that nothing is charged", async () => {
+    const user = userEvent.setup();
+    render(<Harness />);
+
+    await turnOn(user);
+
+    expect(screen.queryByText(/informativo/i)).toBeNull();
+    expect(screen.queryByText(/no se cobra/i)).toBeNull();
+    expect(screen.queryByText(/Opcional\./)).toBeNull();
+  });
+
+  it("the usual case is to say how many seats", async () => {
+    const user = userEvent.setup();
+    const onValue = vi.fn();
+    render(<Harness onValue={onValue} />);
+
+    await turnOn(user);
+    await user.type(screen.getByLabelText("Cupos del ticket 1"), "30");
+    await user.type(screen.getByLabelText("Precio (S/) del ticket 1"), "15");
+
+    expect(
+      toSetupRequest(onValue.mock.lastCall?.[0] as RegistrationFormData),
+    ).toEqual({
       requiresAccount: false,
       tickets: [
         expect.objectContaining({
@@ -97,88 +122,48 @@ describe("RegistrationFields", () => {
     });
   });
 
-  it("keeps the rest under More options, closed until asked for", async () => {
+  it("has no mode to switch: more tickets are just added to the list, and taken out again", async () => {
     const user = userEvent.setup();
     const onValue = vi.fn();
     render(<Harness onValue={onValue} />);
     await turnOn(user);
 
     expect(
-      screen
-        .getByRole("button", { name: "Más opciones" })
-        .getAttribute("aria-expanded"),
-    ).toBe("false");
-    await openMoreOptions(user);
-    await user.click(screen.getByRole("switch", { name: "Solo con cuenta" }));
-
-    expect(onValue.mock.lastCall?.[0]).toMatchObject({ requiresAccount: true });
-    expect(
-      screen.getByText(
-        "Quien no tenga cuenta deberá crearla para inscribirse.",
-      ),
-    ).toBeTruthy();
-  });
-
-  it("several kinds of ticket replace the seats and the price", async () => {
-    const user = userEvent.setup();
-    const onValue = vi.fn();
-    render(<Harness onValue={onValue} />);
-    await turnOn(user);
-    await user.type(screen.getByLabelText("Cupos"), "20");
-
-    await openMoreOptions(user);
-    await user.click(
-      screen.getByRole("button", { name: "Usar varios tipos de ticket" }),
-    );
-
-    expect(screen.queryByLabelText("Cupos")).toBeNull();
-    expect(
-      (screen.getByLabelText("Nombre del ticket 1") as HTMLInputElement).value,
-    ).toBe("General");
-    expect(
-      (screen.getByLabelText("Cupos del ticket 1") as HTMLInputElement).value,
-    ).toBe("20");
+      screen.queryByRole("button", { name: /varios tipos de ticket/ }),
+    ).toBeNull();
     await user.click(
       screen.getByRole("button", { name: "Agregar tipo de ticket" }),
     );
     await user.type(screen.getByLabelText("Nombre del ticket 2"), "VIP");
     await user.type(screen.getByLabelText("Precio (S/) del ticket 2"), "25");
-
-    const request = toSetupRequest(
-      onValue.mock.lastCall?.[0] as RegistrationFormData,
-    );
-    expect(request?.tickets).toMatchObject([
-      { name: "General", priceCents: 0, quantity: 20 },
+    expect(
+      toSetupRequest(onValue.mock.lastCall?.[0] as RegistrationFormData)
+        ?.tickets,
+    ).toMatchObject([
+      { name: "General", priceCents: 0 },
       { name: "VIP", priceCents: 2500 },
     ]);
+
+    // Back to a single ticket: nothing else to undo.
+    await user.click(
+      screen.getByRole("button", { name: "Quitar el ticket 2" }),
+    );
+    expect(screen.queryByLabelText("Nombre del ticket 2")).toBeNull();
+    expect(
+      (screen.getByLabelText("Nombre del ticket 1") as HTMLInputElement).value,
+    ).toBe("General");
   });
 
-  it("removes a ticket but never the last one", async () => {
+  it("never removes the last ticket", async () => {
     const user = userEvent.setup();
-    render(
-      <Harness
-        initial={{
-          ...noRegistration(),
-          enabled: true,
-          manyTickets: true,
-          tickets: [ticket({ name: "Adulto" })],
-        }}
-      />,
-    );
+    render(<Harness />);
+    await turnOn(user);
+
     expect(
       screen
         .getByRole("button", { name: "Quitar el ticket 1" })
         .hasAttribute("disabled"),
     ).toBe(true);
-    await user.click(
-      screen.getByRole("button", { name: "Agregar tipo de ticket" }),
-    );
-
-    await user.click(
-      screen.getByRole("button", { name: "Quitar el ticket 2" }),
-    );
-
-    expect(screen.queryByLabelText("Nombre del ticket 2")).toBeNull();
   });
 
   it("does not let a ticket with sign-ups be removed", () => {
@@ -188,7 +173,6 @@ describe("RegistrationFields", () => {
         initial={{
           ...noRegistration(),
           enabled: true,
-          manyTickets: true,
           tickets: [
             ticket({ id: "t1", name: "General" }),
             ticket({ id: "t2", name: "VIP" }),
@@ -209,31 +193,56 @@ describe("RegistrationFields", () => {
     ).toBe(true);
   });
 
-  it("opens More options by itself when the registration already uses them", () => {
+  it("keeps the sales dates folded until asked for, and open when the ticket has them", async () => {
+    const user = userEvent.setup();
+    const { unmount } = render(<Harness />);
+    await turnOn(user);
+
+    expect(screen.queryByLabelText("Venta desde (ticket 1)")).toBeNull();
+    await user.click(
+      screen.getByRole("button", { name: "Fechas de venta del ticket 1" }),
+    );
+    expect(screen.getByLabelText("Venta desde (ticket 1)")).toBeTruthy();
+    expect(screen.getByLabelText("Venta hasta (ticket 1)")).toBeTruthy();
+    unmount();
+
     render(
       <Harness
         initial={{
           ...noRegistration(),
           enabled: true,
-          requiresAccount: true,
+          tickets: [
+            ticket({ name: "General", salesStart: "2026-03-01T09:00" }),
+          ],
         }}
       />,
     );
+    expect(screen.getByLabelText("Venta desde (ticket 1)")).toBeTruthy();
+  });
 
+  it("asks for an account with its own switch", async () => {
+    const user = userEvent.setup();
+    const onValue = vi.fn();
+    render(<Harness onValue={onValue} />);
+    await turnOn(user);
+
+    await user.click(screen.getByRole("switch", { name: "Solo con cuenta" }));
+
+    expect(onValue.mock.lastCall?.[0]).toMatchObject({ requiresAccount: true });
     expect(
-      screen
-        .getByRole("button", { name: "Más opciones" })
-        .getAttribute("aria-expanded"),
-    ).toBe("true");
+      screen.getByText(
+        "Quien no tenga cuenta deberá crearla para inscribirse.",
+      ),
+    ).toBeTruthy();
   });
 
   it("shows why it cannot be saved", async () => {
     const user = userEvent.setup();
-    render(<Harness errors={["Inscripción: el precio no es válido"]} />);
+    render(<Harness errors={["Ticket 1: el precio no es válido"]} />);
     await turnOn(user);
 
     expect(screen.getByRole("alert").textContent).toContain(
-      "Inscripción: el precio no es válido",
+      "Ticket 1: el precio no es válido",
     );
   });
 
@@ -241,7 +250,6 @@ describe("RegistrationFields", () => {
     const user = userEvent.setup();
     render(<Harness />);
     await turnOn(user);
-    await openMoreOptions(user);
 
     expect(
       screen.queryByRole("switch", { name: "Inscripción abierta" }),

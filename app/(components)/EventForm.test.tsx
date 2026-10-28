@@ -181,13 +181,12 @@ describe("EventForm", () => {
       "Discipulado",
     );
     await user.click(screen.getByRole("switch", { name: "Pedir inscripción" }));
-    await user.type(screen.getByLabelText("Cupos"), "25");
+    await user.type(screen.getByLabelText("Cupos del ticket 1"), "25");
     await user.click(screen.getByRole("button", { name: "Guardar" }));
 
     await waitFor(() => expect(submit).toHaveBeenCalledOnce());
     expect(submit.mock.calls[0]?.[0]?.registration).toMatchObject({
       enabled: true,
-      manyTickets: false,
       tickets: [{ name: "General", quantity: "25" }],
     });
   });
@@ -199,10 +198,6 @@ describe("EventForm", () => {
 
     await user.type(screen.getByPlaceholderText("Agregar título"), "Curso");
     await user.click(screen.getByRole("switch", { name: "Pedir inscripción" }));
-    await user.click(screen.getByRole("button", { name: "Más opciones" }));
-    await user.click(
-      screen.getByRole("button", { name: "Usar varios tipos de ticket" }),
-    );
     await user.clear(screen.getByLabelText("Nombre del ticket 1"));
     await user.click(screen.getByRole("button", { name: "Guardar" }));
 
