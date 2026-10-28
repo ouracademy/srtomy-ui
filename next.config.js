@@ -10,8 +10,10 @@ const securityHeaders = [
   { key: "X-Content-Type-Options", value: "nosniff" },
   { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
   {
+    // The camera is for this site only: the usher scans tickets with it. With
+    // camera=() the browser refuses it without even asking the user.
     key: "Permissions-Policy",
-    value: "camera=(), microphone=(), geolocation=()",
+    value: "camera=(self), microphone=(), geolocation=()",
   },
   {
     key: "Strict-Transport-Security",

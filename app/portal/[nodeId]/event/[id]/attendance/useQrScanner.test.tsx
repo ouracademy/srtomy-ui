@@ -23,7 +23,7 @@ type Globals = typeof globalThis & { BarcodeDetector?: unknown };
 const stop = vi.fn();
 const detect = vi.fn();
 
-const installCamera = (grant = true) => {
+const installCamera = (grant: boolean | Error = true) => {
   (globalThis as Globals).BarcodeDetector = class {
     detect = detect;
   };
@@ -31,9 +31,9 @@ const installCamera = (grant = true) => {
     configurable: true,
     value: {
       getUserMedia: vi.fn(() =>
-        grant
+        grant === true
           ? Promise.resolve({ getTracks: () => [{ stop }] })
-          : Promise.reject(new Error("denied")),
+          : Promise.reject(grant === false ? new Error("denied") : grant),
       ),
     },
   });
@@ -136,6 +136,30 @@ describe("useQrScanner", () => {
     await flush(10);
 
     expect(screen.getByText(/No se pudo usar la cámara/)).toBeTruthy();
+  });
+
+  it("says the permission is missing when the browser refuses the camera", async () => {
+    installCamera(new DOMException("blocked", "NotAllowedError"));
+
+    render(<Harness active onCode={vi.fn()} />);
+    await flush(10);
+
+    expect(
+      screen.getByText(
+        /La cámara no tiene permiso\. Actívelo en la configuración/,
+      ),
+    ).toBeTruthy();
+  });
+
+  it("says when the device has no camera", async () => {
+    installCamera(new DOMException("none", "NotFoundError"));
+
+    render(<Harness active onCode={vi.fn()} />);
+    await flush(10);
+
+    expect(
+      screen.getByText(/no tiene una cámara que se pueda usar/),
+    ).toBeTruthy();
   });
 
   it("turns the camera off when it is closed", async () => {

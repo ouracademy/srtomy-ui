@@ -5,6 +5,8 @@ import timeGridPlugin from "@fullcalendar/timegrid";
 import esLocale from "@fullcalendar/core/locales/es";
 import { addHours, differenceInDays } from "date-fns";
 import { getEvents } from "@/app/(api)/generated";
+import type { EventSourceFunc } from "@fullcalendar/core";
+import React from "react";
 import { useRouter } from "next/navigation";
 import { Box, Fab, useMediaQuery, useTheme } from "@mui/material";
 import listPlugin from "@fullcalendar/list";
@@ -16,7 +18,7 @@ export type DatesSelection = {
   jsEvent: MouseEvent | null;
 };
 
-export default function Calendar({
+function Calendar({
   organizationId,
   onSelect,
 }: {
@@ -28,6 +30,37 @@ export default function Calendar({
   const isDesktop = useMediaQuery(theme.breakpoints.up("sm"));
   const startDate = addHours(new Date(), 1);
   const endDate = addHours(new Date(), 2);
+
+  // FullCalendar asks for the events again when this function changes, so it
+  // must stay the same across renders: opening the dialog to add an event
+  // renders the page again and must not reload the list.
+  const fetchEvents = React.useCallback<EventSourceFunc>(
+    (info, successCallback, failureCallback) =>
+      getEvents({
+        organizationId,
+        start: info.start,
+        end: info.end,
+      })
+        .then((events) =>
+          successCallback(
+            events.map((event) => ({
+              ...event,
+              title: titleWithOrigin(
+                event.title ?? "",
+                originLabel(
+                  event.organization?.id,
+                  event.organization?.name,
+                  organizationId,
+                ),
+              ),
+              backgroundColor: event.isACourse ? "green" : undefined,
+              classNames: ["cursor-pointer"],
+            })),
+          ),
+        )
+        .catch((err) => failureCallback(err)),
+    [organizationId],
+  );
 
   return (
     <>
@@ -60,31 +93,7 @@ export default function Calendar({
             const event = info.event;
             router.push(`event/${event.id}/attendance`);
           }}
-          events={(info, successCallback, failureCallback) => {
-            return getEvents({
-              organizationId,
-              start: info.start,
-              end: info.end,
-            })
-              .then((events) =>
-                successCallback(
-                  events.map((event) => ({
-                    ...event,
-                    title: titleWithOrigin(
-                      event.title ?? "",
-                      originLabel(
-                        event.organization?.id,
-                        event.organization?.name,
-                        organizationId,
-                      ),
-                    ),
-                    backgroundColor: event.isACourse ? "green" : undefined,
-                    classNames: ["cursor-pointer"],
-                  })),
-                ),
-              )
-              .catch((err) => failureCallback(err));
-          }}
+          events={fetchEvents}
         />
         {!isDesktop && (
           <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
@@ -103,3 +112,5 @@ export default function Calendar({
     </>
   );
 }
+
+export default React.memo(Calendar);

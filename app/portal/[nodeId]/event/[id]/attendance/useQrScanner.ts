@@ -21,6 +21,18 @@ export const canScanWithCamera = (): boolean =>
   typeof navigator !== "undefined" &&
   typeof navigator.mediaDevices?.getUserMedia === "function";
 
+// Why the camera did not start, in the words of the screen.
+const cameraProblem = (error: unknown): string => {
+  const name = error instanceof DOMException ? error.name : "";
+  if (name === "NotAllowedError" || name === "SecurityError") {
+    return "La cámara no tiene permiso. Actívelo en la configuración del navegador para este sitio, o escriba el código.";
+  }
+  if (name === "NotFoundError" || name === "OverconstrainedError") {
+    return "Este dispositivo no tiene una cámara que se pueda usar. Escriba el código.";
+  }
+  return "No se pudo usar la cámara. Revise el permiso o escriba el código.";
+};
+
 // Reads QR codes from the camera while `active`. The same code is not reported
 // twice in a row within `repeatAfterMs`, so a code held in front of the camera
 // is not sent over and over. `problem` is why the camera is not working.
@@ -78,11 +90,7 @@ export const useQrScanner = (
         }
         void scan(new Detector({ formats: ["qr_code"] }));
       })
-      .catch(() => {
-        setProblem(
-          "No se pudo usar la cámara. Revise el permiso o escriba el código.",
-        );
-      });
+      .catch((error: unknown) => setProblem(cameraProblem(error)));
 
     return () => {
       stopped = true;
