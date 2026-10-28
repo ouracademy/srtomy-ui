@@ -1,3 +1,4 @@
+import { IosInstallHint } from "../(components)/IosInstallHint";
 import { PortalProviders } from "./PortalProviders";
 
 export default function PortalLayout({
@@ -5,5 +6,10 @@ export default function PortalLayout({
 }: {
   children: React.ReactNode;
 }) {
-  return <PortalProviders>{children}</PortalProviders>;
+  return (
+    <PortalProviders>
+      <IosInstallHint />
+      {children}
+    </PortalProviders>
+  );
 }

@@ -5,6 +5,9 @@ export const siteUrl = (
 
 export const siteName = "Sr. Tommy";
 
+// Brand blue (see buttonStyles.ts); tints the browser UI and the installed app.
+export const themeColor = "#2563EB";
+
 export const siteTitle =
   "Sr. Tommy | Software para iglesias y toma de asistencia";
 
