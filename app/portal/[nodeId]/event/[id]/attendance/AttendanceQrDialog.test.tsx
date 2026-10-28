@@ -9,18 +9,21 @@ import {
 
 const hook = vi.hoisted(() => ({
   data: undefined as { token?: string; refreshAt?: Date } | undefined,
+  error: undefined as unknown,
   mutate: vi.fn(),
 }));
 
 vi.mock("@/app/(api)/generated", () => ({
   useGetEventsByIdAttendanceQr: () => ({
     data: hook.data,
+    error: hook.error,
     mutate: hook.mutate,
   }),
 }));
 
 beforeEach(() => {
   hook.data = undefined;
+  hook.error = undefined;
   hook.mutate.mockClear();
 });
 afterEach(() => {
@@ -50,6 +53,28 @@ describe("AttendanceQrView", () => {
     expect(screen.queryByRole("img")).toBeNull();
   });
 
+  it("says the code could not be made and lets the usher ask again", async () => {
+    const onRetry = vi.fn();
+    render(
+      <AttendanceQrView
+        title="Culto"
+        token={null}
+        onRetry={onRetry}
+        close={vi.fn()}
+      />,
+    );
+
+    expect(
+      screen.getByText("No se pudo crear el código de asistencia."),
+    ).toBeTruthy();
+    expect(screen.queryByText("Preparando el código…")).toBeNull();
+    await userEvent
+      .setup()
+      .click(screen.getByRole("button", { name: "Reintentar" }));
+
+    expect(onRetry).toHaveBeenCalledOnce();
+  });
+
   it("closes", async () => {
     const close = vi.fn();
     render(<AttendanceQrView title="Culto" token="abc" close={close} />);
@@ -67,6 +92,20 @@ describe("AttendanceQrView", () => {
 });
 
 describe("AttendanceQrDialog", () => {
+  it("shows the failure instead of waiting for ever when the API refuses", async () => {
+    hook.error = new Error("500");
+
+    render(<AttendanceQrDialog eventId="e1" title="Culto" close={vi.fn()} />);
+    await userEvent
+      .setup()
+      .click(screen.getByRole("button", { name: "Reintentar" }));
+
+    expect(
+      screen.getByText("No se pudo crear el código de asistencia."),
+    ).toBeTruthy();
+    expect(hook.mutate).toHaveBeenCalledOnce();
+  });
+
   it("shows the code the API gave", async () => {
     hook.data = {
       token: "abc.1.def",

@@ -11,6 +11,7 @@ import {
 } from "@/app/(api)/generated";
 import type { EventRegistrationSetupRequest } from "@/app/(api)/generated/aPIOvejafiel.schemas";
 import Loading from "@/app/(components)/Loading";
+import { ResourceError } from "@/app/(components)/ResourceError";
 import { SnackbarContext } from "@/app/(components)/SnackbarContext";
 import { apiErrorMessage } from "@/app/(components)/apiErrorMessage";
 import { RegistrationPanelView } from "./RegistrationPanelView";
@@ -25,11 +26,22 @@ export const RegistrationPanel = ({
 }: Readonly<{ eventId: string; title: string; canCheckIn: boolean }>) => {
   const alert = React.useContext(SnackbarContext);
   const [configuring, setConfiguring] = React.useState(false);
-  const { data: setup, mutate: mutateSetup } =
-    useGetEventsByIdRegistration(eventId);
+  // A refusal does not get better by asking again, so it is not retried.
+  const {
+    data: setup,
+    error: setupError,
+    mutate: mutateSetup,
+  } = useGetEventsByIdRegistration(eventId, {
+    swr: { shouldRetryOnError: false },
+  });
   const { data: registrations, mutate: mutateRegistrations } =
     useGetEventsByIdRegistrations(eventId);
 
+  if (!setup && setupError) {
+    return (
+      <ResourceError error={setupError} onRetry={() => void mutateSetup()} />
+    );
+  }
   if (!setup) return <Loading />;
 
   const refresh = () => Promise.all([mutateSetup(), mutateRegistrations()]);

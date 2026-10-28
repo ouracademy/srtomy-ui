@@ -2,6 +2,7 @@
 
 import CloseIcon from "@mui/icons-material/Close";
 import {
+  Button,
   Dialog,
   DialogContent,
   DialogTitle,
@@ -20,6 +21,8 @@ type AttendanceQrViewProps = Readonly<{
   title: string;
   // Null while the code is being made.
   token: string | null;
+  // The API could not make the code; the user can ask again.
+  onRetry?: () => void;
   close: () => void;
 }>;
 
@@ -28,6 +31,7 @@ type AttendanceQrViewProps = Readonly<{
 export const AttendanceQrView = ({
   title,
   token,
+  onRetry,
   close,
 }: AttendanceQrViewProps) => (
   <Dialog open onClose={close} fullWidth maxWidth="sm">
@@ -49,6 +53,13 @@ export const AttendanceQrView = ({
             label="QR para marcar la asistencia"
             size={320}
           />
+        ) : onRetry ? (
+          <Stack spacing={1} alignItems="center" role="alert">
+            <Typography>No se pudo crear el código de asistencia.</Typography>
+            <Button variant="outlined" onClick={onRetry}>
+              Reintentar
+            </Button>
+          </Stack>
         ) : (
           <Typography color="text.secondary">Preparando el código…</Typography>
         )}
@@ -71,7 +82,9 @@ export const AttendanceQrDialog = ({
   title,
   close,
 }: Readonly<{ eventId: string; title: string; close: () => void }>) => {
-  const { data, mutate } = useGetEventsByIdAttendanceQr(eventId);
+  const { data, error, mutate } = useGetEventsByIdAttendanceQr(eventId, {
+    swr: { shouldRetryOnError: false },
+  });
   const refreshAt = data?.refreshAt;
 
   React.useEffect(() => {
@@ -86,6 +99,11 @@ export const AttendanceQrDialog = ({
   }, [refreshAt, mutate]);
 
   return (
-    <AttendanceQrView title={title} token={data?.token ?? null} close={close} />
+    <AttendanceQrView
+      title={title}
+      token={data?.token ?? null}
+      onRetry={error && !data ? () => void mutate() : undefined}
+      close={close}
+    />
   );
 };
