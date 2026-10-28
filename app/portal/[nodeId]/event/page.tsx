@@ -37,18 +37,18 @@ export default function EventListPage(props: {
   const [spanSelected, setSpanSelected] = useState<DatesSelection>();
 
   const close = () => setSpanSelected(undefined);
+  // Stable, so the calendar does not render again when the dialog opens.
+  const selectDates = React.useCallback(
+    (selection: DatesSelection) => setSpanSelected(selection),
+    [],
+  );
 
   return (
     <Stack direction="column" spacing={2} p={4}>
       <Stack direction="row" alignItems="center" spacing={2}>
         <Typography variant="h4">Eventos y cursos</Typography>
       </Stack>
-      <Calendar
-        organizationId={nodeId}
-        onSelect={(x) => {
-          setSpanSelected(x);
-        }}
-      />
+      <Calendar organizationId={nodeId} onSelect={selectDates} />
       <Dialog
         open={Boolean(spanSelected)}
         sx={{

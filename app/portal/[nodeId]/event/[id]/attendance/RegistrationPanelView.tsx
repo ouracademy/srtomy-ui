@@ -10,6 +10,7 @@ import {
   Table,
   TableBody,
   TableCell,
+  TableContainer,
   TableHead,
   TableRow,
   Typography,
@@ -80,24 +81,34 @@ export const RegistrationPanelView = ({
       aria-label="Inscripción"
     >
       <Stack spacing={2}>
-        <Stack direction="row" alignItems="center" spacing={2}>
+        {/* On a phone the title goes over the buttons and each button takes the
+            whole width, so their long names never run into each other. */}
+        <Stack
+          direction={{ xs: "column", sm: "row" }}
+          alignItems={{ xs: "stretch", sm: "center" }}
+          spacing={2}
+        >
           <Typography variant="h6" component="h2" sx={{ flex: 1 }}>
             Inscripción
           </Typography>
-          {setup.enabled && can.close && (
-            <LoadingButton
-              variant="outlined"
-              loading={changingOpen}
-              onClick={toggleOpen}
-            >
-              {setup.open ? "Cerrar inscripciones" : "Reabrir inscripciones"}
-            </LoadingButton>
-          )}
-          {can.configure && (
-            <Button variant="outlined" onClick={onConfigure}>
-              {setup.enabled ? "Configurar inscripción" : "Activar inscripción"}
-            </Button>
-          )}
+          <Stack direction={{ xs: "column", sm: "row" }} spacing={1}>
+            {setup.enabled && can.close && (
+              <LoadingButton
+                variant="outlined"
+                loading={changingOpen}
+                onClick={toggleOpen}
+              >
+                {setup.open ? "Cerrar inscripciones" : "Reabrir inscripciones"}
+              </LoadingButton>
+            )}
+            {can.configure && (
+              <Button variant="outlined" onClick={onConfigure}>
+                {setup.enabled
+                  ? "Configurar inscripción"
+                  : "Activar inscripción"}
+              </Button>
+            )}
+          </Stack>
         </Stack>
         {!setup.enabled ? (
           <Typography color="text.secondary">
@@ -125,95 +136,99 @@ export const RegistrationPanelView = ({
                 Las inscripciones están cerradas: nadie más puede anotarse.
               </Alert>
             )}
-            <Table size="small" aria-label="Tickets">
-              <TableHead>
-                <TableRow>
-                  <TableCell>Ticket</TableCell>
-                  <TableCell>Precio</TableCell>
-                  <TableCell>Inscritos</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {(setup.tickets ?? []).map((ticket) => (
-                  <TableRow key={ticket.id}>
-                    <TableCell>{ticket.name}</TableCell>
-                    <TableCell>
-                      {formatPrice(ticket.priceCents, ticket.currency)}
-                    </TableCell>
-                    <TableCell>
-                      {ticket.quantity
-                        ? `${ticket.sold ?? 0} de ${ticket.quantity}`
-                        : (ticket.sold ?? 0)}
-                    </TableCell>
+            <TableContainer>
+              <Table size="small" aria-label="Tickets">
+                <TableHead>
+                  <TableRow>
+                    <TableCell>Ticket</TableCell>
+                    <TableCell>Precio</TableCell>
+                    <TableCell>Inscritos</TableCell>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                </TableHead>
+                <TableBody>
+                  {(setup.tickets ?? []).map((ticket) => (
+                    <TableRow key={ticket.id}>
+                      <TableCell>{ticket.name}</TableCell>
+                      <TableCell>
+                        {formatPrice(ticket.priceCents, ticket.currency)}
+                      </TableCell>
+                      <TableCell>
+                        {ticket.quantity
+                          ? `${ticket.sold ?? 0} de ${ticket.quantity}`
+                          : (ticket.sold ?? 0)}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
             {registrations.length === 0 ? (
               <Typography color="text.secondary">
                 Aún no hay inscritos.
               </Typography>
             ) : (
-              <Table size="small" aria-label="Inscritos">
-                <TableHead>
-                  <TableRow>
-                    <TableCell>Nombre</TableCell>
-                    <TableCell>Contacto</TableCell>
-                    <TableCell>Ticket</TableCell>
-                    <TableCell>Ingreso</TableCell>
-                    <TableCell>Acciones</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {registrations.map((item) => {
-                    const name = `${item.firstName} ${item.lastName}`;
-                    return (
-                      <TableRow key={item.id}>
-                        <TableCell>{name}</TableCell>
-                        <TableCell>
-                          {[item.email, item.phoneNumber]
-                            .filter(Boolean)
-                            .join(" · ")}
-                        </TableCell>
-                        <TableCell>{item.ticketName}</TableCell>
-                        <TableCell>
-                          {item.checkedInAt
-                            ? `Ingresó a las ${timeOf(item.checkedInAt)}`
-                            : "Aún no"}
-                        </TableCell>
-                        <TableCell>
-                          {can.checkIn && (
-                            <Button
-                              size="small"
-                              aria-label={
-                                item.checkedInAt
-                                  ? `Quitar el ingreso de ${name}`
-                                  : `Marcar el ingreso de ${name}`
-                              }
-                              onClick={() =>
-                                onCheckIn(item.id ?? "", !item.checkedInAt)
-                              }
-                            >
-                              {item.checkedInAt
-                                ? "Quitar ingreso"
-                                : "Marcar ingreso"}
-                            </Button>
-                          )}
-                          {can.remove && (
-                            <Button
-                              size="small"
-                              aria-label={`Quitar la inscripción de ${name}`}
-                              onClick={() => onRemove(item.id ?? "")}
-                            >
-                              Quitar
-                            </Button>
-                          )}
-                        </TableCell>
-                      </TableRow>
-                    );
-                  })}
-                </TableBody>
-              </Table>
+              <TableContainer>
+                <Table size="small" aria-label="Inscritos">
+                  <TableHead>
+                    <TableRow>
+                      <TableCell>Nombre</TableCell>
+                      <TableCell>Contacto</TableCell>
+                      <TableCell>Ticket</TableCell>
+                      <TableCell>Ingreso</TableCell>
+                      <TableCell>Acciones</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {registrations.map((item) => {
+                      const name = `${item.firstName} ${item.lastName}`;
+                      return (
+                        <TableRow key={item.id}>
+                          <TableCell>{name}</TableCell>
+                          <TableCell>
+                            {[item.email, item.phoneNumber]
+                              .filter(Boolean)
+                              .join(" · ")}
+                          </TableCell>
+                          <TableCell>{item.ticketName}</TableCell>
+                          <TableCell>
+                            {item.checkedInAt
+                              ? `Ingresó a las ${timeOf(item.checkedInAt)}`
+                              : "Aún no"}
+                          </TableCell>
+                          <TableCell>
+                            {can.checkIn && (
+                              <Button
+                                size="small"
+                                aria-label={
+                                  item.checkedInAt
+                                    ? `Quitar el ingreso de ${name}`
+                                    : `Marcar el ingreso de ${name}`
+                                }
+                                onClick={() =>
+                                  onCheckIn(item.id ?? "", !item.checkedInAt)
+                                }
+                              >
+                                {item.checkedInAt
+                                  ? "Quitar ingreso"
+                                  : "Marcar ingreso"}
+                              </Button>
+                            )}
+                            {can.remove && (
+                              <Button
+                                size="small"
+                                aria-label={`Quitar la inscripción de ${name}`}
+                                onClick={() => onRemove(item.id ?? "")}
+                              >
+                                Quitar
+                              </Button>
+                            )}
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })}
+                  </TableBody>
+                </Table>
+              </TableContainer>
             )}
           </>
         )}
