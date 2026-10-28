@@ -56,6 +56,29 @@ export const noRecurrence = (): RecurrenceFormData => ({
   count: 10,
 });
 
+export type RecurrencePreset = "NONE" | "DAILY" | "WEEKLY" | "CUSTOM";
+
+// Which of the simple choices (not repeating, every day, every week) the
+// recurrence is; anything else needs the custom dialog. `date` is the day of
+// the first occurrence, the weekday a weekly event repeats on by default.
+export const recurrencePreset = (
+  recurrence: RecurrenceFormData,
+  date: Date,
+): RecurrencePreset => {
+  const { frequency, interval, endType, daysOfWeek } = recurrence;
+  if (frequency === "NONE") return "NONE";
+  if (interval !== 1 || endType !== "NEVER") return "CUSTOM";
+  if (frequency === "DAILY") return "DAILY";
+  if (
+    frequency === "WEEKLY" &&
+    (daysOfWeek.length === 0 ||
+      (daysOfWeek.length === 1 && daysOfWeek[0] === date.getDay()))
+  ) {
+    return "WEEKLY";
+  }
+  return "CUSTOM";
+};
+
 const WEEKDAYS = [
   "domingo",
   "lunes",

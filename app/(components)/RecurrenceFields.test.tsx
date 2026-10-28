@@ -64,106 +64,51 @@ const choose = async (
 };
 
 describe("RecurrenceFields", () => {
-  it("shows only the frequency until the event repeats", () => {
-    renderFields();
+  it("offers not repeating, every day, every week and custom", async () => {
+    const { user } = renderFields();
 
     expect(
       screen.getByRole("combobox", { name: "Se repite" }),
     ).toHaveTextContent("No se repite");
-    expect(screen.queryByLabelText("Cada")).not.toBeInTheDocument();
-    expect(screen.queryByText("Termina")).not.toBeInTheDocument();
-  });
+    await user.click(screen.getByRole("combobox", { name: "Se repite" }));
 
-  it("repeats daily and says so", async () => {
-    const { user, recurrence } = renderFields();
-
-    await choose(user, "Se repite", "Todos los días");
-
-    expect(recurrence()?.frequency).toBe("DAILY");
-    expect(screen.getByText("día")).toBeInTheDocument();
     expect(
-      screen.getByText("Todos los días", { selector: "p" }),
-    ).toBeInTheDocument();
+      screen.getAllByRole("option").map((option) => option.textContent),
+    ).toEqual([
+      "No se repite",
+      "Todos los días",
+      "Todas las semanas",
+      "Personalizar…",
+    ]);
   });
 
-  it("selects the weekday of the event when it starts repeating weekly", async () => {
+  it("repeats daily", async () => {
     const { user, recurrence } = renderFields();
 
-    await choose(user, "Se repite", "Semanalmente");
+    await choose(user, "Se repite", "Todos los días");
 
-    expect(screen.getByText("Repetir el")).toBeInTheDocument();
-    expect(recurrence()?.daysOfWeek).toEqual([5]);
-  });
-
-  it("adds and removes weekdays with the chips", async () => {
-    const { user, recurrence } = renderFields();
-    await choose(user, "Se repite", "Semanalmente");
-
-    await user.click(screen.getByText("L"));
-    expect(recurrence()?.daysOfWeek).toEqual([5, 1]);
-
-    await user.click(screen.getByText("V"));
-    expect(recurrence()?.daysOfWeek).toEqual([1]);
-  });
-
-  it("changes the interval and keeps it between 1 and 99", async () => {
-    const { user, recurrence } = renderFields();
-    await choose(user, "Se repite", "Semanalmente");
-    const every = screen.getByLabelText("Cada");
-
-    await user.clear(every);
-    await user.type(every, "2");
-    expect(recurrence()?.interval).toBe(2);
-    expect(screen.getByText("semanas")).toBeInTheDocument();
-
-    await user.clear(every);
-    await user.type(every, "500");
-    expect(recurrence()?.interval).toBe(99);
-  });
-
-  it("offers the day of the month or the nth weekday when it repeats monthly", async () => {
-    const { user, recurrence } = renderFields();
-    await choose(user, "Se repite", "Mensualmente");
-
-    await user.click(screen.getByRole("combobox", { name: "Se repite el" }));
+    expect(recurrence()).toMatchObject({
+      frequency: "DAILY",
+      interval: 1,
+      endType: "NEVER",
+    });
     expect(
-      screen.getByRole("option", { name: "Día 23 del mes" }),
-    ).toBeInTheDocument();
-    await user.click(
-      screen.getByRole("option", { name: "El cuarto viernes del mes" }),
-    );
-
-    expect(recurrence()?.monthlyMode).toBe("NTH_WEEKDAY");
+      screen.getByRole("combobox", { name: "Se repite" }),
+    ).toHaveTextContent("Todos los días");
   });
 
-  it("ends after a number of times", async () => {
+  it("repeats weekly on the weekday of the event", async () => {
     const { user, recurrence } = renderFields();
-    await choose(user, "Se repite", "Todos los días");
 
-    await user.click(screen.getByRole("radio", { name: "Después de" }));
-    const times = screen.getByLabelText("Repeticiones");
-    await user.clear(times);
-    await user.type(times, "5");
+    await choose(user, "Se repite", "Todas las semanas");
 
-    expect(recurrence()).toMatchObject({ endType: "COUNT", count: 5 });
-    expect(screen.getByText("Todos los días, 5 veces")).toBeInTheDocument();
-  });
-
-  it("never ends by default and can end on a date", async () => {
-    const { user, recurrence } = renderFields();
-    await choose(user, "Se repite", "Todos los días");
-    expect(screen.getByRole("radio", { name: "Nunca" })).toBeChecked();
-
-    const endDate = () => screen.getAllByLabelText("Fecha de fin");
-    const isDisabled = (element: HTMLElement) =>
-      element.hasAttribute("disabled") ||
-      element.getAttribute("aria-disabled") === "true";
-    expect(endDate().some(isDisabled)).toBe(true);
-
-    await user.click(screen.getByRole("radio", { name: "El" }));
-
-    expect(recurrence()?.endType).toBe("UNTIL");
-    expect(endDate().some(isDisabled)).toBe(false);
+    expect(recurrence()).toMatchObject({
+      frequency: "WEEKLY",
+      daysOfWeek: [5],
+    });
+    expect(
+      screen.getByRole("combobox", { name: "Se repite" }),
+    ).toHaveTextContent("Todas las semanas");
   });
 
   it("stops repeating when it goes back to not repeating", async () => {
@@ -173,7 +118,50 @@ describe("RecurrenceFields", () => {
     await choose(user, "Se repite", "No se repite");
 
     expect(recurrence()?.frequency).toBe("NONE");
-    expect(screen.queryByText("Termina")).not.toBeInTheDocument();
+  });
+
+  it("saves a custom rule from the dialog and shows it as the choice", async () => {
+    const { user, recurrence } = renderFields();
+
+    await choose(user, "Se repite", "Personalizar…");
+    const every = screen.getByLabelText("Repetir cada");
+    await user.clear(every);
+    await user.type(every, "2");
+    await user.click(screen.getByRole("radio", { name: "Después de" }));
+    const times = screen.getByLabelText("Repeticiones");
+    await user.clear(times);
+    await user.type(times, "5");
+    await user.click(screen.getByRole("button", { name: "Listo" }));
+
+    expect(recurrence()).toMatchObject({
+      frequency: "WEEKLY",
+      interval: 2,
+      endType: "COUNT",
+      count: 5,
+    });
+    expect(
+      screen.queryByRole("dialog", { name: "Recurrencia personalizada" }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.getByRole("combobox", { name: "Se repite" }),
+    ).toHaveTextContent("Cada 2 semanas el viernes, 5 veces");
+  });
+
+  it("keeps the previous rule when the dialog is cancelled", async () => {
+    const { user, recurrence } = renderFields();
+    await choose(user, "Se repite", "Todos los días");
+
+    await choose(user, "Se repite", "Personalizar…");
+    await user.click(screen.getByRole("radio", { name: "Después de" }));
+    await user.click(screen.getByRole("button", { name: "Cancelar" }));
+
+    expect(recurrence()).toMatchObject({
+      frequency: "DAILY",
+      endType: "NEVER",
+    });
+    expect(
+      screen.getByRole("combobox", { name: "Se repite" }),
+    ).toHaveTextContent("Todos los días");
   });
 
   it("only describes the repetition when it is read only", () => {
