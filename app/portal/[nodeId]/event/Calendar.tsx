@@ -8,7 +8,13 @@ import { getEvents } from "@/app/(api)/generated";
 import type { EventSourceFunc } from "@fullcalendar/core";
 import React from "react";
 import { useRouter } from "next/navigation";
-import { Box, Fab, useMediaQuery, useTheme } from "@mui/material";
+import {
+  Box,
+  Fab,
+  LinearProgress,
+  useMediaQuery,
+  useTheme,
+} from "@mui/material";
 import listPlugin from "@fullcalendar/list";
 import { originLabel, titleWithOrigin } from "../originLabel";
 
@@ -21,13 +27,25 @@ export type DatesSelection = {
 function Calendar({
   organizationId,
   onSelect,
+  refreshKey = 0,
 }: {
   organizationId: string;
   onSelect: (arg: DatesSelection) => void;
+  // Changes when an event was added or changed elsewhere, so the list is asked
+  // for again (the calendar does not do it on its own).
+  refreshKey?: number;
 }) {
   const router = useRouter();
   const theme = useTheme();
   const isDesktop = useMediaQuery(theme.breakpoints.up("sm"));
+  const calendarRef = React.useRef<FullCalendar>(null);
+  const [loading, setLoading] = React.useState(false);
+  const shownKey = React.useRef(refreshKey);
+  React.useEffect(() => {
+    if (shownKey.current === refreshKey) return;
+    shownKey.current = refreshKey;
+    calendarRef.current?.getApi().refetchEvents();
+  }, [refreshKey]);
   const startDate = addHours(new Date(), 1);
   const endDate = addHours(new Date(), 2);
 
@@ -71,7 +89,13 @@ function Calendar({
           },
         }}
       >
+        {/* Reserves its height, so the calendar does not jump when it shows. */}
+        <Box sx={{ height: 4 }}>
+          {loading && <LinearProgress aria-label="Cargando eventos" />}
+        </Box>
         <FullCalendar
+          ref={calendarRef}
+          loading={setLoading}
           locale={esLocale}
           plugins={[interactionPlugin, timeGridPlugin, listPlugin]}
           initialView={isDesktop ? "timeGridWeek" : "listWeek"}

@@ -3,6 +3,7 @@ import {
   render,
   screen,
   waitFor,
+  within,
   cleanup,
 } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
@@ -187,7 +188,6 @@ describe("EventForm", () => {
     await waitFor(() => expect(submit).toHaveBeenCalledOnce());
     expect(submit.mock.calls[0]?.[0]?.registration).toMatchObject({
       enabled: true,
-      manyTickets: false,
       tickets: [{ name: "General", quantity: "25" }],
     });
   });
@@ -199,15 +199,18 @@ describe("EventForm", () => {
 
     await user.type(screen.getByPlaceholderText("Agregar título"), "Curso");
     await user.click(screen.getByRole("switch", { name: "Pedir inscripción" }));
-    await user.click(screen.getByRole("button", { name: "Más opciones" }));
     await user.click(
-      screen.getByRole("button", { name: "Usar varios tipos de ticket" }),
+      screen.getByRole("button", { name: "Agregar otro tipo de ticket" }),
     );
-    await user.clear(screen.getByLabelText("Nombre del ticket 1"));
+    await user.clear(
+      within(screen.getByRole("group", { name: "Ticket 2" })).getByLabelText(
+        "Nombre",
+      ),
+    );
     await user.click(screen.getByRole("button", { name: "Guardar" }));
 
     expect(
-      await screen.findByText("Ticket 1: ingrese el nombre"),
+      await screen.findByText("Ticket 2: ingrese el nombre"),
     ).toBeInTheDocument();
     expect(submit).not.toHaveBeenCalled();
   });

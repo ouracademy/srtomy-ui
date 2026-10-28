@@ -46,7 +46,7 @@ export const AttendanceQrView = ({
       </IconButton>
     </DialogTitle>
     <DialogContent>
-      <Stack spacing={2} alignItems="center" sx={{ py: 2 }}>
+      <Stack spacing={2} alignItems="center" sx={{ p: 2 }}>
         {token ? (
           <QrImage
             value={`${globalThis.location?.origin ?? ""}${attendancePath(token)}`}

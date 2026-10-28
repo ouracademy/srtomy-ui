@@ -128,7 +128,7 @@ export default function AttendanceEvent(props: {
       <>
         <Grid size={{ xs: 12 }}>
           <Box>
-            <div style={{ display: "flex", justifyContent: "flex-end" }}>
+            <Stack direction="row" spacing={1} justifyContent="flex-end">
               {can("events.write") && (
                 <ShareEventButton eventId={id} title={event.title ?? ""} />
               )}
@@ -146,7 +146,7 @@ export default function AttendanceEvent(props: {
                   }}
                 />
               </Tooltip>
-            </div>
+            </Stack>
             <EventForm
               nodeId={nodeId}
               initialValues={initialValues}

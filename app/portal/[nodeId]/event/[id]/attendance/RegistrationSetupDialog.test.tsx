@@ -1,4 +1,4 @@
-import { cleanup, render, screen } from "@testing-library/react";
+import { cleanup, render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import type {
@@ -63,7 +63,11 @@ describe("RegistrationSetupDialog", () => {
       ).checked,
     ).toBe(true);
     expect(
-      (screen.getByLabelText("Nombre del ticket 2") as HTMLInputElement).value,
+      (
+        within(screen.getByRole("group", { name: "Ticket 2" })).getByLabelText(
+          "Nombre",
+        ) as HTMLInputElement
+      ).value,
     ).toBe("VIP");
     expect(guardar().hasAttribute("disabled")).toBe(true);
   });
@@ -95,8 +99,9 @@ describe("RegistrationSetupDialog", () => {
   it("updates a ticket keeping its id so its sign-ups stay with it", async () => {
     const { onSave, user } = setup({ setup: withTickets });
 
-    await user.clear(screen.getByLabelText("Cupos del ticket 1"));
-    await user.type(screen.getByLabelText("Cupos del ticket 1"), "35");
+    const first = within(screen.getByRole("group", { name: "Ticket 1" }));
+    await user.clear(first.getByLabelText("Cupos"));
+    await user.type(first.getByLabelText("Cupos"), "35");
     await user.click(guardar());
 
     const request = onSave.mock.calls[0]?.[0];

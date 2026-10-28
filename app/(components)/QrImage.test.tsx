@@ -19,6 +19,17 @@ describe("QrImage", () => {
     expect(image.getAttribute("width")).toBe("180");
   });
 
+  it("shrinks to fit a narrow screen and keeps some air around it", async () => {
+    render(<QrImage value="https://app.test/a/token" label="QR" size={320} />);
+
+    const image = await screen.findByRole("img", { name: "QR" });
+
+    // Never wider than `size`, never wider than what holds it.
+    expect(image.style.maxWidth).toBe("320px");
+    expect(image.style.width).toBe("100%");
+    expect(image.style.padding).toBe("8px");
+  });
+
   it("draws a different image for a different value", async () => {
     const { rerender } = render(<QrImage value="uno" label="QR" />);
     const first = (await screen.findByRole("img", { name: "QR" })).getAttribute(

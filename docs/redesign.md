@@ -132,7 +132,7 @@ Son tres procesos separados.
 
 **Inscripción (quién se anota).** Opcional, se configura aparte del compartir (`RegistrationPanel`, `RegistrationSetupDialog`, o la sección «Inscripción» al crear).
 
-- Un interruptor «Pedir inscripción» y, encendido, **Cupos** y **Precio** (informativo). En «Más opciones»: «Solo con cuenta» y varios tipos de ticket (nombre, cupos, precio, ventana de venta). Un solo ticket es «General». No se cobra. **Cerrar y reabrir** es un botón del panel de inscritos.
+- Un interruptor «Pedir inscripción» y, encendido, solo **Cupos** y **Precio** (el ticket «General», que la pantalla ni nombra). «Agregar otro tipo de ticket» abre la lista (nombre, precio, cupos y fechas de venta de cada uno, sin repetir «ticket 2» en las etiquetas); al quitar hasta que quede solo «General» vuelve al formulario corto. En «Más opciones»: «Solo con cuenta» y, en el formulario corto, las fechas de venta. El precio no se cobra todavía (deuda técnica) y la pantalla no lo repite. **Cerrar y reabrir** es un botón del panel de inscritos.
 - **Un permiso por acción**: el panel pide `registrations.read`; configurar, `registrations.configure`; cerrar y reabrir, `registrations.close`; quitar a alguien, `registrations.remove`; marcar el ingreso, `attendance.write`.
 - Quien llena un cupo queda `CONFIRMED`; con todo lleno la página dice «Se agotaron los lugares» (no hay lista de espera: se quitó del todo porque nadie avisaba a quien esperaba). Se cancela desde Mi espacio o con el enlace `/e/{slug}/cancelar/{código}` (sin cuenta).
 - Mi espacio: «Tengo lugar» (con el QR del ticket y cancelar), «Asistí» y «Compartidos contigo».

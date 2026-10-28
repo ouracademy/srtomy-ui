@@ -16,12 +16,16 @@ export const RegisterButton = forwardRef<HTMLButtonElement, IconsProps>(
         aria-labelledby={ariaLabel}
         sx={{
           boxShadow: "none",
-          background: "#f5f5f5",
-          border: "1px solid #7C2BED",
+          // The colors of the theme, not their own: the icon buttons of an
+          // event look like the rest of the page.
+          background: "background.paper",
+          color: "primary.main",
+          border: "1px solid",
+          borderColor: "primary.main",
           borderRadius: "20%",
 
           "&:hover": {
-            background: "#e0e0e0",
+            background: "action.hover",
           },
         }}
         onClick={onClick}

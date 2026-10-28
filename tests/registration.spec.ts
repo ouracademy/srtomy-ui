@@ -101,7 +101,16 @@ test.describe("Inscripción a eventos y cursos", () => {
       await route.fulfill(json({ enabled: true, tickets: [] }));
     });
 
+    // The calendar must ask for the events again once the new one is saved.
+    let listCalls = 0;
+    page.on("request", (request) => {
+      if (request.method() === "GET" && /\/v1\/events\?/.test(request.url())) {
+        listCalls += 1;
+      }
+    });
+
     await page.goto(`/portal/${NODE_ID}/event`);
+    await expect.poll(() => listCalls).toBeGreaterThan(0);
     await page
       .getByRole("grid")
       .getByRole("gridcell")
@@ -115,12 +124,14 @@ test.describe("Inscripción a eventos y cursos", () => {
       dialog.getByRole("switch", { name: "Pedir inscripción" }),
     ).not.toBeChecked();
     await dialog.getByRole("switch", { name: "Pedir inscripción" }).click();
-    await dialog.getByLabel("Cupos", { exact: true }).fill("25");
+    await dialog.getByLabel("Cupos").fill("25");
+    const callsBeforeSaving = listCalls;
     await dialog.getByRole("button", { name: /Guardar/i }).click();
 
     await expect(
       page.getByRole("alert").filter({ hasText: /Guardado exitosamente/i }),
     ).toBeVisible();
+    await expect.poll(() => listCalls).toBeGreaterThan(callsBeforeSaving);
     expect(created).toMatchObject({ name: "Discipulado", isACourse: true });
     expect(registration).toMatchObject({
       requiresAccount: false,
@@ -163,17 +174,14 @@ test.describe("Inscripción a eventos y cursos", () => {
       dialog.getByRole("button", { name: "Guardar" }),
     ).toBeDisabled();
     await dialog.getByRole("switch", { name: "Pedir inscripción" }).click();
-    await dialog.getByRole("button", { name: "Más opciones" }).click();
+    await dialog.getByLabel("Cupos").fill("30");
     await dialog
-      .getByRole("button", { name: "Usar varios tipos de ticket" })
+      .getByRole("button", { name: "Agregar otro tipo de ticket" })
       .click();
-    await dialog.getByLabel("Cupos del ticket 1").fill("30");
-    await dialog
-      .getByRole("button", { name: "Agregar tipo de ticket" })
-      .click();
-    await dialog.getByLabel("Nombre del ticket 2").fill("VIP");
-    await dialog.getByLabel("Precio (S/) del ticket 2").fill("25");
-    await dialog.getByLabel("Cupos del ticket 2").fill("10");
+    const vip = dialog.getByRole("group", { name: "Ticket 2" });
+    await vip.getByLabel("Nombre").fill("VIP");
+    await vip.getByLabel("Precio (S/)").fill("25");
+    await vip.getByLabel("Cupos").fill("10");
     await dialog.getByRole("button", { name: "Guardar" }).click();
 
     await expect(page.getByText("Inscripción guardada")).toBeVisible();

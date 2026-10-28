@@ -22,11 +22,10 @@ const on = (change: Partial<RegistrationFormData>): RegistrationFormData => ({
 });
 
 describe("noRegistration", () => {
-  it("is off, with the ticket the simple form would use", () => {
+  it("is off, with the ticket that is there when it is turned on: General, free, no limit", () => {
     const empty = noRegistration();
 
     expect(empty.enabled).toBe(false);
-    expect(empty.manyTickets).toBe(false);
     expect(empty.tickets).toEqual([{ ...emptyTicket(), name: "General" }]);
   });
 });
@@ -37,47 +36,7 @@ describe("fromSetupResponse", () => {
     expect(fromSetupResponse({ enabled: false }).enabled).toBe(false);
   });
 
-  it("one ticket called General is the simple form: seats and price", () => {
-    const setup: EventRegistrationSetupResponse = {
-      enabled: true,
-      open: true,
-      tickets: [{ id: "t1", name: "General", priceCents: 1500, quantity: 30 }],
-    };
-
-    const result = fromSetupResponse(setup);
-
-    expect(result.enabled).toBe(true);
-    expect(result.manyTickets).toBe(false);
-    expect(result.tickets[0]).toMatchObject({
-      id: "t1",
-      price: "15",
-      quantity: "30",
-    });
-  });
-
-  it("a ticket with another name or a sales window needs the list of tickets", () => {
-    expect(
-      fromSetupResponse({
-        enabled: true,
-        tickets: [{ id: "t1", name: "Entrada", priceCents: 0 }],
-      }).manyTickets,
-    ).toBe(true);
-    expect(
-      fromSetupResponse({
-        enabled: true,
-        tickets: [
-          {
-            id: "t1",
-            name: "General",
-            priceCents: 0,
-            salesStart: new Date(2026, 2, 1),
-          },
-        ],
-      }).manyTickets,
-    ).toBe(true);
-  });
-
-  it("several tickets keep their prices in soles and the sales window", () => {
+  it("shows each ticket with its price in soles, its seats and its sales window", () => {
     const result = fromSetupResponse({
       enabled: true,
       open: false,
@@ -93,8 +52,13 @@ describe("fromSetupResponse", () => {
       ],
     });
 
-    expect(result.manyTickets).toBe(true);
+    expect(result.enabled).toBe(true);
     expect(result.requiresAccount).toBe(true);
+    expect(result.tickets[0]).toMatchObject({
+      id: "t1",
+      price: "",
+      quantity: "10",
+    });
     expect(result.tickets[1]).toMatchObject({
       price: "20.50",
       quantity: "",
@@ -108,27 +72,18 @@ describe("toSetupRequest", () => {
     expect(toSetupRequest(noRegistration())).toBeNull();
   });
 
-  it("the simple form is one ticket General with the seats and the price", () => {
-    const request = toSetupRequest(
-      on({
-        tickets: tickets({
-          id: "t1",
-          name: "lo que sea",
-          quantity: "40",
-          price: "12,50",
-        }),
-      }),
-    );
+  it("turning it on without touching anything is one free ticket General with no limit", () => {
+    const request = toSetupRequest(on({}));
 
     expect(request).toEqual({
       requiresAccount: false,
       tickets: [
         {
-          id: "t1",
+          id: undefined,
           name: "General",
-          priceCents: 1250,
+          priceCents: 0,
           currency: "PEN",
-          quantity: 40,
+          quantity: undefined,
           salesStart: undefined,
           salesEnd: undefined,
         },
@@ -136,23 +91,9 @@ describe("toSetupRequest", () => {
     });
   });
 
-  it("without seats there is no limit, and without price it is free", () => {
-    const request = toSetupRequest(on({}));
-
-    expect(request?.tickets[0]).toMatchObject({ priceCents: 0 });
-    expect(request?.tickets[0]?.quantity).toBeUndefined();
-  });
-
-  it("asks for an account only when told to", () => {
-    expect(toSetupRequest(on({ requiresAccount: true }))?.requiresAccount).toBe(
-      true,
-    );
-  });
-
   it("converts prices to cents and the sales window to dates", () => {
     const request = toSetupRequest(
       on({
-        manyTickets: true,
         tickets: tickets(
           { name: " General ", price: "", quantity: "20" },
           {
@@ -181,7 +122,13 @@ describe("toSetupRequest", () => {
     expect(request?.tickets[1]?.salesEnd).toEqual(new Date("2026-03-02T18:30"));
   });
 
-  it("round trips what the API gave", () => {
+  it("asks for an account only when told to", () => {
+    expect(toSetupRequest(on({ requiresAccount: true }))?.requiresAccount).toBe(
+      true,
+    );
+  });
+
+  it("keeps the ids so the sign-ups stay with their ticket", () => {
     const setup: EventRegistrationSetupResponse = {
       enabled: true,
       open: true,
@@ -217,59 +164,47 @@ describe("registrationErrors", () => {
   it("has none when it is off or the form is good", () => {
     expect(registrationErrors(noRegistration())).toEqual([]);
     expect(registrationErrors(on({}))).toEqual([]);
-    expect(
-      registrationErrors(
-        on({ manyTickets: true, tickets: tickets({ name: "General" }) }),
-      ),
-    ).toEqual([]);
   });
 
-  it("the simple form needs good seats and a good price", () => {
+  it("needs a ticket with a name, and distinct names", () => {
+    expect(registrationErrors(on({ tickets: [] }))).toContain(
+      "Agregue al menos un tipo de ticket",
+    );
     expect(
-      registrationErrors(on({ tickets: tickets({ quantity: "0" }) })),
-    ).toEqual(["Inscripción: los cupos deben ser un número mayor que cero"]);
-    expect(
-      registrationErrors(on({ tickets: tickets({ price: "abc" }) })),
-    ).toEqual(["Inscripción: el precio no es válido"]);
-  });
-
-  it("several tickets need a name each, and distinct names", () => {
-    expect(
-      registrationErrors(on({ manyTickets: true, tickets: [] })),
-    ).toContain("Agregue al menos un tipo de ticket");
+      registrationErrors(on({ tickets: tickets({ name: " " }) })),
+    ).toContain("Inscripción: ingrese el nombre");
     expect(
       registrationErrors(
-        on({ manyTickets: true, tickets: tickets({ name: " " }) }),
-      ),
-    ).toContain("Ticket 1: ingrese el nombre");
-    expect(
-      registrationErrors(
-        on({
-          manyTickets: true,
-          tickets: tickets({ name: "VIP" }, { name: " vip " }),
-        }),
+        on({ tickets: tickets({ name: "VIP" }, { name: " vip " }) }),
       ),
     ).toContain("Ticket 2: ya hay un ticket llamado «vip»");
   });
 
   it("checks price, seats and the sales window of each ticket", () => {
-    const errors = registrationErrors(
-      on({
-        manyTickets: true,
-        tickets: tickets({
-          name: "A",
-          price: "abc",
-          quantity: "0",
-          salesStart: "2026-03-02T09:00",
-          salesEnd: "2026-03-01T09:00",
-        }),
-      }),
-    );
+    const bad = {
+      price: "abc",
+      quantity: "0",
+      salesStart: "2026-03-02T09:00",
+      salesEnd: "2026-03-01T09:00",
+    };
 
-    expect(errors).toEqual([
-      "Ticket 1: el precio no es válido",
-      "Ticket 1: los cupos deben ser un número mayor que cero",
-      "Ticket 1: la venta debe empezar antes de terminar",
+    // With one ticket the screen does not talk about tickets; with several it
+    // says which one.
+    expect(
+      registrationErrors(on({ tickets: tickets({ name: "A", ...bad }) })),
+    ).toEqual([
+      "Inscripción: el precio no es válido",
+      "Inscripción: los cupos deben ser un número mayor que cero",
+      "Inscripción: la venta debe empezar antes de terminar",
+    ]);
+    expect(
+      registrationErrors(
+        on({ tickets: tickets({ name: "A" }, { name: "B", ...bad }) }),
+      ),
+    ).toEqual([
+      "Ticket 2: el precio no es válido",
+      "Ticket 2: los cupos deben ser un número mayor que cero",
+      "Ticket 2: la venta debe empezar antes de terminar",
     ]);
   });
 });

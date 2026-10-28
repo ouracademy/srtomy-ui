@@ -1,4 +1,5 @@
-import { cleanup, render } from "@testing-library/react";
+import { act, cleanup, render, screen } from "@testing-library/react";
+import React from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import Calendar from "./Calendar";
 
@@ -10,15 +11,27 @@ type Source = (
 
 const calendar = vi.hoisted(() => ({
   sources: [] as Source[],
+  loading: undefined as ((loading: boolean) => void) | undefined,
+  refetchEvents: vi.fn(),
   getEvents: vi.fn(),
 }));
 
-vi.mock("@fullcalendar/react", () => ({
-  default: (props: { events: Source }) => {
-    calendar.sources.push(props.events);
-    return null;
-  },
-}));
+vi.mock("@fullcalendar/react", async () => {
+  const react = await import("react");
+  return {
+    default: react.forwardRef(function FullCalendarMock(
+      props: { events: Source; loading?: (loading: boolean) => void },
+      ref: React.Ref<{ getApi: () => { refetchEvents: () => void } }>,
+    ) {
+      calendar.sources.push(props.events);
+      calendar.loading = props.loading;
+      react.useImperativeHandle(ref, () => ({
+        getApi: () => ({ refetchEvents: calendar.refetchEvents }),
+      }));
+      return null;
+    }),
+  };
+});
 vi.mock("@fullcalendar/interaction", () => ({ default: {} }));
 vi.mock("@fullcalendar/timegrid", () => ({ default: {} }));
 vi.mock("@fullcalendar/list", () => ({ default: {} }));
@@ -30,6 +43,8 @@ vi.mock("@/app/(api)/generated", () => ({
 
 beforeEach(() => {
   calendar.sources = [];
+  calendar.loading = undefined;
+  calendar.refetchEvents.mockReset();
   calendar.getEvents.mockReset();
 });
 afterEach(cleanup);
@@ -89,5 +104,35 @@ describe("Calendar", () => {
     );
 
     expect(failure).toHaveBeenCalledOnce();
+  });
+
+  it("shows a progress bar while the calendar loads the events", () => {
+    render(<Calendar organizationId="n1" onSelect={vi.fn()} />);
+    expect(screen.queryByRole("progressbar")).toBeNull();
+
+    act(() => calendar.loading?.(true));
+    expect(
+      screen.getByRole("progressbar", { name: "Cargando eventos" }),
+    ).toBeTruthy();
+
+    act(() => calendar.loading?.(false));
+    expect(screen.queryByRole("progressbar")).toBeNull();
+  });
+
+  it("asks for the events again only when the key changes, as after adding one", () => {
+    const { rerender } = render(
+      <Calendar organizationId="n1" onSelect={vi.fn()} refreshKey={0} />,
+    );
+    expect(calendar.refetchEvents).not.toHaveBeenCalled();
+
+    rerender(
+      <Calendar organizationId="n1" onSelect={vi.fn()} refreshKey={0} />,
+    );
+    expect(calendar.refetchEvents).not.toHaveBeenCalled();
+
+    rerender(
+      <Calendar organizationId="n1" onSelect={vi.fn()} refreshKey={1} />,
+    );
+    expect(calendar.refetchEvents).toHaveBeenCalledOnce();
   });
 });
