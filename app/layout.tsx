@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { GoogleTagManager } from "@next/third-parties/google";
 import { Providers } from "./Providers";
@@ -12,6 +12,7 @@ import {
   siteName,
   siteTitle,
   siteUrl,
+  themeColor,
 } from "./site";
 
 const roboto = Roboto({
@@ -27,6 +28,7 @@ export const metadata: Metadata = {
   description: siteDescription,
   keywords: siteKeywords,
   applicationName: siteName,
+  appleWebApp: { capable: true, title: siteName, statusBarStyle: "default" },
   alternates: { canonical: "/" },
   openGraph: {
     type: "website",
@@ -42,6 +44,8 @@ export const metadata: Metadata = {
     description: siteDescription,
   },
 };
+
+export const viewport: Viewport = { themeColor };
 
 export default function RootLayout({
   children,
