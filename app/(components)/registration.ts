@@ -94,7 +94,9 @@ export const registrationErrors = (form: RegistrationFormData): string[] => {
   }
   const names = new Set<string>();
   form.tickets.forEach((ticket, index) => {
-    const label = `Ticket ${index + 1}`;
+    // With only one ticket the screen does not talk about tickets.
+    const label =
+      form.tickets.length === 1 ? "Inscripción" : `Ticket ${index + 1}`;
     const name = ticket.name.trim().toLowerCase();
     if (!name) {
       errors.push(`${label}: ingrese el nombre`);

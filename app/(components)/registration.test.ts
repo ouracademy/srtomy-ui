@@ -172,7 +172,7 @@ describe("registrationErrors", () => {
     );
     expect(
       registrationErrors(on({ tickets: tickets({ name: " " }) })),
-    ).toContain("Ticket 1: ingrese el nombre");
+    ).toContain("Inscripción: ingrese el nombre");
     expect(
       registrationErrors(
         on({ tickets: tickets({ name: "VIP" }, { name: " vip " }) }),
@@ -181,22 +181,30 @@ describe("registrationErrors", () => {
   });
 
   it("checks price, seats and the sales window of each ticket", () => {
-    const errors = registrationErrors(
-      on({
-        tickets: tickets({
-          name: "A",
-          price: "abc",
-          quantity: "0",
-          salesStart: "2026-03-02T09:00",
-          salesEnd: "2026-03-01T09:00",
-        }),
-      }),
-    );
+    const bad = {
+      price: "abc",
+      quantity: "0",
+      salesStart: "2026-03-02T09:00",
+      salesEnd: "2026-03-01T09:00",
+    };
 
-    expect(errors).toEqual([
-      "Ticket 1: el precio no es válido",
-      "Ticket 1: los cupos deben ser un número mayor que cero",
-      "Ticket 1: la venta debe empezar antes de terminar",
+    // With one ticket the screen does not talk about tickets; with several it
+    // says which one.
+    expect(
+      registrationErrors(on({ tickets: tickets({ name: "A", ...bad }) })),
+    ).toEqual([
+      "Inscripción: el precio no es válido",
+      "Inscripción: los cupos deben ser un número mayor que cero",
+      "Inscripción: la venta debe empezar antes de terminar",
+    ]);
+    expect(
+      registrationErrors(
+        on({ tickets: tickets({ name: "A" }, { name: "B", ...bad }) }),
+      ),
+    ).toEqual([
+      "Ticket 2: el precio no es válido",
+      "Ticket 2: los cupos deben ser un número mayor que cero",
+      "Ticket 2: la venta debe empezar antes de terminar",
     ]);
   });
 });

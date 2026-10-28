@@ -1,4 +1,4 @@
-import { cleanup, render, screen } from "@testing-library/react";
+import { cleanup, render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import React from "react";
 import { afterEach, describe, expect, it, vi } from "vitest";
@@ -49,6 +49,12 @@ const ticket = (change: Partial<RegistrationFormData["tickets"][number]>) => ({
 const turnOn = async (user: ReturnType<typeof userEvent.setup>) =>
   user.click(screen.getByRole("switch", { name: "Pedir inscripción" }));
 
+const openMoreOptions = async (user: ReturnType<typeof userEvent.setup>) =>
+  user.click(screen.getByRole("button", { name: "Más opciones" }));
+
+const ticketGroup = (position: number) =>
+  within(screen.getByRole("group", { name: `Ticket ${position}` }));
+
 describe("RegistrationFields", () => {
   it("starts without registration and shows nothing else", () => {
     render(<Harness />);
@@ -63,28 +69,25 @@ describe("RegistrationFields", () => {
     expect(
       screen.getByText(/cualquiera puede venir sin anotarse/),
     ).toBeTruthy();
-    expect(screen.queryByLabelText("Nombre del ticket 1")).toBeNull();
-    expect(
-      screen.queryByRole("switch", { name: "Solo con cuenta" }),
-    ).toBeNull();
+    expect(screen.queryByLabelText("Cupos")).toBeNull();
+    expect(screen.queryByRole("button", { name: "Más opciones" })).toBeNull();
   });
 
-  it("turning it on shows the ticket General, free and without limit", async () => {
+  it("turning it on asks only for the seats and the price, without talking about tickets", async () => {
     const user = userEvent.setup();
     const onValue = vi.fn();
     render(<Harness onValue={onValue} />);
 
     await turnOn(user);
 
+    expect((screen.getByLabelText("Cupos") as HTMLInputElement).value).toBe("");
     expect(
-      (screen.getByLabelText("Nombre del ticket 1") as HTMLInputElement).value,
-    ).toBe("General");
-    expect(
-      (screen.getByLabelText("Precio (S/) del ticket 1") as HTMLInputElement)
-        .value,
+      (screen.getByLabelText("Precio (S/)") as HTMLInputElement).value,
     ).toBe("");
-    expect(screen.getByText("Vacío es gratis.")).toBeTruthy();
     expect(screen.getByText("Vacío es sin límite.")).toBeTruthy();
+    expect(screen.getByText("Vacío es gratis.")).toBeTruthy();
+    expect(screen.queryByLabelText("Nombre")).toBeNull();
+    expect(screen.queryByText(/Ticket \d/)).toBeNull();
     expect(onValue.mock.lastCall?.[0]).toMatchObject({ enabled: true });
   });
 
@@ -99,14 +102,14 @@ describe("RegistrationFields", () => {
     expect(screen.queryByText(/Opcional\./)).toBeNull();
   });
 
-  it("the usual case is to say how many seats", async () => {
+  it("the usual case is to say how many seats and what it costs", async () => {
     const user = userEvent.setup();
     const onValue = vi.fn();
     render(<Harness onValue={onValue} />);
 
     await turnOn(user);
-    await user.type(screen.getByLabelText("Cupos del ticket 1"), "30");
-    await user.type(screen.getByLabelText("Precio (S/) del ticket 1"), "15");
+    await user.type(screen.getByLabelText("Cupos"), "30");
+    await user.type(screen.getByLabelText("Precio (S/)"), "15");
 
     expect(
       toSetupRequest(onValue.mock.lastCall?.[0] as RegistrationFormData),
@@ -122,42 +125,97 @@ describe("RegistrationFields", () => {
     });
   });
 
-  it("has no mode to switch: more tickets are just added to the list, and taken out again", async () => {
+  it("another kind of ticket opens the list, whose labels do not repeat the number", async () => {
     const user = userEvent.setup();
     const onValue = vi.fn();
     render(<Harness onValue={onValue} />);
     await turnOn(user);
+    await user.type(screen.getByLabelText("Cupos"), "30");
 
-    expect(
-      screen.queryByRole("button", { name: /varios tipos de ticket/ }),
-    ).toBeNull();
     await user.click(
-      screen.getByRole("button", { name: "Agregar tipo de ticket" }),
+      screen.getByRole("button", { name: "Agregar otro tipo de ticket" }),
     );
-    await user.type(screen.getByLabelText("Nombre del ticket 2"), "VIP");
-    await user.type(screen.getByLabelText("Precio (S/) del ticket 2"), "25");
+
+    // The seats typed are in the first ticket, now with its name.
+    expect(
+      (ticketGroup(1).getByLabelText("Nombre") as HTMLInputElement).value,
+    ).toBe("General");
+    expect(
+      (ticketGroup(1).getByLabelText("Cupos") as HTMLInputElement).value,
+    ).toBe("30");
+    await user.type(ticketGroup(2).getByLabelText("Nombre"), "VIP");
+    await user.type(ticketGroup(2).getByLabelText("Precio (S/)"), "25");
     expect(
       toSetupRequest(onValue.mock.lastCall?.[0] as RegistrationFormData)
         ?.tickets,
     ).toMatchObject([
-      { name: "General", priceCents: 0 },
+      { name: "General", priceCents: 0, quantity: 30 },
       { name: "VIP", priceCents: 2500 },
     ]);
-
-    // Back to a single ticket: nothing else to undo.
-    await user.click(
-      screen.getByRole("button", { name: "Quitar el ticket 2" }),
-    );
-    expect(screen.queryByLabelText("Nombre del ticket 2")).toBeNull();
-    expect(
-      (screen.getByLabelText("Nombre del ticket 1") as HTMLInputElement).value,
-    ).toBe("General");
+    // No label says "ticket 1" or "ticket 2": the groups tell them apart.
+    expect(screen.queryByLabelText(/del ticket \d/)).toBeNull();
   });
 
-  it("never removes the last ticket", async () => {
+  it("goes back to the short form when only General is left", async () => {
     const user = userEvent.setup();
     render(<Harness />);
     await turnOn(user);
+    await user.click(
+      screen.getByRole("button", { name: "Agregar otro tipo de ticket" }),
+    );
+
+    await user.click(
+      screen.getByRole("button", { name: "Quitar el ticket 2" }),
+    );
+
+    expect(screen.queryByRole("group", { name: "Ticket 1" })).toBeNull();
+    expect((screen.getByLabelText("Cupos") as HTMLInputElement).value).toBe("");
+  });
+
+  it("does not jump to the short form while a name is typed", async () => {
+    const user = userEvent.setup();
+    render(
+      <Harness
+        initial={{
+          ...noRegistration(),
+          enabled: true,
+          tickets: [ticket({ name: "Adulto" })],
+        }}
+      />,
+    );
+
+    const name = ticketGroup(1).getByLabelText("Nombre");
+    await user.clear(name);
+    await user.type(name, "General");
+
+    expect(ticketGroup(1).getByLabelText("Nombre")).toBeTruthy();
+  });
+
+  it("stays in the list when a ticket is not General", () => {
+    render(
+      <Harness
+        initial={{
+          ...noRegistration(),
+          enabled: true,
+          tickets: [ticket({ name: "VIP" })],
+        }}
+      />,
+    );
+
+    expect(screen.getByRole("group", { name: "Ticket 1" })).toBeTruthy();
+    expect(screen.queryByRole("button", { name: /Agregar otro/ })).toBeNull();
+  });
+
+  it("never removes the last ticket of the list", () => {
+    render(
+      <Harness
+        initial={{
+          ...noRegistration(),
+          enabled: true,
+          tickets: [ticket({ name: "VIP" })],
+        }}
+      />,
+    );
 
     expect(
       screen
@@ -193,19 +251,25 @@ describe("RegistrationFields", () => {
     ).toBe(true);
   });
 
-  it("keeps the sales dates folded until asked for, and open when the ticket has them", async () => {
+  it("the sales dates of the short form are under More options", async () => {
     const user = userEvent.setup();
-    const { unmount } = render(<Harness />);
+    const onValue = vi.fn();
+    render(<Harness onValue={onValue} />);
     await turnOn(user);
 
-    expect(screen.queryByLabelText("Venta desde (ticket 1)")).toBeNull();
-    await user.click(
-      screen.getByRole("button", { name: "Fechas de venta del ticket 1" }),
-    );
-    expect(screen.getByLabelText("Venta desde (ticket 1)")).toBeTruthy();
-    expect(screen.getByLabelText("Venta hasta (ticket 1)")).toBeTruthy();
-    unmount();
+    // It is folded inside More options until that is opened.
+    expect(screen.getByLabelText("Venta desde")).not.toBeVisible();
+    await openMoreOptions(user);
+    expect(screen.getByLabelText("Venta desde")).toBeVisible();
+    await user.type(screen.getByLabelText("Venta desde"), "2026-03-01T09:00");
 
+    expect(screen.getByLabelText("Venta hasta")).toBeVisible();
+    expect(onValue.mock.lastCall?.[0]).toMatchObject({
+      tickets: [{ salesStart: "2026-03-01T09:00" }],
+    });
+  });
+
+  it("opens More options by itself when the registration already uses them", () => {
     render(
       <Harness
         initial={{
@@ -217,14 +281,45 @@ describe("RegistrationFields", () => {
         }}
       />,
     );
-    expect(screen.getByLabelText("Venta desde (ticket 1)")).toBeTruthy();
+
+    expect(
+      screen
+        .getByRole("button", { name: "Más opciones" })
+        .getAttribute("aria-expanded"),
+    ).toBe("true");
+    expect(screen.getByLabelText("Venta desde")).toBeTruthy();
   });
 
-  it("asks for an account with its own switch", async () => {
+  it("in the list each ticket keeps its sales dates folded until asked for", async () => {
+    const user = userEvent.setup();
+    render(
+      <Harness
+        initial={{
+          ...noRegistration(),
+          enabled: true,
+          tickets: [ticket({ name: "Adulto" }), ticket({ name: "Niño" })],
+        }}
+      />,
+    );
+
+    expect(screen.queryByLabelText("Venta desde")).toBeNull();
+    await user.click(
+      within(screen.getByRole("group", { name: "Ticket 2" })).getByRole(
+        "button",
+        { name: "Fechas de venta" },
+      ),
+    );
+
+    expect(ticketGroup(2).getByLabelText("Venta desde")).toBeTruthy();
+    expect(ticketGroup(1).queryByLabelText("Venta desde")).toBeNull();
+  });
+
+  it("asks for an account with its own switch under More options", async () => {
     const user = userEvent.setup();
     const onValue = vi.fn();
     render(<Harness onValue={onValue} />);
     await turnOn(user);
+    await openMoreOptions(user);
 
     await user.click(screen.getByRole("switch", { name: "Solo con cuenta" }));
 
@@ -238,11 +333,11 @@ describe("RegistrationFields", () => {
 
   it("shows why it cannot be saved", async () => {
     const user = userEvent.setup();
-    render(<Harness errors={["Ticket 1: el precio no es válido"]} />);
+    render(<Harness errors={["Inscripción: el precio no es válido"]} />);
     await turnOn(user);
 
     expect(screen.getByRole("alert").textContent).toContain(
-      "Ticket 1: el precio no es válido",
+      "Inscripción: el precio no es válido",
     );
   });
 
@@ -250,6 +345,7 @@ describe("RegistrationFields", () => {
     const user = userEvent.setup();
     render(<Harness />);
     await turnOn(user);
+    await openMoreOptions(user);
 
     expect(
       screen.queryByRole("switch", { name: "Inscripción abierta" }),
