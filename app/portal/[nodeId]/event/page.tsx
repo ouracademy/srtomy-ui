@@ -7,6 +7,7 @@ import {
   toRecurrenceRequest,
 } from "@/app/(components)/recurrence";
 import { SnackbarContext } from "@/app/(components)/SnackbarContext";
+import { usePermissions } from "@/app/(hooks)/usePermissions";
 import {
   noRegistration,
   toSetupRequest,
@@ -31,6 +32,7 @@ export default function EventListPage(props: {
   const params = React.use(props.params);
   const { nodeId } = params;
   const alert = useContext(SnackbarContext);
+  const { can } = usePermissions(nodeId);
 
   const [spanSelected, setSpanSelected] = useState<DatesSelection>();
 
@@ -78,7 +80,7 @@ export default function EventListPage(props: {
               speakers: [],
               registration: noRegistration(),
             }}
-            showRegistration
+            showRegistration={can("registrations.configure")}
             submit={async (values) => {
               const data = {
                 name: values.name,

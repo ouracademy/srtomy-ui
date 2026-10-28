@@ -5,15 +5,20 @@ import {
   deleteEventsByIdRegistration,
   deleteEventsByIdRegistrationsByRegistrationId,
   putEventsByIdRegistration,
+  putEventsByIdRegistrationOpen,
   putEventsByIdRegistrationsByRegistrationIdCheckIn,
   useGetEventsByIdRegistration,
   useGetEventsByIdRegistrations,
 } from "@/app/(api)/generated";
 import type { EventRegistrationSetupRequest } from "@/app/(api)/generated/aPIOvejafiel.schemas";
 import Loading from "@/app/(components)/Loading";
+import { ResourceError } from "@/app/(components)/ResourceError";
 import { SnackbarContext } from "@/app/(components)/SnackbarContext";
 import { apiErrorMessage } from "@/app/(components)/apiErrorMessage";
-import { RegistrationPanelView } from "./RegistrationPanelView";
+import {
+  RegistrationPanelView,
+  type RegistrationActions,
+} from "./RegistrationPanelView";
 import { RegistrationSetupDialog } from "./RegistrationSetupDialog";
 
 // The registration of an event, wired to the API: set it up, see who signed up
@@ -21,15 +26,30 @@ import { RegistrationSetupDialog } from "./RegistrationSetupDialog";
 export const RegistrationPanel = ({
   eventId,
   title,
-  canCheckIn,
-}: Readonly<{ eventId: string; title: string; canCheckIn: boolean }>) => {
+  can,
+}: Readonly<{
+  eventId: string;
+  title: string;
+  can: RegistrationActions;
+}>) => {
   const alert = React.useContext(SnackbarContext);
   const [configuring, setConfiguring] = React.useState(false);
-  const { data: setup, mutate: mutateSetup } =
-    useGetEventsByIdRegistration(eventId);
+  // A refusal does not get better by asking again, so it is not retried.
+  const {
+    data: setup,
+    error: setupError,
+    mutate: mutateSetup,
+  } = useGetEventsByIdRegistration(eventId, {
+    swr: { shouldRetryOnError: false },
+  });
   const { data: registrations, mutate: mutateRegistrations } =
     useGetEventsByIdRegistrations(eventId);
 
+  if (!setup && setupError) {
+    return (
+      <ResourceError error={setupError} onRetry={() => void mutateSetup()} />
+    );
+  }
   if (!setup) return <Loading />;
 
   const refresh = () => Promise.all([mutateSetup(), mutateRegistrations()]);
@@ -69,8 +89,17 @@ export const RegistrationPanel = ({
       <RegistrationPanelView
         setup={setup}
         registrations={registrations ?? []}
-        canCheckIn={canCheckIn}
+        can={can}
         onConfigure={() => setConfiguring(true)}
+        onSetOpen={(open) =>
+          run(
+            () => putEventsByIdRegistrationOpen(eventId, { open }),
+            open ? "Inscripciones abiertas" : "Inscripciones cerradas",
+            open
+              ? "No se pudo reabrir la inscripción"
+              : "No se pudo cerrar la inscripción",
+          )
+        }
         onCheckIn={(registrationId, checkedIn) =>
           run(
             () =>

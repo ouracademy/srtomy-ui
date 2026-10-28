@@ -21,12 +21,12 @@ const withTicket: MyEventResponse = {
   ticketCode: "ticket-1",
 };
 
-const waiting: MyEventResponse = {
+const secondPlace: MyEventResponse = {
   ...withTicket,
   title: "Retiro de jóvenes",
   slug: "wait",
   isACourse: false,
-  registrationStatus: "WAITLISTED",
+  registrationStatus: "CONFIRMED",
   cancelCode: "cancel-2",
   ticketCode: "ticket-2",
 };
@@ -72,7 +72,7 @@ describe("MyEvents", () => {
   });
 
   it("splits where I have a place from where I already went, each event once", () => {
-    setup([withTicket, waiting, wentToService, wentWithTicket]);
+    setup([withTicket, secondPlace, wentToService, wentWithTicket]);
 
     const place = screen.getByRole("list", { name: "Tengo lugar" });
     expect(
@@ -96,8 +96,8 @@ describe("MyEvents", () => {
     expect(within(went).getAllByText("Asististe")).toHaveLength(2);
   });
 
-  it("says why each place is mine: its ticket and whether it is confirmed or waiting", () => {
-    setup([withTicket, waiting]);
+  it("says why each place is mine: its ticket and that it is confirmed", () => {
+    setup([withTicket, secondPlace]);
 
     const [first, second] = within(
       screen.getByRole("list", { name: "Tengo lugar" }),
@@ -108,7 +108,7 @@ describe("MyEvents", () => {
       ),
     ).toBeTruthy();
     expect(within(first as HTMLElement).getByText("Confirmado")).toBeTruthy();
-    expect(within(second as HTMLElement).getByText("En espera")).toBeTruthy();
+    expect(within(second as HTMLElement).getByText("Confirmado")).toBeTruthy();
   });
 
   it("shows the ticket QR of a confirmed place and hides it again", async () => {
@@ -131,17 +131,6 @@ describe("MyEvents", () => {
     );
 
     expect(screen.queryByRole("img", { name: /QR de mi ticket/ })).toBeNull();
-  });
-
-  it("offers no ticket while the user is on the waitlist", () => {
-    setup([waiting]);
-
-    expect(screen.queryByRole("button", { name: /mi ticket/ })).toBeNull();
-    expect(
-      screen.getByRole("button", {
-        name: "Cancelar mi inscripción a Retiro de jóvenes",
-      }),
-    ).toBeTruthy();
   });
 
   it("asks before giving a place up, then cancels with its code", async () => {

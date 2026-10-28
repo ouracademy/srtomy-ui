@@ -151,7 +151,9 @@ describe("EventForm", () => {
   it("does not offer registration unless the screen asks for it", () => {
     renderForm(vi.fn());
 
-    expect(screen.queryByRole("radio", { name: /Sin inscripción/ })).toBeNull();
+    expect(
+      screen.queryByRole("switch", { name: "Pedir inscripción" }),
+    ).toBeNull();
   });
 
   it("saves a new event without registration by default", async () => {
@@ -161,15 +163,15 @@ describe("EventForm", () => {
 
     await user.type(screen.getByPlaceholderText("Agregar título"), "Culto");
     expect(
-      screen.getByRole("radio", { name: /Sin inscripción/ }),
-    ).toBeChecked();
+      screen.getByRole("switch", { name: "Pedir inscripción" }),
+    ).not.toBeChecked();
     await user.click(screen.getByRole("button", { name: "Guardar" }));
 
     await waitFor(() => expect(submit).toHaveBeenCalledOnce());
-    expect(submit.mock.calls[0]?.[0]?.registration.mode).toBe("NONE");
+    expect(submit.mock.calls[0]?.[0]?.registration.enabled).toBe(false);
   });
 
-  it("saves a course with free registration and seats", async () => {
+  it("saves a course asking for registration with just the seats", async () => {
     const user = userEvent.setup();
     const submit = vi.fn();
     renderForm(submit, true);
@@ -178,25 +180,28 @@ describe("EventForm", () => {
       screen.getByPlaceholderText("Agregar título"),
       "Discipulado",
     );
-    await user.click(screen.getByRole("radio", { name: /^Gratis/ }));
-    await user.type(screen.getByLabelText("Cupo total"), "25");
+    await user.click(screen.getByRole("switch", { name: "Pedir inscripción" }));
+    await user.type(screen.getByLabelText("Cupos"), "25");
     await user.click(screen.getByRole("button", { name: "Guardar" }));
 
     await waitFor(() => expect(submit).toHaveBeenCalledOnce());
     expect(submit.mock.calls[0]?.[0]?.registration).toMatchObject({
-      mode: "FREE",
-      capacity: "25",
+      enabled: true,
+      manyTickets: false,
+      tickets: [{ name: "General", quantity: "25" }],
     });
   });
 
-  it("does not save tickets without a name and says why", async () => {
+  it("does not save a ticket without a name and says why", async () => {
     const user = userEvent.setup();
     const submit = vi.fn();
     renderForm(submit, true);
 
     await user.type(screen.getByPlaceholderText("Agregar título"), "Curso");
+    await user.click(screen.getByRole("switch", { name: "Pedir inscripción" }));
+    await user.click(screen.getByRole("button", { name: "Más opciones" }));
     await user.click(
-      screen.getByRole("radio", { name: /Con tipos de ticket/ }),
+      screen.getByRole("button", { name: "Usar varios tipos de ticket" }),
     );
     await user.clear(screen.getByLabelText("Nombre del ticket 1"));
     await user.click(screen.getByRole("button", { name: "Guardar" }));
@@ -212,11 +217,13 @@ describe("EventForm", () => {
     renderForm(vi.fn(), true);
 
     expect(
-      screen.getByRole("radio", { name: /Sin inscripción/ }),
+      screen.getByRole("switch", { name: "Pedir inscripción" }),
     ).toBeInTheDocument();
     await user.click(screen.getByRole("combobox", { name: "Se repite" }));
     await user.click(screen.getByRole("option", { name: "Todos los días" }));
 
-    expect(screen.queryByRole("radio", { name: /Sin inscripción/ })).toBeNull();
+    expect(
+      screen.queryByRole("switch", { name: "Pedir inscripción" }),
+    ).toBeNull();
   });
 });

@@ -746,6 +746,47 @@
         }
       }
     },
+    "/v1/events/{id}/registration/open": {
+      "put": {
+        "tags": [
+          "event-sharing"
+        ],
+        "operationId": "setRegistrationOpen",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegistrationOpenRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/EventRegistrationSetupResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/events/{id}/attendance": {
       "get": {
         "tags": [
@@ -3193,19 +3234,8 @@
       "EventRegistrationSetupRequest": {
         "type": "object",
         "properties": {
-          "open": {
-            "type": "boolean"
-          },
           "requiresAccount": {
             "type": "boolean"
-          },
-          "waitlistEnabled": {
-            "type": "boolean"
-          },
-          "capacity": {
-            "type": "integer",
-            "format": "int32",
-            "minimum": 1
           },
           "tickets": {
             "type": "array",
@@ -3271,18 +3301,7 @@
           "requiresAccount": {
             "type": "boolean"
           },
-          "waitlistEnabled": {
-            "type": "boolean"
-          },
-          "capacity": {
-            "type": "integer",
-            "format": "int32"
-          },
           "confirmed": {
-            "type": "integer",
-            "format": "int64"
-          },
-          "waitlisted": {
             "type": "integer",
             "format": "int64"
           },
@@ -3330,6 +3349,14 @@
           "sold": {
             "type": "integer",
             "format": "int64"
+          }
+        }
+      },
+      "RegistrationOpenRequest": {
+        "type": "object",
+        "properties": {
+          "open": {
+            "type": "boolean"
           }
         }
       },
@@ -3413,7 +3440,6 @@
             "type": "string",
             "enum": [
               "CONFIRMED",
-              "WAITLISTED",
               "CANCELLED"
             ]
           },
@@ -4297,9 +4323,6 @@
           "requiresAccount": {
             "type": "boolean"
           },
-          "waitlistEnabled": {
-            "type": "boolean"
-          },
           "soldOut": {
             "type": "boolean"
           },
@@ -4350,7 +4373,6 @@
             "type": "string",
             "enum": [
               "CONFIRMED",
-              "WAITLISTED",
               "CANCELLED"
             ]
           }
@@ -4979,7 +5001,6 @@
             "type": "string",
             "enum": [
               "CONFIRMED",
-              "WAITLISTED",
               "CANCELLED"
             ]
           },
@@ -5132,7 +5153,6 @@
             "type": "string",
             "enum": [
               "CONFIRMED",
-              "WAITLISTED",
               "CANCELLED"
             ]
           },

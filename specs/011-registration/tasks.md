@@ -5,7 +5,7 @@
 - [x] T003 `ShareEventDialog` con borrador y botón Guardar; quitar el select «Con el enlace» y la pestaña Inscritos.
 - [x] T004 Sección «Inscripción» en `EventForm` (crear y editar).
 - [x] T005 Inscritos con ticket, estado y cupos en la pantalla del evento.
-- [x] T006 Página pública `/e/[slug]` con tickets, espera y cancelación.
+- [x] T006 Página pública `/e/[slug]` con tickets y cancelación.
 - [x] T007 Mi espacio: «Tengo lugar» / «Asistí» / «Compartidos contigo» y cancelar.
 - [x] T011 Estado de la persona (Visitante/Asistente/Miembro) en Personas, y asistencia con inscritos, «Agregar visitante» y contador.
 - [x] T012 QR del evento (diálogo con renovación) y página pública `/a/[token]`.

@@ -171,12 +171,17 @@ export default function AttendanceEvent(props: {
             onDelete={deleteEvent}
           />
         </Grid>
-        {can("events.write") && (
+        {can("registrations.read") && (
           <Grid size={{ xs: 12 }}>
             <RegistrationPanel
               eventId={id}
               title={event.title ?? ""}
-              canCheckIn={can("attendance.write")}
+              can={{
+                configure: can("registrations.configure"),
+                close: can("registrations.close"),
+                remove: can("registrations.remove"),
+                checkIn: can("attendance.write"),
+              }}
             />
           </Grid>
         )}

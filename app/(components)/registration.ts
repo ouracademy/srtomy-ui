@@ -7,11 +7,21 @@ import type {
 // How an event or course takes sign-ups, as the forms edit it. Signing up is
 // its own setup of the event; it has nothing to do with sharing the link.
 //
-// "NONE": the event takes no sign-ups (a Sunday service, for instance).
-// "FREE": free, with an optional total of seats. The API gets one ticket of
-//         price 0 called "General".
-// "TICKETS": the organizers define each kind of ticket.
-export type RegistrationMode = "NONE" | "FREE" | "TICKETS";
+// Off: the event takes no sign-ups (a Sunday service, for instance).
+// On, with one ticket ("simple"): the organizers only say how many seats and,
+// if they want, the price. The API gets one ticket called "General".
+// On, with several tickets ("manyTickets"): each kind of ticket has its own
+// name, price, quantity and sales window.
+//
+// The seats are only the quantity of each ticket. Closing the registration is
+// an action of its own, not a field here.
+export type RegistrationFormData = {
+  enabled: boolean;
+  requiresAccount: boolean;
+  manyTickets: boolean;
+  // Always at least one; in the simple form only the first one is used.
+  tickets: TicketForm[];
+};
 
 export type TicketForm = {
   // Set when the ticket already exists; a ticket left out of the list is removed.
@@ -26,16 +36,6 @@ export type TicketForm = {
   salesEnd: string;
 };
 
-export type RegistrationFormData = {
-  mode: RegistrationMode;
-  open: boolean;
-  requiresAccount: boolean;
-  waitlistEnabled: boolean;
-  // Empty is unlimited.
-  capacity: string;
-  tickets: TicketForm[];
-};
-
 export const FREE_TICKET_NAME = "General";
 
 export const emptyTicket = (): TicketForm => ({
@@ -47,12 +47,10 @@ export const emptyTicket = (): TicketForm => ({
 });
 
 export const noRegistration = (): RegistrationFormData => ({
-  mode: "NONE",
-  open: true,
+  enabled: false,
   requiresAccount: false,
-  waitlistEnabled: false,
-  capacity: "",
-  tickets: [],
+  manyTickets: false,
+  tickets: [{ ...emptyTicket(), name: FREE_TICKET_NAME }],
 });
 
 const pad = (value: number) => String(value).padStart(2, "0");
@@ -72,12 +70,10 @@ const priceToText = (cents?: number): string =>
 const textToCents = (text: string): number =>
   Math.round(Number(text.replace(",", ".")) * 100);
 
-const isFreeTicket = (ticket: TicketSetup): boolean =>
-  ticket.name === FREE_TICKET_NAME &&
-  !ticket.priceCents &&
-  !ticket.quantity &&
-  !ticket.salesStart &&
-  !ticket.salesEnd;
+// A ticket the simple form can show: the one called General, with no sales
+// window. Any other needs the list of tickets.
+const isSimpleTicket = (ticket: TicketSetup): boolean =>
+  ticket.name === FREE_TICKET_NAME && !ticket.salesStart && !ticket.salesEnd;
 
 // What the API has, as the form edits it.
 export const fromSetupResponse = (
@@ -85,13 +81,11 @@ export const fromSetupResponse = (
 ): RegistrationFormData => {
   if (!setup?.enabled) return noRegistration();
   const tickets = setup.tickets ?? [];
-  const free = tickets.length === 1 && tickets[0] && isFreeTicket(tickets[0]);
+  const only = tickets.length === 1 ? tickets[0] : undefined;
   return {
-    mode: free ? "FREE" : "TICKETS",
-    open: Boolean(setup.open),
+    enabled: true,
     requiresAccount: Boolean(setup.requiresAccount),
-    waitlistEnabled: Boolean(setup.waitlistEnabled),
-    capacity: setup.capacity ? String(setup.capacity) : "",
+    manyTickets: !(only && isSimpleTicket(only)),
     tickets: tickets.map((ticket) => ({
       id: ticket.id,
       name: ticket.name ?? "",
@@ -105,17 +99,28 @@ export const fromSetupResponse = (
 
 const wholeNumber = (text: string) => /^\d+$/.test(text.trim());
 
+const ticketErrors = (ticket: TicketForm, label: string): string[] => {
+  const errors: string[] = [];
+  const price = ticket.price.trim().replace(",", ".");
+  if (price && (Number.isNaN(Number(price)) || Number(price) < 0)) {
+    errors.push(`${label}: el precio no es válido`);
+  }
+  if (
+    ticket.quantity.trim() &&
+    (!wholeNumber(ticket.quantity) || Number(ticket.quantity) < 1)
+  ) {
+    errors.push(`${label}: los cupos deben ser un número mayor que cero`);
+  }
+  return errors;
+};
+
 // Why the form cannot be saved, in the words of the screen; empty when it can.
 export const registrationErrors = (form: RegistrationFormData): string[] => {
-  if (form.mode === "NONE") return [];
-  const errors: string[] = [];
-  if (
-    form.capacity.trim() &&
-    (!wholeNumber(form.capacity) || Number(form.capacity) < 1)
-  ) {
-    errors.push("El cupo total debe ser un número mayor que cero");
+  if (!form.enabled) return [];
+  if (!form.manyTickets) {
+    return ticketErrors(form.tickets[0] ?? emptyTicket(), "Inscripción");
   }
-  if (form.mode === "FREE") return errors;
+  const errors: string[] = [];
   if (form.tickets.length === 0) {
     errors.push("Agregue al menos un tipo de ticket");
   }
@@ -129,16 +134,7 @@ export const registrationErrors = (form: RegistrationFormData): string[] => {
       errors.push(`${label}: ya hay un ticket llamado «${ticket.name.trim()}»`);
     }
     names.add(name);
-    const price = ticket.price.trim().replace(",", ".");
-    if (price && (Number.isNaN(Number(price)) || Number(price) < 0)) {
-      errors.push(`${label}: el precio no es válido`);
-    }
-    if (
-      ticket.quantity.trim() &&
-      (!wholeNumber(ticket.quantity) || Number(ticket.quantity) < 1)
-    ) {
-      errors.push(`${label}: la cantidad debe ser un número mayor que cero`);
-    }
+    errors.push(...ticketErrors(ticket, label));
     if (
       ticket.salesStart &&
       ticket.salesEnd &&
@@ -154,40 +150,34 @@ export const registrationErrors = (form: RegistrationFormData): string[] => {
 export const toSetupRequest = (
   form: RegistrationFormData,
 ): EventRegistrationSetupRequest | null => {
-  if (form.mode === "NONE") return null;
-  const capacity = form.capacity.trim() ? Number(form.capacity) : undefined;
-  const base = {
-    open: form.open,
-    requiresAccount: form.requiresAccount,
-    waitlistEnabled: form.waitlistEnabled,
-    capacity,
-  };
-  if (form.mode === "FREE") {
+  if (!form.enabled) return null;
+  const requiresAccount = form.requiresAccount;
+  const toTicket = (ticket: TicketForm, name: string) => ({
+    id: ticket.id,
+    name,
+    priceCents: ticket.price.trim() ? textToCents(ticket.price) : 0,
+    currency: "PEN",
+    quantity: ticket.quantity.trim() ? Number(ticket.quantity) : undefined,
+    salesStart: fromLocalInput(ticket.salesStart),
+    salesEnd: fromLocalInput(ticket.salesEnd),
+  });
+  if (!form.manyTickets) {
     // Keeps the ticket that already exists so its sign-ups stay with it.
-    const existing = form.tickets[0]?.id;
+    const ticket = form.tickets[0] ?? emptyTicket();
     return {
-      ...base,
+      requiresAccount,
       tickets: [
         {
-          id: existing,
-          name: FREE_TICKET_NAME,
-          priceCents: 0,
-          currency: "PEN",
+          ...toTicket(ticket, FREE_TICKET_NAME),
+          salesStart: undefined,
+          salesEnd: undefined,
         },
       ],
     };
   }
   return {
-    ...base,
-    tickets: form.tickets.map((ticket) => ({
-      id: ticket.id,
-      name: ticket.name.trim(),
-      priceCents: ticket.price.trim() ? textToCents(ticket.price) : 0,
-      currency: "PEN",
-      quantity: ticket.quantity.trim() ? Number(ticket.quantity) : undefined,
-      salesStart: fromLocalInput(ticket.salesStart),
-      salesEnd: fromLocalInput(ticket.salesEnd),
-    })),
+    requiresAccount,
+    tickets: form.tickets.map((ticket) => toTicket(ticket, ticket.name.trim())),
   };
 };
 

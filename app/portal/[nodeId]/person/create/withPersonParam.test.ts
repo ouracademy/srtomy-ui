@@ -13,4 +13,10 @@ describe("withPersonParam", () => {
       "/portal/n1/positions?persona=p1",
     );
   });
+
+  it("replaces a person the path already had", () => {
+    expect(
+      withPersonParam("/portal/n1/positions?persona=old&tab=a", "p1"),
+    ).toBe("/portal/n1/positions?persona=p1&tab=a");
+  });
 });

@@ -17,6 +17,23 @@ describe("permission labels", () => {
     expect(resourceLabel("org")).toBe("Iglesia, sedes y grupos");
   });
 
+  it("names each thing that can be done with the registration of an event", () => {
+    expect(resourceLabel("registrations")).toBe("Inscripciones");
+    expect(
+      [
+        "registrations.read",
+        "registrations.configure",
+        "registrations.close",
+        "registrations.remove",
+      ].map((permission) => permissionLabel(permission)),
+    ).toEqual([
+      "Ver la inscripción y a quienes se inscribieron",
+      "Activar, cambiar o quitar la inscripción",
+      "Cerrar y reabrir las inscripciones",
+      "Quitar a una persona inscrita",
+    ]);
+  });
+
   it("falls back to the raw value for unknown ones", () => {
     expect(permissionLabel("billing.read")).toBe("billing.read");
     expect(permissionLabel("billing.read", "CHURCH")).toBe("billing.read");
