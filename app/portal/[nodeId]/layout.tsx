@@ -20,7 +20,7 @@ import { nodeTypeLabels } from "../organizationTree";
 // requests if they navigate there anyway.
 const menuItems = (type: string | undefined) => [
   {
-    label: "Dashboard",
+    label: "Resumen",
     path: "",
     Icon: DashboardOutlinedIcon,
     needs: ["members.read"] as Permission[],

@@ -24,3 +24,8 @@ export const effectiveMemberState = (
   chosen: MemberState,
   positionCount: number,
 ): MemberState => (positionCount > 0 ? "MEMBER" : chosen);
+
+/** The state a URL parameter names, or undefined when it names none. */
+export const memberStateFromParam = (
+  value: string | null | undefined,
+): MemberState | undefined => (isMemberState(value) ? value : undefined);

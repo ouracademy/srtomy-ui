@@ -152,7 +152,7 @@ test.describe("Mi espacio", () => {
       menu.getByText("Cargos y accesos", { exact: true }),
     ).toHaveCount(0);
     await expect(menu.getByText("Personas", { exact: true })).toHaveCount(0);
-    await expect(menu.getByText("Dashboard", { exact: true })).toHaveCount(0);
+    await expect(menu.getByText("Resumen", { exact: true })).toHaveCount(0);
   });
 
   test("quien administra también aterriza en Mi espacio y de ahí abre su sede", async ({

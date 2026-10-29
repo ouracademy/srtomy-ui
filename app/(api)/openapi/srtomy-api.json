@@ -297,6 +297,49 @@
         }
       }
     },
+    "/v1/people/{id}/memberships/{organizationId}": {
+      "put": {
+        "tags": [
+          "people"
+        ],
+        "operationId": "setMembership",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "organizationId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MembershipRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "No Content"
+          }
+        }
+      }
+    },
     "/v1/organizations/{id}": {
       "get": {
         "tags": [
@@ -1060,6 +1103,19 @@
             "required": true,
             "schema": {
               "type": "string"
+            }
+          },
+          {
+            "name": "memberState",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "VISITOR",
+                "MEMBERSHIP_IN_PROGRESS",
+                "MEMBER"
+              ]
             }
           },
           {
@@ -2031,6 +2087,40 @@
         }
       }
     },
+    "/v1/people/{id}/memberships": {
+      "get": {
+        "tags": [
+          "people"
+        ],
+        "operationId": "memberships",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/MembershipResponse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/people/matches": {
       "get": {
         "tags": [
@@ -2182,6 +2272,47 @@
                   "items": {
                     "$ref": "#/components/schemas/MemberStateResponse"
                   }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/organizations/{id}/growth": {
+      "get": {
+        "tags": [
+          "organizations"
+        ],
+        "operationId": "growth",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "months",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 12
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/MemberGrowthResponse"
                 }
               }
             }
@@ -2942,6 +3073,25 @@
           "organizationId"
         ]
       },
+      "MembershipRequest": {
+        "type": "object",
+        "properties": {
+          "memberState": {
+            "type": "string",
+            "enum": [
+              "VISITOR",
+              "MEMBERSHIP_IN_PROGRESS",
+              "MEMBER"
+            ]
+          },
+          "leader": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "memberState"
+        ]
+      },
       "OrganizationRequest": {
         "type": "object",
         "properties": {
@@ -3139,25 +3289,9 @@
               "GROUP",
               "MINISTRY"
             ]
-          },
-          "leaderIds": {
-            "type": "array",
-            "items": {
-              "type": "string",
-              "format": "uuid"
-            }
-          },
-          "memberIds": {
-            "type": "array",
-            "items": {
-              "type": "string",
-              "format": "uuid"
-            }
           }
         },
         "required": [
-          "leaderIds",
-          "memberIds",
           "name",
           "type"
         ]
@@ -4693,6 +4827,17 @@
           "lastModifiedDate": {
             "type": "string",
             "format": "date-time"
+          },
+          "memberState": {
+            "type": "string",
+            "enum": [
+              "VISITOR",
+              "MEMBERSHIP_IN_PROGRESS",
+              "MEMBER"
+            ]
+          },
+          "leader": {
+            "type": "boolean"
           }
         }
       },
@@ -4707,6 +4852,38 @@
           },
           "unsorted": {
             "type": "boolean"
+          }
+        }
+      },
+      "MembershipResponse": {
+        "type": "object",
+        "properties": {
+          "organizationId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "organizationName": {
+            "type": "string"
+          },
+          "organizationType": {
+            "type": "string"
+          },
+          "memberState": {
+            "type": "string",
+            "enum": [
+              "VISITOR",
+              "MEMBERSHIP_IN_PROGRESS",
+              "MEMBER"
+            ]
+          },
+          "leader": {
+            "type": "boolean"
+          },
+          "positions": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
           }
         }
       },
@@ -4925,6 +5102,73 @@
           },
           "name": {
             "type": "string"
+          }
+        }
+      },
+      "Counts": {
+        "type": "object",
+        "properties": {
+          "visitors": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "attendees": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "members": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "total": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "MemberGrowthResponse": {
+        "type": "object",
+        "properties": {
+          "current": {
+            "$ref": "#/components/schemas/Counts"
+          },
+          "months": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MonthResponse"
+            }
+          }
+        }
+      },
+      "MonthResponse": {
+        "type": "object",
+        "properties": {
+          "month": {
+            "type": "string"
+          },
+          "joined": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "becameAttendee": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "becameMember": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "left": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "peopleAtEnd": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "membersAtEnd": {
+            "type": "integer",
+            "format": "int64"
           }
         }
       },

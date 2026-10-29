@@ -1,6 +1,6 @@
 "use client";
 import React from "react";
-import { Box, Tooltip } from "@mui/material";
+import { Box, Chip, Stack, Tooltip } from "@mui/material";
 import {
   DataGrid,
   DataGridProps,
@@ -14,10 +14,22 @@ import { usePagination } from "@/app/(components)/hook-customization/usePaginati
 import { useGetOrganizationsById, useGetPeople } from "@/app/(api)/generated";
 import type { PersonResponse } from "@/app/(api)/generated/aPIOvejafiel.schemas";
 import { useRouter, useSearchParams } from "next/navigation";
+import {
+  memberStateFromParam,
+  memberStateLabels,
+} from "@/app/(components)/memberState";
+import { STATE_PARAM } from "./PeopleLayout";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { pink } from "@mui/material/colors";
 import { usePermissions } from "@/app/(hooks)/usePermissions";
 import { DeletePersonDialog, type PersonToDelete } from "./DeletePersonDialog";
+
+// Visitors and attendees are outlined: they are on the way to being members.
+const stateColors = {
+  VISITOR: "default",
+  MEMBERSHIP_IN_PROGRESS: "info",
+  MEMBER: "success",
+} as const;
 
 export type MyDataGridProps = Omit<DataGridProps, "columns" | "rows">;
 
@@ -34,6 +46,12 @@ export const PersonTable = ({
   const router = useRouter();
   const searchParams = useSearchParams();
   const searchParamQuery = searchParams.get("search") || "";
+  const stateFilter = memberStateFromParam(searchParams.get(STATE_PARAM));
+
+  // A new filter or search starts again from the first page.
+  React.useEffect(() => {
+    setPaginationModel((model) => ({ ...model, page: 0 }));
+  }, [stateFilter, searchParamQuery, setPaginationModel]);
 
   const [personToDelete, setPersonToDelete] =
     React.useState<PersonToDelete | null>(null);
@@ -49,6 +67,7 @@ export const PersonTable = ({
     page: paginationModel.page,
     size: paginationModel.pageSize,
     searchText: searchParamQuery,
+    memberState: stateFilter,
   });
 
   const columns = React.useMemo(
@@ -56,6 +75,31 @@ export const PersonTable = ({
       (
         [
           { field: "fullName", headerName: "Nombre", flex: 1 },
+          {
+            field: "memberState",
+            headerName: "Estado",
+            width: 200,
+            renderCell: ({ row }) =>
+              row.memberState ? (
+                <Stack
+                  direction="row"
+                  spacing={1}
+                  sx={{ alignItems: "center", height: "100%" }}
+                >
+                  <Chip
+                    size="small"
+                    label={memberStateLabels[row.memberState]}
+                    color={stateColors[row.memberState]}
+                    variant={
+                      row.memberState === "MEMBER" ? "filled" : "outlined"
+                    }
+                  />
+                  {row.leader && (
+                    <Chip size="small" label="Líder" color="secondary" />
+                  )}
+                </Stack>
+              ) : null,
+          },
           {
             field: "actions",
             type: "actions",

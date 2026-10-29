@@ -5,7 +5,12 @@ import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { PersonForm, type PersonDetailFormData } from "./PersonForm";
 
+const node = vi.hoisted(() => ({
+  current: { name: "Jóvenes", type: "GROUP" } as { name: string; type: string },
+}));
+
 vi.mock("@/app/(api)/generated", () => ({
+  useGetOrganizationsById: () => ({ data: node.current }),
   useGetOrganizationsByIdPositions: () => ({
     data: [{ id: "p1", name: "Pastor" }],
     isLoading: false,
@@ -20,6 +25,7 @@ const initial: PersonDetailFormData = {
   phoneNumber: "+51999999999",
   email: "",
   memberState: "VISITOR",
+  leader: false,
   positions: [],
 };
 
@@ -42,8 +48,7 @@ describe("PersonForm member state", () => {
     setup();
 
     expect(
-      screen.getByRole("combobox", { name: "Estado en la iglesia" })
-        .textContent,
+      screen.getByRole("combobox", { name: "Estado en Jóvenes" }).textContent,
     ).toBe("Visitante");
     expect(screen.getByText(/Quien tiene un cargo es miembro/)).toBeTruthy();
   });
@@ -52,7 +57,7 @@ describe("PersonForm member state", () => {
     const { submit, user } = setup();
 
     await user.click(
-      screen.getByRole("combobox", { name: "Estado en la iglesia" }),
+      screen.getByRole("combobox", { name: "Estado en Jóvenes" }),
     );
     await user.click(screen.getByRole("option", { name: "Asistente" }));
     await user.click(screen.getByRole("button", { name: "Guardar" }));
@@ -67,9 +72,36 @@ describe("PersonForm member state", () => {
     setup({ positions: [{ id: "p1", label: "Pastor" }] });
 
     const field = screen.getByRole("combobox", {
-      name: "Estado en la iglesia",
+      name: "Estado en Jóvenes",
     });
     expect(field.textContent).toBe("Miembro");
     expect(field.getAttribute("aria-disabled")).toBe("true");
+  });
+});
+
+describe("PersonForm leadership", () => {
+  it("offers to make the person a leader of a group and saves it", async () => {
+    node.current = { name: "Jóvenes", type: "GROUP" };
+    const { submit, user } = setup();
+
+    await user.click(
+      screen.getByRole("checkbox", { name: "Es líder de Jóvenes" }),
+    );
+    await user.click(screen.getByRole("button", { name: "Guardar" }));
+
+    await waitFor(() => expect(submit).toHaveBeenCalledOnce());
+    expect(submit.mock.calls[0]?.[0]).toMatchObject({ leader: true });
+  });
+
+  it("does not offer leadership in a location", () => {
+    node.current = { name: "Sede", type: "LOCATION" };
+    setup();
+
+    expect(
+      screen.queryByRole("checkbox", { name: /Es líder/ }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.getByRole("combobox", { name: "Estado en Sede" }),
+    ).toBeVisible();
   });
 });

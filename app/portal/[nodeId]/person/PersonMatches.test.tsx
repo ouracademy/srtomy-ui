@@ -10,6 +10,7 @@ const api = vi.hoisted(() => ({
   matches: undefined as unknown,
   searched: [] as { params: unknown; enabled: boolean | undefined }[],
   postPeopleByIdRestore: vi.fn(),
+  putMembership: vi.fn(),
 }));
 vi.mock("@/app/(api)/generated", () => ({
   useGetPeopleMatches: (
@@ -20,6 +21,8 @@ vi.mock("@/app/(api)/generated", () => ({
     return { data: options?.swr?.enabled ? api.matches : undefined };
   },
   postPeopleByIdRestore: api.postPeopleByIdRestore,
+  putPeopleByIdMembershipsByOrganizationId: api.putMembership,
+  useGetOrganizationsById: () => ({ data: { name: "Jóvenes", type: "GROUP" } }),
 }));
 vi.mock("use-debounce", () => ({ useDebounce: (value: unknown) => [value] }));
 const push = vi.fn();
@@ -76,6 +79,7 @@ describe("PersonMatches", () => {
     api.matches = [];
     api.searched = [];
     api.postPeopleByIdRestore.mockReset();
+    api.putMembership.mockReset().mockResolvedValue(undefined);
     showMessage.mockReset();
     push.mockReset();
   });
@@ -162,5 +166,34 @@ describe("PersonMatches", () => {
       ),
     );
     expect(push).not.toHaveBeenCalled();
+  });
+
+  it("adds a person who is already in the church to this node with the chosen state", async () => {
+    const user = userEvent.setup();
+    api.matches = [active];
+    renderMatches();
+
+    await user.click(screen.getByRole("button", { name: "Agregar aquí" }));
+    await user.click(
+      screen.getByRole("combobox", { name: "Estado en Jóvenes" }),
+    );
+    await user.click(screen.getByRole("option", { name: "Asistente" }));
+    await user.click(screen.getByRole("button", { name: "Agregar" }));
+
+    await waitFor(() =>
+      expect(api.putMembership).toHaveBeenCalledWith("p1", "n1", {
+        memberState: "MEMBERSHIP_IN_PROGRESS",
+        leader: false,
+      }),
+    );
+    expect(showMessage).toHaveBeenCalledWith("Ana Diaz fue agregada a Jóvenes");
+    expect(push).toHaveBeenCalledWith("/portal/n1/person");
+  });
+
+  it("does not offer to add a removed person: they are brought back first", () => {
+    api.matches = [removed];
+    renderMatches();
+
+    expect(screen.queryByRole("button", { name: "Agregar aquí" })).toBeNull();
   });
 });
