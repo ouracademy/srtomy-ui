@@ -3198,6 +3198,18 @@
           "recurrence": {
             "$ref": "#/components/schemas/RecurrenceRequest"
           },
+          "parentEventId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "registrationMode": {
+            "type": "string",
+            "enum": [
+              "INHERIT",
+              "OWN",
+              "OPEN"
+            ]
+          },
           "timeZone": {
             "type": "string"
           },
@@ -3726,8 +3738,7 @@
         "required": [
           "creator",
           "location",
-          "name",
-          "positions"
+          "name"
         ]
       },
       "CreatorRequest": {
@@ -4094,6 +4105,18 @@
           "recurrence": {
             "$ref": "#/components/schemas/RecurrenceRequest"
           },
+          "parentEventId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "registrationMode": {
+            "type": "string",
+            "enum": [
+              "INHERIT",
+              "OWN",
+              "OPEN"
+            ]
+          },
           "timeZone": {
             "type": "string"
           },
@@ -4390,6 +4413,50 @@
           }
         }
       },
+      "ContainerResponse": {
+        "type": "object",
+        "properties": {
+          "slug": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          }
+        }
+      },
+      "ProgramItemResponse": {
+        "type": "object",
+        "properties": {
+          "slug": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "start": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "end": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "isACourse": {
+            "type": "boolean"
+          },
+          "registrationMode": {
+            "type": "string",
+            "enum": [
+              "INHERIT",
+              "OWN",
+              "OPEN"
+            ]
+          },
+          "includedInTicket": {
+            "type": "boolean"
+          }
+        }
+      },
       "RecurrenceResponse": {
         "type": "object",
         "properties": {
@@ -4506,6 +4573,15 @@
               "CONFIRMED",
               "CANCELLED"
             ]
+          },
+          "program": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProgramItemResponse"
+            }
+          },
+          "container": {
+            "$ref": "#/components/schemas/ContainerResponse"
           }
         }
       },
@@ -5169,6 +5245,9 @@
           },
           "ticketCode": {
             "type": "string"
+          },
+          "parentTitle": {
+            "type": "string"
           }
         }
       },
@@ -5183,6 +5262,37 @@
             "items": {
               "type": "string"
             }
+          }
+        }
+      },
+      "ChildResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "title": {
+            "type": "string"
+          },
+          "start": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "end": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "isACourse": {
+            "type": "boolean"
+          },
+          "registrationMode": {
+            "type": "string",
+            "enum": [
+              "INHERIT",
+              "OWN",
+              "OPEN"
+            ]
           }
         }
       },
@@ -5232,6 +5342,27 @@
           "lastModifiedDate": {
             "type": "string",
             "format": "date-time"
+          },
+          "parentEventId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "parentTitle": {
+            "type": "string"
+          },
+          "registrationMode": {
+            "type": "string",
+            "enum": [
+              "INHERIT",
+              "OWN",
+              "OPEN"
+            ]
+          },
+          "children": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ChildResponse"
+            }
           }
         }
       },
