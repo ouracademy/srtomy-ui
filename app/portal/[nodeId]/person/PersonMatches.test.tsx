@@ -183,7 +183,6 @@ describe("PersonMatches", () => {
     await waitFor(() =>
       expect(api.putMembership).toHaveBeenCalledWith("p1", "n1", {
         memberState: "MEMBERSHIP_IN_PROGRESS",
-        leader: false,
       }),
     );
     expect(showMessage).toHaveBeenCalledWith("Ana Diaz fue agregada a Jóvenes");

@@ -148,7 +148,6 @@ export const PersonMatches = ({ nodeId }: { nodeId: string }) => {
         }
         nodeId={nodeId}
         nodeName={node?.name ?? "este lugar"}
-        nodeType={node?.type}
         close={() => setAdding(null)}
         onAdded={() => {
           router.push(`/portal/${nodeId}/person`);

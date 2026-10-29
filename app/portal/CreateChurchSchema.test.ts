@@ -50,7 +50,8 @@ describe("initialCreateChurchForm", () => {
 
     expect(form.positions).toEqual([
       { name: "Pastor", permissions: ["org.read", "members.write"] },
-      { name: "Líder de alabanza", permissions: [] },
+      { name: "Líder de grupo", permissions: [] },
+      { name: "Líder de ministerio", permissions: [] },
       { name: "Servidor", permissions: ["org.read"] },
       { name: "Maestro", permissions: [] },
     ]);

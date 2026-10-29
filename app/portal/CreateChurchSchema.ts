@@ -14,7 +14,8 @@ import {
 // start: the church can rename, remove or change them, now and at any time.
 export const startingPositions = [
   "Pastor",
-  "Líder de alabanza",
+  "Líder de grupo",
+  "Líder de ministerio",
   "Servidor",
   "Maestro",
 ];

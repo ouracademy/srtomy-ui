@@ -3,11 +3,8 @@
 import {
   postOrganizationsByIdPositions,
   postPeople,
-  putPeopleByIdMembershipsByOrganizationId,
 } from "@/app/(api)/generated";
-import { effectiveMemberState } from "@/app/(components)/memberState";
 import { resolvePositionIds } from "../positionSelection";
-import { leadershipChanged, membershipBody } from "../membership";
 import { useRouter } from "next/navigation";
 import {
   PersonForm,
@@ -34,7 +31,6 @@ export default function CreatePerson(props: {
         phoneNumber: "+51",
         email: "",
         memberState: "VISITOR",
-        leader: false,
         positions: [],
       }}
       submit={async (data) => {
@@ -44,17 +40,6 @@ export default function CreatePerson(props: {
         const personId = await postPeople(
           toPersonPayload(data, nodeId, positionIds),
         );
-        // POST /people does not say who leads the node.
-        if (leadershipChanged(false, data.leader)) {
-          await putPeopleByIdMembershipsByOrganizationId(
-            personId,
-            nodeId,
-            membershipBody(
-              effectiveMemberState(data.memberState, positionIds.length),
-              data.leader,
-            ),
-          );
-        }
         alert.showMessage("Guardado exitosamente");
         // `?next=` sends the user back to what asked for the person (the
         // invitation dialog), with the new person in `persona`.

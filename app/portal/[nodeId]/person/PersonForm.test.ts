@@ -11,7 +11,6 @@ const data: PersonDetailFormData = {
   phoneNumber: "+51999",
   email: " ana@x.org ",
   memberState: "VISITOR",
-  leader: false,
   positions: [],
 };
 

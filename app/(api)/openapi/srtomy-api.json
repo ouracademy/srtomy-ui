@@ -2245,40 +2245,6 @@
         }
       }
     },
-    "/v1/organizations/{id}/member-state": {
-      "get": {
-        "tags": [
-          "organizations"
-        ],
-        "operationId": "getMemberState",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "*/*": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/MemberStateResponse"
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/v1/organizations/{id}/growth": {
       "get": {
         "tags": [
@@ -3083,9 +3049,6 @@
               "MEMBERSHIP_IN_PROGRESS",
               "MEMBER"
             ]
-          },
-          "leader": {
-            "type": "boolean"
           }
         },
         "required": [
@@ -4835,9 +4798,6 @@
               "MEMBERSHIP_IN_PROGRESS",
               "MEMBER"
             ]
-          },
-          "leader": {
-            "type": "boolean"
           }
         }
       },
@@ -4875,9 +4835,6 @@
               "MEMBERSHIP_IN_PROGRESS",
               "MEMBER"
             ]
-          },
-          "leader": {
-            "type": "boolean"
           },
           "positions": {
             "type": "array",
@@ -5037,71 +4994,6 @@
             "items": {
               "$ref": "#/components/schemas/PositionHolderResponse"
             }
-          }
-        }
-      },
-      "MemberStateResponse": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "child": {
-            "$ref": "#/components/schemas/PartyRef"
-          },
-          "parent": {
-            "$ref": "#/components/schemas/PartyRef"
-          },
-          "type": {
-            "$ref": "#/components/schemas/TypeRef"
-          }
-        }
-      },
-      "PartyRef": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "name": {
-            "type": "string"
-          },
-          "fullName": {
-            "type": "string"
-          },
-          "firstName": {
-            "type": "string"
-          },
-          "lastName": {
-            "type": "string"
-          },
-          "phoneNumber": {
-            "type": "string"
-          },
-          "age": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "birthdate": {
-            "type": "string",
-            "format": "date"
-          },
-          "hasBeenBaptized": {
-            "type": "boolean"
-          }
-        }
-      },
-      "TypeRef": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "name": {
-            "type": "string"
           }
         }
       },

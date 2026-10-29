@@ -19,13 +19,13 @@ import { nodeTypeLabels } from "@/app/portal/organizationTree";
 import { LocationForm } from "./LocationForm";
 import { toOrganizationForm, toOrganizationPayload } from "./LocationSchema";
 import { GroupForm } from "./groups/GroupForm";
-import { Groups } from "./groups/Groups";
 import {
   toGroupInitialValues,
   toUpdateLocationChildRequest,
 } from "./groups/groupEdit";
 
-// Details of the current node, whatever its type, and the nodes under it.
+// Details of the current node, whatever its type. The nodes under it are in
+// the «Sedes» / «Grupos» tab.
 export default function NodeDetails(props: {
   params: Promise<{ nodeId: string }>;
 }) {
@@ -54,13 +54,6 @@ export default function NodeDetails(props: {
           onSaved={() => mutate()}
         />
       )}
-      <Groups
-        nodeId={nodeId}
-        isChurch={node.type === "CHURCH"}
-        insideGroup={node.type === "GROUP" || node.type === "MINISTRY"}
-        canCreate={can("org.create_child")}
-        canDelete={can("org.delete")}
-      />
     </Box>
   );
 }

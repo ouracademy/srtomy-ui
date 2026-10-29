@@ -14,17 +14,9 @@ import {
   useGetPeopleById,
   useGetPeopleByIdMemberships,
   putPeopleById,
-  putPeopleByIdMembershipsByOrganizationId,
 } from "@/app/(api)/generated";
-import {
-  effectiveMemberState,
-  isMemberState,
-} from "@/app/(components)/memberState";
+import { isMemberState } from "@/app/(components)/memberState";
 import { PersonMemberships } from "@/app/portal/[nodeId]/person/PersonMemberships";
-import {
-  leadershipChanged,
-  membershipBody,
-} from "@/app/portal/[nodeId]/person/membership";
 import {
   resolvePositionIds,
   toPositionChoice,
@@ -40,7 +32,6 @@ const standingIn = (
   memberships: {
     organizationId?: string;
     memberState?: string;
-    leader?: boolean;
   }[],
   nodeId: string,
 ) => {
@@ -51,7 +42,6 @@ const standingIn = (
     memberState: isMemberState(here?.memberState)
       ? here.memberState
       : "VISITOR",
-    leader: here?.leader ?? false,
   } as const;
 };
 
@@ -106,20 +96,6 @@ export default function PersonEdit(props: {
                 id,
                 toPersonPayload(formValues, nodeId, positionIds),
               );
-              // PUT /people does not say who leads the node.
-              if (leadershipChanged(standing.leader, formValues.leader)) {
-                await putPeopleByIdMembershipsByOrganizationId(
-                  id,
-                  nodeId,
-                  membershipBody(
-                    effectiveMemberState(
-                      formValues.memberState,
-                      positionIds.length,
-                    ),
-                    formValues.leader,
-                  ),
-                );
-              }
               mutatePerson();
               mutatePositions();
               mutateMemberships();

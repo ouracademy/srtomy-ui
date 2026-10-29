@@ -14,14 +14,13 @@ const showMessage = vi.fn();
 const close = vi.fn();
 const onAdded = vi.fn();
 
-const open = (nodeType = "GROUP") =>
+const open = () =>
   render(
     <SnackbarContext.Provider value={{ message: "", showMessage }}>
       <AddToNodeDialog
         person={{ id: "p1", name: "Ana Diaz" }}
         nodeId="n1"
         nodeName="Jóvenes"
-        nodeType={nodeType}
         close={close}
         onAdded={onAdded}
       />
@@ -47,32 +46,8 @@ describe("AddToNodeDialog", () => {
     await waitFor(() => expect(onAdded).toHaveBeenCalledOnce());
     expect(api.put).toHaveBeenCalledWith("p1", "n1", {
       memberState: "VISITOR",
-      leader: false,
     });
     expect(close).toHaveBeenCalled();
-  });
-
-  it("can make the person a leader of a group", async () => {
-    const user = userEvent.setup();
-    open("MINISTRY");
-
-    await user.click(
-      screen.getByRole("checkbox", { name: "Es líder de Jóvenes" }),
-    );
-    await user.click(screen.getByRole("button", { name: "Agregar" }));
-
-    await waitFor(() =>
-      expect(api.put).toHaveBeenCalledWith("p1", "n1", {
-        memberState: "VISITOR",
-        leader: true,
-      }),
-    );
-  });
-
-  it("does not offer leadership in a location", () => {
-    open("LOCATION");
-
-    expect(screen.queryByRole("checkbox")).toBeNull();
   });
 
   it("says why it failed and stays open", async () => {
@@ -102,7 +77,6 @@ describe("AddToNodeDialog", () => {
         person={null}
         nodeId="n1"
         nodeName="Jóvenes"
-        nodeType="GROUP"
         close={close}
         onAdded={onAdded}
       />,

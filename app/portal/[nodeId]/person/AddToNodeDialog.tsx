@@ -3,13 +3,11 @@
 import React from "react";
 import {
   Button,
-  Checkbox,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
   FormControl,
-  FormControlLabel,
   FormHelperText,
   InputLabel,
   MenuItem,
@@ -26,14 +24,13 @@ import {
   memberStates,
   type MemberState,
 } from "@/app/(components)/memberState";
-import { canHaveLeaders, membershipBody } from "./membership";
+import { membershipBody } from "./membership";
 
 type AddToNodeDialogProps = Readonly<{
   // The person to put in the node; null keeps the dialog closed.
   person: { id: string; name: string } | null;
   nodeId: string;
   nodeName: string;
-  nodeType: string | undefined;
   close: () => void;
   // Called once the person is in the node.
   onAdded: () => void;
@@ -46,13 +43,11 @@ export const AddToNodeDialog = ({
   person,
   nodeId,
   nodeName,
-  nodeType,
   close,
   onAdded,
 }: AddToNodeDialogProps) => {
   const alert = React.useContext(SnackbarContext);
   const [state, setState] = React.useState<MemberState>("VISITOR");
-  const [leader, setLeader] = React.useState(false);
   const [saving, setSaving] = React.useState(false);
 
   const add = async (event: React.FormEvent) => {
@@ -63,7 +58,7 @@ export const AddToNodeDialog = ({
       await putPeopleByIdMembershipsByOrganizationId(
         person.id,
         nodeId,
-        membershipBody(state, leader),
+        membershipBody(state),
       );
     } catch (failure) {
       alert.showMessage(
@@ -106,17 +101,6 @@ export const AddToNodeDialog = ({
               </Select>
               <FormHelperText>{memberStateHelp}</FormHelperText>
             </FormControl>
-            {canHaveLeaders(nodeType) && (
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    checked={leader}
-                    onChange={(event) => setLeader(event.target.checked)}
-                  />
-                }
-                label={`Es líder de ${nodeName}`}
-              />
-            )}
           </Stack>
         </DialogContent>
         <DialogActions>

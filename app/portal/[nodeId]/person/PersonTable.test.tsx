@@ -73,10 +73,10 @@ describe("PersonTable", () => {
     expect(screen.getByRole("menuitem", { name: "Ver" })).toBeInTheDocument();
   });
 
-  it("shows the state of each person in the node and who leads it", async () => {
+  it("shows the state of each person in the node", async () => {
     api.people = {
       content: [
-        { id: "p1", fullName: "Ana Diaz", memberState: "MEMBER", leader: true },
+        { id: "p1", fullName: "Ana Diaz", memberState: "MEMBER" },
         {
           id: "p2",
           fullName: "Beto Ruiz",
@@ -88,7 +88,6 @@ describe("PersonTable", () => {
     render(<PersonTable nodeId="n1" />);
 
     expect(await screen.findByText("Miembro")).toBeVisible();
-    expect(screen.getByText("Líder")).toBeVisible();
     expect(screen.getByText("Asistente")).toBeVisible();
   });
 

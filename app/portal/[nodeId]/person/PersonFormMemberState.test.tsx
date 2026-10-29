@@ -25,7 +25,6 @@ const initial: PersonDetailFormData = {
   phoneNumber: "+51999999999",
   email: "",
   memberState: "VISITOR",
-  leader: false,
   positions: [],
 };
 
@@ -76,32 +75,5 @@ describe("PersonForm member state", () => {
     });
     expect(field.textContent).toBe("Miembro");
     expect(field.getAttribute("aria-disabled")).toBe("true");
-  });
-});
-
-describe("PersonForm leadership", () => {
-  it("offers to make the person a leader of a group and saves it", async () => {
-    node.current = { name: "Jóvenes", type: "GROUP" };
-    const { submit, user } = setup();
-
-    await user.click(
-      screen.getByRole("checkbox", { name: "Es líder de Jóvenes" }),
-    );
-    await user.click(screen.getByRole("button", { name: "Guardar" }));
-
-    await waitFor(() => expect(submit).toHaveBeenCalledOnce());
-    expect(submit.mock.calls[0]?.[0]).toMatchObject({ leader: true });
-  });
-
-  it("does not offer leadership in a location", () => {
-    node.current = { name: "Sede", type: "LOCATION" };
-    setup();
-
-    expect(
-      screen.queryByRole("checkbox", { name: /Es líder/ }),
-    ).not.toBeInTheDocument();
-    expect(
-      screen.getByRole("combobox", { name: "Estado en Sede" }),
-    ).toBeVisible();
   });
 });

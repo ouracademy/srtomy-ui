@@ -56,7 +56,7 @@ export default function GroupCreatePage(props: {
           label: `Ir al ${kind.toLowerCase()}`,
           onClick: () => router.push(`/portal/${created.id}`),
         });
-        router.push(`/portal/${nodeId}/location`);
+        router.push(`/portal/${nodeId}/groups`);
       }}
     />
   );

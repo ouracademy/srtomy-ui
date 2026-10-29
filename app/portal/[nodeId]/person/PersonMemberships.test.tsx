@@ -68,7 +68,6 @@ describe("PersonMemberships", () => {
         organizationName: "Sede",
         organizationType: "LOCATION",
         memberState: "MEMBER",
-        leader: false,
         positions: ["Pastor"],
       },
       {
@@ -76,7 +75,6 @@ describe("PersonMemberships", () => {
         organizationName: "Jóvenes",
         organizationType: "GROUP",
         memberState: "MEMBERSHIP_IN_PROGRESS",
-        leader: false,
         positions: [],
       },
     ];
@@ -116,25 +114,10 @@ describe("PersonMemberships", () => {
     await waitFor(() =>
       expect(api.put).toHaveBeenCalledWith("p1", "g1", {
         memberState: "MEMBER",
-        leader: false,
       }),
     );
     expect(api.mutate).toHaveBeenCalled();
     expect(showMessage).toHaveBeenCalledWith("Guardado exitosamente");
-  });
-
-  it("makes the person a leader of a group", async () => {
-    const user = userEvent.setup();
-    renderIt();
-
-    await user.click(screen.getByRole("checkbox", { name: "Líder" }));
-
-    await waitFor(() =>
-      expect(api.put).toHaveBeenCalledWith("p1", "g1", {
-        memberState: "MEMBERSHIP_IN_PROGRESS",
-        leader: true,
-      }),
-    );
   });
 
   it("removes the person from a place after confirming", async () => {
@@ -183,7 +166,6 @@ describe("PersonMemberships", () => {
     await waitFor(() =>
       expect(api.put).toHaveBeenCalledWith("p1", "g2", {
         memberState: "VISITOR",
-        leader: false,
       }),
     );
     expect(api.mutate).toHaveBeenCalled();

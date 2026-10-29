@@ -37,6 +37,7 @@ test.describe("Menú en móvil", () => {
     for (const label of [
       "Resumen",
       "Sede",
+      "Grupos y ministerios",
       "Personas",
       "Eventos y cursos",
       "Cargos y accesos",

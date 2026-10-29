@@ -5,9 +5,7 @@ import {
   Autocomplete,
   Box,
   Button,
-  Checkbox,
   Chip,
-  FormControlLabel,
   List,
   ListItem,
   ListItemText,
@@ -39,7 +37,7 @@ import { nodeTypeLabels, withIds } from "@/app/portal/organizationTree";
 import { AddToNodeDialog } from "./AddToNodeDialog";
 import { DeletePersonDialog } from "./DeletePersonDialog";
 import { addableNodes } from "./addableNodes";
-import { canHaveLeaders, membershipBody } from "./membership";
+import { membershipBody } from "./membership";
 
 type Props = Readonly<{
   personId: string;
@@ -61,23 +59,18 @@ export const PersonMemberships = ({ personId, personName, nodeId }: Props) => {
   const [adding, setAdding] = React.useState<{
     id: string;
     name: string;
-    type?: string;
   } | null>(null);
 
   if (!memberships) return <Loading />;
 
-  const change = async (
-    membership: MembershipResponse,
-    state: MemberState,
-    leader: boolean,
-  ) => {
+  const change = async (membership: MembershipResponse, state: MemberState) => {
     const id = membership.organizationId ?? "";
     setSavingId(id);
     try {
       await putPeopleByIdMembershipsByOrganizationId(
         personId,
         id,
-        membershipBody(state, leader),
+        membershipBody(state),
       );
       await mutate();
       alert.showMessage("Guardado exitosamente");
@@ -151,11 +144,7 @@ export const PersonMemberships = ({ personId, personName, nodeId }: Props) => {
                       "aria-label": `Estado en ${membership.organizationName}`,
                     }}
                     onChange={(event) =>
-                      change(
-                        membership,
-                        event.target.value as MemberState,
-                        membership.leader ?? false,
-                      )
+                      change(membership, event.target.value as MemberState)
                     }
                   >
                     {memberStates.map((value) => (
@@ -164,20 +153,6 @@ export const PersonMemberships = ({ personId, personName, nodeId }: Props) => {
                       </MenuItem>
                     ))}
                   </Select>
-                  {canHaveLeaders(membership.organizationType) && (
-                    <FormControlLabel
-                      label="Líder"
-                      control={
-                        <Checkbox
-                          checked={membership.leader ?? false}
-                          disabled={savingId === id}
-                          onChange={(event) =>
-                            change(membership, state, event.target.checked)
-                          }
-                        />
-                      }
-                    />
-                  )}
                   <Button
                     color="error"
                     size="small"
@@ -199,12 +174,7 @@ export const PersonMemberships = ({ personId, personName, nodeId }: Props) => {
           getOptionLabel={(option) => option.name ?? ""}
           groupBy={(option) => nodeTypeLabels[option.type ?? ""] ?? ""}
           onChange={(_event, option) =>
-            option &&
-            setAdding({
-              id: option.id,
-              name: option.name ?? "",
-              type: option.type,
-            })
+            option && setAdding({ id: option.id, name: option.name ?? "" })
           }
           renderInput={(params) => (
             <TextField
@@ -219,7 +189,6 @@ export const PersonMemberships = ({ personId, personName, nodeId }: Props) => {
         person={adding ? { id: personId, name: personName } : null}
         nodeId={adding?.id ?? ""}
         nodeName={adding?.name ?? ""}
-        nodeType={adding?.type}
         close={() => setAdding(null)}
         onAdded={() => mutate()}
       />

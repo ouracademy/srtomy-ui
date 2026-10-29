@@ -28,7 +28,7 @@ test.describe("Registro de persona", () => {
           { id: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", name: "Pastor" },
           {
             id: "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
-            name: "Líder de alabanza",
+            name: "Líder de grupo",
           },
           { id: "cccccccc-cccc-cccc-cccc-cccccccccccc", name: "Ujier" },
         ]),
@@ -106,7 +106,7 @@ test.describe("Registro de persona", () => {
     await rolesInput.fill("Catequista");
     await rolesInput.press("Enter");
     await page.keyboard.press("Escape");
-    await expect(page.getByText("Líder de alabanza")).toBeVisible();
+    await expect(page.getByText("Líder de grupo")).toBeVisible();
     await expect(page.getByText("Ujier")).toBeVisible();
 
     //8. Envío final
@@ -175,5 +175,56 @@ test.describe("Registro de persona", () => {
       new URL((await restored).url()).searchParams.get("organizationId"),
     ).toBe(mLocId);
     await expect(page).toHaveURL(new RegExp(`/person/p2$`));
+  });
+
+  test("agrega a un grupo a alguien que ya está en la iglesia, con su estado ahí", async ({
+    page,
+  }) => {
+    await page.route("**/v1/organizations/*", (route) =>
+      route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({ id: mLocId, name: "Jóvenes", type: "GROUP" }),
+      }),
+    );
+    await page.route("**/v1/people/matches**", (route) =>
+      route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify([
+          { id: "p1", fullName: "Ana Diaz", status: "ACTIVE" },
+        ]),
+      }),
+    );
+    await page.route("**/v1/people?*", (route) =>
+      route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({ content: [], totalElements: 0 }),
+      }),
+    );
+    const added = page.waitForRequest(
+      (request) =>
+        request.method() === "PUT" &&
+        request.url().endsWith(`/v1/people/p1/memberships/${mLocId}`),
+    );
+    await page.route("**/v1/people/p1/memberships/*", (route) =>
+      route.fulfill({ status: 204, body: "" }),
+    );
+
+    await page.goto(`/portal/${mLocId}/person/create`);
+    await page.getByLabel(/Nombre/i).fill("Ana");
+    await page.getByLabel(/Apellido/i).fill("Diaz");
+    await page.getByRole("button", { name: "Agregar aquí" }).click();
+
+    // The state is the one of this group, whatever Ana is in the church.
+    await page.getByRole("combobox", { name: "Estado en Jóvenes" }).click();
+    await page.getByRole("option", { name: "Asistente" }).click();
+    await page.getByRole("button", { name: "Agregar", exact: true }).click();
+
+    expect((await added).postDataJSON()).toEqual({
+      memberState: "MEMBERSHIP_IN_PROGRESS",
+    });
+    await expect(page).toHaveURL(new RegExp(`/portal/${mLocId}/person$`));
   });
 });

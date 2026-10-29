@@ -94,9 +94,6 @@ export const PersonTable = ({
                       row.memberState === "MEMBER" ? "filled" : "outlined"
                     }
                   />
-                  {row.leader && (
-                    <Chip size="small" label="Líder" color="secondary" />
-                  )}
                 </Stack>
               ) : null,
           },

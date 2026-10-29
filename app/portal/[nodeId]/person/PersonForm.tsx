@@ -5,7 +5,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Autocomplete, Chip, Grid, TextField, Typography } from "@mui/material";
 import { differenceInYears } from "date-fns";
 import {
-  CheckboxElement,
   Controller,
   FormContainer,
   RadioButtonGroup,
@@ -42,7 +41,6 @@ import { TelFieldElement } from "@/app/(components)/TelFieldElement";
 import Loading from "@/app/(components)/Loading";
 import { ResourceError } from "@/app/(components)/ResourceError";
 import { PersonMatches } from "./PersonMatches";
-import { canHaveLeaders } from "./membership";
 
 const requiredFirstNameMessage = "Por favor ingrese su nombre";
 const requiredLastNameMessage = "Por favor ingrese su apellido";
@@ -58,8 +56,6 @@ const schema = z.object({
   hasBeenBaptized: z.enum(["YES", "NO"]).optional(),
   // Visitor, attending or member. Whoever holds a position is a member.
   memberState: z.enum(memberStates),
-  // Leads the node (a group or ministry) being edited.
-  leader: z.boolean(),
   positions: z.array(
     z.object({
       id: z.string().optional(),
@@ -243,14 +239,6 @@ export const PersonForm = ({
         <Grid size={{ xs: 12, sm: 6 }}>
           <MemberStateField nodeName={node?.name ?? "este lugar"} />
         </Grid>
-        {canHaveLeaders(node?.type) && (
-          <Grid size={{ xs: 12, sm: 6 }} sx={{ alignSelf: "center" }}>
-            <CheckboxElement
-              name="leader"
-              label={`Es líder de ${node?.name}`}
-            />
-          </Grid>
-        )}
         <Grid size={{ xs: 12 }}>
           <Grid sx={{ paddingBottom: "10px" }}>
             <Typography variant="h6">Cargos:</Typography>
