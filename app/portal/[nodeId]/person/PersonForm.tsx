@@ -37,6 +37,7 @@ import {
 import { TelFieldElement } from "@/app/(components)/TelFieldElement";
 import Loading from "@/app/(components)/Loading";
 import { ResourceError } from "@/app/(components)/ResourceError";
+import { PersonMatches } from "./PersonMatches";
 
 const requiredFirstNameMessage = "Por favor ingrese su nombre";
 const requiredLastNameMessage = "Por favor ingrese su apellido";
@@ -87,6 +88,8 @@ type PersonFormProps = {
   initialValues: PersonDetailFormData;
   submit: (data: PersonDetailFormData) => Promise<void>;
   nodeId: string;
+  // When registering someone new, point out people who may already be them.
+  suggestMatches?: boolean;
 };
 
 // How involved the person is. With a position they are a member, and it cannot
@@ -121,6 +124,7 @@ export const PersonForm = ({
   initialValues,
   submit,
   nodeId,
+  suggestMatches = false,
 }: PersonFormProps) => {
   const {
     data: positions,
@@ -181,6 +185,11 @@ export const PersonForm = ({
             helperText="Con este correo podrá recibir una invitación a la aplicación"
           />
         </Grid>
+        {suggestMatches && (
+          <Grid size={{ xs: 12 }}>
+            <PersonMatches nodeId={nodeId} />
+          </Grid>
+        )}
         <Grid size={{ xs: 12, sm: 4 }}>
           <DatePickerElement
             sx={{ width: "100%" }}

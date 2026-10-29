@@ -9,6 +9,7 @@ import {
 describe("permission labels", () => {
   it("translates the known permissions and resources", () => {
     expect(permissionLabel("members.read")).toBe("Ver personas");
+    expect(permissionLabel("members.delete")).toBe("Eliminar personas");
     expect(resourceLabel("iam")).toBe("Accesos");
     expect(permissionLabel("invitations.send")).toBe(
       "Invitar a usar la aplicación",

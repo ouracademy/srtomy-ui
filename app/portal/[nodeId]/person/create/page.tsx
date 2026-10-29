@@ -56,6 +56,7 @@ export default function CreatePerson(props: {
         );
       }}
       nodeId={nodeId}
+      suggestMatches
     />
   );
 }

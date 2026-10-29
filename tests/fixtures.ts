@@ -82,7 +82,10 @@ const json = (body: unknown) => ({
 // The permissions a position can give, grouped by module as the API sends them.
 export const permissionCatalog = [
   { resource: "org", permissions: ["org.read", "org.update"] },
-  { resource: "members", permissions: ["members.read", "members.write"] },
+  {
+    resource: "members",
+    permissions: ["members.read", "members.write", "members.delete"],
+  },
   { resource: "events", permissions: ["events.read", "events.write"] },
 ];
 
@@ -123,6 +126,7 @@ async function mockCurrentUser(page: import("@playwright/test").Page) {
         "org.delete",
         "members.read",
         "members.write",
+        "members.delete",
         "events.read",
         "events.write",
         "attendance.write",

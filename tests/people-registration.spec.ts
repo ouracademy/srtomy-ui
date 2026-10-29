@@ -121,4 +121,59 @@ test.describe("Registro de persona", () => {
       "dddddddd-dddd-dddd-dddd-dddddddddddd",
     ]);
   });
+
+  test("avisa si la persona ya existe o fue eliminada y permite reactivarla", async ({
+    page,
+  }) => {
+    await page.route("**/v1/people/matches**", (route) =>
+      route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify([
+          {
+            id: "p1",
+            fullName: "Ana Diaz",
+            email: "ana@example.org",
+            status: "ACTIVE",
+          },
+          {
+            id: "p2",
+            fullName: "Ana Diaz Rojas",
+            status: "REMOVED",
+            removedTime: "2026-03-04T10:00:00",
+          },
+        ]),
+      }),
+    );
+    const restored = page.waitForRequest(
+      (request) =>
+        request.method() === "POST" &&
+        request.url().includes("/v1/people/p2/restore"),
+    );
+    await page.route("**/v1/people/p2/restore**", (route) =>
+      route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify("p2"),
+      }),
+    );
+    await page.route("**/v1/people/p2", (route) =>
+      route.fulfill({ status: 404, body: "" }),
+    );
+
+    await page.goto(`/portal/${mLocId}/person/create`);
+    await page.getByLabel(/Nombre/i).fill("Ana");
+    await page.getByLabel(/Apellido/i).fill("Diaz");
+
+    await expect(page.getByText("¿Es alguna de estas personas?")).toBeVisible();
+    await expect(page.getByText(/Ya está registrada/)).toBeVisible();
+    await expect(page.getByText(/Eliminada el 04\/03\/2026/)).toBeVisible();
+
+    await page.getByRole("button", { name: "Reactivar" }).click();
+
+    expect(
+      new URL((await restored).url()).searchParams.get("organizationId"),
+    ).toBe(mLocId);
+    await expect(page).toHaveURL(new RegExp(`/person/p2$`));
+  });
 });

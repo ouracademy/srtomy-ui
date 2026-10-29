@@ -11,12 +11,13 @@ import { esES } from "@mui/x-data-grid/locales";
 import SearchIcon from "@mui/icons-material/Search";
 import { withOutSorting } from "@/app/(components)/helpers/withOutSorting";
 import { usePagination } from "@/app/(components)/hook-customization/usePagination";
-import { useGetPeople } from "@/app/(api)/generated";
+import { useGetOrganizationsById, useGetPeople } from "@/app/(api)/generated";
 import type { PersonResponse } from "@/app/(api)/generated/aPIOvejafiel.schemas";
 import { useRouter, useSearchParams } from "next/navigation";
 import DeleteIcon from "@mui/icons-material/Delete";
-import { DialogDeleteConfirmation } from "@/app/(components)/DialogDeleteConfirmation";
 import { pink } from "@mui/material/colors";
+import { usePermissions } from "@/app/(hooks)/usePermissions";
+import { DeletePersonDialog, type PersonToDelete } from "./DeletePersonDialog";
 
 export type MyDataGridProps = Omit<DataGridProps, "columns" | "rows">;
 
@@ -34,8 +35,16 @@ export const PersonTable = ({
   const searchParams = useSearchParams();
   const searchParamQuery = searchParams.get("search") || "";
 
-  const [openDialog, setOpenDialog] = React.useState(false);
-  const { data: people, isLoading } = useGetPeople({
+  const [personToDelete, setPersonToDelete] =
+    React.useState<PersonToDelete | null>(null);
+  const { can } = usePermissions(nodeId);
+  const canDelete = can("members.delete");
+  const { data: node } = useGetOrganizationsById(nodeId);
+  const {
+    data: people,
+    isLoading,
+    mutate,
+  } = useGetPeople({
     organizationId: nodeId,
     page: paginationModel.page,
     size: paginationModel.pageSize,
@@ -52,7 +61,7 @@ export const PersonTable = ({
             type: "actions",
             width: 80,
             getActions: (params) => {
-              return [
+              const actions = [
                 <Tooltip title="Ver" key="see">
                   <GridActionsCellItem
                     icon={
@@ -64,21 +73,31 @@ export const PersonTable = ({
                     }
                   />
                 </Tooltip>,
-                <Tooltip title="Eliminar" key="delete">
-                  <GridActionsCellItem
-                    icon={
-                      <DeleteIcon sx={{ "&:hover": { color: pink[500] } }} />
-                    }
-                    label="Eliminar"
-                    onClick={() => setOpenDialog(true)}
-                  />
-                </Tooltip>,
               ];
+              if (canDelete) {
+                actions.push(
+                  <Tooltip title="Eliminar" key="delete">
+                    <GridActionsCellItem
+                      icon={
+                        <DeleteIcon sx={{ "&:hover": { color: pink[500] } }} />
+                      }
+                      label="Eliminar"
+                      onClick={() =>
+                        setPersonToDelete({
+                          id: String(params.id),
+                          name: params.row.fullName ?? "Esta persona",
+                        })
+                      }
+                    />
+                  </Tooltip>,
+                );
+              }
+              return actions;
             },
           },
         ] as GridColDef<PersonResponse>[]
       ).map(withOutSorting),
-    [router, nodeId],
+    [router, nodeId, canDelete],
   );
 
   return (
@@ -135,11 +154,13 @@ export const PersonTable = ({
           {...dataGridProps}
         />
       </Box>
-      <DialogDeleteConfirmation
-        open={openDialog}
-        close={() => setOpenDialog(false)}
-        // Deleting people is not implemented yet: the API client has no endpoint for it.
-        onDelete={() => undefined}
+      <DeletePersonDialog
+        key={personToDelete?.id}
+        person={personToDelete}
+        nodeId={nodeId}
+        nodeType={node?.type}
+        close={() => setPersonToDelete(null)}
+        onDeleted={() => mutate()}
       />
     </>
   );

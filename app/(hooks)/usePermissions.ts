@@ -9,6 +9,7 @@ export type Permission =
   | "org.delete"
   | "members.read"
   | "members.write"
+  | "members.delete"
   | "events.read"
   | "events.write"
   | "attendance.write"

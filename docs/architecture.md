@@ -108,6 +108,8 @@ Las iglesias del usuario **no** vienen en el token: `GET /me/organizations` devu
 
 Los accesos funcionan como IAM de GCP, pero **nacen del cargo**: cada cargo de la iglesia (Pastor, Diácono, Catequista...) da una lista de permisos, y quien lo tiene —a través de la persona vinculada a su usuario— obtiene esos permisos en el nodo donde tiene el cargo y en todo lo que cuelga de él. Un cargo sin permisos es solo un nombre. El API guarda los permisos de un cargo como la unión de sus **roles** (grupos de permisos, vinculados) y sus permisos sueltos; **la UI solo muestra y edita permisos**, agrupados por módulo, y deja los roles para cuando haga falta. **Propietario** es la excepción: no se agrega a un cargo, se agrega aparte. `usePermissions(nodeId)` (`app/(hooks)/`) pide `GET /me/permissions` y responde `can("members.write")`, etc. La UI solo **oculta** lo que el usuario no puede hacer (menú, botones de guardar, crear o borrar); la API rechaza con 403 cualquier petición sin permiso, incluida la escalada de privilegios (dar un cargo con más permisos de los que uno tiene). Los mensajes de error de la API (`detail`) se muestran tal cual con `apiErrorMessage`.
 
+**Eliminar personas.** Es un soft delete: nada se borra, las membresías y cargos se cierran y quedan como historial (`DELETE /people/{id}?organizationId=`, permiso `members.delete`). Desde un grupo, sede o ministerio solo se quita a la persona de ese nodo y de lo que contiene; desde la iglesia se la elimina de la iglesia entera. Si tiene una cuenta, la API responde 409 con `code: PERSON_HAS_ACCOUNT` y `DeletePersonDialog` pide confirmar antes de desvincularla (la cuenta del usuario no se borra). Al registrar a alguien (`/person/create`), `PersonMatches` busca personas parecidas por nombre o correo (`GET /people/matches`) y avisa «¿Es alguna de estas personas?»: puede abrir a la que ya existe o reactivar a una eliminada (`POST /people/{id}/restore`) en lugar de duplicarla; nunca bloquea guardar, porque dos personas pueden llamarse igual.
+
 Una sola pantalla, **Cargos y accesos** (`positions/`), con pestañas:
 
 - **Cargos**: la tabla de cargos con cuántos permisos dan y cuántas personas los tienen. Cada fila se abre y muestra sus permisos por módulo (`PermissionPicker`, en `app/(components)/`, el mismo del alta de iglesia) y las personas que lo tienen, con su correo o «sin cuenta». Avisa antes de cambiar los permisos o borrar un cargo que da acceso a personas con cuenta. Un cargo nuevo puede nacer de un nombre sugerido (trae sus permisos habituales, una copia) o copiando los permisos de otro cargo.
@@ -169,7 +171,7 @@ Si cambia un endpoint, cambian dos cosas: la especificación (`pnpm api:sync`) y
 
 Cosas que el código hoy **no** hace; no son errores nuevos, conviene saberlas:
 
-- Eliminar personas y guardar la edición de un grupo no hacen nada: el diálogo y el formulario existen, pero sus _handlers_ están vacíos (con un comentario). El formulario de un evento ya creado es de solo lectura. La API aún no está conectada para esas acciones.
+- Guardar la edición de un grupo no hace nada: el formulario existe, pero su _handler_ está vacío (con un comentario). El formulario de un evento ya creado es de solo lectura. La API aún no está conectada para esa acción.
 - El pago con Culqi (`ProfileForm`) abre el checkout pero no envía el token a la API.
 - Google Tag Manager se carga sin pedir consentimiento (`app/layout.tsx`).
 - No hay Content-Security-Policy ni `X-Frame-Options`: el editor visual de Builder embebe el sitio en un iframe. Se agregan al retirar Builder.
