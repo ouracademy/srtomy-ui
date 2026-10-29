@@ -29,6 +29,7 @@ const permissionLabels: Record<string, string> = {
   "org.delete": "Eliminar grupos y ministerios",
   "members.read": "Ver personas",
   "members.write": "Crear y editar personas",
+  "members.delete": "Eliminar personas",
   "events.read": "Ver eventos y cursos",
   "events.write": "Crear y editar eventos y cursos",
   "attendance.write": "Tomar asistencia",
