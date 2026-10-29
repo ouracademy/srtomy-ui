@@ -23,10 +23,15 @@ import { z } from "zod";
 import { SaveButton } from "./SaveButton";
 import { RegistrationFields } from "./RegistrationFields";
 import { registrationErrors, type RegistrationFormData } from "./registration";
+import { eventRange, lastsSeveralDays } from "./eventRange";
+import { MultiDayFields } from "./MultiDayFields";
 
-const schema = z.object({
+const fields = z.object({
   name: z.string().trim().min(1, { message: "Por favor ingrese el título" }),
   date: z.date(),
+  // The last day when the event lasts several days; null when it ends the
+  // day it starts.
+  endDate: z.date().nullable(),
   startTime: z.date(),
   endTime: z.date(),
   address: z.string().optional(),
@@ -48,6 +53,19 @@ const schema = z.object({
         context.addIssue({ code: "custom", message });
       }
     }),
+});
+
+const schema = fields.superRefine((values, context) => {
+  const { start, end } = eventRange(values);
+  if (end <= start) {
+    context.addIssue({
+      code: "custom",
+      // The end date is the field that shows an error; with a single day the
+      // end time picker already stops earlier times.
+      path: [values.endDate ? "endDate" : "endTime"],
+      message: "El evento debe terminar después de empezar",
+    });
+  }
 });
 
 export type EventDetailFormData = z.infer<typeof schema>;
@@ -95,6 +113,9 @@ export const EventForm = ({
   const endTime = watch("endTime");
   const registration = watch("registration");
   const repeats = watch("recurrence").frequency !== "NONE";
+  const date = watch("date");
+  const endDate = watch("endDate");
+  const severalDays = lastsSeveralDays({ date, endDate });
 
   return (
     <FormContainer formContext={formContext} onSuccess={submit}>
@@ -144,7 +165,7 @@ export const EventForm = ({
         <Grid size={{ xs: 12, sm: 4 }}>
           <TimePicker
             ampm
-            minTime={startTime}
+            minTime={severalDays ? undefined : startTime}
             sx={{ width: "100%" }}
             value={endTime}
             onChange={(value) => {
@@ -160,8 +181,13 @@ export const EventForm = ({
           />
         </Grid>
         <Grid size={{ xs: 12 }}>
-          <RecurrenceFields readOnly={!editable} />
+          <MultiDayFields />
         </Grid>
+        {endDate === null && (
+          <Grid size={{ xs: 12 }}>
+            <RecurrenceFields readOnly={!editable} />
+          </Grid>
+        )}
         <Grid size={{ xs: 12 }}>
           <AutocompleteElement
             autocompleteProps={{

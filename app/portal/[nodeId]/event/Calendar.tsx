@@ -3,7 +3,7 @@ import AddIcon from "@mui/icons-material/Add";
 import FullCalendar from "@fullcalendar/react";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import esLocale from "@fullcalendar/core/locales/es";
-import { addHours, differenceInDays } from "date-fns";
+import { addHours } from "date-fns";
 import { getEvents } from "@/app/(api)/generated";
 import type { EventSourceFunc } from "@fullcalendar/core";
 import React from "react";
@@ -16,11 +16,13 @@ import {
   useTheme,
 } from "@mui/material";
 import listPlugin from "@fullcalendar/list";
-import { originLabel, titleWithOrigin } from "../originLabel";
+import { toCalendarEvent } from "./calendarEvent";
 
 export type DatesSelection = {
   start: Date;
   end: Date;
+  // Picked in the row of events that last several days.
+  allDay?: boolean;
   jsEvent: MouseEvent | null;
 };
 
@@ -61,19 +63,7 @@ function Calendar({
       })
         .then((events) =>
           successCallback(
-            events.map((event) => ({
-              ...event,
-              title: titleWithOrigin(
-                event.title ?? "",
-                originLabel(
-                  event.organization?.id,
-                  event.organization?.name,
-                  organizationId,
-                ),
-              ),
-              backgroundColor: event.isACourse ? "green" : undefined,
-              classNames: ["cursor-pointer"],
-            })),
+            events.map((event) => toCalendarEvent(event, organizationId)),
           ),
         )
         .catch((err) => failureCallback(err)),
@@ -87,6 +77,12 @@ function Calendar({
           "& .fc-header-toolbar > .fc-toolbar-chunk:nth-child(3)": {
             display: "flex",
           },
+          // An event that lasts several days, and a sub-event of one.
+          "& .fc-mega-event": {
+            "--fc-event-bg-color": theme.palette.secondary.main,
+            "--fc-event-border-color": theme.palette.secondary.main,
+          },
+          "& .fc-sub-event": { borderStyle: "dashed" },
         }}
       >
         {/* Reserves its height, so the calendar does not jump when it shows. */}
@@ -101,15 +97,12 @@ function Calendar({
           initialView={isDesktop ? "timeGridWeek" : "listWeek"}
           height={isDesktop ? undefined : "60vh"}
           nowIndicator
-          allDaySlot={false}
+          allDaySlot
+          allDayText="Varios días"
           selectable
           selectMirror
-          selectAllow={({ start, end }) => {
-            // for allowing to select only dates in same day
-            return differenceInDays(end, start) <= 0;
-          }}
-          select={({ start, end, jsEvent }) => {
-            onSelect({ start, end, jsEvent });
+          select={({ start, end, allDay, jsEvent }) => {
+            onSelect({ start, end, allDay, jsEvent });
           }}
           // unselect
           // dateClick

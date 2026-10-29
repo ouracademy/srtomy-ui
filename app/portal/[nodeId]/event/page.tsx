@@ -2,6 +2,7 @@
 
 import { postEvents, putEventsByIdRegistration } from "@/app/(api)/generated";
 import { EventForm } from "@/app/(components)/EventForm";
+import { eventRange, lastsSeveralDays } from "@/app/(components)/eventRange";
 import {
   noRecurrence,
   toRecurrenceRequest,
@@ -19,6 +20,8 @@ import dynamic from "next/dynamic";
 import Loading from "@/app/(components)/Loading";
 import type { DatesSelection } from "./Calendar";
 import { format } from "date-fns";
+import { useRouter } from "next/navigation";
+import { initialRange } from "./selectionDefaults";
 
 // FullCalendar and its plugins are heavy and only this page uses them.
 const Calendar = dynamic(() => import("./Calendar"), {
@@ -33,6 +36,7 @@ export default function EventListPage(props: {
   const { nodeId } = params;
   const alert = useContext(SnackbarContext);
   const { can } = usePermissions(nodeId);
+  const router = useRouter();
 
   const [spanSelected, setSpanSelected] = useState<DatesSelection>();
   // Changes after creating an event, so the calendar shows it.
@@ -76,9 +80,7 @@ export default function EventListPage(props: {
             nodeId={nodeId}
             initialValues={{
               name: "",
-              date: spanSelected.start,
-              startTime: spanSelected.start,
-              endTime: spanSelected.end,
+              ...initialRange(spanSelected),
               address: "",
               description: "",
               recurrence: noRecurrence(),
@@ -88,12 +90,13 @@ export default function EventListPage(props: {
             }}
             showRegistration={can("registrations.configure")}
             submit={async (values) => {
+              const { start, end } = eventRange(values);
               const data = {
                 name: values.name,
                 address: values.address,
                 organizationId: nodeId,
-                startTime: format(values.startTime, "yyyy-MM-dd'T'HH:mm:ssXXX"),
-                endTime: format(values.endTime, "yyyy-MM-dd'T'HH:mm:ssXXX"),
+                startTime: format(start, "yyyy-MM-dd'T'HH:mm:ssXXX"),
+                endTime: format(end, "yyyy-MM-dd'T'HH:mm:ssXXX"),
                 recurrence: toRecurrenceRequest(values.recurrence, values.date),
                 // The series keeps its local hour across summer time.
                 timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
@@ -106,17 +109,23 @@ export default function EventListPage(props: {
               close();
               setEventsVersion((version) => version + 1);
               const registration = toSetupRequest(values.registration);
+              let configured = true;
               if (registration && values.recurrence.frequency === "NONE") {
                 try {
                   await putEventsByIdRegistration(eventId, registration);
                 } catch {
+                  configured = false;
                   alert.showMessage(
                     "El evento se guardó, pero no se pudo configurar la inscripción. Configúrela desde el evento.",
                   );
-                  return;
                 }
               }
-              alert.showMessage("Guardado exitosamente");
+              if (configured) alert.showMessage("Guardado exitosamente");
+              // An event that lasts days is built up from its own screen, where
+              // its program (sub-events and courses) can be added if wanted.
+              if (lastsSeveralDays(values)) {
+                router.push(`/portal/${nodeId}/event/${eventId}/attendance`);
+              }
             }}
             editable={true}
           />

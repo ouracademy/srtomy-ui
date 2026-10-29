@@ -24,6 +24,7 @@ afterEach(cleanup);
 const initialValues: EventDetailFormData = {
   name: "",
   date: new Date(2026, 9, 23, 17, 9),
+  endDate: null,
   startTime: new Date(2026, 9, 23, 17, 9),
   endTime: new Date(2026, 9, 23, 18, 9),
   address: "",
@@ -37,12 +38,13 @@ const initialValues: EventDetailFormData = {
 const renderForm = (
   submit: (values: EventDetailFormData) => void,
   showRegistration = false,
+  values: EventDetailFormData = initialValues,
 ) =>
   render(
     <LocalizationProvider dateAdapter={AdapterDateFns}>
       <EventForm
         nodeId="11111111-1111-1111-1111-111111111111"
-        initialValues={initialValues}
+        initialValues={values}
         submit={submit}
         editable
         showRegistration={showRegistration}
@@ -228,5 +230,49 @@ describe("EventForm", () => {
     expect(
       screen.queryByRole("switch", { name: "Pedir inscripción" }),
     ).toBeNull();
+  });
+
+  it("sends the last day of an event that lasts several days", async () => {
+    const user = userEvent.setup();
+    const submit = vi.fn();
+    renderForm(submit);
+    await user.type(screen.getByPlaceholderText("Agregar título"), "Congreso");
+
+    await user.click(screen.getByRole("switch", { name: "Dura varios días" }));
+    await user.click(screen.getByRole("button", { name: "Guardar" }));
+
+    await waitFor(() => expect(submit).toHaveBeenCalledOnce());
+    expect(submit.mock.calls[0]?.[0].endDate).toEqual(
+      new Date(2026, 9, 24, 17, 9),
+    );
+  });
+
+  it("does not offer to repeat an event that lasts several days", async () => {
+    const user = userEvent.setup();
+    renderForm(vi.fn());
+    expect(screen.getByLabelText("Se repite")).toBeInTheDocument();
+
+    await user.click(screen.getByRole("switch", { name: "Dura varios días" }));
+
+    expect(screen.queryByLabelText("Se repite")).not.toBeInTheDocument();
+  });
+
+  it("does not save an event that ends before it starts", async () => {
+    const user = userEvent.setup();
+    const submit = vi.fn();
+    renderForm(submit, false, {
+      ...initialValues,
+      name: "Congreso",
+      // Same day, but the end time is earlier than the start time.
+      endDate: new Date(2026, 9, 23),
+      endTime: new Date(2026, 9, 23, 16, 9),
+    });
+
+    await user.click(screen.getByRole("button", { name: "Guardar" }));
+
+    expect(
+      await screen.findByText("El evento debe terminar después de empezar"),
+    ).toBeInTheDocument();
+    expect(submit).not.toHaveBeenCalled();
   });
 });

@@ -29,6 +29,7 @@ import {
   DeleteRecurrentEventDialog,
   type DeleteEventRecurrentForm,
 } from "./DeleteRecurrentEventDialog";
+import { isSameDay } from "date-fns";
 
 export default function AttendanceEvent(props: {
   params: Promise<{ id: string; nodeId: string }>;
@@ -109,6 +110,10 @@ export default function AttendanceEvent(props: {
   const initialValues: EventDetailFormData = {
     name: event.title ?? "",
     date: event.start ?? new Date(),
+    endDate:
+      event.start && event.end && !isSameDay(event.start, event.end)
+        ? event.end
+        : null,
     startTime: event.start ?? new Date(),
     endTime: event.end ?? new Date(),
     recurrence: fromRecurrenceResponse(event.recurrence),

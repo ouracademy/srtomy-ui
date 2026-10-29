@@ -9,8 +9,17 @@ type Source = (
   failure: (error: unknown) => void,
 ) => Promise<unknown>;
 
+type CalendarProps = {
+  events: Source;
+  loading?: (loading: boolean) => void;
+  allDaySlot?: boolean;
+  selectAllow?: unknown;
+  select?: (selection: object) => void;
+};
+
 const calendar = vi.hoisted(() => ({
   sources: [] as Source[],
+  props: undefined as CalendarProps | undefined,
   loading: undefined as ((loading: boolean) => void) | undefined,
   refetchEvents: vi.fn(),
   getEvents: vi.fn(),
@@ -20,10 +29,11 @@ vi.mock("@fullcalendar/react", async () => {
   const react = await import("react");
   return {
     default: react.forwardRef(function FullCalendarMock(
-      props: { events: Source; loading?: (loading: boolean) => void },
+      props: CalendarProps,
       ref: React.Ref<{ getApi: () => { refetchEvents: () => void } }>,
     ) {
       calendar.sources.push(props.events);
+      calendar.props = props;
       calendar.loading = props.loading;
       react.useImperativeHandle(ref, () => ({
         getApi: () => ({ refetchEvents: calendar.refetchEvents }),
@@ -43,6 +53,7 @@ vi.mock("@/app/(api)/generated", () => ({
 
 beforeEach(() => {
   calendar.sources = [];
+  calendar.props = undefined;
   calendar.loading = undefined;
   calendar.refetchEvents.mockReset();
   calendar.getEvents.mockReset();
@@ -134,5 +145,23 @@ describe("Calendar", () => {
       <Calendar organizationId="n1" onSelect={vi.fn()} refreshKey={1} />,
     );
     expect(calendar.refetchEvents).toHaveBeenCalledOnce();
+  });
+
+  it("lets the user pick several days and passes on the all-day choice", () => {
+    const onSelect = vi.fn();
+    render(<Calendar organizationId="n1" onSelect={onSelect} />);
+    const start = new Date(2026, 9, 23);
+    const end = new Date(2026, 9, 26);
+
+    expect(calendar.props?.selectAllow).toBeUndefined();
+    expect(calendar.props?.allDaySlot).toBe(true);
+    calendar.props?.select?.({ start, end, allDay: true, jsEvent: null });
+
+    expect(onSelect).toHaveBeenCalledWith({
+      start,
+      end,
+      allDay: true,
+      jsEvent: null,
+    });
   });
 });
