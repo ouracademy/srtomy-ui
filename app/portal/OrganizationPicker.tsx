@@ -96,14 +96,14 @@ export const OrganizationPicker = ({
             Registrar sede en {church.name}
           </Button>
         )}
-        <Button
+        {/* <Button
           component={NextLink}
           href="/portal?nueva=1"
           onClick={onClose}
           startIcon={<AddIcon />}
         >
           Registrar otra iglesia
-        </Button>
+        </Button> */}
       </DialogActions>
     </Dialog>
   );

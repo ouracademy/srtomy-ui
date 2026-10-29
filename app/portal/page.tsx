@@ -89,7 +89,8 @@ export default function PortalHome() {
     >
       <Box sx={{ maxWidth: 900, m: { xs: 2, sm: 4 } }}>
         <Typography variant="h4" component="h1" gutterBottom>
-          {nodes.length > 0 ? "Registrar otra iglesia" : "Bienvenido"}
+          Bienvenido
+          {/* {nodes.length > 0 ? "Registrar otra iglesia" : "Bienvenido"} */}
         </Typography>
         <SharedWithMe events={sharedEvents ?? []} />
         <PendingInvitations

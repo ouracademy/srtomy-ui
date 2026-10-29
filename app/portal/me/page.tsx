@@ -1,10 +1,8 @@
 "use client";
 
 import { useAuth0 } from "@auth0/auth0-react";
-import AddIcon from "@mui/icons-material/Add";
 import HomeOutlinedIcon from "@mui/icons-material/HomeOutlined";
-import { Box, Button, Stack, Typography } from "@mui/material";
-import NextLink from "next/link";
+import { Box, Stack, Typography } from "@mui/material";
 import React from "react";
 import {
   deletePublicRegistrationsByCancelCode,
@@ -128,7 +126,7 @@ export default function MySpacePage() {
                 showEmpty
               />
             </Section>
-            <Box>
+            {/* <Box>
               <Button
                 component={NextLink}
                 href="/portal?nueva=1"
@@ -136,7 +134,7 @@ export default function MySpacePage() {
               >
                 Registrar otra iglesia
               </Button>
-            </Box>
+            </Box> */}
           </Stack>
         )}
       </Box>
