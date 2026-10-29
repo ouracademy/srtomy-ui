@@ -25,6 +25,7 @@ app/
   (components)/                Compartidos por 2+ pantallas: Loading, ErrorMessage,
                                NotFoundMessage, ResourceError, SaveButton, ...
   (hooks)/                     Hooks de interfaz compartidos: useDebounce, usePagination, ...
+  landing/                     Landing pública (/): secciones, contenido (`content.ts`) y tema propio (`theme.ts`); `LandingPage` es su frontera de cliente
   e/[slug]/                    Página del enlace de un evento o curso (ver e inscribirse)
   g/[slug]/                    Página pública de un nodo (iglesia, sede, grupo o ministerio)
   invitacion/[token]/          Página pública de una invitación (aceptarla); returnTo.ts decide a dónde volver tras el login
