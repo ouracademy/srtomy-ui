@@ -1,8 +1,10 @@
 name: ci
 
 on:
+  # Only main (post-merge) triggers on push; a branch with an open PR is
+  # already covered by `pull_request`, so triggering on both doubled every run.
   push:
-    branches: ["**"]
+    branches: ["main"]
   pull_request:
 
 concurrency:
@@ -42,10 +44,31 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
           cache: pnpm
       - run: pnpm install --frozen-lockfile
-      - name: check:fast (tipos, lint, formato, tests)
-        run: pnpm check:fast
-      - name: cobertura (umbral 80%)
-        run: pnpm test:coverage
+      # The tools run directly (not through the pnpm scripts) because those
+      # re-run `pnpm api:generate`, which `pnpm install` already ran in
+      # postinstall.
+      - name: tipos
+        run: pnpm exec tsc --noEmit
+      - name: lint
+        run: pnpm exec eslint .
+      - name: formato
+        run: pnpm format:check
+
+  # Separate job so it runs in parallel with the static checks. It replaces
+  # `pnpm test` inside check:fast, so the unit tests run once, with coverage.
+  test:
+    name: pruebas unitarias y cobertura (umbral 80%)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: vitest con cobertura
+        run: pnpm exec vitest run --coverage
 
   build:
     name: build
@@ -58,6 +81,13 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+      # Incremental builds: reuse Next's compiler cache across runs.
+      - uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+        with:
+          path: .next/cache
+          key: next-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}-${{ hashFiles('app/**', 'components/**', 'public/**', 'next.config.js') }}
+          restore-keys: |
+            next-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}-
       # Fake values, same as playwright.config.ts: the build never reaches
       # Auth0, Builder or the backend.
       - name: next build
@@ -77,7 +107,6 @@ jobs:
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: pnpm
-      - run: pnpm install --frozen-lockfile
+      # No install: audit only reads pnpm-lock.yaml.
       - name: dependencias de producción
         run: pnpm audit --prod
