@@ -229,4 +229,41 @@ describe("EventForm", () => {
       screen.queryByRole("switch", { name: "Pedir inscripción" }),
     ).toBeNull();
   });
+
+  it("cannot be typed into when it is not editable, and has no Guardar", () => {
+    render(
+      <LocalizationProvider dateAdapter={AdapterDateFns}>
+        <EventForm
+          nodeId="11111111-1111-1111-1111-111111111111"
+          initialValues={initialValues}
+          submit={vi.fn()}
+          editable={false}
+        />
+      </LocalizationProvider>,
+    );
+
+    expect(
+      screen.getByPlaceholderText("Agregar título").matches(":disabled"),
+    ).toBe(true);
+    expect(screen.queryByRole("button", { name: "Guardar" })).toBeNull();
+  });
+
+  it("locks the kind of the event when asked to", () => {
+    render(
+      <LocalizationProvider dateAdapter={AdapterDateFns}>
+        <EventForm
+          nodeId="11111111-1111-1111-1111-111111111111"
+          initialValues={initialValues}
+          submit={vi.fn()}
+          editable
+          lockType
+        />
+      </LocalizationProvider>,
+    );
+
+    expect(
+      (screen.getByRole("button", { name: "Curso" }) as HTMLButtonElement)
+        .disabled,
+    ).toBe(true);
+  });
 });
