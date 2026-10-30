@@ -6,27 +6,19 @@ import {
 import type { GroupInitialValues } from "./GroupForm";
 import { emptySocialLinks } from "@/app/(components)/SocialLinks";
 
-const LEADER_ID = "11111111-aaaa-aaaa-aaaa-aaaaaaaaaaaa";
-const MEMBER_ID = "22222222-bbbb-bbbb-bbbb-bbbbbbbbbbbb";
-
 describe("toGroupInitialValues", () => {
-  it("maps the group fields and the members and leaders with their full names", () => {
-    const values = toGroupInitialValues(
-      { name: "Jóvenes", description: "Sábados", type: "GROUP" },
-      {
-        LEADER: [{ id: LEADER_ID, firstName: "Juan", lastName: "Perez" }],
-        IS_PART_OF: [{ id: MEMBER_ID, firstName: "Maria", lastName: "Garcia" }],
-      },
-    );
+  it("maps the group fields, without any people", () => {
+    const values = toGroupInitialValues({
+      name: "Jóvenes",
+      description: "Sábados",
+      type: "GROUP",
+    });
 
     expect(values).toEqual({
       name: "Jóvenes",
       description: "Sábados",
       type: "GROUP",
-      leaders: [{ id: LEADER_ID, label: "Juan Perez" }],
-      members: [{ id: MEMBER_ID, label: "Maria Garcia" }],
       socialLinks: emptySocialLinks,
-      inviteLeaders: true,
       schedule: "",
       memberVisibility: "PUBLIC",
       showOrgChart: true,
@@ -34,15 +26,12 @@ describe("toGroupInitialValues", () => {
   });
 
   it("brings the schedule and visibility of the group", () => {
-    const values = toGroupInitialValues(
-      {
-        type: "GROUP",
-        schedule: "Viernes",
-        memberVisibility: "LEADERS",
-        showOrgChart: false,
-      },
-      {},
-    );
+    const values = toGroupInitialValues({
+      type: "GROUP",
+      schedule: "Viernes",
+      memberVisibility: "LEADERS",
+      showOrgChart: false,
+    });
 
     expect(values).toMatchObject({
       schedule: "Viernes",
@@ -52,56 +41,43 @@ describe("toGroupInitialValues", () => {
   });
 
   it("uses empty strings for a missing name or description", () => {
-    const values = toGroupInitialValues({ type: "GROUP" }, {});
+    const values = toGroupInitialValues({ type: "GROUP" });
 
     expect(values.name).toBe("");
     expect(values.description).toBe("");
   });
 
   it("maps any type other than MINISTRY to GROUP", () => {
-    expect(toGroupInitialValues({ type: "MINISTRY" }, {}).type).toBe(
-      "MINISTRY",
-    );
-    expect(toGroupInitialValues({ type: "GROUP" }, {}).type).toBe("GROUP");
-    expect(toGroupInitialValues({}, {}).type).toBe("GROUP");
-  });
-
-  it("returns empty lists when the members response has no IS_PART_OF or LEADER", () => {
-    const values = toGroupInitialValues({ type: "GROUP" }, {});
-
-    expect(values.members).toEqual([]);
-    expect(values.leaders).toEqual([]);
+    expect(toGroupInitialValues({ type: "MINISTRY" }).type).toBe("MINISTRY");
+    expect(toGroupInitialValues({ type: "GROUP" }).type).toBe("GROUP");
+    expect(toGroupInitialValues({}).type).toBe("GROUP");
   });
 });
 
 describe("toUpdateLocationChildRequest", () => {
-  it("sends only the ids of leaders and members, with the form's type and text", () => {
+  it("sends only the group data, never its people", () => {
     const values: GroupInitialValues = {
       name: "Jóvenes - Editado",
       description: "Sábados",
       type: "MINISTRY",
-      inviteLeaders: true,
-      leaders: [
-        { id: LEADER_ID, label: "Juan Perez", email: "juan@x.org" },
-        { id: MEMBER_ID, label: "Maria Garcia" },
-      ],
-      members: [{ id: MEMBER_ID, label: "Maria Garcia" }],
       socialLinks: { ...emptySocialLinks, instagramUrl: "https://ig.com/j" },
       schedule: " Viernes 7 pm ",
       memberVisibility: "MEMBERS",
       showOrgChart: true,
     };
 
-    expect(toUpdateLocationChildRequest(values)).toEqual({
+    const request = toUpdateLocationChildRequest(values);
+
+    expect(request).toEqual({
       name: "Jóvenes - Editado",
       description: "Sábados",
       type: "MINISTRY",
-      leaderIds: [LEADER_ID, MEMBER_ID],
-      memberIds: [MEMBER_ID],
       socialLinks: { instagramUrl: "https://ig.com/j" },
       schedule: "Viernes 7 pm",
       memberVisibility: "MEMBERS",
       showOrgChart: true,
     });
+    expect(request).not.toHaveProperty("leaderIds");
+    expect(request).not.toHaveProperty("memberIds");
   });
 });

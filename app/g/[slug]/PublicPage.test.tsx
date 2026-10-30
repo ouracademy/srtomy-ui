@@ -11,7 +11,7 @@ const group: PublicPageResponse = {
   description: "Para los de 18 a 30",
   schedule: "Sábados 5 pm",
   socialLinks: { instagramUrl: "https://instagram.com/jovenes" },
-  leaders: ["Ana Ruiz"],
+  team: ["Ana Ruiz"],
   members: ["Luis Paz", "Eva Sol"],
   positions: [],
 };
@@ -23,29 +23,27 @@ const church: PublicPageResponse = {
   address: "Av. 1",
   phoneNumber: "999 111 222",
   socialLinks: {},
-  leaders: [],
+  team: [],
   positions: [{ position: "Pastor", people: ["Pedro Pastor", "Ana Ruiz"] }],
   orgChart: {
     name: "Iglesia Central",
     type: "CHURCH",
     slug: "church-slug",
-    leaders: [],
+    team: [],
     children: [
       {
         name: "Sede Norte",
         type: "LOCATION",
         slug: "norte-slug",
-        leaders: ["Lía Líder"],
-        children: [
-          { name: "Jóvenes", type: "GROUP", leaders: [], children: [] },
-        ],
+        team: ["Lía Líder"],
+        children: [{ name: "Jóvenes", type: "GROUP", team: [], children: [] }],
       },
     ],
   },
 };
 
 describe("PublicPage of a group", () => {
-  it("shows what it is, when it meets, its leaders and its members", () => {
+  it("shows what it is, when it meets, its team and its members", () => {
     render(<PublicPage page={group} />);
 
     expect(
@@ -53,7 +51,7 @@ describe("PublicPage of a group", () => {
     ).toBeTruthy();
     expect(screen.getByText("Para los de 18 a 30")).toBeTruthy();
     expect(screen.getByText("Horario: Sábados 5 pm")).toBeTruthy();
-    expect(screen.getByRole("heading", { name: "Líder" })).toBeTruthy();
+    expect(screen.getByRole("heading", { name: "Equipo" })).toBeTruthy();
     expect(
       within(screen.getByRole("list", { name: "Miembros" })).getAllByRole(
         "listitem",

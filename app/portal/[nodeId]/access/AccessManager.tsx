@@ -20,16 +20,14 @@ import React from "react";
 import type { AccessEntryResponse } from "@/app/(api)/generated/aPIOvejafiel.schemas";
 import { DialogDeleteConfirmation } from "@/app/(components)/DialogDeleteConfirmation";
 
-// Where an access comes from, in words: a position (here or inherited), the
-// leadership of a group, or being an Owner of the church.
+// Where an access comes from, in words: a position (here or inherited) or
+// being an Owner of the church.
 export const originLabel = (entry: AccessEntryResponse) => {
   switch (entry.source) {
     case "POSITION":
       return entry.inherited
         ? `Cargo ${entry.positionName} en ${entry.organizationName}`
         : `Cargo ${entry.positionName}`;
-    case "LEADER":
-      return `Líder de ${entry.organizationName}`;
     default:
       return "Propietario de la iglesia";
   }

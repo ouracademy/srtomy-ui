@@ -35,8 +35,9 @@ test.describe("Menú en móvil", () => {
 
     const navigation = page.getByRole("list", { name: "Menú principal" });
     for (const label of [
-      "Dashboard",
+      "Resumen",
       "Sede",
+      "Grupos y ministerios",
       "Personas",
       "Eventos y cursos",
       "Cargos y accesos",

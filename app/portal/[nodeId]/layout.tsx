@@ -1,5 +1,6 @@
 "use client";
 
+import AccountTreeOutlinedIcon from "@mui/icons-material/AccountTreeOutlined";
 import ContactsOutlinedIcon from "@mui/icons-material/ContactsOutlined";
 import ChurchOutlinedIcon from "@mui/icons-material/ChurchOutlined";
 import DashboardOutlinedIcon from "@mui/icons-material/DashboardOutlined";
@@ -14,13 +15,17 @@ import { useGetOrganizationsById } from "@/app/(api)/generated";
 import { usePermissions, type Permission } from "@/app/(hooks)/usePermissions";
 import { saveLastNode } from "../lastNode";
 import { nodeTypeLabels } from "../organizationTree";
+import { childrenLabels } from "./location/groups/childrenLabels";
 
 // `needs` hides an item unless the user holds one of those permissions on this
 // node (so a plain member sees no administration); the API still rejects the
 // requests if they navigate there anyway.
+const isGroup = (type: string | undefined) =>
+  type === "GROUP" || type === "MINISTRY";
+
 const menuItems = (type: string | undefined) => [
   {
-    label: "Dashboard",
+    label: "Resumen",
     path: "",
     Icon: DashboardOutlinedIcon,
     needs: ["members.read"] as Permission[],
@@ -29,6 +34,12 @@ const menuItems = (type: string | undefined) => [
     label: nodeTypeLabels[type ?? ""] ?? "Datos",
     path: "/location",
     Icon: ChurchOutlinedIcon,
+  },
+  {
+    label: childrenLabels(type === "CHURCH", isGroup(type)).title,
+    path: "/groups",
+    Icon: AccountTreeOutlinedIcon,
+    needs: ["members.read"] as Permission[],
   },
   {
     label: "Personas",

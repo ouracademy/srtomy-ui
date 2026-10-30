@@ -26,32 +26,6 @@ test.describe("Editar Grupos y ministerios", () => {
         body: "[]",
       }),
     );
-    //2. Mocks de miembros y líderes
-    await page.route(
-      `**/organizations/locations/childs/${groupId}/members`,
-      async (route) => {
-        await route.fulfill({
-          status: 200,
-          contentType: "application/json",
-          body: JSON.stringify({
-            LEADER: [
-              {
-                id: "11111111-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
-                firstName: "Juan",
-                LastName: "Perez",
-              },
-            ],
-            IS_PART_OF: [
-              {
-                id: "22222222-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
-                firstName: "Maria",
-                lastName: "Garcia",
-              },
-            ],
-          }),
-        });
-      },
-    );
     //2b. Mock del guardado (PUT)
     await page.route(
       `**/organizations/locations/childs/${groupId}`,
@@ -64,32 +38,6 @@ test.describe("Editar Grupos y ministerios", () => {
         });
       },
     );
-    //3. Mock para el Autocomplete
-    await page.route("**/people**", async (route) => {
-      await route.fulfill({
-        status: 200,
-        contentType: "application/json",
-        body: JSON.stringify({
-          content: [
-            {
-              id: "11111111-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
-              firstName: "Juan",
-              lastName: "Perez",
-            },
-            {
-              id: "22222222-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
-              firstName: "Maria",
-              lastName: "Garcia",
-            },
-            {
-              id: "33333333-cccc-cccc-cccc-cccccccccccc",
-              firstName: "Pedro",
-              lastName: "Picapiedra",
-            },
-          ],
-        }),
-      });
-    });
   });
 
   test("Cargar los datos y editar", async ({ page }) => {
@@ -103,23 +51,10 @@ test.describe("Editar Grupos y ministerios", () => {
     const description = page.getByRole("textbox", { name: /descripción/i });
     await expect(description).toHaveValue("Reunión de los sábados");
 
-    //B. Verificar los Autocomplete
-    await expect(page.getByText("Juan Perez")).toBeVisible();
-    await expect(page.getByText("Maria Garcia")).toBeVisible();
-
-    //C. Editar el nombre
+    //B. Editar el nombre (la gente se gestiona desde Personas)
     await nameInput.fill("Grupo de Jóvenes - Editado");
 
-    //D. Agregar un nuevo Líder
-    const leadersInput = page.getByLabel(
-      /Escriba\/seleccione el lider o lideres/i,
-    );
-    await leadersInput.fill("Pedro");
-    const optionPedro = page.getByRole("option", { name: "Pedro Picapiedra" });
-    await expect(optionPedro).toBeVisible();
-    await optionPedro.click();
-
-    //E. Guardar y verificar lo que se envía a la API
+    //C. Guardar y verificar lo que se envía a la API
     const saved = page.waitForRequest(
       (request) =>
         request.method() === "PUT" &&
@@ -131,11 +66,6 @@ test.describe("Editar Grupos y ministerios", () => {
       name: "Grupo de Jóvenes - Editado",
       description: "Reunión de los sábados",
       type: "GROUP",
-      leaderIds: [
-        "11111111-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
-        "33333333-cccc-cccc-cccc-cccccccccccc",
-      ],
-      memberIds: ["22222222-bbbb-bbbb-bbbb-bbbbbbbbbbbb"],
       socialLinks: {},
       schedule: "",
       memberVisibility: "PUBLIC",

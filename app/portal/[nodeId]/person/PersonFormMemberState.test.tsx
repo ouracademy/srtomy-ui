@@ -5,7 +5,12 @@ import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { PersonForm, type PersonDetailFormData } from "./PersonForm";
 
+const node = vi.hoisted(() => ({
+  current: { name: "Jóvenes", type: "GROUP" } as { name: string; type: string },
+}));
+
 vi.mock("@/app/(api)/generated", () => ({
+  useGetOrganizationsById: () => ({ data: node.current }),
   useGetOrganizationsByIdPositions: () => ({
     data: [{ id: "p1", name: "Pastor" }],
     isLoading: false,
@@ -42,8 +47,7 @@ describe("PersonForm member state", () => {
     setup();
 
     expect(
-      screen.getByRole("combobox", { name: "Estado en la iglesia" })
-        .textContent,
+      screen.getByRole("combobox", { name: "Estado en Jóvenes" }).textContent,
     ).toBe("Visitante");
     expect(screen.getByText(/Quien tiene un cargo es miembro/)).toBeTruthy();
   });
@@ -52,7 +56,7 @@ describe("PersonForm member state", () => {
     const { submit, user } = setup();
 
     await user.click(
-      screen.getByRole("combobox", { name: "Estado en la iglesia" }),
+      screen.getByRole("combobox", { name: "Estado en Jóvenes" }),
     );
     await user.click(screen.getByRole("option", { name: "Asistente" }));
     await user.click(screen.getByRole("button", { name: "Guardar" }));
@@ -67,7 +71,7 @@ describe("PersonForm member state", () => {
     setup({ positions: [{ id: "p1", label: "Pastor" }] });
 
     const field = screen.getByRole("combobox", {
-      name: "Estado en la iglesia",
+      name: "Estado en Jóvenes",
     });
     expect(field.textContent).toBe("Miembro");
     expect(field.getAttribute("aria-disabled")).toBe("true");

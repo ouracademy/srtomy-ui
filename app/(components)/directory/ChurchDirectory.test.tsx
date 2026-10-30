@@ -29,13 +29,13 @@ describe("ChurchDirectory", () => {
   it("lists the nodes of the church", () => {
     directory.mockReturnValue({
       data: [
-        { id: "c1", name: "Iglesia Vida", type: "CHURCH", leaders: [] },
+        { id: "c1", name: "Iglesia Vida", type: "CHURCH", team: [] },
         {
           id: "g1",
           name: "Jóvenes",
           type: "GROUP",
           parentId: "c1",
-          leaders: ["Ana Ruiz"],
+          team: ["Ana Ruiz"],
         },
       ],
       isLoading: false,

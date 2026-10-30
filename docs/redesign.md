@@ -210,6 +210,18 @@ Sin la Auth0 Action que agrega el email al token, el usuario se registra sin ema
 | 24  | Código sin uso tras la 008                               | UI       | `/portal` ya no elige un nodo de aterrizaje: `pickLandingNode`, `readLastNode` y `hasManagementAccess` quedan sin quien los llame (con sus pruebas).                                                                            | Borrarlos, o reutilizar el último nodo como atajo en Mi espacio.                                                                                                 | Pendiente (consultar) |
 | 25  | Contraste en la pantalla del evento                      | UI       | axe marca bajo contraste en los botones Evento/Curso (#3b82f6) y en la cabecera «Nombre» de la tabla, ya existentes. Las pruebas de axe de la 011 solo cubren las secciones nuevas.                                             | Corregir los colores y ampliar el alcance de axe a toda la pantalla.                                                                                             | Pendiente (consultar) |
 
+### Personas por nodo, estado por nodo y crecimiento (012)
+
+Solo existe una persona por iglesia; lo que cambia es dónde está y cómo está en cada lugar. «Personas» sustituye a «Miembros»: el formulario del grupo ya no gestiona a su gente.
+
+- **Agregar persona** (`/portal/[nodeId]/person/create`): se escribe el nombre y, si ya está en la iglesia, aparece «¿Es alguna de estas personas?» con **Agregar aquí** (elige su estado en ese lugar) en vez de duplicarla. Si no existe, se crea con su estado. Quien se agrega a un grupo queda también en su iglesia, con el mismo estado si no la conocía.
+- **Lista de personas**: cada fila trae su estado en el nodo; el filtro Todos / Visitantes / Asistentes / Miembros viaja en la URL (`?estado=`).
+- **Persona → «Pertenece a»**: la iglesia, sedes, grupos y ministerios de la persona, cada uno con su estado y sus cargos; se cambia o se quita ahí y se puede agregar a otro lugar de la misma iglesia.
+- **Liderar son cargos**: no hay marca de líder ni `LEADER`. Al crear una iglesia se sugiere un solo cargo, «Líder de grupo o ministerio», y un grupo puede tener los que quiera (tesorera, etc.). El directorio y la página pública muestran el «Equipo» (quien tiene un cargo en el nodo) y «Mis grupos» lista donde la persona está anotada o tiene un cargo.
+- **Menú del nodo**: «Resumen» (antes Dashboard), los datos del nodo, una pestaña «Sedes» o «Grupos» (antes al final de la página de datos), «Personas», «Eventos y cursos», «Cargos y accesos» y «Directorio».
+- **Resumen** (antes un iframe de Streamlit): tarjetas por estado y crecimiento mes a mes de `GET /organizations/{id}/growth`. Lo ven quienes tienen `members.read` (cargos con ese permiso) en el nodo.
+- **Se quitó el tablero de estados** (`person/board`, su API y `@hello-pangea/dnd`): la lista ya muestra y filtra por estado.
+
 ## 11. Trabajo futuro: centro de notificaciones (campana)
 
 No se construye en 005-009; queda documentado para no perder la idea. Una campana en la cabecera de la app, **genérica**: no pensada solo para invitaciones, sino para cualquier aviso dirigido a un usuario.

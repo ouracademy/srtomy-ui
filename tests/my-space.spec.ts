@@ -22,7 +22,6 @@ async function asMember(page: import("@playwright/test").Page) {
           type: "LOCATION",
           churchId: CHURCH_ID,
           churchName: "Iglesia E2E",
-          leader: false,
           positions: [],
         },
       ]),
@@ -152,7 +151,10 @@ test.describe("Mi espacio", () => {
       menu.getByText("Cargos y accesos", { exact: true }),
     ).toHaveCount(0);
     await expect(menu.getByText("Personas", { exact: true })).toHaveCount(0);
-    await expect(menu.getByText("Dashboard", { exact: true })).toHaveCount(0);
+    await expect(
+      menu.getByText("Grupos y ministerios", { exact: true }),
+    ).toHaveCount(0);
+    await expect(menu.getByText("Resumen", { exact: true })).toHaveCount(0);
   });
 
   test("quien administra también aterriza en Mi espacio y de ahí abre su sede", async ({
@@ -167,7 +169,6 @@ test.describe("Mi espacio", () => {
             type: "LOCATION",
             churchId: CHURCH_ID,
             churchName: "Iglesia E2E",
-            leader: true,
             positions: ["Pastor"],
           },
         ]),

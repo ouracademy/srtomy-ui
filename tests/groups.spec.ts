@@ -76,33 +76,15 @@ test.describe("Grupos y Ministerios", () => {
     //4. Seleccionar el tipo (button)
     await page.getByLabel(/ministerio/i).check();
 
-    //5. Llenar líderes (Autocomplete)
-    const leadersInput = page.getByLabel(
-      /Escriba\/seleccione el lider o lideres/i,
-    );
-    await leadersInput.fill("Juan");
-    const optionJuan = page.getByRole("option", { name: "Juan Perez" });
-    await expect(optionJuan).toBeVisible();
-    await optionJuan.click();
-
-    //6. Llenar miembros (Autocomplete)
-    const membersInput = page.getByLabel(/Escriba\/seleccione los miembros/i);
-    await membersInput.fill("Maria");
-    const optionMaria = page.getByRole("option", { name: "Maria Garcia" });
-    await expect(optionMaria).toBeVisible();
-    await optionMaria.click();
-
-    // await page.getByText("Maria Garcia").click();
-
-    //7. Guardar
+    //5. Guardar
     await page.getByRole("button", { name: /Guardar/i }).click();
 
-    //8. Verificaciones finales
+    //6. Verificaciones finales
     //    Se queda en el nodo actual y avisa cómo ir al nuevo.
     await expect(
       page.getByText(/Ministerio "Ministerio de Alabanza" registrado/),
     ).toBeVisible();
-    await expect(page).toHaveURL(new RegExp(`/portal/${nodeId}/location`));
+    await expect(page).toHaveURL(new RegExp(`/portal/${nodeId}/groups`));
 
     await page.getByRole("button", { name: "Ir al ministerio" }).click();
     await expect(page).toHaveURL(

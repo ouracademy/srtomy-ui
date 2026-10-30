@@ -17,14 +17,14 @@ const nodes = flattenTree(
       description: "Para los de 18 a 30",
       schedule: "Sábados 5 pm",
       memberVisibility: "MEMBERS",
-      leaders: ["Ana Ruiz", "Luis Paz"],
+      team: ["Ana Ruiz", "Luis Paz"],
     },
     {
       id: "m",
       name: "Alabanza",
       type: "MINISTRY",
       parentId: "c",
-      leaders: ["Eva Sol"],
+      team: ["Eva Sol"],
     },
   ]),
 );
@@ -40,7 +40,7 @@ const setup = () => {
 };
 
 describe("DirectoryList", () => {
-  it("shows every node with its type, schedule and leaders", () => {
+  it("shows every node with its type, schedule and team", () => {
     setup();
 
     const list = screen.getByRole("list", { name: "Directorio de la iglesia" });
@@ -51,8 +51,8 @@ describe("DirectoryList", () => {
     ).toEqual(["Iglesia Central", "Alabanza", "Jóvenes"]);
     expect(screen.getByText("Para los de 18 a 30")).toBeTruthy();
     expect(screen.getByText("Horario: Sábados 5 pm")).toBeTruthy();
-    expect(screen.getByText("Líderes: Ana Ruiz, Luis Paz")).toBeTruthy();
-    expect(screen.getByText("Líder: Eva Sol")).toBeTruthy();
+    expect(screen.getByText("Equipo: Ana Ruiz, Luis Paz")).toBeTruthy();
+    expect(screen.getByText("Equipo: Eva Sol")).toBeTruthy();
   });
 
   it("opens the people of one node at a time", async () => {

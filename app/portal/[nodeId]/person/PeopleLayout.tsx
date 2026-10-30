@@ -4,6 +4,8 @@ import {
   InputAdornment,
   Stack,
   TextField,
+  ToggleButton,
+  ToggleButtonGroup,
   Typography,
 } from "@mui/material";
 import React, { useState, useEffect } from "react";
@@ -12,7 +14,21 @@ import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { useDebounce } from "use-debounce";
 import { DEBOUNCE_WAIT_MS } from "@/app/(components)/helpers/debouncing";
 import { RButton } from "@/app/(components)/RButton";
-import { searchQueryFor } from "./searchQuery";
+import {
+  memberStateFromParam,
+  memberStateLabels,
+  memberStates,
+} from "@/app/(components)/memberState";
+import { queryWith, searchQueryFor } from "./searchQuery";
+
+// The URL parameter that holds the state filter.
+export const STATE_PARAM = "estado";
+
+const statePlurals = {
+  VISITOR: "Visitantes",
+  MEMBERSHIP_IN_PROGRESS: "Asistentes",
+  MEMBER: "Miembros",
+} as const;
 
 export function PeopleLayout({
   children,
@@ -37,6 +53,12 @@ export function PeopleLayout({
     }
   }, [searchTextDebounced, pathname, router, searchParams]);
 
+  const state = memberStateFromParam(searchParams.get(STATE_PARAM));
+  const chooseState = (_event: unknown, value: string | null) => {
+    const query = queryWith(searchParams.toString(), STATE_PARAM, value ?? "");
+    if (query !== null) router.replace(`${pathname}?${query}`);
+  };
+
   return (
     <Stack direction="column" spacing={2} p={{ xs: 2, sm: 4 }}>
       <Box
@@ -50,7 +72,10 @@ export function PeopleLayout({
           <Typography variant="h4">Personas</Typography>
         </Stack>
         <Box sx={{ display: "flex", width: { xs: "100%", sm: "auto" } }}>
-          <RButton name="Registrar" href={`/portal/${nodeId}/person/create`} />
+          <RButton
+            name="Agregar persona"
+            href={`/portal/${nodeId}/person/create`}
+          />
           <TextField
             sx={{ minWidth: 0 }}
             placeholder="Buscar"
@@ -75,6 +100,26 @@ export function PeopleLayout({
           />
         </Box>
       </Box>
+
+      <ToggleButtonGroup
+        exclusive
+        size="small"
+        aria-label="Filtrar por estado"
+        value={state ?? ""}
+        onChange={chooseState}
+        sx={{ flexWrap: "wrap", alignSelf: "flex-start" }}
+      >
+        <ToggleButton value="">Todos</ToggleButton>
+        {memberStates.map((value) => (
+          <ToggleButton
+            key={value}
+            value={value}
+            title={memberStateLabels[value]}
+          >
+            {statePlurals[value]}
+          </ToggleButton>
+        ))}
+      </ToggleButtonGroup>
 
       {children}
     </Stack>
