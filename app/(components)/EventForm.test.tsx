@@ -290,4 +290,40 @@ describe("EventForm", () => {
     ).toBeInTheDocument();
     expect(submit).not.toHaveBeenCalled();
   });
+
+  it("cannot be typed into when it is not editable, and has no Guardar", () => {
+    render(
+      <LocalizationProvider dateAdapter={AdapterDateFns}>
+        <EventForm
+          nodeId="11111111-1111-1111-1111-111111111111"
+          initialValues={initialValues}
+          submit={vi.fn()}
+          editable={false}
+        />
+      </LocalizationProvider>,
+    );
+
+    expect(
+      screen.getByPlaceholderText("Agregar título").matches(":disabled"),
+    ).toBe(true);
+    expect(screen.queryByRole("button", { name: "Guardar" })).toBeNull();
+  });
+
+  it("shows the kind as a value, not as buttons, when it is locked", () => {
+    render(
+      <LocalizationProvider dateAdapter={AdapterDateFns}>
+        <EventForm
+          nodeId="11111111-1111-1111-1111-111111111111"
+          initialValues={{ ...initialValues, type: 1 }}
+          submit={vi.fn()}
+          editable
+          lockType
+        />
+      </LocalizationProvider>,
+    );
+
+    expect(screen.getByText("Curso")).toBeTruthy();
+    expect(screen.queryByRole("button", { name: "Curso" })).toBeNull();
+    expect(screen.queryByRole("button", { name: "Evento" })).toBeNull();
+  });
 });

@@ -6,16 +6,15 @@ import {
   useGetEventsById,
   useGetEventsByIdAttendance,
 } from "@/app/(api)/generated";
-import { EventDetailFormData, EventForm } from "@/app/(components)/EventForm";
 import Loading from "@/app/(components)/Loading";
 import { ResourceError } from "@/app/(components)/ResourceError";
-import { fromRecurrenceResponse } from "@/app/(components)/recurrence";
 import { SnackbarContext } from "@/app/(components)/SnackbarContext";
 import DeleteIcon from "@mui/icons-material/Delete";
+import EditIcon from "@mui/icons-material/Edit";
 import { Box, Stack, Tooltip, Typography, Grid } from "@mui/material";
 import { GridRowId, GridRowSelectionModel } from "@mui/x-data-grid";
 import React, { useContext } from "react";
-import { PersonTable, fullName } from "../../../person/PersonTable";
+import { PersonTable } from "../../../person/PersonTable";
 import { DialogDeleteConfirmation } from "@/app/(components)/DialogDeleteConfirmation";
 import { useRouter } from "next/navigation";
 import { RegisterButton } from "@/app/(components)/RegisterButton";
@@ -24,7 +23,7 @@ import { ShareEventButton } from "./ShareEventButton";
 import { AttendanceTools } from "./AttendanceTools";
 import { RegistrationPanel } from "./RegistrationPanel";
 import { SaveButton } from "@/app/(components)/SaveButton";
-import { noRegistration } from "@/app/(components)/registration";
+import { EditableEventForm } from "./EditableEventForm";
 import {
   DeleteRecurrentEventDialog,
   type DeleteEventRecurrentForm,
@@ -44,6 +43,7 @@ export default function AttendanceEvent(props: {
     data: event,
     error: eventError,
     isLoading: eventLoading,
+    mutate: mutateEvent,
   } = useGetEventsById(id);
   const {
     data: eventAttendance,
@@ -52,6 +52,7 @@ export default function AttendanceEvent(props: {
   } = useGetEventsByIdAttendance(id);
 
   const [saving, setSaving] = React.useState(false);
+  const [editing, setEditing] = React.useState(false);
   const [openDeleteDialog, setOpenDeleteDialog] = React.useState(false);
   const [openConfirmDeleteDialog, setOpenConfirmDeleteDialog] =
     React.useState(false);
@@ -106,30 +107,21 @@ export default function AttendanceEvent(props: {
     router.push(`/portal/${nodeId}/event`);
   };
 
-  const initialValues: EventDetailFormData = {
-    name: event.title ?? "",
-    date: event.start ?? new Date(),
-    endDate: event.end ?? event.start ?? new Date(),
-    startTime: event.start ?? new Date(),
-    endTime: event.end ?? new Date(),
-    recurrence: fromRecurrenceResponse(event.recurrence),
-    type: event.isACourse ? 1 : 0,
-    address: event.address,
-    speakers: (event.speakers ?? []).map((speaker) => ({
-      id: speaker.id ?? "",
-      label: fullName(speaker),
-    })),
-    description: event.description,
-    // Shown and changed in its own panel, not in this read-only form.
-    registration: noRegistration(),
-  };
-
   return (
     <Grid container spacing={2} margin={4}>
       <>
         <Grid size={{ xs: 12 }}>
           <Box>
             <Stack direction="row" spacing={1} justifyContent="flex-end">
+              {can("events.write") && !editing && (
+                <Tooltip title="Editar">
+                  <RegisterButton
+                    icon={<EditIcon />}
+                    ariaLabel="edit"
+                    onClick={() => setEditing(true)}
+                  />
+                </Tooltip>
+              )}
               {can("events.write") && (
                 <ShareEventButton eventId={id} title={event.title ?? ""} />
               )}
@@ -148,12 +140,16 @@ export default function AttendanceEvent(props: {
                 />
               </Tooltip>
             </Stack>
-            <EventForm
+            <EditableEventForm
               nodeId={nodeId}
-              initialValues={initialValues}
-              // Editing an event is not implemented yet.
-              submit={() => undefined}
-              editable={false}
+              eventId={id}
+              event={event}
+              editing={editing}
+              cancel={() => setEditing(false)}
+              saved={() => {
+                setEditing(false);
+                void mutateEvent();
+              }}
             />
           </Box>
           {isRecurrent && (

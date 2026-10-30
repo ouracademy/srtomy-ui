@@ -533,8 +533,7 @@
             "content": {
               "*/*": {
                 "schema": {
-                  "type": "string",
-                  "format": "uuid"
+                  "$ref": "#/components/schemas/EditEventResponse"
                 }
               }
             }
@@ -3275,6 +3274,23 @@
             "format": "date"
           },
           "count": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "EditEventResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "keptEvents": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "notifiedPeople": {
             "type": "integer",
             "format": "int32"
           }

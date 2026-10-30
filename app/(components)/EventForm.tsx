@@ -1,4 +1,4 @@
-import { Grid } from "@mui/material";
+import { Box, Chip, Grid } from "@mui/material";
 import { TimePicker } from "@mui/x-date-pickers";
 import { renderTimeViewClock } from "@mui/x-date-pickers/timeViewRenderers";
 import React from "react";
@@ -75,6 +75,9 @@ type EventFormProps = {
   // Offers the sign-up setup (new events only; a repeating event is not offered
   // it because each date is its own event).
   showRegistration?: boolean;
+  // An existing event cannot become a course, nor a course an event: its kind
+  // is shown as a value instead of buttons.
+  lockType?: boolean;
 };
 
 export const EventForm = ({
@@ -83,6 +86,7 @@ export const EventForm = ({
   submit,
   editable,
   showRegistration = false,
+  lockType = false,
 }: EventFormProps) => {
   const [searchTextSpeaker, setSearchTextSpeaker] = React.useState("");
 
@@ -110,174 +114,191 @@ export const EventForm = ({
   const endTime = watch("endTime");
   const registration = watch("registration");
   const repeats = watch("recurrence").frequency !== "NONE";
-  const date = watch("date");
-  const endDate = watch("endDate");
-  const severalDays = lastsSeveralDays({ date, endDate });
+  const severalDays = lastsSeveralDays({
+    date: watch("date"),
+    endDate: watch("endDate"),
+  });
 
   return (
     <FormContainer formContext={formContext} onSuccess={submit}>
-      <Grid container spacing={2} margin={4}>
-        <Grid size={{ xs: 12 }}>
-          <TextFieldElement
-            fullWidth
-            name="name"
-            placeholder="Agregar título"
-            sx={{ padding: "10px 0px" }}
-            variant="standard"
-            required
-            autoFocus
-          />
-        </Grid>
-        <Grid size={{ xs: 12 }}>
-          <ToggleButton
-            eventType={type}
-            onChange={(type) => formContext.setValue("type", type)}
-          />
-        </Grid>
-        <Grid size={{ xs: 12, sm: 6 }}>
-          <DatePickerElement
-            sx={{ width: "100%" }}
-            label="Fecha"
-            name="date"
-            required
-          />
-        </Grid>
-        <Grid size={{ xs: 12, sm: 6 }}>
-          <EndDateField />
-        </Grid>
-        <Grid size={{ xs: 12, sm: 6 }}>
-          <TimePicker
-            ampm
-            sx={{ width: "100%" }}
-            value={startTime}
-            onChange={(value) => {
-              if (value !== null) {
-                formContext.setValue("startTime", value);
-              }
-            }}
-            viewRenderers={{
-              hours: renderTimeViewClock,
-              minutes: renderTimeViewClock,
-              seconds: renderTimeViewClock,
-            }}
-          />
-        </Grid>
-        <Grid size={{ xs: 12, sm: 6 }}>
-          <TimePicker
-            ampm
-            minTime={severalDays ? undefined : startTime}
-            sx={{ width: "100%" }}
-            value={endTime}
-            onChange={(value) => {
-              if (value !== null) {
-                formContext.setValue("endTime", value);
-              }
-            }}
-            slotProps={{
-              textField: {
-                error: Boolean(formContext.formState.errors.endTime),
-                helperText: formContext.formState.errors.endTime?.message,
-              },
-            }}
-            viewRenderers={{
-              hours: renderTimeViewClock,
-              minutes: renderTimeViewClock,
-              seconds: renderTimeViewClock,
-            }}
-          />
-        </Grid>
-        {!severalDays && (
+      {/* A form that is only shown cannot be typed into. */}
+      <Box
+        component="fieldset"
+        disabled={!editable}
+        sx={{ border: 0, p: 0, m: 0, minWidth: 0 }}
+      >
+        <Grid container spacing={2} margin={4}>
           <Grid size={{ xs: 12 }}>
-            <RecurrenceFields readOnly={!editable} />
-          </Grid>
-        )}
-        <Grid size={{ xs: 12 }}>
-          <AutocompleteElement
-            autocompleteProps={{
-              freeSolo: true,
-              onInputChange: (_event, newInputValue) => {
-                formContext.setValue("address", newInputValue);
-              },
-            }}
-            textFieldProps={{
-              InputProps: {
-                startAdornment: <PlaceOutlinedIcon />,
-              },
-              placeholder: " Agregar lugar",
-              variant: "standard",
-              sx: {
-                padding: "10px 0px",
-              },
-            }}
-            name="address"
-            options={[location?.address]}
-          />
-        </Grid>
-        <Grid size={{ xs: 12 }}>
-          <AutocompleteElement
-            multiple
-            autocompleteProps={{
-              onInputChange: (_event, newInputValue) => {
-                setSearchTextSpeaker(newInputValue);
-              },
-              size: "small",
-            }}
-            textFieldProps={{
-              placeholder: " Agregar ponente(s)",
-              variant: "standard",
-              sx: {
-                padding: "10px 0px",
-              },
-            }}
-            name="speakers"
-            options={
-              people?.content?.map((x) => ({
-                id: x.id,
-                label: `${x.firstName ?? ""} ${x.lastName ?? ""}`,
-              })) || []
-            }
-          />
-        </Grid>
-        <Grid size={{ xs: 12 }}>
-          <TextFieldElement
-            fullWidth
-            name="description"
-            multiline
-            minRows={1}
-            slotProps={{
-              input: {
-                placeholder: "Agregar descripción",
-              },
-            }}
-            variant="standard"
-          />
-        </Grid>
-        {showRegistration && editable && !repeats && (
-          <Grid size={{ xs: 12 }}>
-            <RegistrationFields
-              value={registration}
-              onChange={(value) =>
-                formContext.setValue("registration", value, {
-                  shouldDirty: true,
-                })
-              }
-              errors={
-                formContext.formState.isSubmitted
-                  ? registrationErrors(registration)
-                  : []
-              }
+            <TextFieldElement
+              fullWidth
+              name="name"
+              placeholder="Agregar título"
+              sx={{ padding: "10px 0px" }}
+              variant="standard"
+              required
+              autoFocus
             />
           </Grid>
-        )}
-        <Grid size={{ xs: 6 }}>
-          {editable && (
-            <SaveButton
-              name="Guardar"
-              loading={formContext.formState.isSubmitting}
+          <Grid size={{ xs: 12 }}>
+            {lockType ? (
+              <Chip
+                label={type === 1 ? "Curso" : "Evento"}
+                variant="outlined"
+                color="primary"
+                sx={{ mb: 1 }}
+              />
+            ) : (
+              <ToggleButton
+                eventType={type}
+                onChange={(type) => formContext.setValue("type", type)}
+              />
+            )}
+          </Grid>
+          <Grid size={{ xs: 12, sm: 6 }}>
+            <DatePickerElement
+              sx={{ width: "100%" }}
+              label="Fecha"
+              name="date"
+              required
             />
+          </Grid>
+          <Grid size={{ xs: 12, sm: 6 }}>
+            <EndDateField />
+          </Grid>
+          <Grid size={{ xs: 12, sm: 6 }}>
+            <TimePicker
+              ampm
+              sx={{ width: "100%" }}
+              value={startTime}
+              onChange={(value) => {
+                if (value !== null) {
+                  formContext.setValue("startTime", value);
+                }
+              }}
+              viewRenderers={{
+                hours: renderTimeViewClock,
+                minutes: renderTimeViewClock,
+                seconds: renderTimeViewClock,
+              }}
+            />
+          </Grid>
+          <Grid size={{ xs: 12, sm: 6 }}>
+            <TimePicker
+              ampm
+              minTime={severalDays ? undefined : startTime}
+              sx={{ width: "100%" }}
+              value={endTime}
+              onChange={(value) => {
+                if (value !== null) {
+                  formContext.setValue("endTime", value);
+                }
+              }}
+              slotProps={{
+                textField: {
+                  error: Boolean(formContext.formState.errors.endTime),
+                  helperText: formContext.formState.errors.endTime?.message,
+                },
+              }}
+              viewRenderers={{
+                hours: renderTimeViewClock,
+                minutes: renderTimeViewClock,
+                seconds: renderTimeViewClock,
+              }}
+            />
+          </Grid>
+          {!severalDays && (
+            <Grid size={{ xs: 12 }}>
+              <RecurrenceFields readOnly={!editable} />
+            </Grid>
           )}
+          <Grid size={{ xs: 12 }}>
+            <AutocompleteElement
+              autocompleteProps={{
+                freeSolo: true,
+                onInputChange: (_event, newInputValue) => {
+                  formContext.setValue("address", newInputValue);
+                },
+              }}
+              textFieldProps={{
+                InputProps: {
+                  startAdornment: <PlaceOutlinedIcon />,
+                },
+                placeholder: " Agregar lugar",
+                variant: "standard",
+                sx: {
+                  padding: "10px 0px",
+                },
+              }}
+              name="address"
+              options={[location?.address]}
+            />
+          </Grid>
+          <Grid size={{ xs: 12 }}>
+            <AutocompleteElement
+              multiple
+              autocompleteProps={{
+                onInputChange: (_event, newInputValue) => {
+                  setSearchTextSpeaker(newInputValue);
+                },
+                size: "small",
+              }}
+              textFieldProps={{
+                placeholder: " Agregar ponente(s)",
+                variant: "standard",
+                sx: {
+                  padding: "10px 0px",
+                },
+              }}
+              name="speakers"
+              options={
+                people?.content?.map((x) => ({
+                  id: x.id,
+                  label: `${x.firstName ?? ""} ${x.lastName ?? ""}`,
+                })) || []
+              }
+            />
+          </Grid>
+          <Grid size={{ xs: 12 }}>
+            <TextFieldElement
+              fullWidth
+              name="description"
+              multiline
+              minRows={1}
+              slotProps={{
+                input: {
+                  placeholder: "Agregar descripción",
+                },
+              }}
+              variant="standard"
+            />
+          </Grid>
+          {showRegistration && editable && !repeats && (
+            <Grid size={{ xs: 12 }}>
+              <RegistrationFields
+                value={registration}
+                onChange={(value) =>
+                  formContext.setValue("registration", value, {
+                    shouldDirty: true,
+                  })
+                }
+                errors={
+                  formContext.formState.isSubmitted
+                    ? registrationErrors(registration)
+                    : []
+                }
+              />
+            </Grid>
+          )}
+          <Grid size={{ xs: 6 }}>
+            {editable && (
+              <SaveButton
+                name="Guardar"
+                loading={formContext.formState.isSubmitting}
+              />
+            )}
+          </Grid>
         </Grid>
-      </Grid>
+      </Box>
     </FormContainer>
   );
 };
