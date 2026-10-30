@@ -212,6 +212,18 @@ Sin la Auth0 Action que agrega el email al token, el usuario se registra sin ema
 | 27  | Dejar de repetir editando una serie                      | UI y API | Editar una serie con «No se repite» no la detiene: la UI avisa que hay que eliminar «Este y los eventos siguientes» (el API entiende `recurrence` ausente como «la regla no cambia»).                                                                                     | Decidir si editar puede detener la serie (p. ej. `recurrence: null` explícito).                                                                                  | Pendiente (consultar) |
 | 28  | Aviso de las ocurrencias que se conservan                | UI y API | Al cambiar la regla de una serie, las ocurrencias con inscritos, asistencia o ya pasadas quedan como eventos sueltos intactos; la UI solo lo dice antes y después de guardar, no las distingue en el calendario ni en el detalle (ver ítems 35 a 37 de `srtomy-api`).     | Definir con producto si hace falta verlas como grupo o unirlas a la serie nueva.                                                                                 | Pendiente (consultar) |
 
+### Personas por nodo, estado por nodo y crecimiento (012)
+
+Solo existe una persona por iglesia; lo que cambia es dónde está y cómo está en cada lugar. «Personas» sustituye a «Miembros»: el formulario del grupo ya no gestiona a su gente.
+
+- **Agregar persona** (`/portal/[nodeId]/person/create`): se escribe el nombre y, si ya está en la iglesia, aparece «¿Es alguna de estas personas?» con **Agregar aquí** (elige su estado en ese lugar) en vez de duplicarla. Si no existe, se crea con su estado. Quien se agrega a un grupo queda también en su iglesia, con el mismo estado si no la conocía.
+- **Lista de personas**: cada fila trae su estado en el nodo; el filtro Todos / Visitantes / Asistentes / Miembros viaja en la URL (`?estado=`).
+- **Persona → «Pertenece a»**: la iglesia, sedes, grupos y ministerios de la persona, cada uno con su estado y sus cargos; se cambia o se quita ahí y se puede agregar a otro lugar de la misma iglesia.
+- **Liderar son cargos**: no hay marca de líder ni `LEADER`. Al crear una iglesia se sugiere un solo cargo, «Líder de grupo o ministerio», y un grupo puede tener los que quiera (tesorera, etc.). El directorio y la página pública muestran el «Equipo» (quien tiene un cargo en el nodo) y «Mis grupos» lista donde la persona está anotada o tiene un cargo.
+- **Menú del nodo**: «Resumen» (antes Dashboard), los datos del nodo, una pestaña «Sedes» o «Grupos» (antes al final de la página de datos), «Personas», «Eventos y cursos», «Cargos y accesos» y «Directorio».
+- **Resumen** (antes un iframe de Streamlit): tarjetas por estado y crecimiento mes a mes de `GET /organizations/{id}/growth`. Lo ven quienes tienen `members.read` (cargos con ese permiso) en el nodo.
+- **Se quitó el tablero de estados** (`person/board`, su API y `@hello-pangea/dnd`): la lista ya muestra y filtra por estado.
+
 ## 11. Trabajo futuro: centro de notificaciones (campana)
 
 No se construye en 005-009; queda documentado para no perder la idea. Una campana en la cabecera de la app, **genérica**: no pensada solo para invitaciones, sino para cualquier aviso dirigido a un usuario.

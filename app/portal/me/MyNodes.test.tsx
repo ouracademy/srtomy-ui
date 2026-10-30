@@ -12,7 +12,6 @@ const nodes: MyNodeResponse[] = [
     type: "MINISTRY",
     churchId: "c",
     churchName: "Iglesia Vida",
-    leader: true,
     positions: ["Tesorero"],
   },
   {
@@ -21,7 +20,6 @@ const nodes: MyNodeResponse[] = [
     type: "GROUP",
     churchId: "c",
     churchName: "Iglesia Vida",
-    leader: false,
     positions: [],
   },
 ];
@@ -33,19 +31,18 @@ describe("MyNodes", () => {
     expect(screen.getByText(/Todavía no figuras/)).toBeTruthy();
   });
 
-  it("links each node and marks where the user leads or holds a position", () => {
+  it("links each node and shows the positions the user holds there", () => {
     render(<MyNodes nodes={nodes} />);
 
     const items = within(
       screen.getByRole("list", { name: "Mis grupos y ministerios" }),
     ).getAllByRole("listitem");
-    const [first, second] = items as [HTMLElement, HTMLElement];
+    const [first] = items as [HTMLElement];
+    expect(items).toHaveLength(2);
     expect(
       screen.getByRole("link", { name: "Alabanza" }).getAttribute("href"),
     ).toBe("/portal/g1");
     expect(within(first).getByText(/Ministerio · Iglesia Vida/)).toBeTruthy();
-    expect(within(first).getByText("Líder")).toBeTruthy();
     expect(within(first).getByText("Tesorero")).toBeTruthy();
-    expect(within(second).queryByText("Líder")).toBeNull();
   });
 });

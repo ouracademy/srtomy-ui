@@ -160,7 +160,7 @@ test.describe("Editar Sede", () => {
     await page.getByRole("button", { name: /Guardar/i }).click();
 
     await expect(page.getByText(/Sede "Sede Norte" registrada/)).toBeVisible();
-    await expect(page).toHaveURL(new RegExp(`/portal/${churchId}/location$`));
+    await expect(page).toHaveURL(new RegExp(`/portal/${churchId}/groups$`));
 
     await page.getByRole("button", { name: "Ir a la sede" }).click();
     await expect(page).toHaveURL(

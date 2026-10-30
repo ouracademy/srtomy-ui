@@ -14,7 +14,7 @@ import type { MyNodeResponse } from "@/app/(api)/generated/aPIOvejafiel.schemas"
 import { nodeTypeLabels } from "../organizationTree";
 
 // The locations, groups and ministries where the user's own person is a member
-// or a leader, with the positions held there.
+// or holds a position, with the positions held there.
 export const MyNodes = ({ nodes }: Readonly<{ nodes: MyNodeResponse[] }>) => (
   <Paper variant="outlined" sx={{ p: 2 }}>
     <Typography variant="h6" component="h2">
@@ -40,7 +40,6 @@ export const MyNodes = ({ nodes }: Readonly<{ nodes: MyNodeResponse[] }>) => (
                     .filter(Boolean)
                     .join(" · ")}
                 </span>
-                {node.leader && <Chip size="small" label="Líder" />}
                 {(node.positions ?? []).map((position) => (
                   <Chip key={position} size="small" label={position} />
                 ))}

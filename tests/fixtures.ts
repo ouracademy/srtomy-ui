@@ -145,7 +145,7 @@ async function mockCurrentUser(page: import("@playwright/test").Page) {
     route.fulfill(
       json([
         { name: "Pastor", permissions: ["org.read", "members.write"] },
-        { name: "Líder de alabanza", permissions: ["org.read"] },
+        { name: "Líder de grupo o ministerio", permissions: ["org.read"] },
         { name: "Servidor", permissions: ["org.read"] },
         { name: "Maestro", permissions: ["events.read"] },
         { name: "Diácono", permissions: ["org.read", "events.write"] },

@@ -46,7 +46,7 @@ export default function NewLocationPage(props: {
             onClick: () => router.push(`/portal/${location.id}`),
           },
         );
-        router.push(`/portal/${nodeId}/location`);
+        router.push(`/portal/${nodeId}/groups`);
       }}
     />
   );

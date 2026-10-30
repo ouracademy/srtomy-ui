@@ -11,11 +11,12 @@ import {
 import {
   postOrganizationsByIdPositions,
   useGetOrganizationsByIdPeopleByPersonIdPositions,
-  useGetOrganizationsByIdMemberState,
   useGetPeopleById,
+  useGetPeopleByIdMemberships,
   putPeopleById,
 } from "@/app/(api)/generated";
 import { isMemberState } from "@/app/(components)/memberState";
+import { PersonMemberships } from "@/app/portal/[nodeId]/person/PersonMemberships";
 import {
   resolvePositionIds,
   toPositionChoice,
@@ -25,14 +26,23 @@ import { DeletePersonButton } from "@/app/portal/[nodeId]/person/DeletePersonBut
 import { useRouter } from "next/navigation";
 import React from "react";
 
-// The state the person has in this node; a visitor when none is recorded.
-const stateOf = (
-  states: { child?: { id?: string }; type?: { name?: string } }[] | undefined,
-  personId: string,
+// How the person stands in this node: a visitor who does not lead it when
+// none is recorded.
+const standingIn = (
+  memberships: {
+    organizationId?: string;
+    memberState?: string;
+  }[],
+  nodeId: string,
 ) => {
-  const name = states?.find((state) => state.child?.id === personId)?.type
-    ?.name;
-  return isMemberState(name) ? name : "VISITOR";
+  const here = memberships.find(
+    (membership) => membership.organizationId === nodeId,
+  );
+  return {
+    memberState: isMemberState(here?.memberState)
+      ? here.memberState
+      : "VISITOR",
+  } as const;
 };
 
 export default function PersonEdit(props: {
@@ -51,14 +61,18 @@ export default function PersonEdit(props: {
     isLoading: positionsLoading,
   } = useGetOrganizationsByIdPeopleByPersonIdPositions(nodeId, id);
 
-  const { data: states, isLoading: statesLoading } =
-    useGetOrganizationsByIdMemberState(nodeId);
+  const {
+    data: memberships,
+    mutate: mutateMemberships,
+    isLoading: membershipsLoading,
+  } = useGetPeopleByIdMemberships(id);
 
   const alert = React.useContext(SnackbarContext);
   const router = useRouter();
 
-  if (isLoading || positionsLoading || statesLoading) return <Loading />;
+  if (isLoading || positionsLoading || membershipsLoading) return <Loading />;
   if (!positions) return <ResourceError error={positionsError} />;
+  const standing = standingIn(memberships ?? [], nodeId);
 
   return (
     <Box>
@@ -70,7 +84,7 @@ export default function PersonEdit(props: {
             initialValues={{
               ...person,
               hasBeenBaptized: person.hasBeenBaptized ? "YES" : "NO",
-              memberState: stateOf(states, id),
+              ...standing,
               positions: positions.map(toPositionChoice),
             }}
             submit={async (formValues) => {
@@ -84,9 +98,15 @@ export default function PersonEdit(props: {
               );
               mutatePerson();
               mutatePositions();
+              mutateMemberships();
               alert.showMessage("Guardado exitosamente");
               router.push(`/portal/${nodeId}/person`);
             }}
+            nodeId={nodeId}
+          />
+          <PersonMemberships
+            personId={id}
+            personName={`${person.firstName} ${person.lastName}`.trim()}
             nodeId={nodeId}
           />
           <Box sx={{ px: 4, pb: 4 }}>

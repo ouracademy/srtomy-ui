@@ -35,17 +35,6 @@ const entries: AccessEntryResponse[] = [
     positionName: "Pastor",
     permissionCount: 5,
   },
-  {
-    userId: "u3",
-    email: "eva@x.org",
-    roleId: "r-leader",
-    roleName: "Líder",
-    organizationId: "group",
-    organizationName: "Jóvenes",
-    inherited: false,
-    source: "LEADER",
-    permissionCount: 9,
-  },
 ];
 
 describe("originLabel and accessLabel", () => {
@@ -55,7 +44,6 @@ describe("originLabel and accessLabel", () => {
     expect(originLabel({ ...entries[1]!, inherited: false })).toBe(
       "Cargo Pastor",
     );
-    expect(originLabel(entries[2]!)).toBe("Líder de Jóvenes");
     expect(accessLabel(entries[0]!)).toBe("Propietario");
     expect(accessLabel(entries[1]!)).toBe("5 permisos");
     expect(accessLabel({ ...entries[1]!, permissionCount: 1 })).toBe(
@@ -80,11 +68,7 @@ describe("groupByPerson", () => {
   it("joins the accesses of the same person", () => {
     const people = groupByPerson([...entries, anaAlso]);
 
-    expect(people.map((p) => p.email)).toEqual([
-      "ana@x.org",
-      "luis@x.org",
-      "eva@x.org",
-    ]);
+    expect(people.map((p) => p.email)).toEqual(["ana@x.org", "luis@x.org"]);
     expect(people[0]!.entries).toHaveLength(2);
   });
 });
@@ -101,7 +85,6 @@ describe("AccessList", () => {
     expect(
       within(rows[2]!).getByText("Cargo Pastor en Sede Centro"),
     ).toBeInTheDocument();
-    expect(within(rows[3]!).getByText("Líder de Jóvenes")).toBeInTheDocument();
   });
 
   it("shows a person with several accesses in one row", () => {
@@ -110,7 +93,7 @@ describe("AccessList", () => {
     const rows = within(
       screen.getByRole("table", { name: "Personas con acceso" }),
     ).getAllByRole("row");
-    expect(rows).toHaveLength(4);
+    expect(rows).toHaveLength(3);
     expect(
       within(rows[1]!).getByText("Propietario de la iglesia"),
     ).toBeInTheDocument();
@@ -146,7 +129,7 @@ describe("AccessList", () => {
     );
 
     expect(screen.getByText("luis@x.org")).toBeInTheDocument();
-    expect(screen.queryByText("eva@x.org")).not.toBeInTheDocument();
+    expect(screen.queryByText("ana@x.org")).not.toBeInTheDocument();
   });
 
   it("says when nothing matches", async () => {

@@ -48,4 +48,50 @@ describe("PeopleLayout", () => {
     );
     expect(replace).toHaveBeenCalledTimes(1);
   });
+
+  it("offers to add a person", () => {
+    render(
+      <PeopleLayout nodeId="n1">
+        <p>x</p>
+      </PeopleLayout>,
+    );
+
+    expect(
+      screen.getByRole("link", { name: "Agregar persona" }),
+    ).toHaveAttribute("href", "/portal/n1/person/create");
+  });
+
+  it("filters by state through the url and keeps the search", async () => {
+    const user = userEvent.setup();
+    search = "search=ana";
+    render(
+      <PeopleLayout nodeId="n1">
+        <p>x</p>
+      </PeopleLayout>,
+    );
+
+    await user.click(screen.getByRole("button", { name: "Asistentes" }));
+
+    expect(replace).toHaveBeenCalledWith(
+      "/portal/n1/person?search=ana&estado=MEMBERSHIP_IN_PROGRESS",
+    );
+  });
+
+  it("shows the state in the url as the selected filter and clears it with Todos", async () => {
+    const user = userEvent.setup();
+    search = "estado=MEMBER";
+    render(
+      <PeopleLayout nodeId="n1">
+        <p>x</p>
+      </PeopleLayout>,
+    );
+
+    expect(screen.getByRole("button", { name: "Miembros" })).toHaveAttribute(
+      "aria-pressed",
+      "true",
+    );
+    await user.click(screen.getByRole("button", { name: "Todos" }));
+
+    expect(replace).toHaveBeenCalledWith("/portal/n1/person?");
+  });
 });

@@ -25,7 +25,7 @@ type DirectoryListProps = Readonly<{
 }>;
 
 // The directory of a church: every node with its description, schedule and
-// leaders, indented by depth. Opening one shows its people.
+// team, indented by depth. Opening one shows its people.
 export const DirectoryList = ({ nodes, renderPeople }: DirectoryListProps) => {
   const [open, setOpen] = React.useState<string | null>(null);
 
@@ -63,10 +63,9 @@ export const DirectoryList = ({ nodes, renderPeople }: DirectoryListProps) => {
                     Horario: {node.schedule}
                   </Typography>
                 )}
-                {(node.leaders ?? []).length > 0 && (
+                {(node.team ?? []).length > 0 && (
                   <Typography variant="body2">
-                    {(node.leaders ?? []).length === 1 ? "Líder" : "Líderes"}:{" "}
-                    {(node.leaders ?? []).join(", ")}
+                    Equipo: {(node.team ?? []).join(", ")}
                   </Typography>
                 )}
               </Box>
