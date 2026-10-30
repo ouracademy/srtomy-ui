@@ -24,14 +24,13 @@ import { SaveButton } from "./SaveButton";
 import { RegistrationFields } from "./RegistrationFields";
 import { registrationErrors, type RegistrationFormData } from "./registration";
 import { eventRange, lastsSeveralDays } from "./eventRange";
-import { MultiDayFields } from "./MultiDayFields";
+import { EndDateField } from "./EndDateField";
 
 const fields = z.object({
   name: z.string().trim().min(1, { message: "Por favor ingrese el título" }),
   date: z.date(),
-  // The last day when the event lasts several days; null when it ends the
-  // day it starts.
-  endDate: z.date().nullable(),
+  // The day the event ends: the same as `date` unless it lasts several days.
+  endDate: z.date(),
   startTime: z.date(),
   endTime: z.date(),
   address: z.string().optional(),
@@ -60,9 +59,7 @@ const schema = fields.superRefine((values, context) => {
   if (end <= start) {
     context.addIssue({
       code: "custom",
-      // The end date is the field that shows an error; with a single day the
-      // end time picker already stops earlier times.
-      path: [values.endDate ? "endDate" : "endTime"],
+      path: ["endTime"],
       message: "El evento debe terminar después de empezar",
     });
   }
@@ -137,7 +134,7 @@ export const EventForm = ({
             onChange={(type) => formContext.setValue("type", type)}
           />
         </Grid>
-        <Grid size={{ xs: 12, sm: 4 }}>
+        <Grid size={{ xs: 12, sm: 6 }}>
           <DatePickerElement
             sx={{ width: "100%" }}
             label="Fecha"
@@ -145,7 +142,10 @@ export const EventForm = ({
             required
           />
         </Grid>
-        <Grid size={{ xs: 12, sm: 4 }}>
+        <Grid size={{ xs: 12, sm: 6 }}>
+          <EndDateField />
+        </Grid>
+        <Grid size={{ xs: 12, sm: 6 }}>
           <TimePicker
             ampm
             sx={{ width: "100%" }}
@@ -162,7 +162,7 @@ export const EventForm = ({
             }}
           />
         </Grid>
-        <Grid size={{ xs: 12, sm: 4 }}>
+        <Grid size={{ xs: 12, sm: 6 }}>
           <TimePicker
             ampm
             minTime={severalDays ? undefined : startTime}
@@ -173,6 +173,12 @@ export const EventForm = ({
                 formContext.setValue("endTime", value);
               }
             }}
+            slotProps={{
+              textField: {
+                error: Boolean(formContext.formState.errors.endTime),
+                helperText: formContext.formState.errors.endTime?.message,
+              },
+            }}
             viewRenderers={{
               hours: renderTimeViewClock,
               minutes: renderTimeViewClock,
@@ -180,10 +186,7 @@ export const EventForm = ({
             }}
           />
         </Grid>
-        <Grid size={{ xs: 12 }}>
-          <MultiDayFields />
-        </Grid>
-        {endDate === null && (
+        {!severalDays && (
           <Grid size={{ xs: 12 }}>
             <RecurrenceFields readOnly={!editable} />
           </Grid>

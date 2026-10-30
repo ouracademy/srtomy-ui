@@ -12,7 +12,7 @@ export function initialRange({ start, end, allDay = false }: Selection) {
     const several = !isSameDay(start, lastDay);
     return {
       date: start,
-      endDate: several ? lastDay : null,
+      endDate: several ? lastDay : start,
       startTime: set(start, { hours: 9, minutes: 0 }),
       endTime: set(several ? lastDay : start, { hours: 13, minutes: 0 }),
     };
@@ -23,7 +23,7 @@ export function initialRange({ start, end, allDay = false }: Selection) {
   const several = !isSameDay(start, lastDay);
   return {
     date: start,
-    endDate: several ? lastDay : null,
+    endDate: several ? lastDay : start,
     startTime: start,
     endTime: end,
   };

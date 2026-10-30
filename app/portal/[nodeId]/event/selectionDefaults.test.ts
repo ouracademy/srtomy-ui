@@ -8,7 +8,7 @@ describe("initialRange", () => {
 
     expect(initialRange({ start, end })).toEqual({
       date: start,
-      endDate: null,
+      endDate: start,
       startTime: start,
       endTime: end,
     });
@@ -28,7 +28,7 @@ describe("initialRange", () => {
     const start = new Date(2026, 9, 23, 18, 0);
     const end = new Date(2026, 9, 24, 0, 0);
 
-    expect(initialRange({ start, end }).endDate).toBeNull();
+    expect(initialRange({ start, end }).endDate).toEqual(start);
   });
 
   it("starts a multi-day event from days picked in the all-day row", () => {
@@ -52,7 +52,7 @@ describe("initialRange", () => {
       allDay: true,
     });
 
-    expect(range.endDate).toBeNull();
+    expect(range.endDate).toEqual(new Date(2026, 9, 23));
     expect(range.endTime).toEqual(new Date(2026, 9, 23, 13, 0));
   });
 });

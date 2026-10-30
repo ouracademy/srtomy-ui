@@ -2,7 +2,7 @@
 
 import { postEvents, putEventsByIdRegistration } from "@/app/(api)/generated";
 import { EventForm } from "@/app/(components)/EventForm";
-import { eventRange, lastsSeveralDays } from "@/app/(components)/eventRange";
+import { eventRange } from "@/app/(components)/eventRange";
 import {
   noRecurrence,
   toRecurrenceRequest,
@@ -121,11 +121,9 @@ export default function EventListPage(props: {
                 }
               }
               if (configured) alert.showMessage("Guardado exitosamente");
-              // An event that lasts days is built up from its own screen, where
-              // its program (sub-events and courses) can be added if wanted.
-              if (lastsSeveralDays(values)) {
-                router.push(`/portal/${nodeId}/event/${eventId}/attendance`);
-              }
+              // The new event opens on its own screen, where its program
+              // (sub-events and courses) can be added if wanted.
+              router.push(`/portal/${nodeId}/event/${eventId}/attendance`);
             }}
             editable={true}
           />

@@ -105,13 +105,17 @@ describe("EventListPage", () => {
     };
     await createEvent("Retiro");
 
-    expect(
-      await screen.findByRole("switch", { name: "Dura varios días" }),
-    ).toBeChecked();
-    expect(screen.getByRole("group", { name: "Hasta" })).toBeInTheDocument();
+    const user = userEvent.setup();
+
+    await user.click(await screen.findByRole("button", { name: "Guardar" }));
+
+    await waitFor(() => expect(api.postEvents).toHaveBeenCalledOnce());
+    const request = api.postEvents.mock.calls[0]?.[0];
+    expect(request.startTime).toMatch(/^2026-10-23T09:00:00/);
+    expect(request.endTime).toMatch(/^2026-10-25T13:00:00/);
   });
 
-  it("stays on the calendar after saving an event of one day", async () => {
+  it("opens an event of one day on its own screen too", async () => {
     api.selection = {
       start: new Date(2026, 9, 23, 18, 0),
       end: new Date(2026, 9, 23, 20, 0),
@@ -125,6 +129,8 @@ describe("EventListPage", () => {
     const request = api.postEvents.mock.calls[0]?.[0];
     expect(request.startTime).toMatch(/^2026-10-23T18:00:00/);
     expect(request.endTime).toMatch(/^2026-10-23T20:00:00/);
-    expect(api.push).not.toHaveBeenCalled();
+    await waitFor(() =>
+      expect(api.push).toHaveBeenCalledWith("/portal/n1/event/e1/attendance"),
+    );
   });
 });

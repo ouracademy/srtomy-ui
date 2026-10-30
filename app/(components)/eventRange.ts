@@ -2,9 +2,8 @@ import { isSameDay, set } from "date-fns";
 
 type RangeFields = {
   date: Date;
-  // The last day of an event that lasts several days; null when it ends the
-  // same day it starts.
-  endDate: Date | null;
+  // The day the event ends; the same as `date` for an event of one day.
+  endDate: Date;
   startTime: Date;
   endTime: Date;
 };
@@ -26,9 +25,9 @@ export const eventRange = ({
   endTime,
 }: RangeFields) => ({
   start: onDay(date, startTime),
-  end: onDay(endDate ?? date, endTime),
+  end: onDay(endDate, endTime),
 });
 
 export const lastsSeveralDays = (
   fields: Pick<RangeFields, "date" | "endDate">,
-) => fields.endDate !== null && !isSameDay(fields.date, fields.endDate);
+) => !isSameDay(fields.date, fields.endDate);

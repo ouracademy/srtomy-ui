@@ -6,7 +6,7 @@ describe("eventRange", () => {
     // The pickers still carry the day they were opened on (the 3rd).
     const range = eventRange({
       date: new Date(2026, 9, 23),
-      endDate: null,
+      endDate: new Date(2026, 9, 23),
       startTime: new Date(2026, 9, 3, 18, 30, 45),
       endTime: new Date(2026, 9, 3, 20, 0),
     });
@@ -31,8 +31,7 @@ describe("eventRange", () => {
 describe("lastsSeveralDays", () => {
   const date = new Date(2026, 9, 23, 9, 0);
 
-  it("is false without an end date or on the same day", () => {
-    expect(lastsSeveralDays({ date, endDate: null })).toBe(false);
+  it("is false when the event ends the day it starts", () => {
     expect(lastsSeveralDays({ date, endDate: new Date(2026, 9, 23, 22) })).toBe(
       false,
     );
