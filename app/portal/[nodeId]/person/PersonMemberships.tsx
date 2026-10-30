@@ -113,9 +113,10 @@ export const PersonMemberships = ({ personId, personName, nodeId }: Props) => {
               <ListItemText
                 sx={{ minWidth: 180 }}
                 primary={membership.organizationName}
+                secondaryTypographyProps={{ component: "div" }}
                 secondary={
                   <Stack
-                    component="span"
+                    component="div"
                     direction="row"
                     spacing={1}
                     sx={{ flexWrap: "wrap" }}

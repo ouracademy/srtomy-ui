@@ -102,6 +102,13 @@ describe("PersonMemberships", () => {
     expect(screen.getByText(/Miembro · se cambia arriba/)).toBeVisible();
   });
 
+  it("does not nest the position chips inside a paragraph", () => {
+    renderIt();
+
+    // A <div> inside a <p> is invalid HTML and breaks hydration in Next.js.
+    expect(screen.getByText("Pastor").closest("p")).toBeNull();
+  });
+
   it("changes the state in another place and refreshes the list", async () => {
     const user = userEvent.setup();
     renderIt();
