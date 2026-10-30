@@ -8,7 +8,7 @@
 2. **Lógica pura** (`attendance/eventChange.ts`): `describeChange` (fecha/hora, día, repetición), `impactMessages` (qué decirle al usuario antes) y `toEditRequest` (el cuerpo del `PUT`), con `atTimeOf` para combinar fecha y hora.
 3. **`EditEventDialog`**: opciones de serie + avisos + `SaveButton` con spinner.
 4. **`EditableEventForm`**: arma los valores iniciales del evento (antes en `page.tsx`), valida «dejar de repetir», decide si hace falta el diálogo, llama a `putEventsById` y avisa el resultado.
-5. **`EventForm`**: `lockType` (bloquea Evento/Curso) y un `fieldset` deshabilitado cuando `editable` es falso. `ToggleButton` gana `disabled`.
+5. **`EventForm`**: `lockType` (muestra Evento/Curso como valor) y un `fieldset` deshabilitado cuando `editable` es falso. (`ToggleButton` no cambia).
 6. **`page.tsx`**: botón «Editar» (`events.write`), estado `editing`, `mutate` del evento al guardar.
 
 ## Constitution Check

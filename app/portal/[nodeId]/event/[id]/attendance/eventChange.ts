@@ -13,6 +13,8 @@ export type EditOption = NonNullable<EditEventRequest["option"]>;
 export type EventChange = {
   // The date, the start or the end moved: whoever signed up gets an email.
   scheduleMoved: boolean;
+  // The name, the place or the speakers changed: they get an email too.
+  detailsChanged: boolean;
   // The date of the event moved to another day.
   dayMoved: boolean;
   // The way the event repeats changed.
@@ -54,10 +56,20 @@ const sameRecurrence = (
   [...a.daysOfWeek].sort().join() === [...b.daysOfWeek].sort().join() &&
   (a.until?.getTime() ?? null) === (b.until?.getTime() ?? null);
 
+const speakerIds = (values: EventDetailFormData) =>
+  values.speakers
+    .map((speaker) => speaker.id)
+    .sort((a, b) => a.localeCompare(b))
+    .join();
+
 export const describeChange = (
   initial: EventDetailFormData,
   values: EventDetailFormData,
 ): EventChange => ({
+  detailsChanged:
+    initial.name !== values.name ||
+    (initial.address ?? "").trim() !== (values.address ?? "").trim() ||
+    speakerIds(initial) !== speakerIds(values),
   scheduleMoved:
     !sameInstant(startOf(initial), startOf(values)) ||
     !sameInstant(endOf(initial), endOf(values)),
@@ -84,9 +96,9 @@ export const impactMessages = (
       "Al cambiar el día o cómo se repite, los eventos que ya pasaron o que tienen inscritos o asistencia no cambian: quedan como eventos sueltos. Los demás se reemplazan.",
     );
   }
-  if (change.scheduleMoved) {
+  if (change.scheduleMoved || change.detailsChanged) {
     messages.push(
-      "Las personas inscritas en los eventos que cambien de fecha u hora recibirán un correo con el aviso.",
+      "Las personas inscritas recibirán un correo si cambia la fecha, la hora, el nombre, el lugar o los ponentes.",
     );
   }
   return messages;

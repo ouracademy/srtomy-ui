@@ -119,12 +119,17 @@ export const EditableEventForm = ({
       alert.showMessage(STOP_REPEATING_MESSAGE);
       return;
     }
-    if (!repeats && !change.scheduleMoved && !change.ruleChanged) {
+    if (
+      !repeats &&
+      !change.scheduleMoved &&
+      !change.detailsChanged &&
+      !change.ruleChanged
+    ) {
       await save(values, "THIS_EVENT");
       return;
     }
-    // A series asks which occurrences; a single event whose time moves asks to
-    // confirm because of the emails.
+    // A series asks which occurrences; a single event whose schedule or details
+    // change asks to confirm because of the emails.
     setPending(values);
   };
 

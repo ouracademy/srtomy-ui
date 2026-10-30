@@ -81,6 +81,9 @@ test.describe("Editar un evento", () => {
     await page.getByRole("button", { name: "Editar", exact: true }).click();
     await page.getByPlaceholder("Agregar título").fill("Culto de oración");
     await page.getByRole("button", { name: "Guardar", exact: true }).click();
+    // The people signed up are told, so it asks first.
+    await expect(page.getByText(/recibirán un correo/)).toBeVisible();
+    await page.getByRole("button", { name: "Guardar cambios" }).click();
 
     await expect(
       page.getByRole("alert").filter({ hasText: /Evento actualizado/ }),
@@ -128,6 +131,7 @@ test.describe("Editar un evento", () => {
     await page.getByRole("button", { name: "Editar", exact: true }).click();
     await page.getByPlaceholder("Agregar título").fill("Otro nombre");
     await page.getByRole("button", { name: "Guardar", exact: true }).click();
+    await page.getByRole("button", { name: "Guardar cambios" }).click();
 
     await expect(
       page.getByText("La hora de fin no puede ser anterior a la de inicio"),

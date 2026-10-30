@@ -45,19 +45,3 @@ describe("ToggleButton", () => {
     });
   });
 });
-
-describe("ToggleButton when the kind cannot change", () => {
-  it("disables both buttons", () => {
-    const onChange = vi.fn();
-    render(<ToggleButton eventType={0} onChange={onChange} disabled />);
-
-    expect(
-      (screen.getByRole("button", { name: "Evento" }) as HTMLButtonElement)
-        .disabled,
-    ).toBe(true);
-    expect(
-      (screen.getByRole("button", { name: "Curso" }) as HTMLButtonElement)
-        .disabled,
-    ).toBe(true);
-  });
-});

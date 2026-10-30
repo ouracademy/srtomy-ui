@@ -8,6 +8,7 @@ afterEach(cleanup);
 
 const none: EventChange = {
   scheduleMoved: false,
+  detailsChanged: false,
   dayMoved: false,
   ruleChanged: false,
 };

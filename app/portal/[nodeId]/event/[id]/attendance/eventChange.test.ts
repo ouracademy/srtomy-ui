@@ -32,11 +32,34 @@ const weekly = {
 
 describe("describeChange", () => {
   it("sees nothing when only the text changed", () => {
-    expect(describeChange(initial, { ...initial, name: "Culto" })).toEqual({
+    expect(
+      describeChange(initial, { ...initial, description: "Otra" }),
+    ).toEqual({
       scheduleMoved: false,
+      detailsChanged: false,
       dayMoved: false,
       ruleChanged: false,
     });
+  });
+
+  it("sees a new name, place or speakers as details the people signed up should know", () => {
+    expect(
+      describeChange(initial, { ...initial, name: "Culto" }).detailsChanged,
+    ).toBe(true);
+    expect(
+      describeChange(initial, { ...initial, address: "Otra calle" })
+        .detailsChanged,
+    ).toBe(true);
+    expect(
+      describeChange(initial, {
+        ...initial,
+        speakers: [...initial.speakers, { id: "s2", label: "Luis" }],
+      }).detailsChanged,
+    ).toBe(true);
+    expect(
+      describeChange(initial, { ...initial, address: " Av. Lima 1 " })
+        .detailsChanged,
+    ).toBe(false);
   });
 
   it("sees a new start, end or day as a move of the schedule", () => {
@@ -87,16 +110,24 @@ describe("atTimeOf", () => {
 });
 
 describe("impactMessages", () => {
-  const none = { scheduleMoved: false, dayMoved: false, ruleChanged: false };
+  const none = {
+    scheduleMoved: false,
+    detailsChanged: false,
+    dayMoved: false,
+    ruleChanged: false,
+  };
 
   it("says nothing for a text-only change", () => {
     expect(impactMessages(none, "THIS_EVENT", false)).toEqual([]);
   });
 
-  it("warns that people signed up get an email when the schedule moves", () => {
+  it("warns that people signed up get an email when the schedule moves or the details change", () => {
     expect(
       impactMessages({ ...none, scheduleMoved: true }, "THIS_EVENT", false),
     ).toEqual([expect.stringContaining("recibirán un correo")]);
+    expect(
+      impactMessages({ ...none, detailsChanged: true }, "THIS_EVENT", false),
+    ).toEqual([expect.stringContaining("el lugar o los ponentes")]);
   });
 
   it("warns that one occurrence leaves its series", () => {

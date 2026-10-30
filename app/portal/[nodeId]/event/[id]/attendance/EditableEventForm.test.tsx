@@ -100,26 +100,27 @@ describe("EditableEventForm", () => {
     expect(screen.queryByRole("button", { name: "Cancelar" })).toBeNull();
   });
 
-  it("keeps the kind (event or course) from changing", () => {
+  it("shows the kind (event or course) as a value that cannot change", () => {
     setup(oneOff);
 
-    expect(
-      (screen.getByRole("button", { name: "Curso" }) as HTMLButtonElement)
-        .disabled,
-    ).toBe(true);
+    expect(screen.getByText("Evento")).toBeTruthy();
+    expect(screen.queryByRole("button", { name: "Curso" })).toBeNull();
   });
 
-  it("saves a single event right away when its schedule did not move", async () => {
+  it("saves a single event right away when only the description changed", async () => {
     const { user, showMessage, saved } = setup(oneOff);
 
-    await rename(user, "Retiro de jóvenes");
+    const description = screen.getByPlaceholderText("Agregar descripción");
+    await user.clear(description);
+    await user.type(description, "Nueva descripción");
     await user.click(screen.getByRole("button", { name: "Guardar" }));
 
     await waitFor(() => expect(putEventsById).toHaveBeenCalledTimes(1));
     const [id, body] = putEventsById.mock.calls[0] ?? [];
     expect(id).toBe(EVENT);
     expect(body).toMatchObject({
-      name: "Retiro de jóvenes",
+      name: "Retiro",
+      description: "Nueva descripción",
       organizationId: NODE,
       isACourse: false,
       speakerIds: ["s1"],
@@ -129,6 +130,24 @@ describe("EditableEventForm", () => {
     expect(showMessage).toHaveBeenCalledWith("Evento actualizado.");
     expect(saved).toHaveBeenCalled();
     expect(screen.queryByRole("dialog")).toBeNull();
+  });
+
+  it("asks to confirm a new name of a single event, because the people signed up are told", async () => {
+    const { user } = setup(oneOff);
+
+    await rename(user, "Retiro de jóvenes");
+    await user.click(screen.getByRole("button", { name: "Guardar" }));
+
+    expect(putEventsById).not.toHaveBeenCalled();
+    expect(screen.getByText(/recibirán un correo/)).toBeTruthy();
+    expect(screen.queryByRole("radio")).toBeNull();
+    await user.click(screen.getByRole("button", { name: "Guardar cambios" }));
+
+    await waitFor(() => expect(putEventsById).toHaveBeenCalledTimes(1));
+    expect(putEventsById.mock.calls[0]?.[1]).toMatchObject({
+      name: "Retiro de jóvenes",
+      option: "THIS_EVENT",
+    });
   });
 
   it("asks which occurrences to edit for an event of a series and sends the choice", async () => {
@@ -186,6 +205,7 @@ describe("EditableEventForm", () => {
 
     await rename(user, "Otro");
     await user.click(screen.getByRole("button", { name: "Guardar" }));
+    await user.click(screen.getByRole("button", { name: "Guardar cambios" }));
 
     await waitFor(() => expect(showMessage).toHaveBeenCalled());
     expect(showMessage).toHaveBeenCalledWith(

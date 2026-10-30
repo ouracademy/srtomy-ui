@@ -248,12 +248,12 @@ describe("EventForm", () => {
     expect(screen.queryByRole("button", { name: "Guardar" })).toBeNull();
   });
 
-  it("locks the kind of the event when asked to", () => {
+  it("shows the kind as a value, not as buttons, when it is locked", () => {
     render(
       <LocalizationProvider dateAdapter={AdapterDateFns}>
         <EventForm
           nodeId="11111111-1111-1111-1111-111111111111"
-          initialValues={initialValues}
+          initialValues={{ ...initialValues, type: 1 }}
           submit={vi.fn()}
           editable
           lockType
@@ -261,9 +261,8 @@ describe("EventForm", () => {
       </LocalizationProvider>,
     );
 
-    expect(
-      (screen.getByRole("button", { name: "Curso" }) as HTMLButtonElement)
-        .disabled,
-    ).toBe(true);
+    expect(screen.getByText("Curso")).toBeTruthy();
+    expect(screen.queryByRole("button", { name: "Curso" })).toBeNull();
+    expect(screen.queryByRole("button", { name: "Evento" })).toBeNull();
   });
 });

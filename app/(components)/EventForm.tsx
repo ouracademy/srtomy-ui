@@ -1,4 +1,4 @@
-import { Box, Grid } from "@mui/material";
+import { Box, Chip, Grid } from "@mui/material";
 import { TimePicker } from "@mui/x-date-pickers";
 import { renderTimeViewClock } from "@mui/x-date-pickers/timeViewRenderers";
 import React from "react";
@@ -60,7 +60,8 @@ type EventFormProps = {
   // Offers the sign-up setup (new events only; a repeating event is not offered
   // it because each date is its own event).
   showRegistration?: boolean;
-  // An existing event cannot become a course, nor a course an event.
+  // An existing event cannot become a course, nor a course an event: its kind
+  // is shown as a value instead of buttons.
   lockType?: boolean;
 };
 
@@ -120,11 +121,19 @@ export const EventForm = ({
             />
           </Grid>
           <Grid size={{ xs: 12 }}>
-            <ToggleButton
-              eventType={type}
-              disabled={lockType}
-              onChange={(type) => formContext.setValue("type", type)}
-            />
+            {lockType ? (
+              <Chip
+                label={type === 1 ? "Curso" : "Evento"}
+                variant="outlined"
+                color="primary"
+                sx={{ mb: 1 }}
+              />
+            ) : (
+              <ToggleButton
+                eventType={type}
+                onChange={(type) => formContext.setValue("type", type)}
+              />
+            )}
           </Grid>
           <Grid size={{ xs: 12, sm: 4 }}>
             <DatePickerElement
