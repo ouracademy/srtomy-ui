@@ -129,6 +129,16 @@ describe("PersonMatches", () => {
     expect(push).toHaveBeenCalledWith("/portal/n1/person/p1");
   });
 
+  it("keeps the details of a match on one line, apart from its actions", () => {
+    api.matches = [active];
+    renderMatches();
+
+    expect(
+      screen.getByText("ana@example.org · +51999 · Ya está registrada"),
+    ).toBeVisible();
+    expect(screen.getByRole("button", { name: "Agregar aquí" })).toBeVisible();
+  });
+
   it("brings back a removed person and opens them to update their data", async () => {
     const user = userEvent.setup();
     api.matches = [removed];

@@ -97,12 +97,35 @@ export const PersonMatches = ({ nodeId }: { nodeId: string }) => {
       <Alert severity="info" icon={false} sx={{ width: "100%" }}>
         ¿Es alguna de estas personas?
         <List dense disablePadding>
-          {matches.map((match) => (
-            <ListItem
-              key={match.id}
-              disableGutters
-              secondaryAction={
-                match.status === PersonMatchResponseStatus.REMOVED ? (
+          {matches.map((match) => {
+            const removedNote =
+              match.status === PersonMatchResponseStatus.REMOVED
+                ? match.removedTime
+                  ? `Eliminada el ${format(match.removedTime, "dd/MM/yyyy")}`
+                  : "Eliminada"
+                : "Ya está registrada";
+            return (
+              // The actions sit in the flow, not as secondaryAction: that one is
+              // absolutely positioned and drew over the name and details.
+              <ListItem
+                key={match.id}
+                disableGutters
+                sx={{
+                  display: "flex",
+                  flexWrap: "wrap",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  gap: 1,
+                }}
+              >
+                <ListItemText
+                  sx={{ flex: "1 1 220px" }}
+                  primary={match.fullName}
+                  secondary={[match.email, match.phoneNumber, removedNote]
+                    .filter(Boolean)
+                    .join(" · ")}
+                />
+                {match.status === PersonMatchResponseStatus.REMOVED ? (
                   <Button
                     size="small"
                     loading={restoringId === match.id}
@@ -111,7 +134,7 @@ export const PersonMatches = ({ nodeId }: { nodeId: string }) => {
                     Reactivar
                   </Button>
                 ) : (
-                  <Stack direction="row" spacing={1}>
+                  <Stack direction="row" spacing={1} sx={{ flexShrink: 0 }}>
                     <Button size="small" onClick={() => setAdding(match)}>
                       Agregar aquí
                     </Button>
@@ -119,26 +142,10 @@ export const PersonMatches = ({ nodeId }: { nodeId: string }) => {
                       Ver
                     </Button>
                   </Stack>
-                )
-              }
-            >
-              <ListItemText
-                primary={match.fullName}
-                secondary={
-                  <Stack component="span">
-                    {[match.email, match.phoneNumber]
-                      .filter(Boolean)
-                      .join(" · ")}
-                    {match.status === PersonMatchResponseStatus.REMOVED
-                      ? match.removedTime
-                        ? `Eliminada el ${format(match.removedTime, "dd/MM/yyyy")}`
-                        : "Eliminada"
-                      : "Ya está registrada"}
-                  </Stack>
-                }
-              />
-            </ListItem>
-          ))}
+                )}
+              </ListItem>
+            );
+          })}
         </List>
       </Alert>
       <AddToNodeDialog
