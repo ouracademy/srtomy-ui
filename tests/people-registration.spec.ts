@@ -28,7 +28,7 @@ test.describe("Registro de persona", () => {
           { id: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", name: "Pastor" },
           {
             id: "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
-            name: "Líder de grupo",
+            name: "Líder de grupo o ministerio",
           },
           { id: "cccccccc-cccc-cccc-cccc-cccccccccccc", name: "Ujier" },
         ]),
@@ -106,7 +106,7 @@ test.describe("Registro de persona", () => {
     await rolesInput.fill("Catequista");
     await rolesInput.press("Enter");
     await page.keyboard.press("Escape");
-    await expect(page.getByText("Líder de grupo")).toBeVisible();
+    await expect(page.getByText("Líder de grupo o ministerio")).toBeVisible();
     await expect(page.getByText("Ujier")).toBeVisible();
 
     //8. Envío final

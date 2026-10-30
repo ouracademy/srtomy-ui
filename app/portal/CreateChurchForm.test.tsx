@@ -75,8 +75,7 @@ describe("CreateChurchForm", () => {
     expect(values.location.name).toBe("Sede Centro");
     expect(values.positions).toEqual([
       { name: "Pastor", permissions: ["org.read", "members.write"] },
-      { name: "Líder de grupo", permissions: [] },
-      { name: "Líder de ministerio", permissions: [] },
+      { name: "Líder de grupo o ministerio", permissions: [] },
       { name: "Servidor", permissions: ["org.read"] },
     ]);
     expect(values.creator).toEqual({
@@ -104,7 +103,7 @@ describe("CreateChurchForm", () => {
     await user.click(screen.getByRole("button", { name: "Crear iglesia" }));
 
     expect(submit.mock.calls[0]?.[0].positions[1]).toEqual({
-      name: "Líder de grupo",
+      name: "Líder de grupo o ministerio",
       permissions: ["events.read"],
     });
   });
@@ -118,12 +117,12 @@ describe("CreateChurchForm", () => {
     await fillBasics(user);
     await user.click(screen.getByRole("button", { name: "Agregar cargo" }));
     await user.type(
-      screen.getByRole("combobox", { name: "Cargo 6" }),
+      screen.getByRole("combobox", { name: "Cargo 5" }),
       "Diácono",
     );
     await user.click(screen.getByRole("button", { name: "Crear iglesia" }));
 
-    expect(submit.mock.calls[0]?.[0].positions[5]).toEqual({
+    expect(submit.mock.calls[0]?.[0].positions[4]).toEqual({
       name: "Diácono",
       permissions: ["events.read"],
     });

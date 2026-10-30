@@ -44,7 +44,6 @@ export default function GroupCreatePage(props: {
           type: values.type,
           parentId: nodeId,
           // The people are added afterwards, from Personas.
-          leaderIds: [],
           memberIds: [],
           socialLinks: toSocialLinksRequest(values.socialLinks),
           ...toVisibilityRequest(values),

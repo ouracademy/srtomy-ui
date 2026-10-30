@@ -53,7 +53,6 @@ beforeEach(() => {
         name: "Jóvenes",
         type: "GROUP",
         churchName: "Iglesia Vida",
-        leader: false,
         positions: [],
       },
     ]),

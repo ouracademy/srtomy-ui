@@ -2388,43 +2388,6 @@
         }
       }
     },
-    "/v1/organizations/locations/childs/{id}/members": {
-      "get": {
-        "tags": [
-          "organizations"
-        ],
-        "operationId": "getLocationChilds",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "*/*": {
-                "schema": {
-                  "type": "object",
-                  "additionalProperties": {
-                    "type": "array",
-                    "items": {
-                      "$ref": "#/components/schemas/LocationChildMemberResponse"
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/v1/me": {
       "get": {
         "tags": [
@@ -4092,13 +4055,6 @@
               "MINISTRY"
             ]
           },
-          "leaderIds": {
-            "type": "array",
-            "items": {
-              "type": "string",
-              "format": "uuid"
-            }
-          },
           "memberIds": {
             "type": "array",
             "items": {
@@ -4108,7 +4064,6 @@
           }
         },
         "required": [
-          "leaderIds",
           "memberIds",
           "name",
           "parentId",
@@ -4386,7 +4341,7 @@
           "slug": {
             "type": "string"
           },
-          "leaders": {
+          "team": {
             "type": "array",
             "items": {
               "type": "string"
@@ -4444,7 +4399,7 @@
           "socialLinks": {
             "$ref": "#/components/schemas/SocialLinks"
           },
-          "leaders": {
+          "team": {
             "type": "array",
             "items": {
               "type": "string"
@@ -4934,7 +4889,7 @@
               "LEADERS"
             ]
           },
-          "leaders": {
+          "team": {
             "type": "array",
             "items": {
               "type": "string"
@@ -5099,8 +5054,7 @@
             "type": "string",
             "enum": [
               "DIRECT",
-              "POSITION",
-              "LEADER"
+              "POSITION"
             ]
           },
           "positionName": {
@@ -5109,41 +5063,6 @@
           "permissionCount": {
             "type": "integer",
             "format": "int32"
-          }
-        }
-      },
-      "LocationChildMemberResponse": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "name": {
-            "type": "string"
-          },
-          "fullName": {
-            "type": "string"
-          },
-          "firstName": {
-            "type": "string"
-          },
-          "lastName": {
-            "type": "string"
-          },
-          "phoneNumber": {
-            "type": "string"
-          },
-          "age": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "birthdate": {
-            "type": "string",
-            "format": "date"
-          },
-          "hasBeenBaptized": {
-            "type": "boolean"
           }
         }
       },
@@ -5249,9 +5168,6 @@
           },
           "churchName": {
             "type": "string"
-          },
-          "leader": {
-            "type": "boolean"
           },
           "positions": {
             "type": "array",
