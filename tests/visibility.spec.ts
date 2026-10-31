@@ -65,14 +65,14 @@ test.describe("Visibilidad", () => {
     await page.route(`**/v1/organizations/${CHURCH_ID}/directory`, (route) =>
       route.fulfill(
         json([
-          { id: CHURCH_ID, name: "Iglesia E2E", type: "CHURCH", leaders: [] },
+          { id: CHURCH_ID, name: "Iglesia E2E", type: "CHURCH", team: [] },
           {
             id: NODE_ID,
             name: "Sede Central",
             type: "LOCATION",
             parentId: CHURCH_ID,
             schedule: "Domingos 10 am",
-            leaders: ["Ana Díaz"],
+            team: ["Ana Díaz"],
             memberVisibility: "MEMBERS",
           },
           {
@@ -80,7 +80,7 @@ test.describe("Visibilidad", () => {
             name: "Consejo",
             type: "GROUP",
             parentId: NODE_ID,
-            leaders: [],
+            team: [],
             memberVisibility: "LEADERS",
           },
         ]),
@@ -103,7 +103,7 @@ test.describe("Visibilidad", () => {
       page.getByRole("heading", { name: "Directorio de Iglesia E2E" }),
     ).toBeVisible();
     await expect(page.getByText("Horario: Domingos 10 am")).toBeVisible();
-    await expect(page.getByText("Líder: Ana Díaz")).toBeVisible();
+    await expect(page.getByText("Equipo: Ana Díaz")).toBeVisible();
 
     await page
       .getByRole("button", { name: "Ver personas de Sede Central" })
@@ -124,19 +124,19 @@ test.describe("Visibilidad", () => {
           type: "CHURCH",
           schedule: "Domingos 10 am",
           address: "Av. 1",
-          leaders: [],
+          team: [],
           positions: [{ position: "Pastor", people: ["Pedro Pastor"] }],
           orgChart: {
             name: "Iglesia E2E",
             type: "CHURCH",
             slug: "iglesia-slug",
-            leaders: [],
+            team: [],
             children: [
               {
                 name: "Sede Norte",
                 type: "LOCATION",
                 slug: "norte-slug",
-                leaders: ["Lía Líder"],
+                team: ["Lía Líder"],
                 children: [],
               },
             ],
@@ -149,7 +149,7 @@ test.describe("Visibilidad", () => {
         json({
           name: "Sede Norte",
           type: "LOCATION",
-          leaders: ["Lía Líder"],
+          team: ["Lía Líder"],
           positions: [],
         }),
       ),

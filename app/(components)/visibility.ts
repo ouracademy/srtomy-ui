@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 // Who sees the list of people of a church, location, group or ministry. The
-// basic information of the node (name, description, schedule, leaders) is
+// basic information of the node (name, description, schedule, team) is
 // always in the church directory.
 export const memberVisibilities = [
   "PUBLIC",

@@ -33,6 +33,8 @@ export const startOf = (values: EventDetailFormData) =>
   eventRange(values).start;
 export const endOf = (values: EventDetailFormData) => eventRange(values).end;
 
+const byNumber = (a: number, b: number) => a - b;
+
 const sameRecurrence = (
   a: EventDetailFormData["recurrence"],
   b: EventDetailFormData["recurrence"],
@@ -42,7 +44,8 @@ const sameRecurrence = (
   a.monthlyMode === b.monthlyMode &&
   a.endType === b.endType &&
   a.count === b.count &&
-  [...a.daysOfWeek].sort().join() === [...b.daysOfWeek].sort().join() &&
+  [...a.daysOfWeek].sort(byNumber).join() ===
+    [...b.daysOfWeek].sort(byNumber).join() &&
   (a.until?.getTime() ?? null) === (b.until?.getTime() ?? null);
 
 const speakerIds = (values: EventDetailFormData) =>

@@ -15,6 +15,7 @@ import { useDebounce } from "use-debounce";
 import { useFormContext, useWatch } from "react-hook-form-mui";
 import {
   postPeopleByIdRestore,
+  useGetOrganizationsById,
   useGetPeopleMatches,
 } from "@/app/(api)/generated";
 import {
@@ -24,6 +25,7 @@ import {
 import { SnackbarContext } from "@/app/(components)/SnackbarContext";
 import { apiErrorMessage } from "@/app/(components)/apiErrorMessage";
 import { DEBOUNCE_WAIT_MS } from "@/app/(components)/helpers/debouncing";
+import { AddToNodeDialog } from "./AddToNodeDialog";
 
 // Fewer letters would match half the church.
 const MIN_NAME_LENGTH = 3;
@@ -65,7 +67,9 @@ export const PersonMatches = ({ nodeId }: { nodeId: string }) => {
     { organizationId: nodeId, ...typed },
     { swr: { enabled } },
   );
+  const { data: node } = useGetOrganizationsById(nodeId);
   const [restoringId, setRestoringId] = React.useState<string>();
+  const [adding, setAdding] = React.useState<PersonMatchResponse | null>(null);
 
   if (!enabled || !matches || matches.length === 0) return null;
 
@@ -89,45 +93,73 @@ export const PersonMatches = ({ nodeId }: { nodeId: string }) => {
   };
 
   return (
-    <Alert severity="info" icon={false} sx={{ width: "100%" }}>
-      ¿Es alguna de estas personas?
-      <List dense disablePadding>
-        {matches.map((match) => (
-          <ListItem
-            key={match.id}
-            disableGutters
-            secondaryAction={
-              match.status === PersonMatchResponseStatus.REMOVED ? (
-                <Button
-                  size="small"
-                  loading={restoringId === match.id}
-                  onClick={() => restore(match)}
-                >
-                  Reactivar
-                </Button>
-              ) : (
-                <Button size="small" onClick={() => open(match.id)}>
-                  Ver
-                </Button>
-              )
-            }
-          >
-            <ListItemText
-              primary={match.fullName}
-              secondary={
-                <Stack component="span">
-                  {[match.email, match.phoneNumber].filter(Boolean).join(" · ")}
-                  {match.status === PersonMatchResponseStatus.REMOVED
-                    ? match.removedTime
-                      ? `Eliminada el ${format(match.removedTime, "dd/MM/yyyy")}`
-                      : "Eliminada"
-                    : "Ya está registrada"}
-                </Stack>
-              }
-            />
-          </ListItem>
-        ))}
-      </List>
-    </Alert>
+    <>
+      <Alert severity="info" icon={false} sx={{ width: "100%" }}>
+        ¿Es alguna de estas personas?
+        <List dense disablePadding>
+          {matches.map((match) => {
+            const removedNote =
+              match.status === PersonMatchResponseStatus.REMOVED
+                ? match.removedTime
+                  ? `Eliminada el ${format(match.removedTime, "dd/MM/yyyy")}`
+                  : "Eliminada"
+                : "Ya está registrada";
+            return (
+              // The actions sit in the flow, not as secondaryAction: that one is
+              // absolutely positioned and drew over the name and details.
+              <ListItem
+                key={match.id}
+                disableGutters
+                sx={{
+                  display: "flex",
+                  flexWrap: "wrap",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  gap: 1,
+                }}
+              >
+                <ListItemText
+                  sx={{ flex: "1 1 220px" }}
+                  primary={match.fullName}
+                  secondary={[match.email, match.phoneNumber, removedNote]
+                    .filter(Boolean)
+                    .join(" · ")}
+                />
+                {match.status === PersonMatchResponseStatus.REMOVED ? (
+                  <Button
+                    size="small"
+                    loading={restoringId === match.id}
+                    onClick={() => restore(match)}
+                  >
+                    Reactivar
+                  </Button>
+                ) : (
+                  <Stack direction="row" spacing={1} sx={{ flexShrink: 0 }}>
+                    <Button size="small" onClick={() => setAdding(match)}>
+                      Agregar aquí
+                    </Button>
+                    <Button size="small" onClick={() => open(match.id)}>
+                      Ver
+                    </Button>
+                  </Stack>
+                )}
+              </ListItem>
+            );
+          })}
+        </List>
+      </Alert>
+      <AddToNodeDialog
+        key={adding?.id}
+        person={
+          adding ? { id: adding.id ?? "", name: adding.fullName ?? "" } : null
+        }
+        nodeId={nodeId}
+        nodeName={node?.name ?? "este lugar"}
+        close={() => setAdding(null)}
+        onAdded={() => {
+          router.push(`/portal/${nodeId}/person`);
+        }}
+      />
+    </>
   );
 };

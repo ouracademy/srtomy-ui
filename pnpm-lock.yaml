@@ -43,9 +43,6 @@ importers:
       "@fullcalendar/timegrid":
         specifier: ^6.1.22
         version: 6.1.22(@fullcalendar/core@6.1.22)
-      "@hello-pangea/dnd":
-        specifier: ^18.0.1
-        version: 18.0.1(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
       "@hookform/resolvers":
         specifier: ^5.9.2
         version: 5.9.2(ajv@8.20.0)(react-hook-form@7.90.0(@types/react@19.3.0)(react@19.3.1))(zod@4.6.7)
@@ -1200,15 +1197,6 @@ packages:
       }
     peerDependencies:
       "@fullcalendar/core": ~6.1.22
-
-  "@hello-pangea/dnd@18.0.1":
-    resolution:
-      {
-        integrity: sha512-xojVWG8s/TGrKT1fC8K2tIWeejJYTAeJuj36zM//yEm/ZrnZUSFGS15BpO+jGZT1ybWvyXmeDJwPYb4dhWlbZQ==,
-      }
-    peerDependencies:
-      react: ^18.0.0 || ^19.0.0
-      react-dom: ^18.0.0 || ^19.0.0
 
   "@hookform/resolvers@5.9.2":
     resolution:
@@ -3016,12 +3004,6 @@ packages:
         integrity: sha512-KHPsfX/FoVbUGbyYvk1q9MMQHLPeRZhRJZdO45Q4YjvFkv4hMNghCWTvy7rdKessBsmtz4euWCWAB6/tVpI1Iw==,
       }
 
-  "@types/use-sync-external-store@0.0.6":
-    resolution:
-      {
-        integrity: sha512-zFDAD+tlpf2r4asuHEj0XH6pY6i0g5NeAHPn+15wk3BV6JA69eERFXC1gyGThDkVa1zCyKr5jox1+2LbV/AMLg==,
-      }
-
   "@types/ws@8.18.2":
     resolution:
       {
@@ -4059,12 +4041,6 @@ packages:
       }
     engines: { node: ">=12" }
 
-  css-box-model@1.2.1:
-    resolution:
-      {
-        integrity: sha512-a7Vr4Q/kd/aw96bnJG332W9V9LkJO69JRcaCYDUqjp6/z0w6VcZjgAcTbgFxEPfBgdnAwlh3iwu+hLopa+flJw==,
-      }
-
   css-tree@3.2.1:
     resolution:
       {
@@ -4860,10 +4836,10 @@ packages:
         integrity: sha512-5+ybhBZANEJxaH3X5evAFatUxLfEHSr7n6kYJ+1Qd0mUqr4eu9gIf6GDbWHf8RJijHrjjO8G+la14SlL2SeS1Q==,
       }
 
-  follow-redirects@1.16.1:
+  follow-redirects@1.16.2:
     resolution:
       {
-        integrity: sha512-FNvFGzoMLWmE6Yj9spb/zjd7yiNCHiAW9/Tg9CXrQ8wuu32HtlJOwWO11OJafl5FfY3DxTdQ0vj42zU1kvv5jg==,
+        integrity: sha512-/kVP2U8z596Ia0gwFrwyIeo74ta5aVmSeU1FfAUMAmcEP5EP7zydmag3SLiN64NaRKef3lxsq7i/g7ltJQDGow==,
       }
     engines: { node: ">=4.0" }
     peerDependencies:
@@ -6774,12 +6750,6 @@ packages:
       }
     engines: { node: ">=10" }
 
-  raf-schd@4.0.3:
-    resolution:
-      {
-        integrity: sha512-tQkJl2GRWh83ui2DiPTJz9wEiMN20syf+5oKfB03yYP7ioZcJwsIK8FjrtLwH1m7C7e+Tt2yYBlrOpdT+dyeIQ==,
-      }
-
   range-parser@1.2.1:
     resolution:
       {
@@ -6858,21 +6828,6 @@ packages:
         integrity: sha512-RRieF6IyxQBkcK6pP8xOHprLTPW6QjRkbGdImtqNme+/hYVwCZkLQLdlZGOhUqXwkS9IEynaGvPJtv6XB/cz0Q==,
       }
 
-  react-redux@9.3.0:
-    resolution:
-      {
-        integrity: sha512-KQopgqFo/p/fgmAs5qz6p5RWaNAzq40WAu7fJIXnQpYxFPbJYtsJPWvGeF2rOBaY/kEuV77AVsX8TsQzKm+A/g==,
-      }
-    peerDependencies:
-      "@types/react": ^18.2.25 || ^19
-      react: ^18.0 || ^19
-      redux: ^5.0.0
-    peerDependenciesMeta:
-      "@types/react":
-        optional: true
-      redux:
-        optional: true
-
   react-transition-group@4.4.5:
     resolution:
       {
@@ -6916,12 +6871,6 @@ packages:
         integrity: sha512-6tDA8g98We0zd0GvVeMT9arEOnTw9qM03L9cJXaCjrip1OO764RDBLBfrB4cwzNGDj5OA5ioymC9GkizgWJDUg==,
       }
     engines: { node: ">=8" }
-
-  redux@5.0.1:
-    resolution:
-      {
-        integrity: sha512-M9/ELqF6fy8FwmkpnF0S3YKOqMyoWJ4+CS5Efg2ct3oY9daQvd/Pc71FpGZsVsbl3Cpb+IIcjBDUnnyBdQbq4w==,
-      }
 
   reflect.getprototypeof@1.0.10:
     resolution:
@@ -7506,12 +7455,6 @@ packages:
     resolution:
       {
         integrity: sha512-oB7yIimd8SuGptespDAZnNkzIz+NWaJCu2RMsbs4Wmp9zSDUM8Nhi3s2OOcqYuv3mN4hitXc8DVx+LyUmbUDiA==,
-      }
-
-  tiny-invariant@1.3.3:
-    resolution:
-      {
-        integrity: sha512-+FbBPE1o9QAYvviau/qC5SE3caw21q3xkvWKBtja5vgqOWIHHJ3ioaq1VPfn/Szqctz2bU/oYeKd9/z5BL+PVg==,
       }
 
   tinybench@6.2.2:
@@ -8948,18 +8891,6 @@ snapshots:
       "@fullcalendar/core": 6.1.22
       "@fullcalendar/daygrid": 6.1.22(@fullcalendar/core@6.1.22)
 
-  "@hello-pangea/dnd@18.0.1(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)":
-    dependencies:
-      "@babel/runtime": 7.29.10
-      css-box-model: 1.2.1
-      raf-schd: 4.0.3
-      react: 19.3.1
-      react-dom: 19.3.1(react@19.3.1)
-      react-redux: 9.3.0(@types/react@19.3.0)(react@19.3.1)(redux@5.0.1)
-      redux: 5.0.1
-    transitivePeerDependencies:
-      - "@types/react"
-
   "@hookform/resolvers@5.9.2(ajv@8.20.0)(react-hook-form@7.90.0(@types/react@19.3.0)(react@19.3.1))(zod@4.6.7)":
     dependencies:
       "@standard-schema/utils": 0.3.0
@@ -10071,8 +10002,6 @@ snapshots:
     dependencies:
       "@types/node": 24.19.2
 
-  "@types/use-sync-external-store@0.0.6": {}
-
   "@types/ws@8.18.2":
     dependencies:
       "@types/node": 24.19.2
@@ -10432,7 +10361,7 @@ snapshots:
 
   axios@1.20.0:
     dependencies:
-      follow-redirects: 1.16.1(debug@4.4.3)
+      follow-redirects: 1.16.2(debug@4.4.3)
       form-data: 4.0.6
       https-proxy-agent: 5.0.1
       proxy-from-env: 2.1.0
@@ -10717,10 +10646,6 @@ snapshots:
   crypto-random-string@4.0.0:
     dependencies:
       type-fest: 1.4.0
-
-  css-box-model@1.2.1:
-    dependencies:
-      tiny-invariant: 1.3.3
 
   css-tree@3.2.1:
     dependencies:
@@ -11379,7 +11304,7 @@ snapshots:
 
   flatted@3.4.4: {}
 
-  follow-redirects@1.16.1(debug@4.4.3):
+  follow-redirects@1.16.2(debug@4.4.3):
     optionalDependencies:
       debug: 4.4.3
 
@@ -11586,7 +11511,7 @@ snapshots:
   http-proxy-3@1.23.3:
     dependencies:
       debug: 4.4.3
-      follow-redirects: 1.16.1(debug@4.4.3)
+      follow-redirects: 1.16.2(debug@4.4.3)
     transitivePeerDependencies:
       - supports-color
 
@@ -12441,8 +12366,6 @@ snapshots:
 
   quick-lru@5.1.1: {}
 
-  raf-schd@4.0.3: {}
-
   range-parser@1.2.1: {}
 
   raw-body@2.5.3:
@@ -12485,15 +12408,6 @@ snapshots:
 
   react-is@19.3.1: {}
 
-  react-redux@9.3.0(@types/react@19.3.0)(react@19.3.1)(redux@5.0.1):
-    dependencies:
-      "@types/use-sync-external-store": 0.0.6
-      react: 19.3.1
-      use-sync-external-store: 1.7.0(react@19.3.1)
-    optionalDependencies:
-      "@types/react": 19.3.0
-      redux: 5.0.1
-
   react-transition-group@4.4.5(react-dom@19.3.1(react@19.3.1))(react@19.3.1):
     dependencies:
       "@babel/runtime": 7.29.10
@@ -12519,8 +12433,6 @@ snapshots:
     dependencies:
       indent-string: 4.0.0
       strip-indent: 3.0.0
-
-  redux@5.0.1: {}
 
   reflect.getprototypeof@1.0.10:
     dependencies:
@@ -12950,8 +12862,6 @@ snapshots:
       unique-string: 3.0.0
 
   third-party-capital@1.0.20: {}
-
-  tiny-invariant@1.3.3: {}
 
   tinybench@6.2.2: {}
 

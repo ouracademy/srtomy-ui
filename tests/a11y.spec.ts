@@ -28,6 +28,7 @@ test.describe("Accesibilidad", () => {
   });
 
   const pages = [
+    { name: "Landing", path: "/" },
     { name: "Crear grupo", path: `/portal/${nodeId}/location/groups/create` },
     { name: "Registrar persona", path: `/portal/${nodeId}/person/create` },
     { name: "Cargos", path: `/portal/${nodeId}/positions` },
@@ -65,15 +66,15 @@ test.describe("Accesibilidad", () => {
           type: "CHURCH",
           schedule: "Domingos 10 am",
           socialLinks: { website: "https://iglesia.example" },
-          leaders: ["Ana Díaz"],
+          team: ["Ana Díaz"],
           positions: [{ position: "Pastor", people: ["Pedro Pastor"] }],
           orgChart: {
             name: "Iglesia E2E",
             type: "CHURCH",
             slug: "abc",
-            leaders: [],
+            team: [],
             children: [
-              { name: "Sede Norte", slug: "norte", leaders: [], children: [] },
+              { name: "Sede Norte", slug: "norte", team: [], children: [] },
             ],
           },
         }),
@@ -97,7 +98,7 @@ test.describe("Accesibilidad", () => {
             name: "Sede Central",
             type: "LOCATION",
             schedule: "Domingos",
-            leaders: ["Ana Díaz"],
+            team: ["Ana Díaz"],
             memberVisibility: "CHURCH",
           },
         ]),

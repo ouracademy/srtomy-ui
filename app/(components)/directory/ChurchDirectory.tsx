@@ -11,7 +11,7 @@ import { DirectoryList } from "./DirectoryList";
 import { PeopleList } from "./PeopleList";
 
 // The directory of a church: its locations, groups and ministries with their
-// leaders, and the people of each node when its visibility lets this user see
+// team, and the people of each node when its visibility lets this user see
 // them. Shared by the directory page of a node and by "Mi espacio".
 export const ChurchDirectory = ({
   churchId,

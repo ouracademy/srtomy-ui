@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   effectiveMemberState,
   isMemberState,
+  memberStateFromParam,
   memberStateLabels,
   memberStates,
 } from "./memberState";
@@ -26,5 +27,11 @@ describe("memberState", () => {
     expect(effectiveMemberState("MEMBERSHIP_IN_PROGRESS", 0)).toBe(
       "MEMBERSHIP_IN_PROGRESS",
     );
+  });
+
+  it("reads a state from a url parameter", () => {
+    expect(memberStateFromParam("MEMBER")).toBe("MEMBER");
+    expect(memberStateFromParam("nope")).toBeUndefined();
+    expect(memberStateFromParam(null)).toBeUndefined();
   });
 });

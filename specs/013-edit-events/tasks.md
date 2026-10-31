@@ -6,5 +6,5 @@
 - [x] T004 `EditableEventForm` y su prueba; `EventForm.lockType` y `fieldset`.
 - [x] T005 `page.tsx`: botón «Editar» con `events.write`.
 - [x] T006 e2e `tests/event-edit.spec.ts`.
-- [x] T007 `docs/redesign.md` (quitar la deuda 21, anotar 26 a 28) y `docs/architecture.md`.
+- [x] T007 `docs/redesign.md` (quitar la deuda 21, anotar 29 a 31) y `docs/architecture.md`.
 - [x] T008 `pnpm check:fast` en verde.

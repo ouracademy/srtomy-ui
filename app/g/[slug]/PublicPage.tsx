@@ -20,11 +20,11 @@ import { socialLinkFields } from "@/app/(components)/SocialLinks";
 import { publicPagePath } from "@/app/(components)/visibility";
 import { nodeTypeLabels } from "@/app/portal/organizationTree";
 
-// The public page of a node: what it is, when it meets, who leads it and, for
+// The public page of a node: what it is, when it meets, who runs it and, for
 // a church or location, its ministerial positions and org chart. The API only
 // names adults, so everything here can be shown as it comes.
 export const PublicPage = ({ page }: { page: PublicPageResponse }) => {
-  const leaders = page.leaders ?? [];
+  const team = page.team ?? [];
   const links = socialLinkFields.flatMap(({ name, label }) => {
     const url = page.socialLinks?.[name as keyof typeof page.socialLinks];
     return url ? [{ label, url }] : [];
@@ -65,9 +65,9 @@ export const PublicPage = ({ page }: { page: PublicPageResponse }) => {
             ))}
           </Stack>
         )}
-        {leaders.length > 0 && (
-          <Section title={leaders.length === 1 ? "Líder" : "Líderes"}>
-            <Names names={leaders} label="Líderes" />
+        {team.length > 0 && (
+          <Section title="Equipo">
+            <Names names={team} label="Equipo" />
           </Section>
         )}
         {(page.positions ?? []).length > 0 && (
@@ -145,10 +145,10 @@ const OrgChart = ({
       ) : (
         <strong>{node.name}</strong>
       )}
-      {(node.leaders ?? []).length > 0 && (
+      {(node.team ?? []).length > 0 && (
         <Typography component="span" variant="body2" color="text.secondary">
           {" "}
-          — {(node.leaders ?? []).join(", ")}
+          — {(node.team ?? []).join(", ")}
         </Typography>
       )}
       {(node.children ?? []).map((child, index) => (

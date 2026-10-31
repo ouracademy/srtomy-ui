@@ -15,7 +15,10 @@ import {
 } from "react-hook-form-mui";
 import { DatePickerElement } from "react-hook-form-mui/date-pickers";
 import { z } from "zod";
-import { useGetOrganizationsByIdPositions } from "@/app/(api)/generated";
+import {
+  useGetOrganizationsById,
+  useGetOrganizationsByIdPositions,
+} from "@/app/(api)/generated";
 import type {
   CreatePersonRequest,
   PositionSummaryResponse,
@@ -94,7 +97,7 @@ type PersonFormProps = {
 
 // How involved the person is. With a position they are a member, and it cannot
 // be lowered while they hold it.
-const MemberStateField = () => {
+const MemberStateField = ({ nodeName }: { nodeName: string }) => {
   const { watch, setValue } = useFormContext<PersonDetailFormData>();
   const holdsPosition = watch("positions").length > 0;
   // The select shows the state the person will be saved with.
@@ -104,7 +107,7 @@ const MemberStateField = () => {
   return (
     <SelectElement
       name="memberState"
-      label="Estado en la iglesia"
+      label={`Estado en ${nodeName}`}
       fullWidth
       disabled={holdsPosition}
       options={memberStates.map((state) => ({
@@ -131,6 +134,7 @@ export const PersonForm = ({
     error: positionsError,
     isLoading,
   } = useGetOrganizationsByIdPositions(nodeId);
+  const { data: node } = useGetOrganizationsById(nodeId);
 
   const formContext = useForm({
     defaultValues: initialValues,
@@ -154,8 +158,16 @@ export const PersonForm = ({
       <Grid container spacing={2} margin={4}>
         <Grid size={{ xs: 12 }}>
           <Typography variant="h5" gutterBottom>
-            Datos generales de persona
+            {suggestMatches
+              ? `Agregar persona a ${node?.name ?? "este lugar"}`
+              : "Datos generales de persona"}
           </Typography>
+          {suggestMatches && (
+            <Typography color="text.secondary">
+              Escribe el nombre: si ya está en la iglesia, la agregas desde aquí
+              sin duplicarla.
+            </Typography>
+          )}
         </Grid>
         <Grid size={{ xs: 12, sm: 6 }}>
           <TextFieldElement
@@ -225,7 +237,7 @@ export const PersonForm = ({
           />
         </Grid>
         <Grid size={{ xs: 12, sm: 6 }}>
-          <MemberStateField />
+          <MemberStateField nodeName={node?.name ?? "este lugar"} />
         </Grid>
         <Grid size={{ xs: 12 }}>
           <Grid sx={{ paddingBottom: "10px" }}>

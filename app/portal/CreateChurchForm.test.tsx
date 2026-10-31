@@ -75,7 +75,7 @@ describe("CreateChurchForm", () => {
     expect(values.location.name).toBe("Sede Centro");
     expect(values.positions).toEqual([
       { name: "Pastor", permissions: ["org.read", "members.write"] },
-      { name: "Líder de alabanza", permissions: [] },
+      { name: "Líder de grupo o ministerio", permissions: [] },
       { name: "Servidor", permissions: ["org.read"] },
     ]);
     expect(values.creator).toEqual({
@@ -103,7 +103,7 @@ describe("CreateChurchForm", () => {
     await user.click(screen.getByRole("button", { name: "Crear iglesia" }));
 
     expect(submit.mock.calls[0]?.[0].positions[1]).toEqual({
-      name: "Líder de alabanza",
+      name: "Líder de grupo o ministerio",
       permissions: ["events.read"],
     });
   });
