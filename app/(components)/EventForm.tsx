@@ -108,7 +108,13 @@ export const EventForm = ({
         disabled={!editable}
         sx={{ border: 0, p: 0, m: 0, minWidth: 0 }}
       >
-        <Grid container spacing={2} margin={4}>
+        <Grid
+          container
+          spacing={2}
+          sx={{
+            margin: 4,
+          }}
+        >
           <Grid size={{ xs: 12 }}>
             <TextFieldElement
               fullWidth
@@ -190,8 +196,8 @@ export const EventForm = ({
                 },
               }}
               textFieldProps={{
-                InputProps: {
-                  startAdornment: <PlaceOutlinedIcon />,
+                slotProps: {
+                  input: { startAdornment: <PlaceOutlinedIcon /> },
                 },
                 placeholder: " Agregar lugar",
                 variant: "standard",

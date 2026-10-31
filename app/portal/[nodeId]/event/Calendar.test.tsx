@@ -32,10 +32,11 @@ vi.mock("@fullcalendar/react", async () => {
     }),
   };
 });
-vi.mock("@fullcalendar/interaction", () => ({ default: {} }));
-vi.mock("@fullcalendar/timegrid", () => ({ default: {} }));
-vi.mock("@fullcalendar/list", () => ({ default: {} }));
-vi.mock("@fullcalendar/core/locales/es", () => ({ default: {} }));
+vi.mock("@fullcalendar/react/interaction", () => ({ default: {} }));
+vi.mock("@fullcalendar/react/timegrid", () => ({ default: {} }));
+vi.mock("@fullcalendar/react/list", () => ({ default: {} }));
+vi.mock("@fullcalendar/react/themes/classic", () => ({ default: {} }));
+vi.mock("@fullcalendar/react/locales/es", () => ({ default: {} }));
 vi.mock("next/navigation", () => ({ useRouter: () => ({ push: vi.fn() }) }));
 vi.mock("@/app/(api)/generated", () => ({
   getEvents: (...args: unknown[]) => calendar.getEvents(...args),

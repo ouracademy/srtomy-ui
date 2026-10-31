@@ -92,7 +92,12 @@ export const PersonMemberships = ({ personId, personName, nodeId }: Props) => {
   return (
     <Box sx={{ px: 4, pb: 4, maxWidth: 800 }}>
       <Typography variant="h6">Pertenece a</Typography>
-      <Typography color="text.secondary" variant="body2">
+      <Typography
+        variant="body2"
+        sx={{
+          color: "text.secondary",
+        }}
+      >
         El estado es de cada lugar: puede ser asistente de un grupo y miembro de
         la iglesia.
       </Typography>
@@ -113,7 +118,7 @@ export const PersonMemberships = ({ personId, personName, nodeId }: Props) => {
               <ListItemText
                 sx={{ minWidth: 180 }}
                 primary={membership.organizationName}
-                secondaryTypographyProps={{ component: "div" }}
+                slotProps={{ secondary: { component: "div" } }}
                 secondary={
                   <Stack
                     component="div"

@@ -108,11 +108,23 @@ export default function AttendanceEvent(props: {
   };
 
   return (
-    <Grid container spacing={2} margin={4}>
+    <Grid
+      container
+      spacing={2}
+      sx={{
+        margin: 4,
+      }}
+    >
       <>
         <Grid size={{ xs: 12 }}>
           <Box>
-            <Stack direction="row" spacing={1} justifyContent="flex-end">
+            <Stack
+              direction="row"
+              spacing={1}
+              sx={{
+                justifyContent: "flex-end",
+              }}
+            >
               {can("events.write") && !editing && (
                 <Tooltip title="Editar">
                   <RegisterButton
@@ -182,7 +194,13 @@ export default function AttendanceEvent(props: {
             />
           </Grid>
         )}
-        <Grid size={{ xs: 12 }} display="flex" alignItems="center">
+        <Grid
+          size={{ xs: 12 }}
+          sx={{
+            display: "flex",
+            alignItems: "center",
+          }}
+        >
           <Typography variant="h6" gutterBottom>
             Toma de asistencia
           </Typography>

@@ -102,7 +102,12 @@ export const VisitorsPanel = ({
           spacing={2}
           aria-label="Agregar visitante"
         >
-          <Typography variant="body2" color="text.secondary">
+          <Typography
+            variant="body2"
+            sx={{
+              color: "text.secondary",
+            }}
+          >
             Quien viene por primera vez queda como visitante en la iglesia, con
             su asistencia marcada. Basta con el nombre.
           </Typography>
@@ -162,8 +167,10 @@ export const VisitorsPanel = ({
           onSubmit={saveGuests}
           direction="row"
           spacing={2}
-          alignItems="flex-start"
           aria-label="Contar visitantes sin nombre"
+          sx={{
+            alignItems: "flex-start",
+          }}
         >
           <TextField
             label="Visitantes sin nombre"

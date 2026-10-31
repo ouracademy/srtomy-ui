@@ -3,7 +3,13 @@ import * as React from "react";
 
 const Loading = () => {
   return (
-    <Box display="flex" justifyContent="center" p={4}>
+    <Box
+      sx={{
+        display: "flex",
+        justifyContent: "center",
+        p: 4,
+      }}
+    >
       <CircularProgress aria-label="Cargando" />
     </Box>
   );

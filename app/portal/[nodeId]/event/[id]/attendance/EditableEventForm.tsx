@@ -147,7 +147,13 @@ export const EditableEventForm = ({
         lockType
       />
       {editing && (
-        <Stack direction="row" justifyContent="flex-end" px={4}>
+        <Stack
+          direction="row"
+          sx={{
+            justifyContent: "flex-end",
+            px: 4,
+          }}
+        >
           <Button onClick={cancel}>Cancelar</Button>
         </Stack>
       )}

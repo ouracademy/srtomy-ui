@@ -155,7 +155,13 @@ export const PersonForm = ({
 
   return (
     <FormContainer formContext={formContext} onSuccess={submit}>
-      <Grid container spacing={2} margin={4}>
+      <Grid
+        container
+        spacing={2}
+        sx={{
+          margin: 4,
+        }}
+      >
         <Grid size={{ xs: 12 }}>
           <Typography variant="h5" gutterBottom>
             {suggestMatches
@@ -163,7 +169,11 @@ export const PersonForm = ({
               : "Datos generales de persona"}
           </Typography>
           {suggestMatches && (
-            <Typography color="text.secondary">
+            <Typography
+              sx={{
+                color: "text.secondary",
+              }}
+            >
               Escribe el nombre: si ya está en la iglesia, la agregas desde aquí
               sin duplicarla.
             </Typography>
@@ -276,7 +286,9 @@ const PositionsField = ({
           getOptionLabel={(option) =>
             typeof option === "string" ? option : option.label
           }
-          isOptionEqualToValue={(option, value) => option.label === value.label}
+          isOptionEqualToValue={(option, value) =>
+            typeof value !== "string" && option.label === value.label
+          }
           onChange={(_event, values) =>
             field.onChange(
               values

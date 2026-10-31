@@ -142,7 +142,11 @@ export const TicketScanner = ({
           </Stack>
           <div aria-live="polite">
             {readings.length === 0 ? (
-              <Typography color="text.secondary">
+              <Typography
+                sx={{
+                  color: "text.secondary",
+                }}
+              >
                 Aquí aparece quién va ingresando.
               </Typography>
             ) : (

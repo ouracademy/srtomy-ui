@@ -161,7 +161,11 @@ export const PositionsManager = ({
 
   return (
     <Stack spacing={2}>
-      <Typography color="text.secondary">
+      <Typography
+        sx={{
+          color: "text.secondary",
+        }}
+      >
         Nombre los cargos como los llaman en su iglesia. Cada cargo puede dar
         permisos en la aplicación: quien lo tenga podrá hacer eso en su sede,
         grupo o ministerio y en todo lo que cuelga de él. Sin permisos, el cargo
@@ -204,7 +208,12 @@ export const PositionsManager = ({
         </Stack>
       )}
       {canManage && newName.trim() && (
-        <Typography variant="body2" color="text.secondary">
+        <Typography
+          variant="body2"
+          sx={{
+            color: "text.secondary",
+          }}
+        >
           Se creará con {permissionsText(newPermissions.length).toLowerCase()}.
           Podrá cambiarlos al abrir el cargo.
         </Typography>
@@ -301,7 +310,13 @@ export const PositionsManager = ({
         </Table>
       </TableContainer>
       {positions.length === 0 && (
-        <Typography color="text.secondary">Aún no hay cargos.</Typography>
+        <Typography
+          sx={{
+            color: "text.secondary",
+          }}
+        >
+          Aún no hay cargos.
+        </Typography>
       )}
       {renaming && (
         <RenameDialog
@@ -353,7 +368,13 @@ const PositionDetail = ({
 
   return (
     <Stack spacing={2} sx={{ py: 2 }}>
-      <Typography variant="subtitle1" component="h2" fontWeight={600}>
+      <Typography
+        variant="subtitle1"
+        component="h2"
+        sx={{
+          fontWeight: 600,
+        }}
+      >
         Permisos de {position.name}
       </Typography>
       <PermissionPicker
@@ -382,11 +403,23 @@ const PositionDetail = ({
           </Button>
         </div>
       )}
-      <Typography variant="subtitle1" component="h2" fontWeight={600}>
+      <Typography
+        variant="subtitle1"
+        component="h2"
+        sx={{
+          fontWeight: 600,
+        }}
+      >
         Personas con este cargo
       </Typography>
       {(position.holders ?? []).length === 0 ? (
-        <Typography color="text.secondary">Nadie tiene este cargo.</Typography>
+        <Typography
+          sx={{
+            color: "text.secondary",
+          }}
+        >
+          Nadie tiene este cargo.
+        </Typography>
       ) : (
         <Stack component="ul" sx={{ m: 0, pl: 3 }} spacing={0.5}>
           {(position.holders ?? []).map((holder) => (

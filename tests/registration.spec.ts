@@ -1,5 +1,6 @@
 import AxeBuilder from "@axe-core/playwright";
 import { test, expect } from "./fixtures";
+import { firstCalendarSlot } from "./calendar";
 import { NODE_ID } from "./e2e-env";
 
 const json = (body: unknown, status = 200) => ({
@@ -111,11 +112,7 @@ test.describe("Inscripción a eventos y cursos", () => {
 
     await page.goto(`/portal/${NODE_ID}/event`);
     await expect.poll(() => listCalls).toBeGreaterThan(0);
-    await page
-      .getByRole("grid")
-      .getByRole("gridcell")
-      .first()
-      .click({ force: true });
+    await firstCalendarSlot(page).click({ force: true });
     const dialog = page.getByRole("dialog");
     await expect(dialog).toBeVisible();
     await dialog.getByRole("button", { name: "Curso", exact: true }).click();

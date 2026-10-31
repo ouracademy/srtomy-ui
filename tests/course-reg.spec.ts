@@ -1,4 +1,5 @@
 import { test, expect } from "./fixtures";
+import { firstCalendarSlot } from "./calendar";
 
 test.describe("Registro de Eventos y cursos", () => {
   const nodeId = "11111111-1111-1111-1111-111111111111";
@@ -65,8 +66,7 @@ test.describe("Registro de Eventos y cursos", () => {
       ).toBeVisible();
 
       //3 Abrir el formulario
-      const calendarGrid = page.getByRole("grid");
-      await calendarGrid.getByRole("gridcell").first().click({ force: true });
+      await firstCalendarSlot(page).click({ force: true });
 
       //4 Llenar el eventForm
       const dialog = page.getByRole("dialog");

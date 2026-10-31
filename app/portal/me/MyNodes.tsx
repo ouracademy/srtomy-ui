@@ -21,7 +21,11 @@ export const MyNodes = ({ nodes }: Readonly<{ nodes: MyNodeResponse[] }>) => (
       Mis grupos y ministerios
     </Typography>
     {nodes.length === 0 && (
-      <Typography color="text.secondary">
+      <Typography
+        sx={{
+          color: "text.secondary",
+        }}
+      >
         Todavía no figuras en ningún grupo ni ministerio.
       </Typography>
     )}
@@ -32,9 +36,16 @@ export const MyNodes = ({ nodes }: Readonly<{ nodes: MyNodeResponse[] }>) => (
             primary={
               <NextLink href={`/portal/${node.id}`}>{node.name}</NextLink>
             }
-            secondaryTypographyProps={{ component: "div" }}
+            slotProps={{ secondary: { component: "div" } }}
             secondary={
-              <Stack direction="row" spacing={1} alignItems="center" useFlexGap>
+              <Stack
+                direction="row"
+                spacing={1}
+                useFlexGap
+                sx={{
+                  alignItems: "center",
+                }}
+              >
                 <span>
                   {[nodeTypeLabels[node.type ?? ""], node.churchName]
                     .filter(Boolean)
