@@ -1,4 +1,4 @@
-import { Box, Chip, Grid } from "@mui/material";
+import { Box, Chip, Grid, Typography } from "@mui/material";
 import { TimePicker } from "@mui/x-date-pickers";
 import { renderTimeViewClock } from "@mui/x-date-pickers/timeViewRenderers";
 import React from "react";
@@ -25,6 +25,7 @@ import { RegistrationFields } from "./RegistrationFields";
 import { registrationErrors, type RegistrationFormData } from "./registration";
 import { eventRange, lastsSeveralDays } from "./eventRange";
 import { EndDateField } from "./EndDateField";
+import { RegistrationModeField } from "./RegistrationModeField";
 
 const fields = z.object({
   name: z.string().trim().min(1, { message: "Por favor ingrese el título" }),
@@ -45,6 +46,8 @@ const fields = z.object({
   ),
   // How the event takes sign-ups. Only new events that do not repeat set it
   // here; for an existing event it is set from the event itself.
+  // How a sub-event is entered; only a sub-event has it.
+  registrationMode: z.enum(["INHERIT", "OWN", "OPEN"]).optional(),
   registration: z
     .custom<RegistrationFormData>()
     .superRefine((value, context) => {
@@ -78,6 +81,9 @@ type EventFormProps = {
   // An existing event cannot become a course, nor a course an event: its kind
   // is shown as a value instead of buttons.
   lockType?: boolean;
+  // The event this one is part of (a sub-event): it stays inside its dates, does
+  // not repeat and says how it is entered.
+  container?: Readonly<{ title: string; start: Date; end: Date }>;
 };
 
 export const EventForm = ({
@@ -87,6 +93,7 @@ export const EventForm = ({
   editable,
   showRegistration = false,
   lockType = false,
+  container,
 }: EventFormProps) => {
   const [searchTextSpeaker, setSearchTextSpeaker] = React.useState("");
 
@@ -128,6 +135,13 @@ export const EventForm = ({
         sx={{ border: 0, p: 0, m: 0, minWidth: 0 }}
       >
         <Grid container spacing={2} margin={4}>
+          {container && (
+            <Grid size={{ xs: 12 }}>
+              <Typography variant="overline" color="text.secondary">
+                Parte de «{container.title}»
+              </Typography>
+            </Grid>
+          )}
           <Grid size={{ xs: 12 }}>
             <TextFieldElement
               fullWidth
@@ -159,11 +173,13 @@ export const EventForm = ({
               sx={{ width: "100%" }}
               label="Fecha"
               name="date"
+              minDate={container?.start}
+              maxDate={container?.end}
               required
             />
           </Grid>
           <Grid size={{ xs: 12, sm: 6 }}>
-            <EndDateField />
+            <EndDateField maxDate={container?.end} />
           </Grid>
           <Grid size={{ xs: 12, sm: 6 }}>
             <TimePicker
@@ -206,9 +222,14 @@ export const EventForm = ({
               }}
             />
           </Grid>
-          {!severalDays && (
+          {!severalDays && !container && (
             <Grid size={{ xs: 12 }}>
               <RecurrenceFields readOnly={!editable} />
+            </Grid>
+          )}
+          {container && (
+            <Grid size={{ xs: 12 }}>
+              <RegistrationModeField />
             </Grid>
           )}
           <Grid size={{ xs: 12 }}>
@@ -272,23 +293,26 @@ export const EventForm = ({
               variant="standard"
             />
           </Grid>
-          {showRegistration && editable && !repeats && (
-            <Grid size={{ xs: 12 }}>
-              <RegistrationFields
-                value={registration}
-                onChange={(value) =>
-                  formContext.setValue("registration", value, {
-                    shouldDirty: true,
-                  })
-                }
-                errors={
-                  formContext.formState.isSubmitted
-                    ? registrationErrors(registration)
-                    : []
-                }
-              />
-            </Grid>
-          )}
+          {showRegistration &&
+            editable &&
+            !repeats &&
+            (!container || watch("registrationMode") === "OWN") && (
+              <Grid size={{ xs: 12 }}>
+                <RegistrationFields
+                  value={registration}
+                  onChange={(value) =>
+                    formContext.setValue("registration", value, {
+                      shouldDirty: true,
+                    })
+                  }
+                  errors={
+                    formContext.formState.isSubmitted
+                      ? registrationErrors(registration)
+                      : []
+                  }
+                />
+              </Grid>
+            )}
           <Grid size={{ xs: 6 }}>
             {editable && (
               <SaveButton

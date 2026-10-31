@@ -326,4 +326,75 @@ describe("EventForm", () => {
     expect(screen.queryByRole("button", { name: "Curso" })).toBeNull();
     expect(screen.queryByRole("button", { name: "Evento" })).toBeNull();
   });
+
+  describe("as a sub-event", () => {
+    const container = {
+      title: "Congreso",
+      start: new Date(2026, 9, 23, 0, 0),
+      end: new Date(2026, 9, 25, 23, 0),
+    };
+
+    const renderSubEvent = (
+      submit: (values: EventDetailFormData) => void = vi.fn(),
+      values: Partial<EventDetailFormData> = {},
+    ) =>
+      render(
+        <LocalizationProvider dateAdapter={AdapterDateFns}>
+          <EventForm
+            nodeId="11111111-1111-1111-1111-111111111111"
+            initialValues={{
+              ...initialValues,
+              name: "Taller",
+              registrationMode: "INHERIT",
+              ...values,
+            }}
+            submit={submit}
+            editable
+            showRegistration
+            container={container}
+          />
+        </LocalizationProvider>,
+      );
+
+    it("says which event it is part of and does not offer to repeat", () => {
+      renderSubEvent();
+
+      expect(screen.getByText("Parte de «Congreso»")).toBeInTheDocument();
+      expect(
+        screen.queryByRole("combobox", { name: "Se repite" }),
+      ).not.toBeInTheDocument();
+    });
+
+    it("asks how it is entered and saves the choice", async () => {
+      const user = userEvent.setup();
+      const submit = vi.fn();
+      renderSubEvent(submit);
+      expect(
+        screen.getByText(
+          "Quien se inscribe al evento puede entrar a este sub-evento.",
+        ),
+      ).toBeInTheDocument();
+
+      await user.click(screen.getByRole("combobox", { name: "Inscripción" }));
+      await user.click(await screen.findByRole("option", { name: "Propia" }));
+      await user.click(screen.getByRole("button", { name: "Guardar" }));
+
+      await waitFor(() => expect(submit).toHaveBeenCalledOnce());
+      expect(submit.mock.calls[0]?.[0].registrationMode).toBe("OWN");
+    });
+
+    it("sets up the sign-up only when it has its own", () => {
+      const { unmount } = renderSubEvent();
+      expect(
+        screen.queryByRole("switch", { name: "Pedir inscripción" }),
+      ).not.toBeInTheDocument();
+      unmount();
+
+      renderSubEvent(vi.fn(), { registrationMode: "OWN" });
+
+      expect(
+        screen.getByRole("switch", { name: "Pedir inscripción" }),
+      ).toBeInTheDocument();
+    });
+  });
 });

@@ -11,7 +11,12 @@ import { noRecurrence } from "./recurrence";
 // The day the event ends, next to the day it starts: an event of several days
 // (a conference, a retreat) is one whose end day is another one. Must be
 // rendered inside the EventForm's FormContainer.
-export const EndDateField = () => {
+type EndDateFieldProps = Readonly<{
+  // The last day allowed (the end of the event this one is part of).
+  maxDate?: Date;
+}>;
+
+export const EndDateField = ({ maxDate }: EndDateFieldProps) => {
   const form = useFormContext<EventDetailFormData>();
   const date = form.watch("date");
   const endDate = form.watch("endDate");
@@ -46,6 +51,7 @@ export const EndDateField = () => {
       label="Hasta"
       name="endDate"
       minDate={date}
+      maxDate={maxDate}
       required
     />
   );
