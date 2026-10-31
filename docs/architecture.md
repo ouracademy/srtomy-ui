@@ -25,6 +25,7 @@ app/
   (components)/                Compartidos por 2+ pantallas: Loading, ErrorMessage,
                                NotFoundMessage, ResourceError, SaveButton, ...
   (hooks)/                     Hooks de interfaz compartidos: useDebounce, usePagination, ...
+  landing/                     Landing pública (/): secciones, contenido (`content.ts`) y tema propio (`theme.ts`); `LandingPage` es su frontera de cliente
   e/[slug]/                    Página del enlace de un evento o curso (ver e inscribirse)
   g/[slug]/                    Página pública de un nodo (iglesia, sede, grupo o ministerio)
   invitacion/[token]/          Página pública de una invitación (aceptarla); returnTo.ts decide a dónde volver tras el login
@@ -127,6 +128,8 @@ El formulario de persona muestra, al elegir un cargo, cuántos permisos da.
 **Mi espacio.** `/portal/me` está abierta a cualquier usuario con sesión y muestra solo lo propio: `GET /me/events` (donde se inscribió o asistió), `GET /me/nodes` (donde su persona vinculada es miembro o líder), `GET /me/shared-events` y `GET /me/invitations`. Todos aterrizan ahí desde `/portal` tras iniciar sesión y de ahí abren su nodo; el menú de un miembro (solo `org.read` y `events.read`) no trae «Cargos y accesos», «Personas» ni el Dashboard. Cada sección carga y falla por su cuenta.
 
 **Compartir.** Un evento o curso se comparte desde su detalle (`ShareEventButton` → `ShareEventDialog`): con personas por correo (Lector o Editor), con la iglesia o con cualquiera que tenga el enlace, y el enlace solo deja ver. El diálogo trabaja sobre un borrador y guarda con el botón **Guardar**. `/e/{slug}` es la página del enlace: el API decide si el visitante la puede abrir (404 si no) y si puede inscribirse (`canRegister`).
+
+**Editar.** El detalle de un evento (`attendance/page.tsx`) tiene un botón «Editar» (permiso `events.write`) que vuelve editable el `EventForm` (`EditableEventForm`) y guarda con `PUT /events/{id}`. No se puede cambiar el nodo ni pasar de evento a curso (el API lo rechaza y el formulario muestra el tipo como valor). Si el evento es de una serie, `EditEventDialog` pregunta a cuáles aplicar el cambio (este, este y los siguientes, todos); si cambió la fecha, la hora, el nombre, el lugar, los ponentes o la repetición, el mismo diálogo avisa antes de guardar qué va a pasar (correo a los inscritos, ocurrencias que se conservan). La UI solo envía la repetición si el usuario la cambió y alcanza a más de este evento (`eventChange.ts`); el API la compara con la guardada. Reglas completas: `specs/013-edit-events`.
 
 **Inscripción y asistencia.** La inscripción (cupos y precio, o una lista de tickets si hay más de un tipo) es un proceso aparte del compartir; cada acción pide su permiso (`registrations.read`, `.configure`, `.close`, `.remove`): `RegistrationPanel` en el detalle del evento y `/e/{slug}/cancelar/{código}` para cancelar sin cuenta. La asistencia no depende de ella: lista de personas con estado, contador de invitados y dos QR (`AttendanceQrDialog` muestra el del evento, que abre `/a/[token]`; `TicketScanner` lee el del ticket). Los QR se dibujan con `QrImage` y el escáner usa `BarcodeDetector` (`useQrScanner`). El nivel de acceso a un evento lo calcula el API (árbol de la iglesia, compartido con tu correo verificado o acceso general) y `GET/PUT/DELETE /events/{id}` lo respetan.
 
