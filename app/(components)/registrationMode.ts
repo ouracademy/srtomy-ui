@@ -7,21 +7,26 @@ export type RegistrationMode = NonNullable<EventRequest["registrationMode"]>;
 export const REGISTRATION_MODES: readonly {
   id: RegistrationMode;
   label: string;
+  // In a list of sub-events.
+  summary: string;
   help: string;
 }[] = [
   {
     id: "INHERIT",
     label: "La del evento",
+    summary: "Incluido en la inscripción",
     help: "Quien se inscribe al evento puede entrar a este sub-evento.",
   },
   {
     id: "OWN",
     label: "Propia",
+    summary: "Inscripción propia",
     help: "Tiene su propia inscripción, con sus cupos y tickets.",
   },
   {
     id: "OPEN",
     label: "Sin inscripción",
+    summary: "Sin inscripción",
     help: "Cualquiera que pueda abrirlo asiste, sin inscribirse.",
   },
 ];

@@ -23,7 +23,10 @@ import { ShareEventButton } from "./ShareEventButton";
 import { AttendanceTools } from "./AttendanceTools";
 import { RegistrationPanel } from "./RegistrationPanel";
 import { SaveButton } from "@/app/(components)/SaveButton";
+import { ContainerNotice } from "./ContainerNotice";
 import { EditableEventForm } from "./EditableEventForm";
+import { deleteMessage } from "./program";
+import { ProgramSection } from "./ProgramSection";
 import {
   DeleteRecurrentEventDialog,
   type DeleteEventRecurrentForm,
@@ -88,6 +91,9 @@ export default function AttendanceEvent(props: {
   if (!event) return <ResourceError error={eventError} />;
 
   const isRecurrent = Boolean(event.recurrence);
+  // A sub-event that inherits its registration or has none does not set one up.
+  const hasOwnRegistration =
+    !event.parentEventId || event.registrationMode === "OWN";
 
   const chooseDeleteOption = (values: DeleteEventRecurrentForm) => {
     setDeleteOption(values.option);
@@ -166,9 +172,25 @@ export default function AttendanceEvent(props: {
             open={openConfirmDeleteDialog}
             close={() => setOpenConfirmDeleteDialog(false)}
             onDelete={deleteEvent}
+            message={deleteMessage(event.children?.length ?? 0)}
           />
         </Grid>
-        {can("registrations.read") && (
+        <Grid size={{ xs: 12 }}>
+          {event.parentEventId ? (
+            <ContainerNotice nodeId={nodeId} event={event} />
+          ) : (
+            !isRecurrent && (
+              <ProgramSection
+                nodeId={nodeId}
+                event={event}
+                canAdd={can("events.write")}
+                canConfigureRegistration={can("registrations.configure")}
+                onChanged={() => void mutateEvent()}
+              />
+            )
+          )}
+        </Grid>
+        {can("registrations.read") && hasOwnRegistration && (
           <Grid size={{ xs: 12 }}>
             <RegistrationPanel
               eventId={id}

@@ -141,6 +141,7 @@ export const toEditRequest = ({
     endTime: format(endOf(values), "yyyy-MM-dd'T'HH:mm:ssXXX"),
     option,
     recurrence,
+    registrationMode: values.registrationMode,
     timeZone: !repeats || recurrence ? timeZone : undefined,
   };
 };

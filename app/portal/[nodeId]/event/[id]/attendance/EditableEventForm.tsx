@@ -4,7 +4,7 @@ import type {
   EditEventResponse,
   EventResponse,
 } from "@/app/(api)/generated/aPIOvejafiel.schemas";
-import { putEventsById } from "@/app/(api)/generated";
+import { putEventsById, useGetEventsById } from "@/app/(api)/generated";
 import { apiErrorMessage } from "@/app/(components)/apiErrorMessage";
 import { EventDetailFormData, EventForm } from "@/app/(components)/EventForm";
 import { fromRecurrenceResponse } from "@/app/(components)/recurrence";
@@ -61,6 +61,11 @@ export const EditableEventForm = ({
   const alert = useContext(SnackbarContext);
   const repeats = Boolean(event.recurrence);
   const [pending, setPending] = useState<EventDetailFormData | null>(null);
+  // A sub-event stays inside the dates of the event it is part of.
+  const parentId = event.parentEventId;
+  const { data: parent } = useGetEventsById(parentId ?? "", {
+    swr: { enabled: Boolean(parentId) },
+  });
 
   const initialValues = useMemo<EventDetailFormData>(
     () => ({
@@ -77,10 +82,14 @@ export const EditableEventForm = ({
         label: fullName(speaker),
       })),
       description: event.description,
+      // How a sub-event is entered; an event on its own has no such thing.
+      registrationMode: parentId
+        ? (event.registrationMode ?? "INHERIT")
+        : undefined,
       // Shown and changed in its own panel, not in this form.
       registration: noRegistration(),
     }),
-    [event],
+    [event, parentId],
   );
 
   const save = async (values: EventDetailFormData, option: EditOption) => {
@@ -146,6 +155,15 @@ export const EditableEventForm = ({
         submit={submit}
         editable={editing}
         lockType
+        container={
+          parent?.start && parent.end
+            ? {
+                title: parent.title ?? "",
+                start: parent.start,
+                end: parent.end,
+              }
+            : undefined
+        }
       />
       {editing && (
         <Stack direction="row" justifyContent="flex-end" px={4}>
