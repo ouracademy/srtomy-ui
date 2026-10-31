@@ -84,6 +84,16 @@ describe("describeChange", () => {
     ).toMatchObject({ scheduleMoved: false });
   });
 
+  it("compares the days of the week as numbers, not as text", () => {
+    const base = { ...initial, recurrence: { ...weekly, daysOfWeek: [2, 10] } };
+    expect(
+      describeChange(base, {
+        ...base,
+        recurrence: { ...weekly, daysOfWeek: [10, 2] },
+      }).ruleChanged,
+    ).toBe(false);
+  });
+
   it("sees a different rule, and not the same rule with the days in another order", () => {
     const base = { ...initial, recurrence: { ...weekly, daysOfWeek: [1, 3] } };
     expect(
