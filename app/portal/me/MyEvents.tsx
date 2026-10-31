@@ -30,6 +30,7 @@ const details = (event: MyEventResponse) =>
   [
     event.isACourse ? "Curso" : "Evento",
     event.organizationName,
+    event.parentTitle ? `Parte de «${event.parentTitle}»` : undefined,
     event.start
       ? format(event.start, "d 'de' MMMM yyyy", { locale: es })
       : undefined,
@@ -222,7 +223,9 @@ const PlaceItem = ({
             </>
           }
         >
-          ¿Cancelar tu inscripción a «{event.title}»? Tu lugar quedará libre.
+          {event.parentTitle
+            ? `Este sub-evento entra con tu inscripción a «${event.parentTitle}»: cancelarla te quita el lugar en todo el evento y sus sub-eventos. ¿Cancelar tu inscripción?`
+            : `¿Cancelar tu inscripción a «${event.title}»? Tu lugar quedará libre.`}
         </Alert>
       )}
     </ListItem>

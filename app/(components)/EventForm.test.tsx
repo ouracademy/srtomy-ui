@@ -24,6 +24,7 @@ afterEach(cleanup);
 const initialValues: EventDetailFormData = {
   name: "",
   date: new Date(2026, 9, 23, 17, 9),
+  endDate: new Date(2026, 9, 23, 17, 9),
   startTime: new Date(2026, 9, 23, 17, 9),
   endTime: new Date(2026, 9, 23, 18, 9),
   address: "",
@@ -37,12 +38,13 @@ const initialValues: EventDetailFormData = {
 const renderForm = (
   submit: (values: EventDetailFormData) => void,
   showRegistration = false,
+  values: EventDetailFormData = initialValues,
 ) =>
   render(
     <LocalizationProvider dateAdapter={AdapterDateFns}>
       <EventForm
         nodeId="11111111-1111-1111-1111-111111111111"
-        initialValues={initialValues}
+        initialValues={values}
         submit={submit}
         editable
         showRegistration={showRegistration}
@@ -230,6 +232,65 @@ describe("EventForm", () => {
     ).toBeNull();
   });
 
+  it("sends the day an event of several days ends", async () => {
+    const user = userEvent.setup();
+    const submit = vi.fn();
+    renderForm(submit, false, {
+      ...initialValues,
+      name: "Congreso",
+      endDate: new Date(2026, 9, 25, 17, 9),
+    });
+
+    await user.click(screen.getByRole("button", { name: "Guardar" }));
+
+    await waitFor(() => expect(submit).toHaveBeenCalledOnce());
+    expect(submit.mock.calls[0]?.[0].endDate).toEqual(
+      new Date(2026, 9, 25, 17, 9),
+    );
+  });
+
+  it("asks for the day the event ends next to the day it starts", () => {
+    renderForm(vi.fn());
+
+    expect(screen.getByRole("group", { name: "Fecha" })).toBeInTheDocument();
+    expect(screen.getByRole("group", { name: "Hasta" })).toBeInTheDocument();
+  });
+
+  it("offers to repeat an event of one day but not one of several days", () => {
+    const { unmount } = renderForm(vi.fn());
+    expect(
+      screen.getByRole("combobox", { name: "Se repite" }),
+    ).toBeInTheDocument();
+    unmount();
+
+    renderForm(vi.fn(), false, {
+      ...initialValues,
+      endDate: new Date(2026, 9, 24, 17, 9),
+    });
+
+    expect(
+      screen.queryByRole("combobox", { name: "Se repite" }),
+    ).not.toBeInTheDocument();
+  });
+
+  it("does not save an event that ends before it starts", async () => {
+    const user = userEvent.setup();
+    const submit = vi.fn();
+    renderForm(submit, false, {
+      ...initialValues,
+      name: "Congreso",
+      // Same day, but the end time is earlier than the start time.
+      endTime: new Date(2026, 9, 23, 16, 9),
+    });
+
+    await user.click(screen.getByRole("button", { name: "Guardar" }));
+
+    expect(
+      await screen.findByText("El evento debe terminar después de empezar"),
+    ).toBeInTheDocument();
+    expect(submit).not.toHaveBeenCalled();
+  });
+
   it("cannot be typed into when it is not editable, and has no Guardar", () => {
     render(
       <LocalizationProvider dateAdapter={AdapterDateFns}>
@@ -264,5 +325,76 @@ describe("EventForm", () => {
     expect(screen.getByText("Curso")).toBeTruthy();
     expect(screen.queryByRole("button", { name: "Curso" })).toBeNull();
     expect(screen.queryByRole("button", { name: "Evento" })).toBeNull();
+  });
+
+  describe("as a sub-event", () => {
+    const container = {
+      title: "Congreso",
+      start: new Date(2026, 9, 23, 0, 0),
+      end: new Date(2026, 9, 25, 23, 0),
+    };
+
+    const renderSubEvent = (
+      submit: (values: EventDetailFormData) => void = vi.fn(),
+      values: Partial<EventDetailFormData> = {},
+    ) =>
+      render(
+        <LocalizationProvider dateAdapter={AdapterDateFns}>
+          <EventForm
+            nodeId="11111111-1111-1111-1111-111111111111"
+            initialValues={{
+              ...initialValues,
+              name: "Taller",
+              registrationMode: "INHERIT",
+              ...values,
+            }}
+            submit={submit}
+            editable
+            showRegistration
+            container={container}
+          />
+        </LocalizationProvider>,
+      );
+
+    it("says which event it is part of and does not offer to repeat", () => {
+      renderSubEvent();
+
+      expect(screen.getByText("Parte de «Congreso»")).toBeInTheDocument();
+      expect(
+        screen.queryByRole("combobox", { name: "Se repite" }),
+      ).not.toBeInTheDocument();
+    });
+
+    it("asks how it is entered and saves the choice", async () => {
+      const user = userEvent.setup();
+      const submit = vi.fn();
+      renderSubEvent(submit);
+      expect(
+        screen.getByText(
+          "Quien se inscribe al evento puede entrar a este sub-evento.",
+        ),
+      ).toBeInTheDocument();
+
+      await user.click(screen.getByRole("combobox", { name: "Inscripción" }));
+      await user.click(await screen.findByRole("option", { name: "Propia" }));
+      await user.click(screen.getByRole("button", { name: "Guardar" }));
+
+      await waitFor(() => expect(submit).toHaveBeenCalledOnce());
+      expect(submit.mock.calls[0]?.[0].registrationMode).toBe("OWN");
+    });
+
+    it("sets up the sign-up only when it has its own", () => {
+      const { unmount } = renderSubEvent();
+      expect(
+        screen.queryByRole("switch", { name: "Pedir inscripción" }),
+      ).not.toBeInTheDocument();
+      unmount();
+
+      renderSubEvent(vi.fn(), { registrationMode: "OWN" });
+
+      expect(
+        screen.getByRole("switch", { name: "Pedir inscripción" }),
+      ).toBeInTheDocument();
+    });
   });
 });

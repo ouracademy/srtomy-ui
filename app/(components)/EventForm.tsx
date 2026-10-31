@@ -1,4 +1,4 @@
-import { Box, Chip, Grid } from "@mui/material";
+import { Box, Chip, Grid, Typography } from "@mui/material";
 import { TimePicker } from "@mui/x-date-pickers";
 import { renderTimeViewClock } from "@mui/x-date-pickers/timeViewRenderers";
 import React from "react";
@@ -23,10 +23,15 @@ import { z } from "zod";
 import { SaveButton } from "./SaveButton";
 import { RegistrationFields } from "./RegistrationFields";
 import { registrationErrors, type RegistrationFormData } from "./registration";
+import { eventRange, lastsSeveralDays } from "./eventRange";
+import { EndDateField } from "./EndDateField";
+import { RegistrationModeField } from "./RegistrationModeField";
 
-const schema = z.object({
+const fields = z.object({
   name: z.string().trim().min(1, { message: "Por favor ingrese el título" }),
   date: z.date(),
+  // The day the event ends: the same as `date` unless it lasts several days.
+  endDate: z.date(),
   startTime: z.date(),
   endTime: z.date(),
   address: z.string().optional(),
@@ -41,6 +46,8 @@ const schema = z.object({
   ),
   // How the event takes sign-ups. Only new events that do not repeat set it
   // here; for an existing event it is set from the event itself.
+  // How a sub-event is entered; only a sub-event has it.
+  registrationMode: z.enum(["INHERIT", "OWN", "OPEN"]).optional(),
   registration: z
     .custom<RegistrationFormData>()
     .superRefine((value, context) => {
@@ -48,6 +55,17 @@ const schema = z.object({
         context.addIssue({ code: "custom", message });
       }
     }),
+});
+
+const schema = fields.superRefine((values, context) => {
+  const { start, end } = eventRange(values);
+  if (end <= start) {
+    context.addIssue({
+      code: "custom",
+      path: ["endTime"],
+      message: "El evento debe terminar después de empezar",
+    });
+  }
 });
 
 export type EventDetailFormData = z.infer<typeof schema>;
@@ -63,6 +81,9 @@ type EventFormProps = {
   // An existing event cannot become a course, nor a course an event: its kind
   // is shown as a value instead of buttons.
   lockType?: boolean;
+  // The event this one is part of (a sub-event): it stays inside its dates, does
+  // not repeat and says how it is entered.
+  container?: Readonly<{ title: string; start: Date; end: Date }>;
 };
 
 export const EventForm = ({
@@ -72,6 +93,7 @@ export const EventForm = ({
   editable,
   showRegistration = false,
   lockType = false,
+  container,
 }: EventFormProps) => {
   const [searchTextSpeaker, setSearchTextSpeaker] = React.useState("");
 
@@ -99,6 +121,10 @@ export const EventForm = ({
   const endTime = watch("endTime");
   const registration = watch("registration");
   const repeats = watch("recurrence").frequency !== "NONE";
+  const severalDays = lastsSeveralDays({
+    date: watch("date"),
+    endDate: watch("endDate"),
+  });
 
   return (
     <FormContainer formContext={formContext} onSuccess={submit}>
@@ -109,6 +135,13 @@ export const EventForm = ({
         sx={{ border: 0, p: 0, m: 0, minWidth: 0 }}
       >
         <Grid container spacing={2} margin={4}>
+          {container && (
+            <Grid size={{ xs: 12 }}>
+              <Typography variant="overline" color="text.secondary">
+                Parte de «{container.title}»
+              </Typography>
+            </Grid>
+          )}
           <Grid size={{ xs: 12 }}>
             <TextFieldElement
               fullWidth
@@ -135,15 +168,20 @@ export const EventForm = ({
               />
             )}
           </Grid>
-          <Grid size={{ xs: 12, sm: 4 }}>
+          <Grid size={{ xs: 12, sm: 6 }}>
             <DatePickerElement
               sx={{ width: "100%" }}
               label="Fecha"
               name="date"
+              minDate={container?.start}
+              maxDate={container?.end}
               required
             />
           </Grid>
-          <Grid size={{ xs: 12, sm: 4 }}>
+          <Grid size={{ xs: 12, sm: 6 }}>
+            <EndDateField maxDate={container?.end} />
+          </Grid>
+          <Grid size={{ xs: 12, sm: 6 }}>
             <TimePicker
               ampm
               sx={{ width: "100%" }}
@@ -160,16 +198,22 @@ export const EventForm = ({
               }}
             />
           </Grid>
-          <Grid size={{ xs: 12, sm: 4 }}>
+          <Grid size={{ xs: 12, sm: 6 }}>
             <TimePicker
               ampm
-              minTime={startTime}
+              minTime={severalDays ? undefined : startTime}
               sx={{ width: "100%" }}
               value={endTime}
               onChange={(value) => {
                 if (value !== null) {
                   formContext.setValue("endTime", value);
                 }
+              }}
+              slotProps={{
+                textField: {
+                  error: Boolean(formContext.formState.errors.endTime),
+                  helperText: formContext.formState.errors.endTime?.message,
+                },
               }}
               viewRenderers={{
                 hours: renderTimeViewClock,
@@ -178,9 +222,16 @@ export const EventForm = ({
               }}
             />
           </Grid>
-          <Grid size={{ xs: 12 }}>
-            <RecurrenceFields readOnly={!editable} />
-          </Grid>
+          {!severalDays && !container && (
+            <Grid size={{ xs: 12 }}>
+              <RecurrenceFields readOnly={!editable} />
+            </Grid>
+          )}
+          {container && (
+            <Grid size={{ xs: 12 }}>
+              <RegistrationModeField />
+            </Grid>
+          )}
           <Grid size={{ xs: 12 }}>
             <AutocompleteElement
               autocompleteProps={{
@@ -242,23 +293,26 @@ export const EventForm = ({
               variant="standard"
             />
           </Grid>
-          {showRegistration && editable && !repeats && (
-            <Grid size={{ xs: 12 }}>
-              <RegistrationFields
-                value={registration}
-                onChange={(value) =>
-                  formContext.setValue("registration", value, {
-                    shouldDirty: true,
-                  })
-                }
-                errors={
-                  formContext.formState.isSubmitted
-                    ? registrationErrors(registration)
-                    : []
-                }
-              />
-            </Grid>
-          )}
+          {showRegistration &&
+            editable &&
+            !repeats &&
+            (!container || watch("registrationMode") === "OWN") && (
+              <Grid size={{ xs: 12 }}>
+                <RegistrationFields
+                  value={registration}
+                  onChange={(value) =>
+                    formContext.setValue("registration", value, {
+                      shouldDirty: true,
+                    })
+                  }
+                  errors={
+                    formContext.formState.isSubmitted
+                      ? registrationErrors(registration)
+                      : []
+                  }
+                />
+              </Grid>
+            )}
           <Grid size={{ xs: 6 }}>
             {editable && (
               <SaveButton

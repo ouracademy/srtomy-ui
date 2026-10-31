@@ -189,4 +189,38 @@ describe("MyEvents", () => {
       }),
     ).toBeTruthy();
   });
+
+  describe("a sub-event that comes with the place in a mega event", () => {
+    const subEvent: MyEventResponse = {
+      ...withTicket,
+      title: "Taller de liderazgo",
+      slug: "taller",
+      isACourse: false,
+      parentTitle: "Congreso",
+    };
+
+    it("says which event it is part of", () => {
+      setup([subEvent]);
+
+      expect(screen.getByText(/Parte de «Congreso»/)).toBeInTheDocument();
+    });
+
+    it("warns that cancelling gives the place up in the whole mega event", async () => {
+      const { onCancel, user } = setup([subEvent]);
+
+      await user.click(
+        screen.getByRole("button", {
+          name: "Cancelar mi inscripción a Taller de liderazgo",
+        }),
+      );
+
+      expect(
+        screen.getByText(
+          /cancelarla te quita el lugar en todo el evento y sus sub-eventos/,
+        ),
+      ).toBeInTheDocument();
+      await user.click(screen.getByRole("button", { name: "Sí, cancelar" }));
+      expect(onCancel).toHaveBeenCalledWith("cancel-1");
+    });
+  });
 });

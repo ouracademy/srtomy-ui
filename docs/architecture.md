@@ -159,6 +159,8 @@ if (!data) return <ResourceError error={error} />;
 
 `react-hook-form` con `zod` como resolver, a través de `react-hook-form-mui`. El esquema de zod es la fuente de verdad del tipo de los valores (`z.infer`) y de los mensajes de validación, que están en español.
 
+Las fechas de un evento: `EventForm` guarda el día (`date`, `endDate`) y las horas (`startTime`, `endTime`) por separado, porque los selectores de hora traen el día en que se abrieron. `eventRange` (`app/(components)/eventRange.ts`) los junta en el inicio y el fin reales; todo lo que envía un evento a la API (crear, editar, sub-eventos) pasa por ahí. Un evento puede dormir varios días (`endDate` en otro día) y contener sub-eventos: el formulario acepta `container` y la pantalla del evento tiene la sección «Programa».
+
 El botón de envío muestra el estado de carga con `formState.isSubmitting`, que `FormContainer` mantiene mientras espera a `onSuccess`. Por eso el `onSuccess` debe hacer `await` de la llamada a la API.
 
 ## Pruebas

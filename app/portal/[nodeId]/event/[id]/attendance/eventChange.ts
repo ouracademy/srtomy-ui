@@ -4,6 +4,7 @@ import type {
   RecurrenceRequest,
 } from "@/app/(api)/generated/aPIOvejafiel.schemas";
 import type { EventDetailFormData } from "@/app/(components)/EventForm";
+import { eventRange } from "@/app/(components)/eventRange";
 import { toRecurrenceRequest } from "@/app/(components)/recurrence";
 
 export type EditOption = NonNullable<EditEventRequest["option"]>;
@@ -27,22 +28,10 @@ const sameDay = (a: Date, b: Date) =>
   a.getMonth() === b.getMonth() &&
   a.getDate() === b.getDate();
 
-// The day of `date` at the hour of `time`.
-export const atTimeOf = (date: Date, time: Date): Date =>
-  new Date(
-    date.getFullYear(),
-    date.getMonth(),
-    date.getDate(),
-    time.getHours(),
-    time.getMinutes(),
-    0,
-    0,
-  );
-
+// The event may end on another day than it starts (a conference).
 export const startOf = (values: EventDetailFormData) =>
-  atTimeOf(values.date, values.startTime);
-export const endOf = (values: EventDetailFormData) =>
-  atTimeOf(values.date, values.endTime);
+  eventRange(values).start;
+export const endOf = (values: EventDetailFormData) => eventRange(values).end;
 
 const byNumber = (a: number, b: number) => a - b;
 
@@ -152,6 +141,7 @@ export const toEditRequest = ({
     endTime: format(endOf(values), "yyyy-MM-dd'T'HH:mm:ssXXX"),
     option,
     recurrence,
+    registrationMode: values.registrationMode,
     timeZone: !repeats || recurrence ? timeZone : undefined,
   };
 };

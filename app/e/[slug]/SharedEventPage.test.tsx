@@ -352,4 +352,68 @@ describe("SharedEventPage", () => {
 
     expect(screen.getByText("Evento · Jóvenes")).toBeTruthy();
   });
+
+  describe("a composite event", () => {
+    it("lists the program of a mega event and what each sub-event needs", () => {
+      setup({
+        event: {
+          ...course,
+          title: "Congreso",
+          program: [
+            {
+              slug: "taller",
+              title: "Taller",
+              start: new Date(2030, 0, 5, 9, 0),
+              end: new Date(2030, 0, 5, 11, 0),
+              isACourse: false,
+              registrationMode: "INHERIT",
+              includedInTicket: true,
+            },
+          ],
+        },
+      });
+
+      const program = screen.getByRole("region", { name: "Programa" });
+      expect(
+        within(program).getByRole("link", { name: /Taller/ }),
+      ).toHaveAttribute("href", "/e/taller");
+      expect(
+        within(program).getByText("Incluido en tu inscripción"),
+      ).toBeInTheDocument();
+    });
+
+    it("sends the visitor of a sub-event that inherits to sign up in its mega event", () => {
+      setup({
+        event: {
+          ...course,
+          canRegister: false,
+          container: { slug: "congreso", title: "Congreso" },
+        },
+      });
+
+      expect(
+        screen.getByText(/Para tener un lugar, inscríbase allá/),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByRole("link", { name: "Ver «Congreso»" }),
+      ).toHaveAttribute("href", "/e/congreso");
+      expect(screen.queryByRole("form", { name: "Inscripción" })).toBeNull();
+    });
+
+    it("lets a sub-event with its own registration be signed up for", () => {
+      setup({
+        event: {
+          ...course,
+          canRegister: true,
+          container: { slug: "congreso", title: "Congreso" },
+        },
+      });
+
+      expect(screen.getByText(/Forma parte de «Congreso»/)).toBeInTheDocument();
+      expect(screen.queryByText(/inscríbase allá/)).toBeNull();
+      expect(
+        screen.getByRole("form", { name: "Inscripción" }),
+      ).toBeInTheDocument();
+    });
+  });
 });
