@@ -2285,6 +2285,55 @@
         }
       }
     },
+    "/v1/organizations/{id}/growth-range": {
+      "get": {
+        "tags": [
+          "organizations"
+        ],
+        "operationId": "growthRange",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "startDate",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          },
+          {
+            "name": "endDate",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/MemberGrowthRangeResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/organizations/{id}/childs": {
       "get": {
         "tags": [
@@ -2312,6 +2361,55 @@
                   "items": {
                     "$ref": "#/components/schemas/OrganizationResponse"
                   }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/organizations/{id}/attendance-stats": {
+      "get": {
+        "tags": [
+          "organizations"
+        ],
+        "operationId": "attendanceStats",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "startDate",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          },
+          {
+            "name": "endDate",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/AttendanceStatsResponse"
                 }
               }
             }
@@ -5031,6 +5129,103 @@
           "membersAtEnd": {
             "type": "integer",
             "format": "int64"
+          }
+        }
+      },
+      "BucketResponse": {
+        "type": "object",
+        "properties": {
+          "periodStart": {
+            "type": "string",
+            "format": "date"
+          },
+          "periodEnd": {
+            "type": "string",
+            "format": "date"
+          },
+          "label": {
+            "type": "string"
+          },
+          "joined": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "becameAttendee": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "becameMember": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "left": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "peopleAtEnd": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "membersAtEnd": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "MemberGrowthRangeResponse": {
+        "type": "object",
+        "properties": {
+          "current": {
+            "$ref": "#/components/schemas/Counts"
+          },
+          "buckets": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BucketResponse"
+            }
+          }
+        }
+      },
+      "AttendanceBucketResponse": {
+        "type": "object",
+        "properties": {
+          "periodStart": {
+            "type": "string",
+            "format": "date"
+          },
+          "periodEnd": {
+            "type": "string",
+            "format": "date"
+          },
+          "label": {
+            "type": "string"
+          },
+          "eventsCount": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "attendanceMarks": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "uniqueAttendees": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "averagePerEvent": {
+            "type": "number",
+            "format": "double"
+          }
+        }
+      },
+      "AttendanceStatsResponse": {
+        "type": "object",
+        "properties": {
+          "buckets": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AttendanceBucketResponse"
+            }
           }
         }
       },
