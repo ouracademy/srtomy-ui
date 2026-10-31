@@ -8,6 +8,7 @@ import {
   Button,
   Chip,
   List,
+  ListItem,
   ListItemButton,
   ListItemText,
   Paper,
@@ -74,30 +75,32 @@ export const ProgramSection = ({
             </Typography>
             <List dense disablePadding>
               {items.map((item) => (
-                <ListItemButton
-                  key={item.id}
-                  component={NextLink}
-                  href={`/portal/${nodeId}/event/${item.id}/attendance`}
-                >
-                  <ListItemText
-                    primary={item.title}
-                    secondary={hours(item.start, item.end)}
-                  />
-                  <Stack direction="row" spacing={1}>
-                    <Chip
-                      size="small"
-                      variant="outlined"
-                      label={item.isACourse ? "Curso" : "Evento"}
+                <ListItem key={item.id} disablePadding>
+                  <ListItemButton
+                    component={NextLink}
+                    href={`/portal/${nodeId}/event/${item.id}/attendance`}
+                  >
+                    <ListItemText
+                      primary={item.title}
+                      secondary={hours(item.start, item.end)}
                     />
-                    <Chip
-                      size="small"
-                      variant="outlined"
-                      label={
-                        describeRegistrationMode(item.registrationMode)?.summary
-                      }
-                    />
-                  </Stack>
-                </ListItemButton>
+                    <Stack direction="row" spacing={1}>
+                      <Chip
+                        size="small"
+                        variant="outlined"
+                        label={item.isACourse ? "Curso" : "Evento"}
+                      />
+                      <Chip
+                        size="small"
+                        variant="outlined"
+                        label={
+                          describeRegistrationMode(item.registrationMode)
+                            ?.summary
+                        }
+                      />
+                    </Stack>
+                  </ListItemButton>
+                </ListItem>
               ))}
             </List>
           </div>

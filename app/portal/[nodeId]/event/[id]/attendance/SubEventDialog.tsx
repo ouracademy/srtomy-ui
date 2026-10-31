@@ -116,7 +116,7 @@ export const SubEventDialog = ({
     <Dialog
       open={open}
       onClose={close}
-      aria-label="Agregar sub-evento"
+      slotProps={{ paper: { "aria-label": "Agregar sub-evento" } }}
       sx={{
         ".MuiDialog-paper": { borderRadius: "30px", scrollbarWidth: "none" },
       }}

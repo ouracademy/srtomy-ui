@@ -80,6 +80,8 @@ describe("ProgramSection", () => {
       }),
     ]);
 
+    // Every link is inside a list item, as a list requires.
+    expect(screen.getAllByRole("listitem")).toHaveLength(3);
     const link = screen.getByRole("link", { name: /Taller/ });
     expect(link).toHaveAttribute("href", "/portal/n1/event/c1/attendance");
     expect(within(link).getByText("09:00 a 11:00")).toBeInTheDocument();

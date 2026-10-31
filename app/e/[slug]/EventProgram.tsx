@@ -4,6 +4,7 @@ import { groupByDay } from "@/app/(components)/groupByDay";
 import {
   Chip,
   List,
+  ListItem,
   ListItemButton,
   ListItemText,
   Paper,
@@ -53,32 +54,33 @@ export const EventProgram = ({ program }: EventProgramProps) => {
             </Typography>
             <List dense disablePadding>
               {items.map((item) => (
-                <ListItemButton
-                  key={item.slug}
-                  component={NextLink}
-                  href={sharedEventPath(item.slug ?? "")}
-                >
-                  <ListItemText
-                    primary={item.title}
-                    secondary={
-                      item.start && item.end
-                        ? `${format(item.start, "HH:mm")} a ${format(item.end, "HH:mm")}`
-                        : undefined
-                    }
-                  />
-                  <Stack direction="row" spacing={1}>
-                    <Chip
-                      size="small"
-                      variant="outlined"
-                      label={item.isACourse ? "Curso" : "Evento"}
+                <ListItem key={item.slug} disablePadding>
+                  <ListItemButton
+                    component={NextLink}
+                    href={sharedEventPath(item.slug ?? "")}
+                  >
+                    <ListItemText
+                      primary={item.title}
+                      secondary={
+                        item.start && item.end
+                          ? `${format(item.start, "HH:mm")} a ${format(item.end, "HH:mm")}`
+                          : undefined
+                      }
                     />
-                    <Chip
-                      size="small"
-                      variant="outlined"
-                      label={entryLabel(item)}
-                    />
-                  </Stack>
-                </ListItemButton>
+                    <Stack direction="row" spacing={1}>
+                      <Chip
+                        size="small"
+                        variant="outlined"
+                        label={item.isACourse ? "Curso" : "Evento"}
+                      />
+                      <Chip
+                        size="small"
+                        variant="outlined"
+                        label={entryLabel(item)}
+                      />
+                    </Stack>
+                  </ListItemButton>
+                </ListItem>
               ))}
             </List>
           </div>

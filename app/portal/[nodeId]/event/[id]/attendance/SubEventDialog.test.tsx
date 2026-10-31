@@ -64,6 +64,9 @@ describe("SubEventDialog", () => {
   it("says which event the new one is part of", () => {
     setup();
 
+    expect(
+      screen.getByRole("dialog", { name: "Agregar sub-evento" }),
+    ).toBeInTheDocument();
     expect(screen.getByText("Parte de «Congreso»")).toBeInTheDocument();
   });
 
