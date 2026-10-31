@@ -46,8 +46,20 @@ export default function EventListPage(props: {
   );
 
   return (
-    <Stack direction="column" spacing={2} p={4}>
-      <Stack direction="row" alignItems="center" spacing={2}>
+    <Stack
+      direction="column"
+      spacing={2}
+      sx={{
+        p: 4,
+      }}
+    >
+      <Stack
+        direction="row"
+        spacing={2}
+        sx={{
+          alignItems: "center",
+        }}
+      >
         <Typography variant="h4">Eventos y cursos</Typography>
       </Stack>
       <Calendar

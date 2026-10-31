@@ -16,11 +16,21 @@ export const NotFoundMessage = ({
   href = "/",
   linkLabel = "Volver al inicio",
 }: NotFoundMessageProps) => (
-  <Box textAlign="center" p={4}>
+  <Box
+    sx={{
+      textAlign: "center",
+      p: 4,
+    }}
+  >
     <Typography variant="h5" component="h1" gutterBottom>
       {title}
     </Typography>
-    <Typography color="text.secondary" gutterBottom>
+    <Typography
+      gutterBottom
+      sx={{
+        color: "text.secondary",
+      }}
+    >
       {message}
     </Typography>
     <Button component={NextLink} href={href} variant="contained" sx={{ mt: 2 }}>

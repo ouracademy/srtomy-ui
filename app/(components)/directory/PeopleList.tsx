@@ -8,7 +8,11 @@ import type { DirectoryEntryResponse } from "@/app/(api)/generated/aPIOvejafiel.
 export const PeopleList = ({ entry }: { entry: DirectoryEntryResponse }) => {
   if (!entry.membersVisible) {
     return (
-      <Typography color="text.secondary">
+      <Typography
+        sx={{
+          color: "text.secondary",
+        }}
+      >
         Quienes lideran este grupo decidieron que su lista de personas no sea
         visible para usted.
       </Typography>
@@ -16,7 +20,15 @@ export const PeopleList = ({ entry }: { entry: DirectoryEntryResponse }) => {
   }
   const members = entry.members ?? [];
   if (members.length === 0) {
-    return <Typography color="text.secondary">Aún no hay personas.</Typography>;
+    return (
+      <Typography
+        sx={{
+          color: "text.secondary",
+        }}
+      >
+        Aún no hay personas.
+      </Typography>
+    );
   }
   return (
     <List dense aria-label="Personas">

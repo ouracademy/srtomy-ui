@@ -41,7 +41,11 @@ export const PermissionPicker = ({
         >
           <FormControlLabel
             label={
-              <Typography fontWeight={600}>
+              <Typography
+                sx={{
+                  fontWeight: 600,
+                }}
+              >
                 {resourceLabel(group.resource ?? "")}
               </Typography>
             }

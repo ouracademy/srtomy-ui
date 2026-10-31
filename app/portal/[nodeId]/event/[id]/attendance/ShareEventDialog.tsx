@@ -170,7 +170,11 @@ export const ShareEventDialog = ({
           <div>
             <Typography variant="subtitle2">Personas con acceso</Typography>
             {people.length === 0 && added.length === 0 ? (
-              <Typography color="text.secondary">
+              <Typography
+                sx={{
+                  color: "text.secondary",
+                }}
+              >
                 Aún no se compartió con nadie.
               </Typography>
             ) : (
@@ -263,11 +267,22 @@ export const ShareEventDialog = ({
                 </MenuItem>
               ))}
             </TextField>
-            <Typography variant="body2" color="text.secondary">
+            <Typography
+              variant="body2"
+              sx={{
+                color: "text.secondary",
+              }}
+            >
               {accessSummary(generalAccess)} Para que la gente pueda
               inscribirse, configure la inscripción del evento.
             </Typography>
-            <Stack direction="row" spacing={1} alignItems="center">
+            <Stack
+              direction="row"
+              spacing={1}
+              sx={{
+                alignItems: "center",
+              }}
+            >
               <TextField
                 label="Enlace"
                 size="small"
@@ -290,7 +305,12 @@ export const ShareEventDialog = ({
             >
               Crear un enlace nuevo
             </LoadingButton>
-            <Typography variant="caption" color="text.secondary">
+            <Typography
+              variant="caption"
+              sx={{
+                color: "text.secondary",
+              }}
+            >
               Un enlace nuevo se crea al momento y deja sin efecto el anterior.
             </Typography>
           </Stack>

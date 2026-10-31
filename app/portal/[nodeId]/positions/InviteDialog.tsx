@@ -123,7 +123,9 @@ export const InviteDialog = ({
               getOptionLabel={(option) =>
                 typeof option === "string" ? option : label(option)
               }
-              isOptionEqualToValue={(option, chosen) => option.id === chosen.id}
+              isOptionEqualToValue={(option, chosen) =>
+                typeof chosen !== "string" && option.id === chosen.id
+              }
               onInputChange={(_event, text, reason) => {
                 setSearch(text);
                 // Typing replaces the chosen person; picking one sets it below.
@@ -177,7 +179,12 @@ export const InviteDialog = ({
                 </MenuItem>
               ))}
             </TextField>
-            <Typography variant="body2" color="text.secondary">
+            <Typography
+              variant="body2"
+              sx={{
+                color: "text.secondary",
+              }}
+            >
               ¿La persona aún no está registrada?{" "}
               <MuiLink component={Link} href={registerHref}>
                 Registrar persona

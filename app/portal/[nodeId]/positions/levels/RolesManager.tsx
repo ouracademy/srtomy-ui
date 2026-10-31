@@ -50,7 +50,13 @@ export const RolesManager = ({
 
   return (
     <Stack spacing={2} sx={{ m: { xs: 2, sm: 4 }, maxWidth: 800 }}>
-      <Stack direction="row" justifyContent="space-between" alignItems="center">
+      <Stack
+        direction="row"
+        sx={{
+          justifyContent: "space-between",
+          alignItems: "center",
+        }}
+      >
         <Typography variant="h5" component="h1">
           Niveles de acceso personalizados
         </Typography>
@@ -60,7 +66,11 @@ export const RolesManager = ({
           </Button>
         )}
       </Stack>
-      <Typography color="text.secondary">
+      <Typography
+        sx={{
+          color: "text.secondary",
+        }}
+      >
         Un nivel de acceso es lo que puede hacer quien tiene un cargo. Los
         niveles predefinidos no se pueden editar; cree los suyos eligiendo los
         permisos que necesita cada tarea y asígnelos desde Cargos.
@@ -93,13 +103,30 @@ export const RolesManager = ({
             <ListItemText
               disableTypography
               primary={
-                <Stack direction="row" spacing={1} alignItems="center">
-                  <Typography fontWeight={600}>{role.name}</Typography>
+                <Stack
+                  direction="row"
+                  spacing={1}
+                  sx={{
+                    alignItems: "center",
+                  }}
+                >
+                  <Typography
+                    sx={{
+                      fontWeight: 600,
+                    }}
+                  >
+                    {role.name}
+                  </Typography>
                   {role.predefined && <Chip size="small" label="Predefinido" />}
                 </Stack>
               }
               secondary={
-                <Typography variant="body2" color="text.secondary">
+                <Typography
+                  variant="body2"
+                  sx={{
+                    color: "text.secondary",
+                  }}
+                >
                   {(role.permissions ?? [])
                     .map((permission) => permissionLabel(permission))
                     .join(", ")}

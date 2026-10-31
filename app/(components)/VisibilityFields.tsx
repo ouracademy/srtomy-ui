@@ -65,7 +65,12 @@ export const VisibilityFields = ({
               label: memberVisibilityLabels[value].label,
             }))}
           />
-          <Typography variant="body2" color="text.secondary">
+          <Typography
+            variant="body2"
+            sx={{
+              color: "text.secondary",
+            }}
+          >
             {memberVisibilityLabels[visibility]?.help} El nombre, la
             descripción, el horario y los líderes se ven siempre en el
             directorio de la iglesia. Nunca se muestra a menores de 18 años, y
@@ -78,7 +83,13 @@ export const VisibilityFields = ({
             />
           )}
           {url && visibility === "PUBLIC" && (
-            <Stack direction="row" spacing={1} alignItems="center">
+            <Stack
+              direction="row"
+              spacing={1}
+              sx={{
+                alignItems: "center",
+              }}
+            >
               <Typography variant="body2">
                 Página pública: <a href={url}>{url}</a>
               </Typography>

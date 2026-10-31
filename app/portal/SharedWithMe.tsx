@@ -30,12 +30,21 @@ export const SharedWithMe = ({
         Compartidos contigo
       </Typography>
       {description && (
-        <Typography variant="body2" color="text.secondary">
+        <Typography
+          variant="body2"
+          sx={{
+            color: "text.secondary",
+          }}
+        >
           {description}
         </Typography>
       )}
       {events.length === 0 && (
-        <Typography color="text.secondary">
+        <Typography
+          sx={{
+            color: "text.secondary",
+          }}
+        >
           Nadie ha compartido eventos ni cursos contigo todavía.
         </Typography>
       )}

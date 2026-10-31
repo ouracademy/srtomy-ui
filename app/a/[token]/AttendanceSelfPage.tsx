@@ -74,7 +74,12 @@ export const AttendanceSelfPage = ({
     <Container component="main" maxWidth="sm" sx={{ py: { xs: 2, sm: 5 } }}>
       <Stack spacing={3}>
         <Box>
-          <Typography variant="overline" color="text.secondary">
+          <Typography
+            variant="overline"
+            sx={{
+              color: "text.secondary",
+            }}
+          >
             Asistencia · {welcome.organizationName}
           </Typography>
           <Typography variant="h4" component="h1">

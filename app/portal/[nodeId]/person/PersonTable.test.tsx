@@ -52,7 +52,7 @@ describe("PersonTable", () => {
     const user = userEvent.setup();
     render(<PersonTable nodeId="n1" />);
 
-    await user.click(await screen.findByRole("menuitem", { name: "Eliminar" }));
+    await user.click(await screen.findByRole("button", { name: "Eliminar" }));
     expect(screen.getByText("Quitar a Ana Diaz de este grupo")).toBeVisible();
     await user.click(screen.getByRole("button", { name: "Quitar" }));
 
@@ -68,9 +68,9 @@ describe("PersonTable", () => {
 
     expect(await screen.findByText("Ana Diaz")).toBeVisible();
     expect(
-      screen.queryByRole("menuitem", { name: "Eliminar" }),
+      screen.queryByRole("button", { name: "Eliminar" }),
     ).not.toBeInTheDocument();
-    expect(screen.getByRole("menuitem", { name: "Ver" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Ver" })).toBeInTheDocument();
   });
 
   it("shows the state of each person in the node", async () => {

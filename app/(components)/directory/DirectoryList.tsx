@@ -42,9 +42,21 @@ export const DirectoryList = ({ nodes, renderPeople }: DirectoryListProps) => {
               pl: { xs: 1 + node.depth * 2, sm: 2 + node.depth * 4 },
             }}
           >
-            <Stack direction="row" spacing={1} alignItems="center">
+            <Stack
+              direction="row"
+              spacing={1}
+              sx={{
+                alignItems: "center",
+              }}
+            >
               <Box sx={{ flex: 1 }}>
-                <Stack direction="row" spacing={1} alignItems="center">
+                <Stack
+                  direction="row"
+                  spacing={1}
+                  sx={{
+                    alignItems: "center",
+                  }}
+                >
                   <Typography component="h2" variant="subtitle1">
                     {node.name}
                   </Typography>
@@ -54,7 +66,12 @@ export const DirectoryList = ({ nodes, renderPeople }: DirectoryListProps) => {
                   />
                 </Stack>
                 {node.description && (
-                  <Typography variant="body2" color="text.secondary">
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      color: "text.secondary",
+                    }}
+                  >
                     {node.description}
                   </Typography>
                 )}
@@ -80,7 +97,12 @@ export const DirectoryList = ({ nodes, renderPeople }: DirectoryListProps) => {
             <Collapse in={expanded} unmountOnExit>
               <Box sx={{ pt: 1 }}>
                 {node.memberVisibility && (
-                  <Typography variant="caption" color="text.secondary">
+                  <Typography
+                    variant="caption"
+                    sx={{
+                      color: "text.secondary",
+                    }}
+                  >
                     Lista visible para:{" "}
                     {memberVisibilityLabels[
                       node.memberVisibility

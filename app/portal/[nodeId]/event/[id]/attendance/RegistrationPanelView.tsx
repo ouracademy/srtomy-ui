@@ -85,8 +85,10 @@ export const RegistrationPanelView = ({
             whole width, so their long names never run into each other. */}
         <Stack
           direction={{ xs: "column", sm: "row" }}
-          alignItems={{ xs: "stretch", sm: "center" }}
           spacing={2}
+          sx={{
+            alignItems: { xs: "stretch", sm: "center" },
+          }}
         >
           <Typography variant="h6" component="h2" sx={{ flex: 1 }}>
             Inscripción
@@ -111,12 +113,23 @@ export const RegistrationPanelView = ({
           </Stack>
         </Stack>
         {!setup.enabled ? (
-          <Typography color="text.secondary">
+          <Typography
+            sx={{
+              color: "text.secondary",
+            }}
+          >
             Este evento no pide inscripción: cualquiera puede venir.
           </Typography>
         ) : (
           <>
-            <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
+            <Stack
+              direction="row"
+              spacing={1}
+              useFlexGap
+              sx={{
+                flexWrap: "wrap",
+              }}
+            >
               <Chip
                 size="small"
                 color={setup.open ? "success" : "default"}
@@ -163,7 +176,11 @@ export const RegistrationPanelView = ({
               </Table>
             </TableContainer>
             {registrations.length === 0 ? (
-              <Typography color="text.secondary">
+              <Typography
+                sx={{
+                  color: "text.secondary",
+                }}
+              >
                 Aún no hay inscritos.
               </Typography>
             ) : (
