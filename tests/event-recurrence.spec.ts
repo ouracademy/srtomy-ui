@@ -1,4 +1,5 @@
 import { test, expect } from "./fixtures";
+import { firstCalendarSlot } from "./calendar";
 
 test.describe("Eventos recurrentes", () => {
   const nodeId = "11111111-1111-1111-1111-111111111111";
@@ -37,11 +38,7 @@ test.describe("Eventos recurrentes", () => {
     await expect(
       page.getByRole("heading", { name: /eventos y cursos/i }),
     ).toBeVisible();
-    await page
-      .getByRole("grid")
-      .getByRole("gridcell")
-      .first()
-      .click({ force: true });
+    await firstCalendarSlot(page).click({ force: true });
 
     const dialog = page.getByRole("dialog");
     await expect(dialog).toBeVisible();
@@ -103,11 +100,7 @@ test.describe("Eventos recurrentes", () => {
     });
 
     await page.goto(`/portal/${nodeId}/event`);
-    await page
-      .getByRole("grid")
-      .getByRole("gridcell")
-      .first()
-      .click({ force: true });
+    await firstCalendarSlot(page).click({ force: true });
     const dialog = page.getByRole("dialog");
     await dialog.getByPlaceholder(/Agregar título/i).fill("Retiro");
     await dialog.getByRole("button", { name: /Guardar/i }).click();

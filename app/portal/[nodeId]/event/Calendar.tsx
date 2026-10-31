@@ -1,11 +1,15 @@
-import interactionPlugin from "@fullcalendar/interaction"; // for selectable
 import AddIcon from "@mui/icons-material/Add";
-import FullCalendar from "@fullcalendar/react";
-import timeGridPlugin from "@fullcalendar/timegrid";
-import esLocale from "@fullcalendar/core/locales/es";
+import FullCalendar, { type EventSourceFunc } from "@fullcalendar/react";
+import interactionPlugin from "@fullcalendar/react/interaction"; // for selectable
+import listPlugin from "@fullcalendar/react/list";
+import classicThemePlugin from "@fullcalendar/react/themes/classic";
+import timeGridPlugin from "@fullcalendar/react/timegrid";
+import esLocale from "@fullcalendar/react/locales/es";
+import "@fullcalendar/react/skeleton.css";
+import "@fullcalendar/react/themes/classic/theme.css";
+import "@fullcalendar/react/themes/classic/palette.css";
 import { addHours, differenceInDays } from "date-fns";
 import { getEvents } from "@/app/(api)/generated";
-import type { EventSourceFunc } from "@fullcalendar/core";
 import React from "react";
 import { useRouter } from "next/navigation";
 import {
@@ -15,7 +19,6 @@ import {
   useMediaQuery,
   useTheme,
 } from "@mui/material";
-import listPlugin from "@fullcalendar/list";
 import { originLabel, titleWithOrigin } from "../originLabel";
 
 export type DatesSelection = {
@@ -38,7 +41,8 @@ function Calendar({
   const router = useRouter();
   const theme = useTheme();
   const isDesktop = useMediaQuery(theme.breakpoints.up("sm"));
-  const calendarRef = React.useRef<FullCalendar>(null);
+  const calendarRef =
+    React.useRef<React.ComponentRef<typeof FullCalendar>>(null);
   const [loading, setLoading] = React.useState(false);
   const shownKey = React.useRef(refreshKey);
   React.useEffect(() => {
@@ -97,7 +101,12 @@ function Calendar({
           ref={calendarRef}
           loading={setLoading}
           locale={esLocale}
-          plugins={[interactionPlugin, timeGridPlugin, listPlugin]}
+          plugins={[
+            classicThemePlugin,
+            interactionPlugin,
+            timeGridPlugin,
+            listPlugin,
+          ]}
           initialView={isDesktop ? "timeGridWeek" : "listWeek"}
           height={isDesktop ? undefined : "60vh"}
           nowIndicator
