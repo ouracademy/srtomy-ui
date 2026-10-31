@@ -10,11 +10,7 @@ import {
 import { es } from "date-fns/locale";
 
 export type RangePreset =
-  | "last-week"
-  | "last-month"
-  | "last-quarter"
-  | "last-year"
-  | "custom";
+  "last-week" | "last-month" | "last-quarter" | "last-year" | "custom";
 
 /** Fixed-length presets, in the order shown to the user. "custom" opens the date pickers instead of picking a length. */
 export const RANGE_PRESETS: Exclude<RangePreset, "custom">[] = [
@@ -62,7 +58,8 @@ export const previousEquivalentRange = (start: Date, end: Date): DateRange => {
 /** "2026-10-01", the date-only format srtomy-api expects for startDate/endDate. */
 export const toApiDate = (date: Date) => format(date, "yyyy-MM-dd");
 
-const boundaryLabel = (date: Date) => format(date, "d MMM yyyy", { locale: es });
+const boundaryLabel = (date: Date) =>
+  format(date, "d MMM yyyy", { locale: es });
 
 /** "1 oct 2026 – 20 oct 2026", the label for a custom range. */
 export const customRangeLabel = (start: Date, end: Date) =>
@@ -99,10 +96,7 @@ export const selectionForPreset = (
 };
 
 /** The full selection for a custom range picked by the user. */
-export const customSelection = (
-  start: Date,
-  end: Date,
-): DateRangeSelection => {
+export const customSelection = (start: Date, end: Date): DateRangeSelection => {
   const { start: previousStart, end: previousEnd } = previousEquivalentRange(
     start,
     end,

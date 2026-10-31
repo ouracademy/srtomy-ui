@@ -3,7 +3,7 @@ import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { es } from "date-fns/locale";
 import { cleanup, render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { DateRangeSelector } from "./DateRangeSelector";
 import { selectionForPreset } from "./dateRange";
 
@@ -19,13 +19,8 @@ const renderSelector = (value = selectionForPreset("last-week", NOW)) => {
   return { user: userEvent.setup(), onChange };
 };
 
-beforeEach(() => {
-  vi.useFakeTimers();
-  vi.setSystemTime(NOW);
-});
 afterEach(() => {
   cleanup();
-  vi.useRealTimers();
 });
 
 describe("DateRangeSelector", () => {
@@ -53,9 +48,7 @@ describe("DateRangeSelector", () => {
 
     await user.click(screen.getByRole("button", { name: label }));
 
-    expect(onChange).toHaveBeenCalledWith(
-      expect.objectContaining({ preset }),
-    );
+    expect(onChange).toHaveBeenCalledWith(expect.objectContaining({ preset }));
   });
 
   it("opens a popover with two date pickers for a custom range", async () => {
@@ -63,8 +56,8 @@ describe("DateRangeSelector", () => {
 
     await user.click(screen.getByRole("button", { name: "Personalizado" }));
 
-    expect(screen.getByLabelText("Desde")).toBeTruthy();
-    expect(screen.getByLabelText("Hasta")).toBeTruthy();
+    expect(screen.getByRole("group", { name: "Desde" })).toBeTruthy();
+    expect(screen.getByRole("group", { name: "Hasta" })).toBeTruthy();
     expect(screen.getByRole("button", { name: "Aplicar" })).toBeTruthy();
   });
 
@@ -73,18 +66,14 @@ describe("DateRangeSelector", () => {
 
     await user.click(screen.getByRole("button", { name: "Personalizado" }));
 
-    const startField = screen.getByLabelText("Desde");
-    await user.click(
-      within(startField).getAllByRole("button")[0] as HTMLElement,
-    );
+    const startField = screen.getByRole("group", { name: "Desde" });
+    await user.click(within(startField).getByRole("button"));
     await user.click(
       within(screen.getByRole("dialog")).getByRole("gridcell", { name: "1" }),
     );
 
-    const endField = screen.getByLabelText("Hasta");
-    await user.click(
-      within(endField).getAllByRole("button")[0] as HTMLElement,
-    );
+    const endField = screen.getByRole("group", { name: "Hasta" });
+    await user.click(within(endField).getByRole("button"));
     await user.click(
       within(screen.getByRole("dialog")).getByRole("gridcell", {
         name: "20",
@@ -103,18 +92,16 @@ describe("DateRangeSelector", () => {
 
     await user.click(screen.getByRole("button", { name: "Personalizado" }));
 
-    const startField = screen.getByLabelText("Desde");
-    await user.click(
-      within(startField).getAllByRole("button")[0] as HTMLElement,
-    );
+    const startField = screen.getByRole("group", { name: "Desde" });
+    await user.click(within(startField).getByRole("button"));
     await user.click(
       within(screen.getByRole("dialog")).getByRole("gridcell", {
         name: "20",
       }),
     );
 
-    const endField = screen.getByLabelText("Hasta");
-    await user.click(within(endField).getAllByRole("button")[0] as HTMLElement);
+    const endField = screen.getByRole("group", { name: "Hasta" });
+    await user.click(within(endField).getByRole("button"));
     await user.click(
       within(screen.getByRole("dialog")).getByRole("gridcell", { name: "1" }),
     );

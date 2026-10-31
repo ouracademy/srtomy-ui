@@ -67,9 +67,9 @@ describe("previousEquivalentRange", () => {
 
 describe("customRangeLabel", () => {
   it("formats both boundaries in Spanish", () => {
-    expect(
-      customRangeLabel(new Date(2026, 9, 1), new Date(2026, 9, 20)),
-    ).toBe("1 oct 2026 – 20 oct 2026");
+    expect(customRangeLabel(new Date(2026, 9, 1), new Date(2026, 9, 20))).toBe(
+      "1 oct 2026 – 20 oct 2026",
+    );
   });
 });
 

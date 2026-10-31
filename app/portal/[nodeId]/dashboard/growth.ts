@@ -1,5 +1,6 @@
 import { format, parse } from "date-fns";
 import { es } from "date-fns/locale";
+import type { Counts } from "@/app/(api)/generated/aPIOvejafiel.schemas";
 
 /** "2026-10" -> "oct 26" (short label for a monthly bucket). */
 export const monthLabel = (month: string | undefined) => {
@@ -51,4 +52,39 @@ export const bucketLabel = (label: string | undefined) => {
 export const bucketLongLabel = (label: string | undefined) => {
   if (!label) return "";
   return isMonthly(label) ? monthLongLabel(label) : dayLongLabel(label);
+};
+
+/** Adds up a field across every bucket, treating a missing value as 0. */
+export const sumBuckets = <T>(
+  buckets: readonly T[],
+  pick: (bucket: T) => number | undefined,
+) => buckets.reduce((sum, bucket) => sum + (pick(bucket) ?? 0), 0);
+
+/**
+ * How `current` changed versus `previous`, as a percentage. `null` means
+ * there is nothing to compare against (it went from 0 to something).
+ */
+export const percentDelta = (
+  current: number,
+  previous: number,
+): number | null => {
+  if (previous === 0) return current === 0 ? 0 : null;
+  return ((current - previous) / previous) * 100;
+};
+
+/**
+ * srtomy-api's `visitors`/`attendees`/`members` counts are cumulative (a
+ * member is also counted as an attendee and a visitor), so they cannot be
+ * plotted as-is in a pie chart. This splits them into the three exclusive
+ * groups that actually add up to `total`.
+ */
+export const compositionSegments = (current: Counts) => {
+  const members = current.members ?? 0;
+  const attendees = current.attendees ?? 0;
+  const visitors = current.visitors ?? 0;
+  return {
+    members,
+    inProgress: Math.max(attendees - members, 0),
+    visitorsOnly: Math.max(visitors - attendees, 0),
+  };
 };

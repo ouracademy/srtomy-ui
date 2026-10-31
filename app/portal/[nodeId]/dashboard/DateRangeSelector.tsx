@@ -33,14 +33,10 @@ export const DateRangeSelector = ({
   onChange,
 }: DateRangeSelectorProps) => {
   const [anchorEl, setAnchorEl] = React.useState<HTMLElement | null>(null);
-  const [draftStart, setDraftStart] = React.useState<Date | null>(
-    value.start,
-  );
+  const [draftStart, setDraftStart] = React.useState<Date | null>(value.start);
   const [draftEnd, setDraftEnd] = React.useState<Date | null>(value.end);
 
-  const invalidOrder = Boolean(
-    draftStart && draftEnd && draftStart > draftEnd,
-  );
+  const invalidOrder = Boolean(draftStart && draftEnd && draftStart > draftEnd);
 
   const openCustom = (event: React.MouseEvent<HTMLElement>) => {
     setDraftStart(value.start);
