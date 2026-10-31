@@ -29,6 +29,10 @@ Node >= 22 and pnpm (see `.nvmrc` and `packageManager`). Run `nvm use` and `pnpm
 - The repo does not have `user-event` yet. Add it as a devDependency, with `@testing-library/dom` as its peer, in the PR that first needs it.
 - Mock `@/app/(api)/generated` when a component calls the API, so unit tests make no network calls.
 
+## Dependencies
+
+The product owner wants the latest versions at all times. When a dependency problem shows up (`pnpm audit` or Dependabot reports a vulnerability, a deprecation, a failing check caused by an old package), do not patch around it with an `overrides` entry or by pinning only the vulnerable package: update the dependency and its parents to the latest version, major ones included, and fix what breaks. Run `pnpm outdated` and update the rest while you are at it. Use an override only as a last resort when no released parent allows the fix, and write it in the technical debt table (see below) with when to remove it.
+
 ## Commit messages
 
 Use [Conventional Commits](https://www.conventionalcommits.org/): `<type>: <subject>`, subject in lowercase and imperative mood.

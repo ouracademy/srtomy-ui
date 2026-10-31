@@ -576,8 +576,7 @@
             "content": {
               "*/*": {
                 "schema": {
-                  "type": "string",
-                  "format": "uuid"
+                  "$ref": "#/components/schemas/EditEventResponse"
                 }
               }
             }
@@ -3328,6 +3327,23 @@
           }
         }
       },
+      "EditEventResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "keptEvents": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "notifiedPeople": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
       "EventSharingRequest": {
         "type": "object",
         "properties": {
@@ -3786,8 +3802,7 @@
         "required": [
           "creator",
           "location",
-          "name",
-          "positions"
+          "name"
         ]
       },
       "CreatorRequest": {
