@@ -25,6 +25,8 @@ import { QrImage } from "@/app/(components)/QrImage";
 import { primaryButtonSx } from "@/app/(components)/buttonStyles";
 import { formatPrice, remainingLabel } from "@/app/(components)/registration";
 import { eventWhen } from "./eventWhen";
+import { EventProgram } from "./EventProgram";
+import { ParentEventNotice } from "./ParentEventNotice";
 
 export type SignUp = {
   ticketTypeId: string;
@@ -145,6 +147,13 @@ export const SharedEventPage = ({
           {event.address && <Typography>Lugar: {event.address}</Typography>}
         </Paper>
         {event.description && <Typography>{event.description}</Typography>}
+        {event.container && (
+          <ParentEventNotice
+            container={event.container}
+            signsUpThere={Boolean(registration) && !event.canRegister}
+          />
+        )}
+        <EventProgram program={event.program ?? []} />
         {hasPlace && event.registrationStatus && (
           <Alert severity="success">
             Ya tiene un lugar en este {kind}. Si tiene cuenta, encuentre su
