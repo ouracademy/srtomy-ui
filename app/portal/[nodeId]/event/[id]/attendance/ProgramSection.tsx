@@ -1,24 +1,41 @@
 "use client";
 
-import type { EventResponse } from "@/app/(api)/generated/aPIOvejafiel.schemas";
+import type {
+  ChildResponse,
+  EventResponse,
+} from "@/app/(api)/generated/aPIOvejafiel.schemas";
 import { groupByDay } from "@/app/(components)/groupByDay";
 import { describeRegistrationMode } from "@/app/(components)/registrationMode";
+import { deleteEventsById } from "@/app/(api)/generated";
+import { apiErrorMessage } from "@/app/(components)/apiErrorMessage";
+import { DialogDeleteConfirmation } from "@/app/(components)/DialogDeleteConfirmation";
+import { SnackbarContext } from "@/app/(components)/SnackbarContext";
 import AddIcon from "@mui/icons-material/Add";
+import DeleteIcon from "@mui/icons-material/Delete";
+import EditIcon from "@mui/icons-material/Edit";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import {
+  Accordion,
+  AccordionDetails,
+  AccordionSummary,
   Button,
   Chip,
+  IconButton,
   List,
   ListItem,
   ListItemButton,
   ListItemText,
-  Paper,
   Stack,
+  Tooltip,
   Typography,
 } from "@mui/material";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import NextLink from "next/link";
-import { useState } from "react";
+import { useContext, useState } from "react";
+import { moveSubEvent } from "./moveSubEvent";
+import { ProgramCalendar } from "./ProgramCalendar";
+import { savedMessage } from "./EditableEventForm";
 import { SubEventDialog } from "./SubEventDialog";
 
 type ProgramSectionProps = Readonly<{
@@ -44,79 +61,165 @@ export const ProgramSection = ({
   canConfigureRegistration,
   onChanged,
 }: ProgramSectionProps) => {
+  const alert = useContext(SnackbarContext);
   const [adding, setAdding] = useState(false);
+  const [removing, setRemoving] = useState<ChildResponse | null>(null);
+  const [expanded, setExpanded] = useState(true);
   const days = groupByDay(event.children ?? []);
+  const hasProgram = days.length > 0;
+
+  const move = async (id: string, start: Date, end: Date) => {
+    try {
+      alert.showMessage(savedMessage(await moveSubEvent(id, start, end)));
+      onChanged();
+    } catch (error) {
+      alert.showMessage(
+        apiErrorMessage(error, "No se pudo mover. Intenta de nuevo."),
+      );
+      throw error;
+    }
+  };
+
+  const remove = async () => {
+    if (!removing?.id) return;
+    try {
+      await deleteEventsById(removing.id, { option: "THIS_EVENT" });
+      alert.showMessage(`Se eliminó «${removing.title}».`);
+      setRemoving(null);
+      onChanged();
+    } catch (error) {
+      alert.showMessage(
+        apiErrorMessage(error, "No se pudo eliminar. Intenta de nuevo."),
+      );
+    }
+  };
 
   // Nothing to show to someone who cannot add to an event that has no program.
   if (days.length === 0 && !canAdd) return null;
 
   return (
-    <Paper
+    <Accordion
       component="section"
       aria-label="Programa"
       variant="outlined"
-      sx={{ p: 2 }}
+      expanded={expanded}
+      onChange={(_, open) => setExpanded(open)}
+      disableGutters
     >
-      <Stack spacing={2}>
-        <Typography variant="h6">Programa</Typography>
-        {days.length === 0 && (
-          <Typography color="text.secondary">
-            Es opcional: agrega los eventos y cursos que forman parte de «
-            {event.title}», por ejemplo las charlas de cada día.
-          </Typography>
-        )}
-        {days.map(({ day, items }) => (
-          <div key={day.toISOString()}>
-            <Typography
-              variant="subtitle2"
-              sx={{ textTransform: "capitalize" }}
-            >
-              {format(day, "EEEE d 'de' MMMM", { locale: es })}
+      <AccordionSummary
+        expandIcon={<ExpandMoreIcon />}
+        aria-controls="program-content"
+        id="program-header"
+      >
+        <Typography variant="h6" component="h2">
+          Programa
+        </Typography>
+      </AccordionSummary>
+      <AccordionDetails id="program-content">
+        <Stack spacing={2}>
+          {hasProgram && event.start && event.end && (
+            <ProgramCalendar
+              nodeId={nodeId}
+              start={event.start}
+              end={event.end}
+              items={event.children ?? []}
+              canMove={canAdd}
+              onMove={move}
+            />
+          )}
+          {days.length === 0 && (
+            <Typography color="text.secondary">
+              Es opcional: agrega los eventos y cursos que forman parte de «
+              {event.title}», por ejemplo las charlas de cada día.
             </Typography>
-            <List dense disablePadding>
-              {items.map((item) => (
-                <ListItem key={item.id} disablePadding>
-                  <ListItemButton
-                    component={NextLink}
-                    href={`/portal/${nodeId}/event/${item.id}/attendance`}
+          )}
+          {days.map(({ day, items }) => (
+            <div key={day.toISOString()}>
+              <Typography
+                variant="subtitle2"
+                sx={{ textTransform: "capitalize" }}
+              >
+                {format(day, "EEEE d 'de' MMMM", { locale: es })}
+              </Typography>
+              <List dense disablePadding>
+                {items.map((item) => (
+                  <ListItem
+                    key={item.id}
+                    disablePadding
+                    secondaryAction={
+                      canAdd && (
+                        <Stack direction="row">
+                          <Tooltip title="Editar">
+                            <IconButton
+                              component={NextLink}
+                              href={`/portal/${nodeId}/event/${item.id}/attendance`}
+                              aria-label={`Editar ${item.title}`}
+                            >
+                              <EditIcon />
+                            </IconButton>
+                          </Tooltip>
+                          <Tooltip title="Eliminar">
+                            <IconButton
+                              aria-label={`Eliminar ${item.title}`}
+                              onClick={() => setRemoving(item)}
+                            >
+                              <DeleteIcon />
+                            </IconButton>
+                          </Tooltip>
+                        </Stack>
+                      )
+                    }
                   >
-                    <ListItemText
-                      primary={item.title}
-                      secondary={hours(item.start, item.end)}
-                    />
-                    <Stack direction="row" spacing={1}>
-                      <Chip
-                        size="small"
-                        variant="outlined"
-                        label={item.isACourse ? "Curso" : "Evento"}
+                    <ListItemButton
+                      sx={{ pr: canAdd ? 14 : undefined }}
+                      component={NextLink}
+                      href={`/portal/${nodeId}/event/${item.id}/attendance`}
+                    >
+                      <ListItemText
+                        primary={item.title}
+                        secondary={hours(item.start, item.end)}
                       />
-                      <Chip
-                        size="small"
-                        variant="outlined"
-                        label={
-                          describeRegistrationMode(item.registrationMode)
-                            ?.summary
-                        }
-                      />
-                    </Stack>
-                  </ListItemButton>
-                </ListItem>
-              ))}
-            </List>
-          </div>
-        ))}
-        {canAdd && (
-          <div>
-            <Button
-              variant="outlined"
-              startIcon={<AddIcon />}
-              onClick={() => setAdding(true)}
-            >
-              Agregar sub-evento
-            </Button>
-          </div>
-        )}
-      </Stack>
+                      <Stack direction="row" spacing={1}>
+                        <Chip
+                          size="small"
+                          variant="outlined"
+                          label={item.isACourse ? "Curso" : "Evento"}
+                        />
+                        <Chip
+                          size="small"
+                          variant="outlined"
+                          label={
+                            describeRegistrationMode(item.registrationMode)
+                              ?.summary
+                          }
+                        />
+                      </Stack>
+                    </ListItemButton>
+                  </ListItem>
+                ))}
+              </List>
+            </div>
+          ))}
+          {canAdd && (
+            <div>
+              <Button
+                variant="outlined"
+                startIcon={<AddIcon />}
+                onClick={() => setAdding(true)}
+              >
+                Agregar sub-evento
+              </Button>
+            </div>
+          )}
+        </Stack>
+      </AccordionDetails>
+      <DialogDeleteConfirmation
+        open={Boolean(removing)}
+        close={() => setRemoving(null)}
+        onDelete={remove}
+        title={`¿Eliminar «${removing?.title ?? ""}»?`}
+        message="Las personas inscritas a este sub-evento ya no lo verán. Recuerda que una vez eliminado no podrás recuperarlo."
+      />
       <SubEventDialog
         nodeId={nodeId}
         parent={event}
@@ -125,6 +228,6 @@ export const ProgramSection = ({
         created={onChanged}
         showRegistration={canConfigureRegistration}
       />
-    </Paper>
+    </Accordion>
   );
 };
