@@ -41,8 +41,31 @@ export function LandingFooter() {
             fontSize: 14,
           }}
         >
-          <Box sx={{ display: "grid", gap: 2, alignContent: "start" }}>
-            <span>© {brandName}</span>
+          <span>© {brandName}</span>
+          <Box
+            sx={{
+              display: "flex",
+              flexWrap: "wrap",
+              alignItems: "flex-start",
+              gap: "24px 48px",
+            }}
+          >
+            <Box
+              component="nav"
+              aria-label="Legal"
+              sx={{
+                display: "flex",
+                flexWrap: "wrap",
+                gap: "8px 24px",
+                alignContent: "start",
+              }}
+            >
+              {legalLinks.map(({ href, text }) => (
+                <Link key={href} component={NextLink} href={href} sx={linkSx}>
+                  {text}
+                </Link>
+              ))}
+            </Box>
             <Box component="section" aria-labelledby="footer-contact-title">
               <Typography
                 id="footer-contact-title"
@@ -64,22 +87,6 @@ export function LandingFooter() {
                 </Link>
               </Box>
             </Box>
-          </Box>
-          <Box
-            component="nav"
-            aria-label="Legal"
-            sx={{
-              display: "flex",
-              flexWrap: "wrap",
-              gap: "8px 24px",
-              alignContent: "start",
-            }}
-          >
-            {legalLinks.map(({ href, text }) => (
-              <Link key={href} component={NextLink} href={href} sx={linkSx}>
-                {text}
-              </Link>
-            ))}
           </Box>
         </Wrap>
       </Box>
