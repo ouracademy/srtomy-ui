@@ -22,7 +22,8 @@ import { ShareEventDialog } from "./ShareEventDialog";
 export const ShareEventButton = ({
   eventId,
   title,
-}: Readonly<{ eventId: string; title: string }>) => {
+  subEvents = 0,
+}: Readonly<{ eventId: string; title: string; subEvents?: number }>) => {
   const alert = React.useContext(SnackbarContext);
   const [open, setOpen] = React.useState(false);
   // Changes after a save that failed halfway, so the dialog starts its draft over.
@@ -36,9 +37,13 @@ export const ShareEventButton = ({
   // applied stays, the dialog shows the real state again and the user is told.
   const save = async (draft: SharingDraft) => {
     try {
-      if (draft.generalAccess !== sharing?.generalAccess) {
+      if (
+        draft.generalAccess !== sharing?.generalAccess ||
+        draft.applyToProgram
+      ) {
         await putEventsByIdSharing(eventId, {
           generalAccess: draft.generalAccess,
+          applyToProgram: draft.applyToProgram,
         });
       }
       for (const shareId of draft.removed) {
@@ -94,6 +99,7 @@ export const ShareEventButton = ({
           close={() => setOpen(false)}
           title={title}
           sharing={sharing}
+          subEvents={subEvents}
           onSave={save}
           onRenewLink={renewLink}
           onCopy={(url) => copyLink(url, alert.showMessage)}

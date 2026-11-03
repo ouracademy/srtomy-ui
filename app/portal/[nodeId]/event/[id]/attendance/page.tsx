@@ -135,7 +135,11 @@ export default function AttendanceEvent(props: {
                 </Tooltip>
               )}
               {can("events.write") && (
-                <ShareEventButton eventId={id} title={event.title ?? ""} />
+                <ShareEventButton
+                  eventId={id}
+                  title={event.title ?? ""}
+                  subEvents={event.children?.length ?? 0}
+                />
               )}
               <Tooltip title="Eliminar">
                 <RegisterButton

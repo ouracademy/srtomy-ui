@@ -3366,6 +3366,9 @@
               "CHURCH",
               "ANYONE_WITH_LINK"
             ]
+          },
+          "applyToProgram": {
+            "type": "boolean"
           }
         },
         "required": [
