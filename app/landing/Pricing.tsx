@@ -116,7 +116,7 @@ export function Pricing() {
   return (
     <Section id="precios" bgcolor={landingColors.sand}>
       <SectionTitle>
-        Empieza gratis. Paga cuando tu iglesia crezca.
+        Empieza gratis. Paga cuando tu iglesia crezca
       </SectionTitle>
       <Typography
         sx={{ mt: 2.5, maxWidth: 620, fontSize: 18, color: "text.secondary" }}

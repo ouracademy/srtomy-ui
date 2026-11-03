@@ -93,7 +93,7 @@ export function Features() {
   const secondRow = others.slice(1);
   return (
     <Section id="funciones">
-      <SectionTitle>Todo lo que tu iglesia necesita, conectado.</SectionTitle>
+      <SectionTitle>Todo lo que tu iglesia necesita, conectado</SectionTitle>
       <Box sx={{ mt: 5, display: "flex", flexWrap: "wrap", gap: 2 }}>
         {featured && <FeatureCard feature={featured} grow="2 1 520px" />}
         {firstRow.map((feature) => (

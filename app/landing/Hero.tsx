@@ -58,8 +58,7 @@ export function Hero() {
             })}
           >
             un solo lugar
-          </Box>
-          .
+          </Box>          
         </Typography>
         <Typography
           sx={{
