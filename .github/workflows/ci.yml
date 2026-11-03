@@ -89,13 +89,12 @@ jobs:
           restore-keys: |
             next-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}-
       # Fake values, same as playwright.config.ts: the build never reaches
-      # Auth0, Builder or the backend.
+      # Auth0 or the backend.
       - name: next build
         run: pnpm build
         env:
           NEXT_PUBLIC_AUTH0_DOMAIN: test.auth0.local
           NEXT_PUBLIC_AUTH0_CLIENT_ID: ci-client
-          NEXT_PUBLIC_BUILDER_API_KEY: ci-placeholder
           NEXT_PUBLIC_API_URL: http://localhost:8080
 
   audit:

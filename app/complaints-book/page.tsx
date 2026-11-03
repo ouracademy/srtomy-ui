@@ -1,10 +1,10 @@
-import LandingLayout from "../landing-layout";
+import { LegalLayout } from "../landing/LegalLayout";
 
 import ComplaintForm from "./ComplaintForm";
 
 export default function ComplaintsBook() {
   return (
-    <LandingLayout>
+    <LegalLayout>
       <ComplaintForm
         initialValues={{
           firstName: "",
@@ -15,6 +15,6 @@ export default function ComplaintsBook() {
           comment: "",
         }}
       />
-    </LandingLayout>
+    </LegalLayout>
   );
 }
