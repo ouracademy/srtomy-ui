@@ -78,6 +78,12 @@ describe("LandingPage", () => {
     ).toHaveAttribute("href", "tel:+51941475889");
   });
 
+  it("sets the Roboto font at the root so plain text does not fall back to serif", () => {
+    render(<LandingPage />);
+    const root = screen.getByRole("main").parentElement!;
+    expect(getComputedStyle(root).fontFamily).toContain("--font-roboto");
+  });
+
   it("hides the product illustration from assistive technology", () => {
     render(<LandingPage />);
     expect(

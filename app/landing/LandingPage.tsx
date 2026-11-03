@@ -18,11 +18,14 @@ export function LandingPage() {
   return (
     <ThemeProvider theme={landingTheme}>
       <Box
-        sx={{
+        sx={(theme) => ({
+          // Only Typography sets a font; plain boxes, spans and inherit-variant
+          // links fall back to the browser's serif unless the root provides it.
+          fontFamily: theme.typography.fontFamily,
           minHeight: "100vh",
           bgcolor: "background.default",
           color: "text.primary",
-        }}
+        })}
       >
         <LandingHeader />
         <Box component="main">
