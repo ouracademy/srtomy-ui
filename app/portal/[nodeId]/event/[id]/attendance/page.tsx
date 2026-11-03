@@ -24,6 +24,7 @@ import { AttendanceTools } from "./AttendanceTools";
 import { RegistrationPanel } from "./RegistrationPanel";
 import { SaveButton } from "@/app/(components)/SaveButton";
 import { ContainerNotice } from "./ContainerNotice";
+import { InheritedRegistrationsPanel } from "./InheritedRegistrationsPanel";
 import { EditableEventForm } from "./EditableEventForm";
 import { deleteMessage } from "./program";
 import { ProgramSection } from "./ProgramSection";
@@ -94,6 +95,11 @@ export default function AttendanceEvent(props: {
   // A sub-event that inherits its registration or has none does not set one up.
   const hasOwnRegistration =
     !event.parentEventId || event.registrationMode === "OWN";
+
+  // A sub-event entered with the sign-up of its mega event: its organizers see
+  // who is expected there.
+  const inheritsRegistration =
+    Boolean(event.parentEventId) && event.registrationMode === "INHERIT";
 
   const chooseDeleteOption = (values: DeleteEventRecurrentForm) => {
     setDeleteOption(values.option);
@@ -201,6 +207,14 @@ export default function AttendanceEvent(props: {
                 remove: can("registrations.remove"),
                 checkIn: can("attendance.write"),
               }}
+            />
+          </Grid>
+        )}
+        {can("registrations.read") && inheritsRegistration && (
+          <Grid size={{ xs: 12 }}>
+            <InheritedRegistrationsPanel
+              eventId={id}
+              canCheckIn={can("attendance.write")}
             />
           </Grid>
         )}
