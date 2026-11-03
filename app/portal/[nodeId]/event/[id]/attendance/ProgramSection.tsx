@@ -29,7 +29,7 @@ import {
   Tooltip,
   Typography,
 } from "@mui/material";
-import { format } from "date-fns";
+import { format, isSameDay } from "date-fns";
 import { es } from "date-fns/locale";
 import NextLink from "next/link";
 import { useContext, useState } from "react";
@@ -65,6 +65,8 @@ export const ProgramSection = ({
   const [adding, setAdding] = useState(false);
   const [removing, setRemoving] = useState<ChildResponse | null>(null);
   const [expanded, setExpanded] = useState(true);
+  // An event of one day does not need a program: it starts as a button.
+  const [building, setBuilding] = useState(false);
   const days = groupByDay(event.children ?? []);
   const hasProgram = days.length > 0;
 
@@ -96,11 +98,24 @@ export const ProgramSection = ({
 
   // Nothing to show to someone who cannot add to an event that has no program.
   if (days.length === 0 && !canAdd) return null;
+  const oneDay =
+    event.start && event.end ? isSameDay(event.start, event.end) : false;
+  if (days.length === 0 && oneDay && !building) {
+    return (
+      <div>
+        <Button
+          variant="outlined"
+          startIcon={<AddIcon />}
+          onClick={() => setBuilding(true)}
+        >
+          Armar un programa
+        </Button>
+      </div>
+    );
+  }
 
   return (
     <Accordion
-      component="section"
-      aria-label="Programa"
       variant="outlined"
       expanded={expanded}
       onChange={(_, open) => setExpanded(open)}

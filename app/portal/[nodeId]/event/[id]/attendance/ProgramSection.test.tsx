@@ -222,4 +222,59 @@ describe("ProgramSection", () => {
     ).rejects.toThrow();
     expect(onChanged).not.toHaveBeenCalled();
   });
+
+  it("starts as a button in an event of one day with no program, and opens the section", async () => {
+    const onChanged = vi.fn();
+    render(
+      <ProgramSection
+        nodeId="n1"
+        event={{
+          id: "culto",
+          title: "Culto",
+          start: new Date(2026, 9, 23, 9, 0),
+          end: new Date(2026, 9, 23, 11, 0),
+          children: [],
+        }}
+        canAdd
+        canConfigureRegistration
+        onChanged={onChanged}
+      />,
+    );
+    const user = userEvent.setup();
+
+    expect(screen.queryByRole("region", { name: "Programa" })).toBeNull();
+    await user.click(screen.getByRole("button", { name: "Armar un programa" }));
+
+    expect(
+      screen.getByRole("region", { name: "Programa" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "Agregar sub-evento" }),
+    ).toBeInTheDocument();
+  });
+
+  it("shows the program of an event of one day when it already has sub-events", () => {
+    render(
+      <ProgramSection
+        nodeId="n1"
+        event={{
+          id: "jornada",
+          title: "Jornada",
+          start: new Date(2026, 9, 23, 8, 0),
+          end: new Date(2026, 9, 23, 20, 0),
+          children: [child({})],
+        }}
+        canAdd
+        canConfigureRegistration
+        onChanged={vi.fn()}
+      />,
+    );
+
+    expect(
+      screen.getByRole("region", { name: "Programa" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: "Armar un programa" }),
+    ).toBeNull();
+  });
 });
