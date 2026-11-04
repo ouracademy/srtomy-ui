@@ -6,9 +6,9 @@ import { Wrap } from "./Section";
 
 export function Hero() {
   return (
-    <Box
+    <Box      
       component="section"
-      sx={{ pt: "clamp(40px,7vw,96px)", pb: "clamp(32px,5vw,64px)" }}
+      sx={{ pt: "clamp(40px,7vw,96px)", pb: "clamp(32px,5vw,64px)", backgroundColor:"#F0EEE6" }}
     >
       <Wrap>
         <Box
