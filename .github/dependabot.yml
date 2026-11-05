@@ -13,7 +13,7 @@ updates:
     ignore:
       # Held back until the ecosystem catches up (see PR "upgrade dependencies"):
       # @mui/x-* 8.x supports MUI <= 7, typescript-eslint supports TS < 6.1,
-      # eslint plugins do not declare ESLint 10, Builder is being removed.
+      # eslint plugins do not declare ESLint 10.
       - dependency-name: "@mui/*"
         update-types: [version-update:semver-major]
       - dependency-name: react-hook-form-mui
@@ -24,7 +24,6 @@ updates:
         update-types: [version-update:semver-major]
       - dependency-name: eslint
         update-types: [version-update:semver-major]
-      - dependency-name: "@builder.io/*"
   - package-ecosystem: github-actions
     directory: /
     schedule:

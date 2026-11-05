@@ -12,18 +12,18 @@ describe("LandingPage", () => {
   it("has a single main heading with the value proposition", () => {
     render(<LandingPage />);
     expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent(
-      "Administra tu iglesia en un solo lugar.",
+      "Administra tu iglesia en un solo lugar",
     );
   });
 
   it("presents each section under its own heading", () => {
     render(<LandingPage />);
     for (const name of [
-      "Todo lo que tu iglesia necesita, conectado.",
-      "Empieza en cuatro pasos.",
-      "Cada persona ve lo que le corresponde.",
-      "Empieza gratis. Paga cuando tu iglesia crezca.",
-      "Prueba Oveja Fiel con tu iglesia.",
+      "Todo lo que tu iglesia necesita, conectado",
+      "Empieza en cuatro pasos",
+      "Cada persona ve lo que le corresponde",
+      "Empieza gratis. Paga cuando tu iglesia crezca",
+      "Prueba Oveja Fiel con tu iglesia",
     ]) {
       expect(screen.getByRole("heading", { level: 2, name })).toBeVisible();
     }

@@ -1,25 +1,17 @@
-import { RenderBuilderContent } from "@/components/builder";
-import { builder } from "@builder.io/sdk";
-import LandingLayout from "../landing-layout";
+import type { Metadata } from "next";
+import { LegalDocument } from "../(components)/LegalDocument";
+import { LegalLayout } from "../landing/LegalLayout";
+import { termsContent } from "./content";
 
-// Builder Public API Key set in .env file
-builder.init(process.env.NEXT_PUBLIC_BUILDER_API_KEY!);
+export const metadata: Metadata = {
+  title: termsContent.title,
+  alternates: { canonical: "/terms-conditions" },
+};
 
-export default async function TermsConditions() {
-  const content = await builder
-    // Get the page content from Builder with the specified options
-    .get("page", {
-      userAttributes: {
-        // Use the page path specified in the URL to fetch the content
-        urlPath: "/terms-conditions",
-      },
-    })
-    // Convert the result to a promise
-    .toPromise();
-
+export default function TermsConditions() {
   return (
-    <LandingLayout>
-      <RenderBuilderContent content={content} />
-    </LandingLayout>
+    <LegalLayout>
+      <LegalDocument {...termsContent} />
+    </LegalLayout>
   );
 }

@@ -6,16 +6,15 @@ Este repositorio es el frontend. Consume la API [srtomy-api](https://github.com/
 
 ## Stack
 
-| Capa               | Tecnología                                                          |
-| ------------------ | ------------------------------------------------------------------- |
-| Framework          | Next.js 16 (App Router, Turbopack) y React 19                       |
-| Lenguaje           | TypeScript 6 en modo `strict`                                       |
-| UI                 | MUI 7 y MUI X (DataGrid, DatePickers), FullCalendar                 |
-| Datos              | SWR para lecturas, axios para escrituras                            |
-| Formularios        | react-hook-form y zod                                               |
-| Autenticación      | Auth0 (`@auth0/auth0-react`)                                        |
-| Páginas de landing | Builder.io (en proceso de retiro)                                   |
-| Pruebas            | Vitest y Testing Library (unitarias), Playwright y axe (e2e y a11y) |
+| Capa          | Tecnología                                                          |
+| ------------- | ------------------------------------------------------------------- |
+| Framework     | Next.js 16 (App Router, Turbopack) y React 19                       |
+| Lenguaje      | TypeScript 6 en modo `strict`                                       |
+| UI            | MUI 7 y MUI X (DataGrid, DatePickers), FullCalendar                 |
+| Datos         | SWR para lecturas, axios para escrituras                            |
+| Formularios   | react-hook-form y zod                                               |
+| Autenticación | Auth0 (`@auth0/auth0-react`)                                        |
+| Pruebas       | Vitest y Testing Library (unitarias), Playwright y axe (e2e y a11y) |
 
 ## Puesta en marcha
 
@@ -41,7 +40,6 @@ Todas son públicas (`NEXT_PUBLIC_*`): Next las incrusta en el bundle **al compi
 | `NEXT_PUBLIC_AUTH0_DOMAIN`    | Sí          | Dominio del tenant de Auth0.                                                                                               |
 | `NEXT_PUBLIC_AUTH0_CLIENT_ID` | Sí          | Client ID de la aplicación SPA en Auth0.                                                                                   |
 | `NEXT_PUBLIC_AUTH0_AUDIENCE`  | No          | Audience de la API; sin él Auth0 no emite un token para srtomy-api.                                                        |
-| `NEXT_PUBLIC_BUILDER_API_KEY` | Sí\*        | Key de Builder.io. \*Las páginas de landing, políticas y términos la usan; sin ella responden 404.                         |
 | `NEXT_PUBLIC_SITE_URL`        | No          | Origen público (sin `/` final) para canonical, sitemap y vistas previas; por defecto `https://srtommy-ui-test.vercel.app`. |
 | `NEXT_PUBLIC_CULQI_API_KEY`   | No          | Llave pública de Culqi (pagos, aún no conectados al backend).                                                              |
 
@@ -76,7 +74,6 @@ El cliente HTTP y sus tipos **se generan** desde la especificación OpenAPI de s
 
 - **Unitarias** (`*.test.ts(x)` junto al código): lógica pura, hooks y la capa de API. La cobertura se mide sobre los módulos que cargan las pruebas.
 - **e2e y accesibilidad** (`tests/`): Playwright contra el servidor de desarrollo. No usan Auth0 ni backend reales: `tests/fixtures.ts` simula el login y cada prueba intercepta las llamadas a la API. `tests/a11y.spec.ts` corre axe (WCAG A y AA, impacto serio o crítico).
-  - Necesitan `NEXT_PUBLIC_BUILDER_API_KEY` (de `.env.local`, o del entorno `dev` en CI).
   - Si ya tienes `pnpm dev` en el puerto 3000, corre `E2E_PORT=3100 pnpm test:e2e` para que las pruebas levanten su propio servidor en lugar de reutilizar el tuyo (que usa valores reales).
 
 ## Estructura
@@ -86,7 +83,8 @@ app/
   (api)/          cliente HTTP, servicios por recurso y tipos de la API
   (components)/   componentes compartidos entre pantallas
   portal/         área autenticada: /portal (alta de iglesia) y /portal/[nodeId]/{location,person,event,positions}
-  footer/ header/ landing y legales (Builder)
+  landing/        landing pública (/) y el marco de las páginas legales
+  terms-conditions/ privacy-policy/ complaints-book/   páginas legales (el texto está en `content.ts`)
 tests/            e2e (Playwright)
 .specify/         constitución y plantillas de spec-kit
 ```
