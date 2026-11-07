@@ -1,4 +1,5 @@
 import { act, cleanup, render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import React from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import Calendar from "./Calendar";
@@ -12,9 +13,22 @@ type Source = (
 type CalendarProps = {
   events: Source;
   loading?: (loading: boolean) => void;
+  datesSet?: (info: { view: { title: string } }) => void;
+  headerToolbar?: unknown;
   allDaySlot?: boolean;
   selectAllow?: unknown;
   select?: (selection: object) => void;
+};
+
+// The calendar shows once the page has mounted.
+const flush = () =>
+  act(async () => {
+    await new Promise((resolve) => setTimeout(resolve));
+  });
+const renderCalendar = async (ui: React.ReactElement) => {
+  const result = render(ui);
+  await flush();
+  return result;
 };
 
 const calendar = vi.hoisted(() => ({
@@ -22,6 +36,9 @@ const calendar = vi.hoisted(() => ({
   props: undefined as CalendarProps | undefined,
   loading: undefined as ((loading: boolean) => void) | undefined,
   refetchEvents: vi.fn(),
+  prev: vi.fn(),
+  next: vi.fn(),
+  today: vi.fn(),
   getEvents: vi.fn(),
 }));
 
@@ -30,13 +47,23 @@ vi.mock("@fullcalendar/react", async () => {
   return {
     default: react.forwardRef(function FullCalendarMock(
       props: CalendarProps,
-      ref: React.Ref<{ getApi: () => { refetchEvents: () => void } }>,
+      ref: React.Ref<{
+        getApi: () => Record<
+          "refetchEvents" | "prev" | "next" | "today",
+          () => void
+        >;
+      }>,
     ) {
       calendar.sources.push(props.events);
       calendar.props = props;
       calendar.loading = props.loading;
       react.useImperativeHandle(ref, () => ({
-        getApi: () => ({ refetchEvents: calendar.refetchEvents }),
+        getApi: () => ({
+          refetchEvents: calendar.refetchEvents,
+          prev: calendar.prev,
+          next: calendar.next,
+          today: calendar.today,
+        }),
       }));
       return null;
     }),
@@ -57,13 +84,16 @@ beforeEach(() => {
   calendar.props = undefined;
   calendar.loading = undefined;
   calendar.refetchEvents.mockReset();
+  calendar.prev.mockReset();
+  calendar.next.mockReset();
+  calendar.today.mockReset();
   calendar.getEvents.mockReset();
 });
 afterEach(cleanup);
 
 describe("Calendar", () => {
-  it("does not ask for the events again when the page renders again", () => {
-    const { rerender } = render(
+  it("does not ask for the events again when the page renders again", async () => {
+    const { rerender } = await renderCalendar(
       <Calendar organizationId="n1" onSelect={vi.fn()} />,
     );
 
@@ -75,8 +105,8 @@ describe("Calendar", () => {
     expect(new Set(calendar.sources).size).toBe(1);
   });
 
-  it("does ask again when it is another node", () => {
-    const { rerender } = render(
+  it("does ask again when it is another node", async () => {
+    const { rerender } = await renderCalendar(
       <Calendar organizationId="n1" onSelect={vi.fn()} />,
     );
 
@@ -89,7 +119,7 @@ describe("Calendar", () => {
     calendar.getEvents.mockResolvedValue([
       { id: "e1", title: "Culto", organization: { id: "n1", name: "Sede" } },
     ]);
-    render(<Calendar organizationId="n1" onSelect={vi.fn()} />);
+    await renderCalendar(<Calendar organizationId="n1" onSelect={vi.fn()} />);
     const start = new Date(2030, 0, 1);
     const end = new Date(2030, 0, 8);
     const success = vi.fn();
@@ -106,7 +136,7 @@ describe("Calendar", () => {
 
   it("reports the failure to the calendar", async () => {
     calendar.getEvents.mockRejectedValue(new Error("500"));
-    render(<Calendar organizationId="n1" onSelect={vi.fn()} />);
+    await renderCalendar(<Calendar organizationId="n1" onSelect={vi.fn()} />);
     const failure = vi.fn();
 
     await calendar.sources[0]?.(
@@ -118,21 +148,23 @@ describe("Calendar", () => {
     expect(failure).toHaveBeenCalledOnce();
   });
 
-  it("shows a progress bar while the calendar loads the events", () => {
-    render(<Calendar organizationId="n1" onSelect={vi.fn()} />);
+  it("shows a progress bar while the calendar loads the events", async () => {
+    await renderCalendar(<Calendar organizationId="n1" onSelect={vi.fn()} />);
     expect(screen.queryByRole("progressbar")).toBeNull();
 
-    act(() => calendar.loading?.(true));
+    calendar.loading?.(true);
+    await flush();
     expect(
       screen.getByRole("progressbar", { name: "Cargando eventos" }),
     ).toBeTruthy();
 
-    act(() => calendar.loading?.(false));
+    calendar.loading?.(false);
+    await flush();
     expect(screen.queryByRole("progressbar")).toBeNull();
   });
 
-  it("asks for the events again only when the key changes, as after adding one", () => {
-    const { rerender } = render(
+  it("asks for the events again only when the key changes, as after adding one", async () => {
+    const { rerender } = await renderCalendar(
       <Calendar organizationId="n1" onSelect={vi.fn()} refreshKey={0} />,
     );
     expect(calendar.refetchEvents).not.toHaveBeenCalled();
@@ -148,9 +180,9 @@ describe("Calendar", () => {
     expect(calendar.refetchEvents).toHaveBeenCalledOnce();
   });
 
-  it("lets the user pick several days and passes on the all-day choice", () => {
+  it("lets the user pick several days and passes on the all-day choice", async () => {
     const onSelect = vi.fn();
-    render(<Calendar organizationId="n1" onSelect={onSelect} />);
+    await renderCalendar(<Calendar organizationId="n1" onSelect={onSelect} />);
     const start = new Date(2026, 9, 23);
     const end = new Date(2026, 9, 26);
 
@@ -164,5 +196,42 @@ describe("Calendar", () => {
       allDay: true,
       jsEvent: null,
     });
+  });
+
+  it("moves through the days with its own buttons and shows the range", async () => {
+    const user = userEvent.setup();
+    await renderCalendar(<Calendar organizationId="n1" onSelect={vi.fn()} />);
+
+    expect(calendar.props?.headerToolbar).toBe(false);
+    calendar.props?.datesSet?.({ view: { title: "2 – 8 nov 2026" } });
+    await flush();
+    expect(screen.getByText("2 – 8 nov 2026")).toBeTruthy();
+
+    await user.click(screen.getByRole("button", { name: "Siguiente" }));
+    await user.click(screen.getByRole("button", { name: "Anterior" }));
+    await user.click(screen.getByRole("button", { name: "Hoy" }));
+
+    expect(calendar.next).toHaveBeenCalledOnce();
+    expect(calendar.prev).toHaveBeenCalledOnce();
+    expect(calendar.today).toHaveBeenCalledOnce();
+  });
+
+  it("tells how to add an event and has a button to do it", async () => {
+    const user = userEvent.setup();
+    window.matchMedia = vi.fn().mockImplementation((query: string) => ({
+      matches: true,
+      media: query,
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+    }));
+    const onSelect = vi.fn();
+    await renderCalendar(<Calendar organizationId="n1" onSelect={onSelect} />);
+
+    expect(screen.getByText(/arrastra sobre el calendario/i)).toBeTruthy();
+    await user.click(screen.getByRole("button", { name: "Crear" }));
+
+    expect(onSelect).toHaveBeenCalledWith(
+      expect.objectContaining({ jsEvent: null }),
+    );
   });
 });
