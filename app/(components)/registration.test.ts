@@ -86,6 +86,7 @@ describe("toSetupRequest", () => {
           quantity: undefined,
           salesStart: undefined,
           salesEnd: undefined,
+          subEventIds: [],
         },
       ],
     });
@@ -223,5 +224,27 @@ describe("formatPrice and remainingLabel", () => {
     expect(remainingLabel(0)).toBe("Agotado");
     expect(remainingLabel(1)).toBe("Queda 1 lugar");
     expect(remainingLabel(7)).toBe("Quedan 7 lugares");
+  });
+});
+
+describe("the sub-events a ticket gives access to", () => {
+  it("come from the setup and go back to it", () => {
+    const form = fromSetupResponse({
+      enabled: true,
+      open: true,
+      requiresAccount: false,
+      tickets: [
+        { id: "t1", name: "Pase sábado", priceCents: 0, subEventIds: ["s1"] },
+        { id: "t2", name: "Pase completo", priceCents: 0 },
+      ],
+    });
+
+    expect(form.tickets.map((ticket) => ticket.subEventIds)).toEqual([
+      ["s1"],
+      [],
+    ]);
+    expect(
+      toSetupRequest(form)?.tickets.map((ticket) => ticket.subEventIds),
+    ).toEqual([["s1"], []]);
   });
 });

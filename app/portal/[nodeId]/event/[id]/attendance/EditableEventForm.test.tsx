@@ -7,10 +7,15 @@ import type { EventResponse } from "@/app/(api)/generated/aPIOvejafiel.schemas";
 import { SnackbarContext } from "@/app/(components)/SnackbarContext";
 import { EditableEventForm, savedMessage } from "./EditableEventForm";
 
-const { putEventsById } = vi.hoisted(() => ({ putEventsById: vi.fn() }));
+const api = vi.hoisted(() => ({
+  putEventsById: vi.fn(),
+  parent: undefined as object | undefined,
+}));
+const { putEventsById } = api;
 
 vi.mock("@/app/(api)/generated", () => ({
-  putEventsById,
+  putEventsById: (...args: unknown[]) => api.putEventsById(...args),
+  useGetEventsById: () => ({ data: api.parent }),
   useGetOrganizationsById: () => ({ data: undefined }),
   useGetPeople: () => ({ data: undefined }),
 }));
@@ -23,6 +28,7 @@ const NODE = "11111111-1111-1111-1111-111111111111";
 const EVENT = "33333333-3333-3333-3333-333333333333";
 
 beforeEach(() => {
+  api.parent = undefined;
   putEventsById.mockReset();
   putEventsById.mockResolvedValue({
     id: EVENT,
@@ -58,7 +64,6 @@ const series: EventResponse = {
 const setup = (event: EventResponse, editing = true) => {
   const showMessage = vi.fn();
   const saved = vi.fn();
-  const cancel = vi.fn();
   render(
     <LocalizationProvider dateAdapter={AdapterDateFns}>
       <SnackbarContext.Provider value={{ message: "", showMessage }}>
@@ -67,13 +72,12 @@ const setup = (event: EventResponse, editing = true) => {
           eventId={EVENT}
           event={event}
           editing={editing}
-          cancel={cancel}
           saved={saved}
         />
       </SnackbarContext.Provider>
     </LocalizationProvider>,
   );
-  return { showMessage, saved, cancel, user: userEvent.setup() };
+  return { showMessage, saved, user: userEvent.setup() };
 };
 
 const rename = async (
@@ -97,7 +101,7 @@ describe("EditableEventForm", () => {
       screen.getByPlaceholderText("Agregar título").matches(":disabled"),
     ).toBe(true);
     expect(screen.queryByRole("button", { name: "Guardar" })).toBeNull();
-    expect(screen.queryByRole("button", { name: "Cancelar" })).toBeNull();
+    expect(screen.queryByText(/recibirán un correo/)).toBeNull();
   });
 
   it("shows the kind (event or course) as a value that cannot change", () => {
@@ -132,22 +136,19 @@ describe("EditableEventForm", () => {
     expect(screen.queryByRole("dialog")).toBeNull();
   });
 
-  it("asks to confirm a new name of a single event, because the people signed up are told", async () => {
+  it("tells from the start that the people signed up get an email, and saves right away", async () => {
     const { user } = setup(oneOff);
 
+    expect(screen.getByText(/recibirán un correo/)).toBeTruthy();
     await rename(user, "Retiro de jóvenes");
     await user.click(screen.getByRole("button", { name: "Guardar" }));
-
-    expect(putEventsById).not.toHaveBeenCalled();
-    expect(screen.getByText(/recibirán un correo/)).toBeTruthy();
-    expect(screen.queryByRole("radio")).toBeNull();
-    await user.click(screen.getByRole("button", { name: "Guardar cambios" }));
 
     await waitFor(() => expect(putEventsById).toHaveBeenCalledTimes(1));
     expect(putEventsById.mock.calls[0]?.[1]).toMatchObject({
       name: "Retiro de jóvenes",
       option: "THIS_EVENT",
     });
+    expect(screen.queryByRole("dialog")).toBeNull();
   });
 
   it("asks which occurrences to edit for an event of a series and sends the choice", async () => {
@@ -205,21 +206,12 @@ describe("EditableEventForm", () => {
 
     await rename(user, "Otro");
     await user.click(screen.getByRole("button", { name: "Guardar" }));
-    await user.click(screen.getByRole("button", { name: "Guardar cambios" }));
 
     await waitFor(() => expect(showMessage).toHaveBeenCalled());
     expect(showMessage).toHaveBeenCalledWith(
       "No se puede cambiar la iglesia, sede o grupo",
     );
     expect(saved).not.toHaveBeenCalled();
-  });
-
-  it("closes the editor with Cancelar", async () => {
-    const { user, cancel } = setup(oneOff);
-
-    await user.click(screen.getByRole("button", { name: "Cancelar" }));
-
-    expect(cancel).toHaveBeenCalled();
   });
 });
 
@@ -237,5 +229,68 @@ describe("savedMessage", () => {
     expect(savedMessage({ id: EVENT, keptEvents: 1, notifiedPeople: 3 })).toBe(
       "Evento actualizado. Se avisó por correo a 3 personas. 1 evento con inscritos, asistencia o ya pasados no cambiaron.",
     );
+  });
+
+  describe("a sub-event", () => {
+    const subEvent: EventResponse = {
+      ...oneOff,
+      parentEventId: "mega",
+      parentTitle: "Congreso",
+      registrationMode: "INHERIT",
+    };
+
+    beforeEach(() => {
+      api.parent = {
+        id: "mega",
+        title: "Congreso",
+        start: new Date(2026, 1, 1, 0, 0),
+        end: new Date(2026, 1, 3, 23, 0),
+      };
+    });
+
+    it("says which event it is part of and keeps how it is entered behind a Cambiar button", async () => {
+      const { user } = setup(subEvent);
+
+      expect(screen.getByText("Parte de «Congreso»")).toBeInTheDocument();
+      expect(
+        screen.queryByRole("combobox", { name: "Inscripción" }),
+      ).toBeNull();
+      await user.click(
+        screen.getByRole("button", { name: "Cambiar la inscripción" }),
+      );
+      expect(
+        screen.getByRole("combobox", { name: "Inscripción" }),
+      ).toBeInTheDocument();
+    });
+
+    it("saves how it is entered", async () => {
+      const { user, saved } = setup(subEvent);
+
+      await user.click(
+        screen.getByRole("button", { name: "Cambiar la inscripción" }),
+      );
+
+      await user.click(screen.getByRole("combobox", { name: "Inscripción" }));
+      await user.click(await screen.findByRole("option", { name: "Propia" }));
+      await user.click(screen.getByRole("button", { name: "Guardar" }));
+
+      await waitFor(() => expect(saved).toHaveBeenCalledOnce());
+      expect(putEventsById.mock.calls[0]?.[1]).toMatchObject({
+        registrationMode: "OWN",
+      });
+    });
+
+    it("does not send a registration mode for an event on its own", async () => {
+      const { user, saved } = setup(oneOff);
+
+      await user.type(
+        screen.getByPlaceholderText("Agregar descripción"),
+        " más",
+      );
+      await user.click(screen.getByRole("button", { name: "Guardar" }));
+
+      await waitFor(() => expect(saved).toHaveBeenCalledOnce());
+      expect(putEventsById.mock.calls[0]?.[1].registrationMode).toBeUndefined();
+    });
   });
 });

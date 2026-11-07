@@ -28,7 +28,7 @@ export function FinalCta() {
             letterSpacing: "-0.035em",
           }}
         >
-          Prueba {brandName} con tu iglesia.
+          Prueba {brandName} con tu iglesia
         </Typography>
         <Typography
           sx={{

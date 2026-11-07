@@ -6,7 +6,7 @@ import { Section, SectionTitle } from "./Section";
 export function Roles() {
   return (
     <Section>
-      <SectionTitle>Cada persona ve lo que le corresponde.</SectionTitle>
+      <SectionTitle>Cada persona ve lo que le corresponde</SectionTitle>
       <Box
         sx={{
           mt: 5,
