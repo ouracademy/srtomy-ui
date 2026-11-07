@@ -233,7 +233,7 @@ export const ProgramSection = ({
         close={() => setRemoving(null)}
         onDelete={remove}
         title={`¿Eliminar «${removing?.title ?? ""}»?`}
-        message="Las personas inscritas a este sub-evento ya no lo verán. Recuerda que una vez eliminado no podrás recuperarlo."
+        message="Se avisará por correo a quienes estén inscritos. Recuerda que una vez eliminado no podrás recuperarlo."
       />
       <SubEventDialog
         nodeId={nodeId}

@@ -20,6 +20,8 @@ export type EventChange = {
   dayMoved: boolean;
   // The way the event repeats changed.
   ruleChanged: boolean;
+  // A sub-event stops using its own sign-up: those who signed up are told.
+  ownSignUpsEnd?: boolean;
 };
 
 const sameInstant = (a: Date, b: Date) => a.getTime() === b.getTime();
@@ -67,6 +69,10 @@ export const describeChange = (
     !sameInstant(endOf(initial), endOf(values)),
   dayMoved: !sameDay(initial.date, values.date),
   ruleChanged: !sameRecurrence(initial.recurrence, values.recurrence),
+  ownSignUpsEnd:
+    initial.registrationMode === "OWN" &&
+    values.registrationMode !== undefined &&
+    values.registrationMode !== "OWN",
 });
 
 // What to tell the user before saving, so nothing happens by surprise.
@@ -86,6 +92,11 @@ export const impactMessages = (
   ) {
     messages.push(
       "Al cambiar el día o cómo se repite, los eventos que ya pasaron o que tienen inscritos o asistencia no cambian: quedan como eventos sueltos. Los demás se reemplazan.",
+    );
+  }
+  if (change.ownSignUpsEnd) {
+    messages.push(
+      "Se cancelarán las inscripciones propias de este evento y se avisará por correo a quienes estén inscritos.",
     );
   }
   if (change.scheduleMoved || change.detailsChanged) {

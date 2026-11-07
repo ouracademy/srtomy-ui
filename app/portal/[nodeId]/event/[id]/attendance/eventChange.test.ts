@@ -35,6 +35,7 @@ describe("describeChange", () => {
       detailsChanged: false,
       dayMoved: false,
       ruleChanged: false,
+      ownSignUpsEnd: false,
     });
   });
 
@@ -274,5 +275,53 @@ describe("an event of several days", () => {
 
     expect(change.scheduleMoved).toBe(true);
     expect(change.dayMoved).toBe(false);
+  });
+});
+
+describe("a sub-event that stops using its own sign-up", () => {
+  it("sees it when it goes from its own to the one of the event or to none", () => {
+    expect(
+      describeChange(
+        { ...initial, registrationMode: "OWN" },
+        { ...initial, registrationMode: "INHERIT" },
+      ).ownSignUpsEnd,
+    ).toBe(true);
+    expect(
+      describeChange(
+        { ...initial, registrationMode: "OWN" },
+        { ...initial, registrationMode: "OPEN" },
+      ).ownSignUpsEnd,
+    ).toBe(true);
+  });
+
+  it("does not see it when it stays its own, or was not its own", () => {
+    expect(
+      describeChange(
+        { ...initial, registrationMode: "OWN" },
+        { ...initial, registrationMode: "OWN" },
+      ).ownSignUpsEnd,
+    ).toBe(false);
+    expect(
+      describeChange(
+        { ...initial, registrationMode: "INHERIT" },
+        { ...initial, registrationMode: "OWN" },
+      ).ownSignUpsEnd,
+    ).toBe(false);
+  });
+
+  it("warns that their sign-ups are cancelled and they are told", () => {
+    expect(
+      impactMessages(
+        {
+          scheduleMoved: false,
+          detailsChanged: false,
+          dayMoved: false,
+          ruleChanged: false,
+          ownSignUpsEnd: true,
+        },
+        "THIS_EVENT",
+        false,
+      )[0],
+    ).toContain("Se cancelarán las inscripciones propias");
   });
 });

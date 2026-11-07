@@ -133,7 +133,8 @@ export const EditableEventForm = ({
       !repeats &&
       !change.scheduleMoved &&
       !change.detailsChanged &&
-      !change.ruleChanged
+      !change.ruleChanged &&
+      !change.ownSignUpsEnd
     ) {
       await save(values, "THIS_EVENT");
       return;
