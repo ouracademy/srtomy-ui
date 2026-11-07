@@ -8,7 +8,11 @@ export function Hero() {
   return (
     <Box
       component="section"
-      sx={{ pt: "clamp(40px,7vw,96px)", pb: "clamp(32px,5vw,64px)" }}
+      sx={{
+        pt: "clamp(40px,7vw,96px)",
+        pb: "clamp(32px,5vw,64px)",
+        backgroundColor: "#F0EEE6",
+      }}
     >
       <Wrap>
         <Box
@@ -59,7 +63,6 @@ export function Hero() {
           >
             un solo lugar
           </Box>
-          .
         </Typography>
         <Typography
           sx={{

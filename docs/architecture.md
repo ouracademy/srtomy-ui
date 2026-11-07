@@ -25,7 +25,7 @@ app/
   (components)/                Compartidos por 2+ pantallas: Loading, ErrorMessage,
                                NotFoundMessage, ResourceError, SaveButton, ...
   (hooks)/                     Hooks de interfaz compartidos: useDebounce, usePagination, ...
-  landing/                     Landing pública (/): secciones, contenido (`content.ts`) y tema propio (`theme.ts`); `LandingPage` es su frontera de cliente
+  landing/                     Landing pública (/): secciones, contenido (`content.ts`) y tema propio (`theme.ts`); `LandingPage` es su frontera de cliente; `LegalLayout` y `LandingFooter` enmarcan también términos, privacidad y el libro de reclamaciones (cuyo texto vive en `content.ts` de cada página)
   e/[slug]/                    Página del enlace de un evento o curso (ver e inscribirse)
   g/[slug]/                    Página pública de un nodo (iglesia, sede, grupo o ministerio)
   invitacion/[token]/          Página pública de una invitación (aceptarla); returnTo.ts decide a dónde volver tras el login
@@ -179,9 +179,8 @@ Cosas que el código hoy **no** hace; no son errores nuevos, conviene saberlas:
 - Guardar la edición de un grupo no hace nada: el formulario existe, pero su _handler_ está vacío (con un comentario). El formulario de un evento ya creado es de solo lectura. La API aún no está conectada para esa acción.
 - El pago con Culqi (`ProfileForm`) abre el checkout pero no envía el token a la API.
 - Google Tag Manager se carga sin pedir consentimiento (`app/layout.tsx`).
-- No hay Content-Security-Policy ni `X-Frame-Options`: el editor visual de Builder embebe el sitio en un iframe. Se agregan al retirar Builder.
+- Solo hay una Content-Security-Policy mínima (`frame-ancestors 'none'`) y `X-Frame-Options`; falta una CSP completa de scripts y estilos.
 - No hay reporte de errores en producción (Sentry u otro); los límites de error solo hacen `console.error`.
-- Builder.io: `@builder.io/dev-tools` está fijado en 1.16.4 (la 1.94 rompe el build) y `next.config.js` tiene `turbopack: {}` y `images.remotePatterns` solo por él.
 - `react-hooks/refs` está desactivado para `app/portal/[nodeId]/person/board/**`: el tablero pasa los objetos `provided` de `@hello-pangea/dnd` a `ref`, un uso documentado de la librería que la regla marca como falso positivo.
 
 ## Evolución propuesta
