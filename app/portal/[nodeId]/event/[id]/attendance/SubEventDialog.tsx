@@ -29,6 +29,8 @@ type SubEventDialogProps = Readonly<{
   created: () => void;
   // Offers to set up the sign-up of a sub-event that has its own.
   showRegistration: boolean;
+  // The hours it starts with, when they were picked on the calendar.
+  initialRange?: Readonly<{ start: Date; end: Date }>;
 }>;
 
 // Adds a sub-event (an event or a course) to the program of an event. It stays
@@ -41,6 +43,7 @@ export const SubEventDialog = ({
   close,
   created,
   showRegistration,
+  initialRange,
 }: SubEventDialogProps) => {
   const alert = useContext(SnackbarContext);
   // The dates of the parent (a missing one reads as now, once).
@@ -51,10 +54,10 @@ export const SubEventDialog = ({
   const initialValues = useMemo<EventDetailFormData>(
     () => ({
       name: "",
-      date: start,
-      endDate: start,
-      startTime: start,
-      endTime: min([addHours(start, 1), end]),
+      date: initialRange?.start ?? start,
+      endDate: initialRange?.start ?? start,
+      startTime: initialRange?.start ?? start,
+      endTime: initialRange?.end ?? min([addHours(start, 1), end]),
       address: "",
       description: "",
       recurrence: noRecurrence(),
@@ -64,7 +67,7 @@ export const SubEventDialog = ({
       track: "",
       registration: noRegistration(),
     }),
-    [start, end],
+    [start, end, initialRange],
   );
 
   const submit = async (values: EventDetailFormData) => {

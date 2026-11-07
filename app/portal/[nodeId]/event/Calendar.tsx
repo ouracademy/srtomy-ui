@@ -83,6 +83,8 @@ function Calendar({
             "--fc-event-border-color": theme.palette.secondary.main,
           },
           "& .fc-sub-event": { borderStyle: "dashed" },
+          // An event that has a program of sessions.
+          "& .fc-has-program": { borderBottomWidth: 4 },
         }}
       >
         {/* Reserves its height, so the calendar does not jump when it shows. */}

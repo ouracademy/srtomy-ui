@@ -79,4 +79,21 @@ describe("toCalendarEvent", () => {
     ).toBe("green");
     expect(toCalendarEvent(event(), "n1").backgroundColor).toBeUndefined();
   });
+
+  it("says how many sessions an event with a program has and marks it", () => {
+    const calendarEvent = toCalendarEvent(
+      event({ title: "Jornada", programSize: 4 }),
+      "n1",
+    );
+
+    expect(calendarEvent.title).toBe("Jornada (programa: 4)");
+    expect(calendarEvent.classNames).toContain("fc-has-program");
+  });
+
+  it("does not mark an event without a program", () => {
+    const calendarEvent = toCalendarEvent(event({ programSize: 0 }), "n1");
+
+    expect(calendarEvent.title).toBe("Culto");
+    expect(calendarEvent.classNames).not.toContain("fc-has-program");
+  });
 });

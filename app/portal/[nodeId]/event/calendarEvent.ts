@@ -18,13 +18,21 @@ export function toCalendarEvent(
   const classNames = ["cursor-pointer"];
   if (mega) classNames.push("fc-mega-event");
   if (event.parentEventId) classNames.push("fc-sub-event");
+  const programSize = event.programSize ?? 0;
+  if (programSize > 0) classNames.push("fc-has-program");
 
   return {
     ...event,
     // A sub-event says which event it belongs to, and any event says which
     // node it comes from when it is not the one being viewed.
     title: titleWithOrigin(
-      titleWithOrigin(event.title ?? "", event.parentTitle ?? undefined),
+      titleWithOrigin(
+        // An event with a program says how many sessions it has.
+        programSize > 0
+          ? `${event.title ?? ""} (programa: ${programSize})`
+          : (event.title ?? ""),
+        event.parentTitle ?? undefined,
+      ),
       originLabel(
         event.organization?.id,
         event.organization?.name,

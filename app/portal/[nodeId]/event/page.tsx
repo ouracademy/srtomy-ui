@@ -22,6 +22,9 @@ import type { DatesSelection } from "./Calendar";
 import { format } from "date-fns";
 import { useRouter } from "next/navigation";
 import { initialRange } from "./selectionDefaults";
+import { ProgramPrompt } from "./ProgramPrompt";
+import { SubEventDialog } from "./[id]/attendance/SubEventDialog";
+import type { EventResponse } from "@/app/(api)/generated/aPIOvejafiel.schemas";
 
 // FullCalendar and its plugins are heavy and only this page uses them.
 const Calendar = dynamic(() => import("./Calendar"), {
@@ -39,6 +42,12 @@ export default function EventListPage(props: {
   const router = useRouter();
 
   const [spanSelected, setSpanSelected] = useState<DatesSelection>();
+  // The session is added to the program of this event instead of on its own.
+  const [programOf, setProgramOf] = useState<{
+    event: EventResponse;
+    start: Date;
+    end: Date;
+  }>();
   // Changes after creating an event, so the calendar shows it.
   const [eventsVersion, setEventsVersion] = useState(0);
 
@@ -75,6 +84,20 @@ export default function EventListPage(props: {
         >
           <CloseIcon />
         </IconButton>
+        {spanSelected && !spanSelected.allDay && (
+          <ProgramPrompt
+            nodeId={nodeId}
+            picked={spanSelected}
+            onChoose={(event) => {
+              setProgramOf({
+                event,
+                start: spanSelected.start,
+                end: spanSelected.end,
+              });
+              close();
+            }}
+          />
+        )}
         {spanSelected && (
           <EventForm
             nodeId={nodeId}
@@ -129,6 +152,21 @@ export default function EventListPage(props: {
           />
         )}
       </Dialog>
+      {programOf && (
+        <SubEventDialog
+          nodeId={nodeId}
+          parent={programOf.event}
+          open
+          close={() => setProgramOf(undefined)}
+          created={() => {
+            setProgramOf(undefined);
+            setEventsVersion((version) => version + 1);
+            alert.showMessage("Se agregó al programa");
+          }}
+          showRegistration={can("registrations.configure")}
+          initialRange={{ start: programOf.start, end: programOf.end }}
+        />
+      )}
     </Stack>
   );
 }

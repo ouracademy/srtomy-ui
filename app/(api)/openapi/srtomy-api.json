@@ -5482,6 +5482,10 @@
           },
           "track": {
             "type": "string"
+          },
+          "programSize": {
+            "type": "integer",
+            "format": "int32"
           }
         }
       },

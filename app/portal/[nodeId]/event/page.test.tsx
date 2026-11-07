@@ -9,6 +9,8 @@ const api = vi.hoisted(() => ({
   postEvents: vi.fn(),
   putEventsByIdRegistration: vi.fn(),
   push: vi.fn(),
+  // The events the calendar loaded around the picked hours.
+  events: undefined as unknown,
   // What the user picks on the calendar.
   selection: {
     start: new Date(2026, 9, 23, 18, 0),
@@ -23,6 +25,20 @@ vi.mock("@/app/(api)/generated", () => ({
     api.putEventsByIdRegistration(...args),
   useGetOrganizationsById: () => ({ data: undefined }),
   useGetPeople: () => ({ data: undefined }),
+  useGetEvents: () => ({ data: api.events }),
+}));
+vi.mock("./[id]/attendance/SubEventDialog", () => ({
+  SubEventDialog: ({
+    parent,
+    initialRange,
+  }: {
+    parent: { title: string };
+    initialRange?: { start: Date; end: Date };
+  }) => (
+    <div role="dialog" aria-label="Agregar sub-evento">
+      {parent.title} {initialRange?.start.getHours()}h
+    </div>
+  ),
 }));
 vi.mock("next/navigation", () => ({ useRouter: () => ({ push: api.push }) }));
 vi.mock("@/app/(hooks)/usePermissions", () => ({
@@ -47,6 +63,7 @@ vi.mock("next/dynamic", () => ({
 beforeEach(() => {
   api.postEvents.mockReset().mockResolvedValue("e1");
   api.push.mockReset();
+  api.events = undefined;
 });
 afterEach(cleanup);
 
@@ -132,5 +149,37 @@ describe("EventListPage", () => {
     await waitFor(() =>
       expect(api.push).toHaveBeenCalledWith("/portal/n1/event/e1/attendance"),
     );
+  });
+
+  it("offers to add the session to the program it falls inside and opens the sub-event form there", async () => {
+    api.selection = {
+      start: new Date(2026, 9, 24, 15, 0),
+      end: new Date(2026, 9, 24, 16, 0),
+      allDay: false,
+    };
+    api.events = [
+      {
+        id: "congreso",
+        title: "Avivamiento 2030",
+        start: new Date(2026, 9, 23, 9, 0),
+        end: new Date(2026, 9, 25, 22, 0),
+      },
+    ];
+    const user = userEvent.setup();
+    await renderPage();
+    await user.click(
+      await screen.findByRole("button", { name: "Elegir fechas" }),
+    );
+
+    await user.click(
+      await screen.findByRole("button", {
+        name: "Agregar al programa de «Avivamiento 2030»",
+      }),
+    );
+
+    expect(
+      await screen.findByRole("dialog", { name: "Agregar sub-evento" }),
+    ).toHaveTextContent("Avivamiento 2030 15h");
+    expect(api.postEvents).not.toHaveBeenCalled();
   });
 });
