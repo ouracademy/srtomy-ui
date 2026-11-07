@@ -245,8 +245,9 @@ La pantalla del evento se rediseñó con un encabezado de color, dos pestañas (
 
 - **Imagen de portada** («Cambiar portada»): hoy el encabezado es solo un degradado. Hace falta subir y guardar la imagen de cada evento (almacenamiento y límites de tamaño en el API, y mostrarla en el encabezado y en la página pública `/e/{slug}`), y decidir si hay un degradado por defecto según el tipo de evento. Se anota aquí por pedido del dueño del producto; no se hace sin consultarlo.
 - **Fecha, hora y lugar editables en el propio encabezado**: hoy las píldoras abren el mismo formulario de «Editar». Editar cada una en el lugar (con su selector) sería más directo.
-- **Resumen de la inscripción en la columna lateral y tarjetas por tipo de ticket**: hoy el panel de inscripción sigue siendo la tabla completa debajo del programa. El diseño propone un resumen a un lado (abierta o cerrada, cupos, tickets) y los inscritos en tarjetas por ticket.
-- **Selector de sesión en Asistencia**: ver la asistencia de todo el congreso o de una sesión desde la misma pestaña, en vez de entrar a la pantalla de cada sub-evento.
+- ~~**Resumen de la inscripción en la columna lateral y tarjetas por tipo de ticket**~~ Hecho: el resumen (abierta o cerrada, confirmados, tickets con precio y cupo) va en la columna lateral y los inscritos en una tarjeta por ticket.
+- ~~**Selector de sesión en Asistencia**~~ Hecho: «Asistencia de» elige todo el evento o una sesión del programa. La pestaña Asistencia sigue el diseño: total con barra y «de N esperados», lista con «Cómo entró» y hora, y tarjetas de QR, escanear ticket y visitantes (con + y −).
+- **Quien entró solo con ticket no sale en la lista de asistencia**: la lista muestra a las personas de la iglesia (buscables por nombre). Quien entra con un ticket sin ser una de ellas cuenta en el total («Solo con ticket») y aparece en «Inscritos», pero no como fila de la lista. Para unirlas haría falta que el API devuelva esas entradas junto con las marcas.
 - **Calendario del programa en el celular**: crear sesiones arrastrando no se puede en la vista de lista; allí queda el botón «Agregar sub-evento».
 
 ## Archivos clave

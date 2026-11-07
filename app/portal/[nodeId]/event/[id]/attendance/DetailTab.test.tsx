@@ -9,8 +9,11 @@ vi.mock("./ProgramSection", () => ({
 vi.mock("./ContainerNotice", () => ({
   ContainerNotice: () => <div data-testid="container" />,
 }));
-vi.mock("./RegistrationPanel", () => ({
-  RegistrationPanel: () => <div data-testid="registration" />,
+vi.mock("./RegistrationList", () => ({
+  RegistrationList: () => <div data-testid="registration" />,
+}));
+vi.mock("./RegistrationSummary", () => ({
+  RegistrationSummary: () => <div data-testid="registration-summary" />,
 }));
 vi.mock("./InheritedRegistrationsPanel", () => ({
   InheritedRegistrationsPanel: () => <div data-testid="expected" />,
@@ -49,6 +52,7 @@ describe("DetailTab", () => {
     expect(screen.getByText("Tres días de enseñanza")).toBeInTheDocument();
     expect(screen.getByTestId("program")).toBeInTheDocument();
     expect(screen.getByTestId("registration")).toBeInTheDocument();
+    expect(screen.getByTestId("registration-summary")).toBeInTheDocument();
     expect(screen.getByTestId("notices")).toBeInTheDocument();
     expect(screen.queryByTestId("expected")).toBeNull();
   });

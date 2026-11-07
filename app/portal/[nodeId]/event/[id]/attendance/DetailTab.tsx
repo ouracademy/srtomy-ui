@@ -7,7 +7,8 @@ import { ContainerNotice } from "./ContainerNotice";
 import { InheritedRegistrationsPanel } from "./InheritedRegistrationsPanel";
 import { NoticesPanel } from "./NoticesPanel";
 import { ProgramSection } from "./ProgramSection";
-import { RegistrationPanel } from "./RegistrationPanel";
+import { RegistrationList } from "./RegistrationList";
+import { RegistrationSummary } from "./RegistrationSummary";
 
 type Can = ReturnType<typeof usePermissions>["can"];
 
@@ -38,6 +39,16 @@ export const DetailTab = ({
   const inheritsRegistration =
     Boolean(event.parentEventId) && event.registrationMode === "INHERIT";
   const speakers = event.speakers ?? [];
+  const subEvents = (event.children ?? []).map((child) => ({
+    id: child.id ?? "",
+    title: child.title ?? "",
+  }));
+  const registrationCan = {
+    configure: can("registrations.configure"),
+    close: can("registrations.close"),
+    remove: can("registrations.remove"),
+    checkIn: can("attendance.write"),
+  };
 
   return (
     <Grid container spacing={3} alignItems="flex-start">
@@ -64,19 +75,10 @@ export const DetailTab = ({
             )
           )}
           {can("registrations.read") && hasOwnRegistration && (
-            <RegistrationPanel
+            <RegistrationList
               eventId={eventId}
-              title={event.title ?? ""}
-              subEvents={(event.children ?? []).map((child) => ({
-                id: child.id ?? "",
-                title: child.title ?? "",
-              }))}
-              can={{
-                configure: can("registrations.configure"),
-                close: can("registrations.close"),
-                remove: can("registrations.remove"),
-                checkIn: can("attendance.write"),
-              }}
+              subEvents={subEvents}
+              can={registrationCan}
             />
           )}
           {can("registrations.read") && inheritsRegistration && (
@@ -90,6 +92,14 @@ export const DetailTab = ({
       <Grid size={{ xs: 12, md: 4 }}>
         <Stack spacing={3}>
           <NoticesPanel eventId={eventId} canPost={can("events.write")} />
+          {can("registrations.read") && hasOwnRegistration && (
+            <RegistrationSummary
+              eventId={eventId}
+              title={event.title ?? ""}
+              subEvents={subEvents}
+              can={registrationCan}
+            />
+          )}
           {speakers.length > 0 && (
             <Paper
               variant="outlined"

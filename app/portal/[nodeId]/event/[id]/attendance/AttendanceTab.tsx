@@ -3,15 +3,15 @@
 import {
   putEventsByIdAttendance,
   useGetEventsByIdAttendance,
+  useGetEventsByIdRegistrations,
 } from "@/app/(api)/generated";
 import type { EventResponse } from "@/app/(api)/generated/aPIOvejafiel.schemas";
 import Loading from "@/app/(components)/Loading";
-import { SaveButton } from "@/app/(components)/SaveButton";
 import { SnackbarContext } from "@/app/(components)/SnackbarContext";
-import { Paper, Stack, Typography } from "@mui/material";
-import { GridRowId, GridRowSelectionModel } from "@mui/x-data-grid";
-import { useContext, useMemo, useState } from "react";
-import { PersonTable } from "../../../person/PersonTable";
+import { apiErrorMessage } from "@/app/(components)/apiErrorMessage";
+import { MenuItem, Stack, TextField } from "@mui/material";
+import { useContext, useId, useState } from "react";
+import { AttendanceList } from "./AttendanceList";
 import { AttendanceTools } from "./AttendanceTools";
 import { AttendanceTotal } from "./AttendanceTotal";
 
@@ -23,96 +23,133 @@ type AttendanceTabProps = Readonly<{
   canTake: boolean;
 }>;
 
+const WHOLE_EVENT = "all";
+
+const sessionLabel = (start?: Date) =>
+  start
+    ? new Date(start).toLocaleString("es-PE", {
+        weekday: "short",
+        day: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+      })
+    : "";
+
 // Everything about who came to the event, apart from its details: how many
 // came, the QR and the ticket scanner, the visitors and the list of people.
+// When the event has a program, it is taken for the whole event or for one of
+// its sessions.
 export const AttendanceTab = ({
   nodeId,
   eventId,
   event,
   canTake,
 }: AttendanceTabProps) => {
+  const sessions = event.children ?? [];
+  const [session, setSession] = useState(WHOLE_EVENT);
+  const selectId = useId();
+  const current = sessions.find((item) => item.id === session);
+  const targetId = current?.id ?? eventId;
+  const targetTitle = current?.title ?? event.title ?? "";
+
+  return (
+    <Stack spacing={3}>
+      {sessions.length > 0 && (
+        <TextField
+          select
+          id={selectId}
+          label="Asistencia de"
+          value={current ? session : WHOLE_EVENT}
+          onChange={(change) => setSession(change.target.value)}
+          size="small"
+          sx={{ minWidth: 280, alignSelf: "flex-start" }}
+        >
+          <MenuItem value={WHOLE_EVENT}>Todo el evento</MenuItem>
+          {sessions.map((item) => (
+            <MenuItem key={item.id} value={item.id}>
+              {sessionLabel(item.start)} · {item.title}
+            </MenuItem>
+          ))}
+        </TextField>
+      )}
+      <SessionAttendance
+        key={targetId}
+        nodeId={nodeId}
+        eventId={targetId}
+        title={targetTitle}
+        canTake={canTake}
+      />
+    </Stack>
+  );
+};
+
+type SessionAttendanceProps = Readonly<{
+  nodeId: string;
+  eventId: string;
+  title: string;
+  canTake: boolean;
+}>;
+
+// The attendance of one event or session.
+const SessionAttendance = ({
+  nodeId,
+  eventId,
+  title,
+  canTake,
+}: SessionAttendanceProps) => {
   const alert = useContext(SnackbarContext);
   const {
     data: attendance,
     isLoading,
     mutate,
   } = useGetEventsByIdAttendance(eventId);
-  const [saving, setSaving] = useState(false);
+  // Who signed up to come, to say how many were expected. An event without
+  // sign-up has no one expected.
+  const { data: registrations } = useGetEventsByIdRegistrations(eventId);
+  const expected = (registrations ?? []).filter(
+    (item) => item.status !== "CANCELLED",
+  ).length;
 
-  // What the user picked, or null until they change the selection. Until
-  // then the selection is the attendance already saved in the API.
-  const [selection, setSelection] = useState<GridRowSelectionModel | null>(
-    null,
-  );
-  const savedSelection = useMemo<GridRowSelectionModel>(
-    () => ({
-      type: "include",
-      ids: new Set<GridRowId>(attendance?.personIds),
-    }),
-    [attendance],
-  );
-  const rowSelectionModel = selection ?? savedSelection;
-
-  // A visitor added while the list is being edited stays in it, so saving the
-  // list does not take them out of the attendance.
-  const addVisitorToSelection = (personId: string) => {
-    setSelection((current) => {
-      const ids = new Set((current ?? savedSelection).ids);
-      ids.add(personId);
-      return { type: "include", ids };
-    });
-    void mutate();
+  const save = async (personIds: string[]) => {
+    try {
+      await putEventsByIdAttendance(eventId, { personIds });
+      await mutate();
+    } catch (failure) {
+      alert.showMessage(
+        apiErrorMessage(failure, "No se pudo guardar la asistencia"),
+      );
+    }
   };
 
   if (isLoading) return <Loading />;
 
   return (
-    <Stack spacing={3}>
-      <Paper variant="outlined" sx={{ p: 3, borderRadius: 4 }}>
-        <AttendanceTotal eventId={eventId} />
-      </Paper>
-      {canTake && (
-        <AttendanceTools
-          eventId={eventId}
-          title={event.title ?? ""}
-          guestCount={attendance?.guestCount ?? 0}
-          onChanged={() => void mutate()}
-          onVisitorAdded={addVisitorToSelection}
+    <Stack
+      direction="row"
+      flexWrap="wrap"
+      alignItems="flex-start"
+      useFlexGap
+      sx={{ gap: 3 }}
+    >
+      <Stack spacing={3} sx={{ flex: "999 1 640px", minWidth: 0 }}>
+        <AttendanceTotal eventId={eventId} expected={expected || undefined} />
+        <AttendanceList
+          nodeId={nodeId}
+          marks={attendance?.marks ?? []}
+          canTake={canTake}
+          onSave={save}
         />
-      )}
-      <Paper variant="outlined" sx={{ p: 3, borderRadius: 4 }}>
-        <Stack spacing={2}>
-          <Typography variant="h6" component="h2" fontWeight={700}>
-            Lista de asistencia
-          </Typography>
-          <PersonTable
-            nodeId={nodeId}
-            dataGridProps={{
-              keepNonExistentRowsSelected: true,
-              checkboxSelection: true,
-              rowSelectionModel,
-              onRowSelectionModelChange: (next) => setSelection(next),
-            }}
+      </Stack>
+      {canTake && (
+        <Stack sx={{ flex: "1 1 320px", minWidth: 0 }}>
+          <AttendanceTools
+            eventId={eventId}
+            title={title}
+            guestCount={attendance?.guestCount ?? 0}
+            onChanged={() => void mutate()}
           />
-          <div>
-            <SaveButton
-              name="Registrar asistencias"
-              loading={saving}
-              onClick={async () => {
-                setSaving(true);
-                try {
-                  await putEventsByIdAttendance(eventId, {
-                    personIds: [...rowSelectionModel.ids].map(String),
-                  });
-                  alert.showMessage("Asistencia guardada exitosamente");
-                } finally {
-                  setSaving(false);
-                }
-              }}
-            />
-          </div>
         </Stack>
-      </Paper>
+      )}
     </Stack>
   );
 };

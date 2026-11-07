@@ -6,73 +6,155 @@ import { AttendanceTab } from "./AttendanceTab";
 const api = vi.hoisted(() => ({
   put: vi.fn(),
   mutate: vi.fn(),
-  attendance: { personIds: ["p1"], guestCount: 3 } as unknown,
+  attendance: vi.fn(),
+  registrations: vi.fn(),
+  shown: vi.fn(),
 }));
 vi.mock("@/app/(api)/generated", () => ({
   putEventsByIdAttendance: (...args: unknown[]) => api.put(...args),
-  useGetEventsByIdAttendance: () => ({
-    data: api.attendance,
-    isLoading: false,
-    mutate: api.mutate,
-  }),
+  useGetEventsByIdAttendance: (id: string) => api.attendance(id),
+  useGetEventsByIdRegistrations: (id: string) => api.registrations(id),
 }));
 vi.mock("./AttendanceTotal", () => ({
-  AttendanceTotal: () => <div data-testid="total" />,
-}));
-vi.mock("./AttendanceTools", () => ({
-  AttendanceTools: ({ guestCount }: { guestCount: number }) => (
-    <div data-testid="tools">{guestCount} visitantes</div>
+  AttendanceTotal: ({
+    eventId,
+    expected,
+  }: {
+    eventId: string;
+    expected?: number;
+  }) => (
+    <div data-testid="total">
+      {eventId} {expected ?? "sin esperados"}
+    </div>
   ),
 }));
-vi.mock("../../../person/PersonTable", () => ({
-  PersonTable: () => <div data-testid="people" />,
+vi.mock("./AttendanceTools", () => ({
+  AttendanceTools: ({
+    eventId,
+    title,
+    guestCount,
+  }: {
+    eventId: string;
+    title: string;
+    guestCount: number;
+  }) => (
+    <div data-testid="tools">
+      {eventId} {title} {guestCount} visitantes
+    </div>
+  ),
+}));
+vi.mock("./AttendanceList", () => ({
+  AttendanceList: ({
+    onSave,
+  }: {
+    onSave: (ids: string[]) => Promise<void>;
+  }) => (
+    <button type="button" onClick={() => void onSave(["p1", "p2"])}>
+      guardar lista
+    </button>
+  ),
 }));
 
 beforeEach(() => {
   api.put.mockReset();
   api.mutate.mockReset();
+  api.attendance.mockReturnValue({
+    data: { marks: [], guestCount: 3 },
+    isLoading: false,
+    mutate: api.mutate,
+  });
+  api.registrations.mockReturnValue({ data: undefined });
 });
 afterEach(cleanup);
 
-const setup = (canTake = true) => {
+const setup = (
+  props: {
+    canTake?: boolean;
+    children?: { id: string; title: string; start: Date }[];
+  } = {},
+) => {
   render(
     <AttendanceTab
       nodeId="n1"
       eventId="e1"
-      event={{ id: "e1", title: "Congreso" }}
-      canTake={canTake}
+      event={{ id: "e1", title: "Congreso", children: props.children }}
+      canTake={props.canTake ?? true}
     />,
   );
   return userEvent.setup();
 };
 
 describe("AttendanceTab", () => {
-  it("shows how many came, the tools of who takes attendance and the list", () => {
+  it("shows how many came, the list and the tools of who takes attendance", () => {
     setup();
 
-    expect(screen.getByTestId("total")).toBeInTheDocument();
-    expect(screen.getByTestId("tools")).toHaveTextContent("3 visitantes");
-    expect(screen.getByTestId("people")).toBeInTheDocument();
+    expect(screen.getByTestId("total")).toHaveTextContent("e1 sin esperados");
+    expect(screen.getByTestId("tools")).toHaveTextContent(
+      "e1 Congreso 3 visitantes",
+    );
     expect(
-      screen.getByRole("heading", { name: "Lista de asistencia" }),
+      screen.getByRole("button", { name: "guardar lista" }),
     ).toBeInTheDocument();
   });
 
-  it("does not offer the tools to whoever cannot take attendance", () => {
-    setup(false);
+  it("hides the tools from who cannot take attendance", () => {
+    setup({ canTake: false });
 
     expect(screen.queryByTestId("tools")).toBeNull();
-    expect(screen.getByTestId("people")).toBeInTheDocument();
   });
 
-  it("saves the attendance that was already saved when nothing was picked", async () => {
+  it("says how many are expected when people signed up", () => {
+    api.registrations.mockReturnValue({
+      data: [
+        { status: "CONFIRMED" },
+        { status: "CONFIRMED" },
+        { status: "CANCELLED" },
+      ],
+    });
+    setup();
+
+    expect(screen.getByTestId("total")).toHaveTextContent("e1 2");
+  });
+
+  it("saves the list and refreshes it", async () => {
     api.put.mockResolvedValue(undefined);
     const user = setup();
 
-    await user.click(
-      screen.getByRole("button", { name: "Registrar asistencias" }),
-    );
+    await user.click(screen.getByRole("button", { name: "guardar lista" }));
 
-    expect(api.put).toHaveBeenCalledWith("e1", { personIds: ["p1"] });
+    expect(api.put).toHaveBeenCalledWith("e1", { personIds: ["p1", "p2"] });
+    expect(api.mutate).toHaveBeenCalled();
+  });
+
+  it("shows the whole event as chosen at first", async () => {
+    setup({
+      children: [
+        { id: "c1", title: "Apertura", start: new Date(2026, 10, 13, 9) },
+      ],
+    });
+
+    expect(screen.getByLabelText("Asistencia de")).toHaveTextContent(
+      "Todo el evento",
+    );
+  });
+
+  it("has no session selector without a program", () => {
+    setup();
+
+    expect(screen.queryByLabelText("Asistencia de")).toBeNull();
+  });
+
+  it("takes the attendance of one session of the program", async () => {
+    const user = setup({
+      children: [
+        { id: "c1", title: "Apertura", start: new Date(2026, 10, 13, 9) },
+      ],
+    });
+
+    await user.click(screen.getByLabelText("Asistencia de"));
+    await user.click(await screen.findByRole("option", { name: /Apertura/ }));
+
+    expect(screen.getByTestId("total")).toHaveTextContent("c1");
+    expect(screen.getByTestId("tools")).toHaveTextContent("c1 Apertura");
   });
 });
