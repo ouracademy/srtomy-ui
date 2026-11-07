@@ -23,6 +23,7 @@ import { ShareEventButton } from "./ShareEventButton";
 import { AttendanceTools } from "./AttendanceTools";
 import { RegistrationPanel } from "./RegistrationPanel";
 import { SaveButton } from "@/app/(components)/SaveButton";
+import { AttendanceTotal } from "./AttendanceTotal";
 import { ContainerNotice } from "./ContainerNotice";
 import { InheritedRegistrationsPanel } from "./InheritedRegistrationsPanel";
 import { EditableEventForm } from "./EditableEventForm";
@@ -226,6 +227,9 @@ export default function AttendanceEvent(props: {
           <Typography variant="h6" gutterBottom>
             Toma de asistencia
           </Typography>
+        </Grid>
+        <Grid size={{ xs: 12 }}>
+          <AttendanceTotal eventId={id} />
         </Grid>
         {can("attendance.write") && (
           <Grid size={{ xs: 12 }}>

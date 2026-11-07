@@ -2832,6 +2832,37 @@
           }
         }
       }
+    },
+    "/v1/events/{id}/attendance/summary": {
+      "get": {
+        "tags": [
+          "events"
+        ],
+        "operationId": "summary",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/AttendanceSummaryResponse"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -5601,6 +5632,27 @@
               "THIS_AND_THE_FOLLOWING_EVENTS",
               "ALL_EVENTS"
             ]
+          }
+        }
+      },
+      "AttendanceSummaryResponse": {
+        "type": "object",
+        "properties": {
+          "people": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "ticketOnly": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "guests": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "total": {
+            "type": "integer",
+            "format": "int64"
           }
         }
       }
