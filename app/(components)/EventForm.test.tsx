@@ -365,6 +365,12 @@ describe("EventForm", () => {
       ).not.toBeInTheDocument();
     });
 
+    it("offers a course or room only for a sub-event", () => {
+      renderSubEvent();
+
+      expect(screen.getByLabelText(/Curso o sala/)).toBeInTheDocument();
+    });
+
     it("asks how it is entered and saves the choice", async () => {
       const user = userEvent.setup();
       const submit = vi.fn();

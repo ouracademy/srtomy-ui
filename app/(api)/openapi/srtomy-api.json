@@ -3313,6 +3313,10 @@
           },
           "validTimeZone": {
             "type": "boolean"
+          },
+          "track": {
+            "type": "string",
+            "maxLength": 100
           }
         },
         "required": [
@@ -4224,6 +4228,10 @@
           },
           "validTimeZone": {
             "type": "boolean"
+          },
+          "track": {
+            "type": "string",
+            "maxLength": 100
           }
         },
         "required": [
@@ -4556,6 +4564,9 @@
           },
           "includedInTicket": {
             "type": "boolean"
+          },
+          "track": {
+            "type": "string"
           }
         }
       },
@@ -5395,6 +5406,9 @@
               "OWN",
               "OPEN"
             ]
+          },
+          "track": {
+            "type": "string"
           }
         }
       },
@@ -5465,6 +5479,9 @@
             "items": {
               "$ref": "#/components/schemas/ChildResponse"
             }
+          },
+          "track": {
+            "type": "string"
           }
         }
       },

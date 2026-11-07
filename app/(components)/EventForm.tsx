@@ -48,6 +48,8 @@ const fields = z.object({
   // here; for an existing event it is set from the event itself.
   // How a sub-event is entered; only a sub-event has it.
   registrationMode: z.enum(["INHERIT", "OWN", "OPEN"]).optional(),
+  // The course, room or track of the program a sub-event belongs to.
+  track: z.string().max(100).optional(),
   registration: z
     .custom<RegistrationFormData>()
     .superRefine((value, context) => {
@@ -230,6 +232,16 @@ export const EventForm = ({
           {container && (
             <Grid size={{ xs: 12 }}>
               <RegistrationModeField />
+            </Grid>
+          )}
+          {container && (
+            <Grid size={{ xs: 12 }}>
+              <TextFieldElement
+                fullWidth
+                name="track"
+                label="Curso o sala (opcional)"
+                helperText="Para agrupar en el programa, por ejemplo «Curso de liderazgo» o «Sala 2»."
+              />
             </Grid>
           )}
           <Grid size={{ xs: 12 }}>

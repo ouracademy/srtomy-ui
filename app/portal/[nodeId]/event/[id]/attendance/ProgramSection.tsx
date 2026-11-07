@@ -195,6 +195,13 @@ export const ProgramSection = ({
                         secondary={hours(item.start, item.end)}
                       />
                       <Stack direction="row" spacing={1}>
+                        {item.track && (
+                          <Chip
+                            size="small"
+                            color="primary"
+                            label={item.track}
+                          />
+                        )}
                         <Chip
                           size="small"
                           variant="outlined"

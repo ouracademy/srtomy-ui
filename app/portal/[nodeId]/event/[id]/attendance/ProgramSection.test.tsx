@@ -277,4 +277,14 @@ describe("ProgramSection", () => {
       screen.queryByRole("button", { name: "Armar un programa" }),
     ).toBeNull();
   });
+
+  it("shows the course or room of a sub-event next to its kind", () => {
+    setup([child({ track: "Curso de liderazgo" })]);
+
+    expect(
+      within(screen.getByRole("link", { name: /^Taller/ })).getByText(
+        "Curso de liderazgo",
+      ),
+    ).toBeInTheDocument();
+  });
 });

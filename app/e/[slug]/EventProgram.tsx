@@ -68,6 +68,9 @@ export const EventProgram = ({ program }: EventProgramProps) => {
                       }
                     />
                     <Stack direction="row" spacing={1}>
+                      {item.track && (
+                        <Chip size="small" color="primary" label={item.track} />
+                      )}
                       <Chip
                         size="small"
                         variant="outlined"

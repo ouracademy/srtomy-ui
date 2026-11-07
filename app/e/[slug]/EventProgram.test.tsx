@@ -68,4 +68,10 @@ describe("EventProgram", () => {
     expect(screen.getByText("viernes 23 de octubre")).toBeInTheDocument();
     expect(screen.getByText("sábado 24 de octubre")).toBeInTheDocument();
   });
+
+  it("shows the course or room each sub-event belongs to", () => {
+    render(<EventProgram program={[item({ track: "Sala 2" })]} />);
+
+    expect(screen.getByText("Sala 2")).toBeInTheDocument();
+  });
 });

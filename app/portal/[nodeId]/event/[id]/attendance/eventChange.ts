@@ -153,6 +153,7 @@ export const toEditRequest = ({
     option,
     recurrence,
     registrationMode: values.registrationMode,
+    track: values.track?.trim() ?? "",
     timeZone: !repeats || recurrence ? timeZone : undefined,
   };
 };

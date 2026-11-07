@@ -165,6 +165,18 @@ describe("toEditRequest", () => {
     timeZone: "America/Lima",
   };
 
+  it("sends the course or room trimmed, and empty to clear it", () => {
+    expect(
+      toEditRequest({
+        ...context,
+        values: { ...initial, track: " Sala 2 " },
+      }).track,
+    ).toBe("Sala 2");
+    expect(
+      toEditRequest({ ...context, values: { ...initial, track: "" } }).track,
+    ).toBe("");
+  });
+
   it("sends the data of the form with the day and the hours", () => {
     const request = toEditRequest({
       ...context,

@@ -61,6 +61,7 @@ export const SubEventDialog = ({
       type: 0,
       speakers: [],
       registrationMode: "INHERIT",
+      track: "",
       registration: noRegistration(),
     }),
     [start, end],
@@ -84,6 +85,7 @@ export const SubEventDialog = ({
         isACourse: values.type === 1,
         parentEventId: parent.id,
         registrationMode: mode,
+        track: values.track?.trim() || undefined,
       });
     } catch (error) {
       alert.showMessage(

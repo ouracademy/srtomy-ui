@@ -112,6 +112,20 @@ describe("SubEventDialog", () => {
     expect(api.putEventsByIdRegistration).not.toHaveBeenCalled();
   });
 
+  it("sends the course or room it belongs to, without the spaces around it", async () => {
+    const user = setup();
+    await user.type(screen.getByPlaceholderText("Agregar título"), "Clase 1");
+    await user.type(
+      screen.getByLabelText(/Curso o sala/),
+      "  Curso de liderazgo ",
+    );
+
+    await user.click(screen.getByRole("button", { name: "Guardar" }));
+
+    await waitFor(() => expect(api.postEvents).toHaveBeenCalledOnce());
+    expect(api.postEvents.mock.calls[0]?.[0].track).toBe("Curso de liderazgo");
+  });
+
   it("sets up its own registration when it has one", async () => {
     const user = setup();
     await user.type(screen.getByPlaceholderText("Agregar título"), "Cena");
