@@ -20,8 +20,7 @@ jobs:
           cache: pnpm
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
-      # Only chromium runs in CI. Secrets come from the "dev" environment;
-      # playwright.config.ts fails if NEXT_PUBLIC_BUILDER_API_KEY is missing.
+      # Only chromium runs in CI.
       - name: Get Playwright version
         id: playwright-version
         run: echo "version=$(pnpm exec playwright --version | awk '{print $2}')" >> "$GITHUB_OUTPUT"
@@ -40,8 +39,6 @@ jobs:
         run: pnpm exec playwright install-deps chromium
       - name: Run Playwright tests
         run: pnpm exec playwright test --project=chromium
-        env:
-          NEXT_PUBLIC_BUILDER_API_KEY: ${{ secrets.NEXT_PUBLIC_BUILDER_API_KEY }}
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: ${{ !cancelled() }}
         with:

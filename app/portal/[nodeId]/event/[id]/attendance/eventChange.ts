@@ -4,6 +4,7 @@ import type {
   RecurrenceRequest,
 } from "@/app/(api)/generated/aPIOvejafiel.schemas";
 import type { EventDetailFormData } from "@/app/(components)/EventForm";
+import { eventRange } from "@/app/(components)/eventRange";
 import { toRecurrenceRequest } from "@/app/(components)/recurrence";
 
 export type EditOption = NonNullable<EditEventRequest["option"]>;
@@ -19,6 +20,8 @@ export type EventChange = {
   dayMoved: boolean;
   // The way the event repeats changed.
   ruleChanged: boolean;
+  // A sub-event stops using its own sign-up: those who signed up are told.
+  ownSignUpsEnd?: boolean;
 };
 
 const sameInstant = (a: Date, b: Date) => a.getTime() === b.getTime();
@@ -27,22 +30,10 @@ const sameDay = (a: Date, b: Date) =>
   a.getMonth() === b.getMonth() &&
   a.getDate() === b.getDate();
 
-// The day of `date` at the hour of `time`.
-export const atTimeOf = (date: Date, time: Date): Date =>
-  new Date(
-    date.getFullYear(),
-    date.getMonth(),
-    date.getDate(),
-    time.getHours(),
-    time.getMinutes(),
-    0,
-    0,
-  );
-
+// The event may end on another day than it starts (a conference).
 export const startOf = (values: EventDetailFormData) =>
-  atTimeOf(values.date, values.startTime);
-export const endOf = (values: EventDetailFormData) =>
-  atTimeOf(values.date, values.endTime);
+  eventRange(values).start;
+export const endOf = (values: EventDetailFormData) => eventRange(values).end;
 
 const byNumber = (a: number, b: number) => a - b;
 
@@ -78,6 +69,10 @@ export const describeChange = (
     !sameInstant(endOf(initial), endOf(values)),
   dayMoved: !sameDay(initial.date, values.date),
   ruleChanged: !sameRecurrence(initial.recurrence, values.recurrence),
+  ownSignUpsEnd:
+    initial.registrationMode === "OWN" &&
+    values.registrationMode !== undefined &&
+    values.registrationMode !== "OWN",
 });
 
 // What to tell the user before saving, so nothing happens by surprise.
@@ -97,6 +92,11 @@ export const impactMessages = (
   ) {
     messages.push(
       "Al cambiar el día o cómo se repite, los eventos que ya pasaron o que tienen inscritos o asistencia no cambian: quedan como eventos sueltos. Los demás se reemplazan.",
+    );
+  }
+  if (change.ownSignUpsEnd) {
+    messages.push(
+      "Se cancelarán las inscripciones propias de este evento y se avisará por correo a quienes estén inscritos.",
     );
   }
   if (change.scheduleMoved || change.detailsChanged) {
@@ -152,6 +152,11 @@ export const toEditRequest = ({
     endTime: format(endOf(values), "yyyy-MM-dd'T'HH:mm:ssXXX"),
     option,
     recurrence,
+    registrationMode: values.registrationMode,
+    requiresContainerRegistration:
+      values.registrationMode === "OWN"
+        ? Boolean(values.requiresContainerRegistration)
+        : undefined,
     timeZone: !repeats || recurrence ? timeZone : undefined,
   };
 };

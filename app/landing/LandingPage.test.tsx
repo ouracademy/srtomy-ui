@@ -12,18 +12,18 @@ describe("LandingPage", () => {
   it("has a single main heading with the value proposition", () => {
     render(<LandingPage />);
     expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent(
-      "Administra tu iglesia en un solo lugar.",
+      "Administra tu iglesia en un solo lugar",
     );
   });
 
   it("presents each section under its own heading", () => {
     render(<LandingPage />);
     for (const name of [
-      "Todo lo que tu iglesia necesita, conectado.",
-      "Empieza en cuatro pasos.",
-      "Cada persona ve lo que le corresponde.",
-      "Empieza gratis. Paga cuando tu iglesia crezca.",
-      "Prueba Oveja Fiel con tu iglesia.",
+      "Todo lo que tu iglesia necesita, conectado",
+      "Empieza en cuatro pasos",
+      "Cada persona ve lo que le corresponde",
+      "Empieza gratis. Paga cuando tu iglesia crezca",
+      "Prueba Oveja Fiel con tu iglesia",
     ]) {
       expect(screen.getByRole("heading", { level: 2, name })).toBeVisible();
     }
@@ -76,6 +76,12 @@ describe("LandingPage", () => {
     expect(
       screen.getByRole("link", { name: "+51 941 475 889" }),
     ).toHaveAttribute("href", "tel:+51941475889");
+  });
+
+  it("sets the Roboto font at the root so plain text does not fall back to serif", () => {
+    render(<LandingPage />);
+    const root = screen.getByRole("main").parentElement!;
+    expect(getComputedStyle(root).fontFamily).toContain("--font-roboto");
   });
 
   it("hides the product illustration from assistive technology", () => {

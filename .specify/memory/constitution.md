@@ -39,7 +39,7 @@ Rationale: users are non-technical church staff and volunteers on varied devices
 
 Features MUST use the existing stack (Next.js, MUI, SWR, react-hook-form + zod, Auth0) before
 adding a library. A new dependency MUST be justified in its PR and MUST NOT duplicate an existing
-one. Builder.io is legacy and being removed: no new features may depend on it. Dependencies MUST be
+one. Dependencies MUST be
 kept current through grouped, regularly reviewed updates.
 Rationale: every dependency is maintenance and attack surface; stale ones compound upgrade cost.
 

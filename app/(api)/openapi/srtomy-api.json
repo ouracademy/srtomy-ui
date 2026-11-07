@@ -2832,6 +2832,103 @@
           }
         }
       }
+    },
+    "/v1/events/{id}/attendance/summary": {
+      "get": {
+        "tags": [
+          "events"
+        ],
+        "operationId": "summary",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/AttendanceSummaryResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/events/{id}/notices": {
+      "get": {
+        "tags": [
+          "events"
+        ],
+        "operationId": "notices",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/EventNoticeResponse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "events"
+        ],
+        "operationId": "postNotice",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EventNoticeRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Created"
+          }
+        }
+      }
     }
   },
   "components": {
@@ -3257,6 +3354,18 @@
           "recurrence": {
             "$ref": "#/components/schemas/RecurrenceRequest"
           },
+          "parentEventId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "registrationMode": {
+            "type": "string",
+            "enum": [
+              "INHERIT",
+              "OWN",
+              "OPEN"
+            ]
+          },
           "timeZone": {
             "type": "string"
           },
@@ -3269,6 +3378,13 @@
             ]
           },
           "validTimeZone": {
+            "type": "boolean"
+          },
+          "track": {
+            "type": "string",
+            "maxLength": 100
+          },
+          "requiresContainerRegistration": {
             "type": "boolean"
           }
         },
@@ -3354,6 +3470,9 @@
               "CHURCH",
               "ANYONE_WITH_LINK"
             ]
+          },
+          "applyToProgram": {
+            "type": "boolean"
           }
         },
         "required": [
@@ -3490,6 +3609,13 @@
           "salesEnd": {
             "type": "string",
             "format": "date-time"
+          },
+          "subEventIds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            }
           }
         },
         "required": [
@@ -3556,6 +3682,13 @@
           "sold": {
             "type": "integer",
             "format": "int64"
+          },
+          "subEventIds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            }
           }
         }
       },
@@ -4161,10 +4294,29 @@
           "recurrence": {
             "$ref": "#/components/schemas/RecurrenceRequest"
           },
+          "parentEventId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "registrationMode": {
+            "type": "string",
+            "enum": [
+              "INHERIT",
+              "OWN",
+              "OPEN"
+            ]
+          },
           "timeZone": {
             "type": "string"
           },
           "validTimeZone": {
+            "type": "boolean"
+          },
+          "track": {
+            "type": "string",
+            "maxLength": 100
+          },
+          "requiresContainerRegistration": {
             "type": "boolean"
           }
         },
@@ -4457,6 +4609,53 @@
           }
         }
       },
+      "ContainerResponse": {
+        "type": "object",
+        "properties": {
+          "slug": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          }
+        }
+      },
+      "ProgramItemResponse": {
+        "type": "object",
+        "properties": {
+          "slug": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "start": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "end": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "isACourse": {
+            "type": "boolean"
+          },
+          "registrationMode": {
+            "type": "string",
+            "enum": [
+              "INHERIT",
+              "OWN",
+              "OPEN"
+            ]
+          },
+          "includedInTicket": {
+            "type": "boolean"
+          },
+          "track": {
+            "type": "string"
+          }
+        }
+      },
       "RecurrenceResponse": {
         "type": "object",
         "properties": {
@@ -4573,6 +4772,21 @@
               "CONFIRMED",
               "CANCELLED"
             ]
+          },
+          "program": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProgramItemResponse"
+            }
+          },
+          "container": {
+            "$ref": "#/components/schemas/ContainerResponse"
+          },
+          "notices": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EventNoticeResponse"
+            }
           }
         }
       },
@@ -5236,6 +5450,9 @@
           },
           "ticketCode": {
             "type": "string"
+          },
+          "parentTitle": {
+            "type": "string"
           }
         }
       },
@@ -5250,6 +5467,40 @@
             "items": {
               "type": "string"
             }
+          }
+        }
+      },
+      "ChildResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "title": {
+            "type": "string"
+          },
+          "start": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "end": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "isACourse": {
+            "type": "boolean"
+          },
+          "registrationMode": {
+            "type": "string",
+            "enum": [
+              "INHERIT",
+              "OWN",
+              "OPEN"
+            ]
+          },
+          "track": {
+            "type": "string"
           }
         }
       },
@@ -5299,6 +5550,37 @@
           "lastModifiedDate": {
             "type": "string",
             "format": "date-time"
+          },
+          "parentEventId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "parentTitle": {
+            "type": "string"
+          },
+          "registrationMode": {
+            "type": "string",
+            "enum": [
+              "INHERIT",
+              "OWN",
+              "OPEN"
+            ]
+          },
+          "children": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ChildResponse"
+            }
+          },
+          "track": {
+            "type": "string"
+          },
+          "programSize": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "requiresContainerRegistration": {
+            "type": "boolean"
           }
         }
       },
@@ -5466,6 +5748,61 @@
               "THIS_AND_THE_FOLLOWING_EVENTS",
               "ALL_EVENTS"
             ]
+          }
+        }
+      },
+      "AttendanceSummaryResponse": {
+        "type": "object",
+        "properties": {
+          "people": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "ticketOnly": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "guests": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "total": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "EventNoticeRequest": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "maxLength": 1000,
+            "minLength": 1
+          }
+        },
+        "required": [
+          "message"
+        ]
+      },
+      "EventNoticeResponse": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": [
+              "ANNOUNCEMENT",
+              "CHANGED",
+              "CANCELLED",
+              "REGISTRATION_CHANGED"
+            ]
+          },
+          "message": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
           }
         }
       }

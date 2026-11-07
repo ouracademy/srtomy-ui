@@ -56,8 +56,8 @@ test.describe("Asistencia con QR y visitantes", () => {
       `**/v1/events/${eventId}/attendance/guests`,
       async (route) => {
         guestsSent = route.request().postDataJSON();
-        guests = 5;
-        await route.fulfill(json({ guestCount: 5 }));
+        guests = 1;
+        await route.fulfill(json({ guestCount: 1 }));
       },
     );
 
@@ -67,10 +67,17 @@ test.describe("Asistencia con QR y visitantes", () => {
         "Este evento no pide inscripción: cualquiera puede venir.",
       ),
     ).toBeVisible();
+    await page.getByRole("tab", { name: /Asistencia/ }).click();
 
+    await page
+      .getByRole("button", { name: "Agregar visitante con nombre" })
+      .click();
     await page.getByLabel(/Nombre del visitante/).fill("Rosa");
     await page.getByLabel("Teléfono del visitante").fill("999");
-    await page.getByRole("button", { name: "Agregar visitante" }).click();
+    await page
+      .getByRole("dialog")
+      .getByRole("button", { name: "Agregar visitante" })
+      .click();
     await expect(
       page.getByText("Visitante agregado y marcado como presente"),
     ).toBeVisible();
@@ -79,10 +86,9 @@ test.describe("Asistencia con QR y visitantes", () => {
       phoneNumber: "999",
     });
 
-    await page.getByLabel("Visitantes sin nombre", { exact: true }).fill("5");
-    await page.getByRole("button", { name: "Guardar cantidad" }).click();
+    await page.getByRole("button", { name: "Sumar uno" }).click();
     await expect(page.getByText("Cantidad guardada")).toBeVisible();
-    expect(guestsSent).toEqual({ guestCount: 5 });
+    expect(guestsSent).toEqual({ guestCount: 1 });
   });
 
   test("el ujier muestra el QR del evento", async ({ page }) => {
@@ -100,9 +106,12 @@ test.describe("Asistencia con QR y visitantes", () => {
     );
 
     await page.goto(`/portal/${NODE_ID}/event/${eventId}/attendance`);
-    await page
-      .getByRole("button", { name: "Mostrar QR de asistencia" })
-      .click();
+    await page.getByRole("tab", { name: /Asistencia/ }).click();
+    // The QR is on the screen already; "Pantalla completa" makes it big.
+    await expect(
+      page.getByRole("img", { name: "QR para marcar la asistencia" }),
+    ).toBeVisible();
+    await page.getByRole("button", { name: "Pantalla completa" }).click();
 
     const dialog = page.getByRole("dialog", {
       name: "QR de asistencia de «Culto dominical»",
@@ -159,7 +168,8 @@ test.describe("Asistencia con QR y visitantes", () => {
     );
 
     await page.goto(`/portal/${NODE_ID}/event/${eventId}/attendance`);
-    await page.getByRole("button", { name: "Escanear tickets" }).click();
+    await page.getByRole("tab", { name: /Asistencia/ }).click();
+    await page.getByRole("button", { name: "Abrir la cámara" }).click();
     const dialog = page.getByRole("dialog", {
       name: "Escanear tickets de «Culto dominical»",
     });

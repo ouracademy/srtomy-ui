@@ -22,8 +22,6 @@
   },
   "dependencies": {
     "@auth0/auth0-react": "^2.30.0",
-    "@builder.io/react": "^9.4.10",
-    "@builder.io/sdk": "^6.3.3",
     "@emotion/cache": "^11.14.0",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",
@@ -53,7 +51,6 @@
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.14.0",
-    "@builder.io/dev-tools": "^1.97.0",
     "@commitlint/cli": "^21.2.4",
     "@commitlint/config-conventional": "^21.2.4",
     "@faker-js/faker": "^10.6.0",

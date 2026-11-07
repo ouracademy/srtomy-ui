@@ -2,32 +2,29 @@
 
 import {
   deleteEventsById,
-  putEventsByIdAttendance,
   useGetEventsById,
-  useGetEventsByIdAttendance,
+  useGetEventsByIdAttendanceSummary,
+  useGetEventsByIdSharing,
 } from "@/app/(api)/generated";
+import { DialogDeleteConfirmation } from "@/app/(components)/DialogDeleteConfirmation";
 import Loading from "@/app/(components)/Loading";
 import { ResourceError } from "@/app/(components)/ResourceError";
 import { SnackbarContext } from "@/app/(components)/SnackbarContext";
-import DeleteIcon from "@mui/icons-material/Delete";
-import EditIcon from "@mui/icons-material/Edit";
-import { Box, Stack, Tooltip, Typography, Grid } from "@mui/material";
-import { GridRowId, GridRowSelectionModel } from "@mui/x-data-grid";
-import React, { useContext } from "react";
-import { PersonTable } from "../../../person/PersonTable";
-import { DialogDeleteConfirmation } from "@/app/(components)/DialogDeleteConfirmation";
-import { useRouter } from "next/navigation";
-import { RegisterButton } from "@/app/(components)/RegisterButton";
 import { usePermissions } from "@/app/(hooks)/usePermissions";
-import { ShareEventButton } from "./ShareEventButton";
-import { AttendanceTools } from "./AttendanceTools";
-import { RegistrationPanel } from "./RegistrationPanel";
-import { SaveButton } from "@/app/(components)/SaveButton";
-import { EditableEventForm } from "./EditableEventForm";
+import CloseIcon from "@mui/icons-material/Close";
+import { Box, Chip, Dialog, IconButton, Stack, Tab, Tabs } from "@mui/material";
+import { useRouter } from "next/navigation";
+import React, { useContext } from "react";
+import { AttendanceTab } from "./AttendanceTab";
 import {
   DeleteRecurrentEventDialog,
   type DeleteEventRecurrentForm,
 } from "./DeleteRecurrentEventDialog";
+import { DetailTab } from "./DetailTab";
+import { EditableEventForm } from "./EditableEventForm";
+import { EventHero } from "./EventHero";
+import { ShareEventButton } from "./ShareEventButton";
+import { deleteMessage } from "./program";
 
 export default function AttendanceEvent(props: {
   params: Promise<{ id: string; nodeId: string }>;
@@ -45,13 +42,13 @@ export default function AttendanceEvent(props: {
     isLoading: eventLoading,
     mutate: mutateEvent,
   } = useGetEventsById(id);
-  const {
-    data: eventAttendance,
-    isLoading,
-    mutate: mutateAttendance,
-  } = useGetEventsByIdAttendance(id);
+  // Only whoever manages the event knows who can open it.
+  const { data: sharing } = useGetEventsByIdSharing(id, {
+    swr: { enabled: can("events.write"), shouldRetryOnError: false },
+  });
+  const { data: summary } = useGetEventsByIdAttendanceSummary(id);
 
-  const [saving, setSaving] = React.useState(false);
+  const [tab, setTab] = React.useState<"detail" | "attendance">("detail");
   const [editing, setEditing] = React.useState(false);
   const [openDeleteDialog, setOpenDeleteDialog] = React.useState(false);
   const [openConfirmDeleteDialog, setOpenConfirmDeleteDialog] =
@@ -60,34 +57,19 @@ export default function AttendanceEvent(props: {
   const [deleteOption, setDeleteOption] =
     React.useState<DeleteEventRecurrentForm["option"]>("THIS_EVENT");
 
-  // What the user picked, or null until they change the selection. Until
-  // then the selection is the attendance already saved in the API.
-  const [selection, setSelection] =
-    React.useState<GridRowSelectionModel | null>(null);
-  const savedSelection = React.useMemo<GridRowSelectionModel>(
-    () => ({
-      type: "include",
-      ids: new Set<GridRowId>(eventAttendance?.personIds),
-    }),
-    [eventAttendance],
-  );
-  const rowSelectionModel = selection ?? savedSelection;
-
-  // A visitor added while the list is being edited stays in it, so saving the
-  // list does not take them out of the attendance.
-  const addVisitorToSelection = (personId: string) => {
-    setSelection((current) => {
-      const ids = new Set((current ?? savedSelection).ids);
-      ids.add(personId);
-      return { type: "include", ids };
-    });
-    void mutateAttendance();
-  };
-
-  if (isLoading || eventLoading) return <Loading />;
+  if (eventLoading) return <Loading />;
   if (!event) return <ResourceError error={eventError} />;
 
   const isRecurrent = Boolean(event.recurrence);
+
+  const startDelete = () => {
+    if (isRecurrent) {
+      setOpenDeleteDialog(true);
+      return;
+    }
+    setDeleteOption("THIS_EVENT");
+    setOpenConfirmDeleteDialog(true);
+  };
 
   const chooseDeleteOption = (values: DeleteEventRecurrentForm) => {
     setDeleteOption(values.option);
@@ -108,147 +90,108 @@ export default function AttendanceEvent(props: {
   };
 
   return (
-    <Grid
-      container
-      spacing={2}
-      sx={{
-        margin: 4,
-      }}
-    >
-      <>
-        <Grid size={{ xs: 12 }}>
-          <Box>
+    <Stack spacing={3} sx={{ p: { xs: 2, md: 4 }, maxWidth: 1320 }}>
+      <EventHero
+        event={event}
+        generalAccess={sharing?.generalAccess}
+        canEdit={can("events.write")}
+        canDelete={can("events.write")}
+        onEdit={() => setEditing(true)}
+        onDelete={startDelete}
+        share={
+          can("events.write") ? (
+            <ShareEventButton
+              asButton
+              eventId={id}
+              title={event.title ?? ""}
+              subEvents={event.children?.length ?? 0}
+            />
+          ) : undefined
+        }
+      />
+      <Tabs
+        value={tab}
+        onChange={(_, next) => setTab(next)}
+        aria-label="Secciones del evento"
+      >
+        <Tab value="detail" label="Detalle" />
+        <Tab
+          value="attendance"
+          label={
             <Stack
               direction="row"
               spacing={1}
               sx={{
-                justifyContent: "flex-end",
+                alignItems: "center",
               }}
             >
-              {can("events.write") && !editing && (
-                <Tooltip title="Editar">
-                  <RegisterButton
-                    icon={<EditIcon />}
-                    ariaLabel="edit"
-                    onClick={() => setEditing(true)}
-                  />
-                </Tooltip>
-              )}
-              {can("events.write") && (
-                <ShareEventButton eventId={id} title={event.title ?? ""} />
-              )}
-              <Tooltip title="Eliminar">
-                <RegisterButton
-                  icon={<DeleteIcon />}
-                  ariaLabel="delete"
-                  onClick={() => {
-                    if (isRecurrent) {
-                      setOpenDeleteDialog(true);
-                      return;
-                    }
-                    setDeleteOption("THIS_EVENT");
-                    setOpenConfirmDeleteDialog(true);
-                  }}
-                />
-              </Tooltip>
+              <span>Asistencia</span>
+              {summary?.total ? (
+                <Chip size="small" label={summary.total} />
+              ) : null}
             </Stack>
-            <EditableEventForm
-              nodeId={nodeId}
-              eventId={id}
-              event={event}
-              editing={editing}
-              cancel={() => setEditing(false)}
-              saved={() => {
-                setEditing(false);
-                void mutateEvent();
-              }}
-            />
-          </Box>
-          {isRecurrent && (
-            <DeleteRecurrentEventDialog
-              open={openDeleteDialog}
-              close={() => setOpenDeleteDialog(false)}
-              initialValues={{
-                option: "THIS_EVENT",
-              }}
-              onDelete={chooseDeleteOption}
-            />
-          )}
-          <DialogDeleteConfirmation
-            open={openConfirmDeleteDialog}
-            close={() => setOpenConfirmDeleteDialog(false)}
-            onDelete={deleteEvent}
+          }
+        />
+      </Tabs>
+      <Box role="tabpanel">
+        {tab === "detail" ? (
+          <DetailTab
+            nodeId={nodeId}
+            eventId={id}
+            event={event}
+            can={can}
+            onChanged={() => void mutateEvent()}
           />
-        </Grid>
-        {can("registrations.read") && (
-          <Grid size={{ xs: 12 }}>
-            <RegistrationPanel
-              eventId={id}
-              title={event.title ?? ""}
-              can={{
-                configure: can("registrations.configure"),
-                close: can("registrations.close"),
-                remove: can("registrations.remove"),
-                checkIn: can("attendance.write"),
-              }}
-            />
-          </Grid>
+        ) : (
+          <AttendanceTab
+            nodeId={nodeId}
+            eventId={id}
+            event={event}
+            canTake={can("attendance.write")}
+          />
         )}
-        <Grid
-          size={{ xs: 12 }}
-          sx={{
-            display: "flex",
-            alignItems: "center",
-          }}
+      </Box>
+      {editing && (
+        <Dialog
+          open
+          fullWidth
+          maxWidth="md"
+          onClose={() => setEditing(false)}
+          slotProps={{ paper: { "aria-label": "Editar el evento" } }}
         >
-          <Typography variant="h6" gutterBottom>
-            Toma de asistencia
-          </Typography>
-        </Grid>
-        {can("attendance.write") && (
-          <Grid size={{ xs: 12 }}>
-            <AttendanceTools
-              eventId={id}
-              title={event.title ?? ""}
-              guestCount={eventAttendance?.guestCount ?? 0}
-              onChanged={() => void mutateAttendance()}
-              onVisitorAdded={addVisitorToSelection}
-            />
-          </Grid>
-        )}
-        <Grid size={{ xs: 12 }}>
-          <Stack spacing={2}>
-            <PersonTable
-              nodeId={nodeId}
-              dataGridProps={{
-                keepNonExistentRowsSelected: true,
-                checkboxSelection: true,
-                rowSelectionModel: rowSelectionModel,
-                onRowSelectionModelChange: (newSelectionModel) => {
-                  setSelection(newSelectionModel);
-                },
-              }}
-            />
-          </Stack>
-        </Grid>
-        <Grid size={{ xs: 12 }}>
-          <SaveButton
-            name="Registrar asistencias"
-            loading={saving}
-            onClick={async () => {
-              setSaving(true);
-              try {
-                await putEventsByIdAttendance(id, {
-                  personIds: [...rowSelectionModel.ids].map(String),
-                });
-                alert.showMessage("Asistencia guardada exitosamente");
-              } finally {
-                setSaving(false);
-              }
+          <IconButton
+            aria-label="Cerrar"
+            onClick={() => setEditing(false)}
+            sx={{ position: "absolute", right: 8, top: 8, zIndex: 1 }}
+          >
+            <CloseIcon />
+          </IconButton>
+          <EditableEventForm
+            nodeId={nodeId}
+            eventId={id}
+            event={event}
+            editing
+            saved={() => {
+              setEditing(false);
+              void mutateEvent();
             }}
           />
-        </Grid>
-      </>
-    </Grid>
+        </Dialog>
+      )}
+      {isRecurrent && (
+        <DeleteRecurrentEventDialog
+          open={openDeleteDialog}
+          close={() => setOpenDeleteDialog(false)}
+          initialValues={{ option: "THIS_EVENT" }}
+          onDelete={chooseDeleteOption}
+        />
+      )}
+      <DialogDeleteConfirmation
+        open={openConfirmDeleteDialog}
+        close={() => setOpenConfirmDeleteDialog(false)}
+        onDelete={deleteEvent}
+        message={deleteMessage(event.children?.length ?? 0)}
+      />
+    </Stack>
   );
 }
