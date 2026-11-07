@@ -27,9 +27,12 @@ export const RegistrationPanel = ({
   eventId,
   title,
   can,
+  subEvents,
 }: Readonly<{
   eventId: string;
   title: string;
+  // The sub-events of the program: a ticket can give access to only some.
+  subEvents?: readonly { id: string; title: string }[];
   can: RegistrationActions;
 }>) => {
   const alert = React.useContext(SnackbarContext);
@@ -130,6 +133,7 @@ export const RegistrationPanel = ({
           close={() => setConfiguring(false)}
           title={title}
           setup={setup}
+          subEvents={subEvents}
           onSave={save}
         />
       )}

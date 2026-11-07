@@ -7,10 +7,15 @@ import type { EventResponse } from "@/app/(api)/generated/aPIOvejafiel.schemas";
 import { SnackbarContext } from "@/app/(components)/SnackbarContext";
 import { EditableEventForm, savedMessage } from "./EditableEventForm";
 
-const { putEventsById } = vi.hoisted(() => ({ putEventsById: vi.fn() }));
+const api = vi.hoisted(() => ({
+  putEventsById: vi.fn(),
+  parent: undefined as object | undefined,
+}));
+const { putEventsById } = api;
 
 vi.mock("@/app/(api)/generated", () => ({
-  putEventsById,
+  putEventsById: (...args: unknown[]) => api.putEventsById(...args),
+  useGetEventsById: () => ({ data: api.parent }),
   useGetOrganizationsById: () => ({ data: undefined }),
   useGetPeople: () => ({ data: undefined }),
 }));
@@ -23,6 +28,7 @@ const NODE = "11111111-1111-1111-1111-111111111111";
 const EVENT = "33333333-3333-3333-3333-333333333333";
 
 beforeEach(() => {
+  api.parent = undefined;
   putEventsById.mockReset();
   putEventsById.mockResolvedValue({
     id: EVENT,
@@ -237,5 +243,58 @@ describe("savedMessage", () => {
     expect(savedMessage({ id: EVENT, keptEvents: 1, notifiedPeople: 3 })).toBe(
       "Evento actualizado. Se avisó por correo a 3 personas. 1 evento con inscritos, asistencia o ya pasados no cambiaron.",
     );
+  });
+
+  describe("a sub-event", () => {
+    const subEvent: EventResponse = {
+      ...oneOff,
+      parentEventId: "mega",
+      parentTitle: "Congreso",
+      registrationMode: "INHERIT",
+    };
+
+    beforeEach(() => {
+      api.parent = {
+        id: "mega",
+        title: "Congreso",
+        start: new Date(2026, 1, 1, 0, 0),
+        end: new Date(2026, 1, 3, 23, 0),
+      };
+    });
+
+    it("says which event it is part of and how it is entered", () => {
+      setup(subEvent);
+
+      expect(screen.getByText("Parte de «Congreso»")).toBeInTheDocument();
+      expect(
+        screen.getByRole("combobox", { name: "Inscripción" }),
+      ).toBeInTheDocument();
+    });
+
+    it("saves how it is entered", async () => {
+      const { user, saved } = setup(subEvent);
+
+      await user.click(screen.getByRole("combobox", { name: "Inscripción" }));
+      await user.click(await screen.findByRole("option", { name: "Propia" }));
+      await user.click(screen.getByRole("button", { name: "Guardar" }));
+
+      await waitFor(() => expect(saved).toHaveBeenCalledOnce());
+      expect(putEventsById.mock.calls[0]?.[1]).toMatchObject({
+        registrationMode: "OWN",
+      });
+    });
+
+    it("does not send a registration mode for an event on its own", async () => {
+      const { user, saved } = setup(oneOff);
+
+      await user.type(
+        screen.getByPlaceholderText("Agregar descripción"),
+        " más",
+      );
+      await user.click(screen.getByRole("button", { name: "Guardar" }));
+
+      await waitFor(() => expect(saved).toHaveBeenCalledOnce());
+      expect(putEventsById.mock.calls[0]?.[1].registrationMode).toBeUndefined();
+    });
   });
 });

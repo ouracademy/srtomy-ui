@@ -1,7 +1,7 @@
 "use client";
 
 import ShareIcon from "@mui/icons-material/Share";
-import { Tooltip } from "@mui/material";
+import { Button, Tooltip } from "@mui/material";
 import React from "react";
 import {
   deleteEventsByIdSharesByShareId,
@@ -22,7 +22,15 @@ import { ShareEventDialog } from "./ShareEventDialog";
 export const ShareEventButton = ({
   eventId,
   title,
-}: Readonly<{ eventId: string; title: string }>) => {
+  subEvents = 0,
+  asButton = false,
+}: Readonly<{
+  eventId: string;
+  title: string;
+  subEvents?: number;
+  // A button with the word, for the header of the event, instead of the icon.
+  asButton?: boolean;
+}>) => {
   const alert = React.useContext(SnackbarContext);
   const [open, setOpen] = React.useState(false);
   // Changes after a save that failed halfway, so the dialog starts its draft over.
@@ -36,9 +44,14 @@ export const ShareEventButton = ({
   // applied stays, the dialog shows the real state again and the user is told.
   const save = async (draft: SharingDraft) => {
     try {
-      if (draft.generalAccess !== sharing?.generalAccess) {
+      if (
+        draft.generalAccess !== sharing?.generalAccess ||
+        draft.applyToProgram
+      ) {
         await putEventsByIdSharing(eventId, {
           generalAccess: draft.generalAccess,
+          // Only sent when asked for, so the usual request stays the same.
+          applyToProgram: draft.applyToProgram || undefined,
         });
       }
       for (const shareId of draft.removed) {
@@ -80,13 +93,30 @@ export const ShareEventButton = ({
 
   return (
     <>
-      <Tooltip title="Compartir">
-        <RegisterButton
-          icon={<ShareIcon />}
-          ariaLabel="share"
+      {asButton ? (
+        <Button
+          variant="outlined"
+          startIcon={<ShareIcon />}
           onClick={() => setOpen(true)}
-        />
-      </Tooltip>
+          sx={{
+            height: 44,
+            borderRadius: 3,
+            bgcolor: "background.paper",
+            color: "text.primary",
+            borderColor: "divider",
+          }}
+        >
+          Compartir
+        </Button>
+      ) : (
+        <Tooltip title="Compartir">
+          <RegisterButton
+            icon={<ShareIcon />}
+            ariaLabel="share"
+            onClick={() => setOpen(true)}
+          />
+        </Tooltip>
+      )}
       {open && sharing && (
         <ShareEventDialog
           key={attempt}
@@ -94,6 +124,7 @@ export const ShareEventButton = ({
           close={() => setOpen(false)}
           title={title}
           sharing={sharing}
+          subEvents={subEvents}
           onSave={save}
           onRenewLink={renewLink}
           onCopy={(url) => copyLink(url, alert.showMessage)}

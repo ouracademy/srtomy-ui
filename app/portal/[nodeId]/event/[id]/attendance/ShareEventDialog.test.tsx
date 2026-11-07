@@ -16,7 +16,11 @@ const sharing: EventSharingResponse = {
 };
 
 const setup = (
-  props: { sharing?: EventSharingResponse; onSave?: () => Promise<void> } = {},
+  props: {
+    sharing?: EventSharingResponse;
+    onSave?: () => Promise<void>;
+    subEvents?: number;
+  } = {},
 ) => {
   const handlers = {
     onSave: vi.fn<(draft: SharingDraft) => Promise<void>>(
@@ -31,6 +35,7 @@ const setup = (
       open
       title="Retiro"
       sharing={props.sharing ?? sharing}
+      subEvents={props.subEvents}
       {...handlers}
     />,
   );
@@ -161,6 +166,7 @@ describe("ShareEventDialog", () => {
 
     expect(onSave).toHaveBeenCalledWith({
       generalAccess: "CHURCH",
+      applyToProgram: false,
       added: [{ email: "luis@x.org", role: "VIEWER" }],
       removed: ["s1"],
     });
@@ -301,5 +307,33 @@ describe("ShareEventDialog", () => {
       screen.getByText(/configure la inscripción del evento/),
     ).toBeTruthy();
     expect(screen.queryByRole("tab")).toBeNull();
+  });
+
+  it("offers to give the same access to the sub-events only when there are some", () => {
+    setup();
+    expect(screen.queryByRole("checkbox", { name: /sub-evento/ })).toBeNull();
+    cleanup();
+
+    setup({ subEvents: 9 });
+    expect(
+      screen.getByRole("checkbox", {
+        name: "Aplicar este acceso también a los 9 sub-eventos del programa",
+      }),
+    ).not.toBeChecked();
+  });
+
+  it("saves asking to apply the access to the whole program", async () => {
+    const { user, onSave } = setup({ subEvents: 1 });
+
+    await user.click(
+      screen.getByRole("checkbox", {
+        name: "Aplicar este acceso también al sub-evento del programa",
+      }),
+    );
+    await user.click(guardar());
+
+    expect(onSave).toHaveBeenCalledWith(
+      expect.objectContaining({ applyToProgram: true }),
+    );
   });
 });

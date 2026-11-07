@@ -1,11 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { EventDetailFormData } from "@/app/(components)/EventForm";
-import {
-  atTimeOf,
-  describeChange,
-  impactMessages,
-  toEditRequest,
-} from "./eventChange";
+import { describeChange, impactMessages, toEditRequest } from "./eventChange";
 import { noRecurrence } from "@/app/(components)/recurrence";
 import { noRegistration } from "@/app/(components)/registration";
 
@@ -14,6 +9,7 @@ const NODE = "11111111-1111-1111-1111-111111111111";
 const initial: EventDetailFormData = {
   name: "Servicio",
   date: new Date(2026, 0, 12, 10, 0),
+  endDate: new Date(2026, 0, 12, 10, 0),
   startTime: new Date(2026, 0, 12, 10, 0),
   endTime: new Date(2026, 0, 12, 12, 0),
   address: "Av. Lima 1",
@@ -39,6 +35,7 @@ describe("describeChange", () => {
       detailsChanged: false,
       dayMoved: false,
       ruleChanged: false,
+      ownSignUpsEnd: false,
     });
   });
 
@@ -111,14 +108,6 @@ describe("describeChange", () => {
   });
 });
 
-describe("atTimeOf", () => {
-  it("puts the hour of one date on the day of another", () => {
-    expect(
-      atTimeOf(new Date(2026, 2, 3, 0, 0), new Date(2020, 0, 1, 18, 30, 45)),
-    ).toEqual(new Date(2026, 2, 3, 18, 30, 0));
-  });
-});
-
 describe("impactMessages", () => {
   const none = {
     scheduleMoved: false,
@@ -176,12 +165,46 @@ describe("toEditRequest", () => {
     timeZone: "America/Lima",
   };
 
+  it("sends whether a sub-event with its own sign-up asks for a place in the event first", () => {
+    const own = { ...initial, registrationMode: "OWN" as const };
+    expect(
+      toEditRequest({
+        ...context,
+        values: { ...own, requiresContainerRegistration: true },
+      }).requiresContainerRegistration,
+    ).toBe(true);
+    expect(
+      toEditRequest({
+        ...context,
+        values: {
+          ...initial,
+          registrationMode: "INHERIT",
+          requiresContainerRegistration: true,
+        },
+      }).requiresContainerRegistration,
+    ).toBeUndefined();
+  });
+
+  it("sends the course or room trimmed, and empty to clear it", () => {
+    expect(
+      toEditRequest({
+        ...context,
+        values: { ...initial, track: " Sala 2 " },
+      }).track,
+    ).toBe("Sala 2");
+    expect(
+      toEditRequest({ ...context, values: { ...initial, track: "" } }).track,
+    ).toBe("");
+  });
+
   it("sends the data of the form with the day and the hours", () => {
     const request = toEditRequest({
       ...context,
       values: {
         ...context.values,
+        // Moving the day moves the end with it, as the form does.
         date: new Date(2026, 0, 14, 0, 0),
+        endDate: new Date(2026, 0, 14, 0, 0),
         type: 1,
       },
     });
@@ -256,5 +279,81 @@ describe("toEditRequest", () => {
     });
     expect(request.recurrence).toBeUndefined();
     expect(request.timeZone).toBeUndefined();
+  });
+});
+
+describe("an event of several days", () => {
+  const several: EventDetailFormData = {
+    ...initial,
+    endDate: new Date(2026, 0, 14, 12, 0),
+  };
+
+  it("ends on the day it ends, not the day it starts", () => {
+    const request = toEditRequest({
+      nodeId: NODE,
+      initial: several,
+      values: several,
+      option: "THIS_EVENT",
+      repeats: false,
+      timeZone: "America/Lima",
+    });
+
+    expect(request.startTime).toMatch(/^2026-01-12T10:00:00/);
+    expect(request.endTime).toMatch(/^2026-01-14T12:00:00/);
+  });
+
+  it("counts a new last day as a change of the schedule", () => {
+    const change = describeChange(initial, several);
+
+    expect(change.scheduleMoved).toBe(true);
+    expect(change.dayMoved).toBe(false);
+  });
+});
+
+describe("a sub-event that stops using its own sign-up", () => {
+  it("sees it when it goes from its own to the one of the event or to none", () => {
+    expect(
+      describeChange(
+        { ...initial, registrationMode: "OWN" },
+        { ...initial, registrationMode: "INHERIT" },
+      ).ownSignUpsEnd,
+    ).toBe(true);
+    expect(
+      describeChange(
+        { ...initial, registrationMode: "OWN" },
+        { ...initial, registrationMode: "OPEN" },
+      ).ownSignUpsEnd,
+    ).toBe(true);
+  });
+
+  it("does not see it when it stays its own, or was not its own", () => {
+    expect(
+      describeChange(
+        { ...initial, registrationMode: "OWN" },
+        { ...initial, registrationMode: "OWN" },
+      ).ownSignUpsEnd,
+    ).toBe(false);
+    expect(
+      describeChange(
+        { ...initial, registrationMode: "INHERIT" },
+        { ...initial, registrationMode: "OWN" },
+      ).ownSignUpsEnd,
+    ).toBe(false);
+  });
+
+  it("warns that their sign-ups are cancelled and they are told", () => {
+    expect(
+      impactMessages(
+        {
+          scheduleMoved: false,
+          detailsChanged: false,
+          dayMoved: false,
+          ruleChanged: false,
+          ownSignUpsEnd: true,
+        },
+        "THIS_EVENT",
+        false,
+      )[0],
+    ).toContain("Se cancelarán las inscripciones propias");
   });
 });

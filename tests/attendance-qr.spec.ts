@@ -67,6 +67,7 @@ test.describe("Asistencia con QR y visitantes", () => {
         "Este evento no pide inscripción: cualquiera puede venir.",
       ),
     ).toBeVisible();
+    await page.getByRole("tab", { name: /Asistencia/ }).click();
 
     await page.getByLabel(/Nombre del visitante/).fill("Rosa");
     await page.getByLabel("Teléfono del visitante").fill("999");
@@ -100,6 +101,7 @@ test.describe("Asistencia con QR y visitantes", () => {
     );
 
     await page.goto(`/portal/${NODE_ID}/event/${eventId}/attendance`);
+    await page.getByRole("tab", { name: /Asistencia/ }).click();
     await page
       .getByRole("button", { name: "Mostrar QR de asistencia" })
       .click();
@@ -159,6 +161,7 @@ test.describe("Asistencia con QR y visitantes", () => {
     );
 
     await page.goto(`/portal/${NODE_ID}/event/${eventId}/attendance`);
+    await page.getByRole("tab", { name: /Asistencia/ }).click();
     await page.getByRole("button", { name: "Escanear tickets" }).click();
     const dialog = page.getByRole("dialog", {
       name: "Escanear tickets de «Culto dominical»",

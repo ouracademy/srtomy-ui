@@ -77,7 +77,9 @@ test.describe("Editar un evento", () => {
     page,
   }) => {
     await page.goto(`/portal/${nodeId}/event/${eventId}/attendance`);
-    await expect(page.getByPlaceholder("Agregar título")).toBeDisabled();
+    await expect(
+      page.getByRole("heading", { name: "Servicio Dominical" }),
+    ).toBeVisible();
     await page.getByRole("button", { name: "Editar", exact: true }).click();
     await page.getByPlaceholder("Agregar título").fill("Culto de oración");
     await page.getByRole("button", { name: "Guardar", exact: true }).click();
@@ -95,7 +97,9 @@ test.describe("Editar un evento", () => {
       option: "THIS_EVENT",
     });
     expect(putBody?.recurrence).toBeUndefined();
-    await expect(page.getByPlaceholder("Agregar título")).toBeDisabled();
+    await expect(
+      page.getByRole("dialog", { name: "Editar el evento" }),
+    ).toBeHidden();
   });
 
   test("en una serie pregunta a qué eventos aplicar el cambio", async ({
@@ -145,9 +149,12 @@ test.describe("Editar un evento", () => {
     await page.getByPlaceholder("Agregar título").fill("Descartado");
     await page.getByRole("button", { name: "Cancelar" }).click();
 
-    await expect(page.getByPlaceholder("Agregar título")).toHaveValue(
-      "Servicio Dominical",
-    );
+    await expect(
+      page.getByRole("dialog", { name: "Editar el evento" }),
+    ).toBeHidden();
+    await expect(
+      page.getByRole("heading", { name: "Servicio Dominical" }),
+    ).toBeVisible();
     expect(putBody).toBeUndefined();
   });
 });
