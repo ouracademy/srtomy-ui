@@ -1,7 +1,7 @@
 "use client";
 
 import ShareIcon from "@mui/icons-material/Share";
-import { Tooltip } from "@mui/material";
+import { Button, Tooltip } from "@mui/material";
 import React from "react";
 import {
   deleteEventsByIdSharesByShareId,
@@ -23,7 +23,14 @@ export const ShareEventButton = ({
   eventId,
   title,
   subEvents = 0,
-}: Readonly<{ eventId: string; title: string; subEvents?: number }>) => {
+  asButton = false,
+}: Readonly<{
+  eventId: string;
+  title: string;
+  subEvents?: number;
+  // A button with the word, for the header of the event, instead of the icon.
+  asButton?: boolean;
+}>) => {
   const alert = React.useContext(SnackbarContext);
   const [open, setOpen] = React.useState(false);
   // Changes after a save that failed halfway, so the dialog starts its draft over.
@@ -86,13 +93,30 @@ export const ShareEventButton = ({
 
   return (
     <>
-      <Tooltip title="Compartir">
-        <RegisterButton
-          icon={<ShareIcon />}
-          ariaLabel="share"
+      {asButton ? (
+        <Button
+          variant="outlined"
+          startIcon={<ShareIcon />}
           onClick={() => setOpen(true)}
-        />
-      </Tooltip>
+          sx={{
+            height: 44,
+            borderRadius: 3,
+            bgcolor: "background.paper",
+            color: "text.primary",
+            borderColor: "divider",
+          }}
+        >
+          Compartir
+        </Button>
+      ) : (
+        <Tooltip title="Compartir">
+          <RegisterButton
+            icon={<ShareIcon />}
+            ariaLabel="share"
+            onClick={() => setOpen(true)}
+          />
+        </Tooltip>
+      )}
       {open && sharing && (
         <ShareEventDialog
           key={attempt}

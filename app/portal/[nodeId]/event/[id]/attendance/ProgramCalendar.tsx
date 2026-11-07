@@ -8,10 +8,9 @@ import FullCalendar from "@fullcalendar/react";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import { Box, useMediaQuery, useTheme } from "@mui/material";
 import { addDays, differenceInCalendarDays, startOfDay } from "date-fns";
-import { useRouter } from "next/navigation";
+import { visibleHours } from "./programHours";
 
 type ProgramCalendarProps = Readonly<{
-  nodeId: string;
   // The days the program covers.
   start: Date;
   end: Date;
@@ -20,6 +19,10 @@ type ProgramCalendarProps = Readonly<{
   canMove: boolean;
   // Resolves when saved; rejecting puts the sub-event back where it was.
   onMove: (id: string, start: Date, end: Date) => Promise<void>;
+  // Dragging over free hours creates a session there.
+  onCreate: (start: Date, end: Date) => void;
+  // A session was clicked: its element, to show what can be done with it.
+  onPick: (id: string, element: HTMLElement) => void;
 }>;
 
 const MAX_DAYS_SHOWN = 7;
@@ -27,17 +30,21 @@ const MAX_DAYS_SHOWN = 7;
 // The program as a calendar of the days of the event, with its sub-events.
 // Dragging one changes its day and hour, which is how the program is ordered.
 export const ProgramCalendar = ({
-  nodeId,
   start,
   end,
   items,
   canMove,
   onMove,
+  onCreate,
+  onPick,
 }: ProgramCalendarProps) => {
-  const router = useRouter();
   const theme = useTheme();
   const isDesktop = useMediaQuery(theme.breakpoints.up("sm"));
   const days = Math.max(1, differenceInCalendarDays(end, start) + 1);
+  const hours = visibleHours([
+    ...items,
+    { start, end: days === 1 ? end : start },
+  ]);
 
   return (
     <Box
@@ -66,6 +73,11 @@ export const ProgramCalendar = ({
         }}
         headerToolbar={days > MAX_DAYS_SHOWN ? { left: "prev,next" } : false}
         allDaySlot={false}
+        slotMinTime={hours.slotMinTime}
+        slotMaxTime={hours.slotMaxTime}
+        selectable={canMove}
+        selectMirror
+        select={({ start: from, end: to }) => onCreate(from, to)}
         height="auto"
         editable={canMove}
         eventDurationEditable={canMove}
@@ -79,9 +91,10 @@ export const ProgramCalendar = ({
             ...(item.isACourse ? ["fc-course"] : []),
           ],
         }))}
-        eventClick={(info) =>
-          router.push(`/portal/${nodeId}/event/${info.event.id}/attendance`)
-        }
+        eventClick={(info) => {
+          info.jsEvent.preventDefault();
+          onPick(info.event.id, info.el);
+        }}
         eventDrop={(info) => moveOrRevert(info, onMove)}
         eventResize={(info) => moveOrRevert(info, onMove)}
       />

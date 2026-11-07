@@ -6,20 +6,26 @@ type Info = {
   event: { id: string; start: Date | null; end: Date | null };
   revert: () => void;
 };
+type Click = {
+  event: { id: string };
+  el: HTMLElement;
+  jsEvent: { preventDefault: () => void };
+};
 type Props = {
   editable: boolean;
   events: { id: string; title: string; classNames: string[] }[];
   headerToolbar: unknown;
   validRange: { start: Date; end: Date };
-  eventClick: (info: Info) => void;
+  selectable: boolean;
+  slotMinTime: string;
+  slotMaxTime: string;
+  select: (info: { start: Date; end: Date }) => void;
+  eventClick: (info: Click) => void;
   eventDrop: (info: Info) => Promise<void>;
   eventResize: (info: Info) => Promise<void>;
 };
 
-const fc = vi.hoisted(() => ({
-  props: undefined as unknown,
-  push: vi.fn(),
-}));
+const fc = vi.hoisted(() => ({ props: undefined as unknown }));
 vi.mock("@fullcalendar/react", () => ({
   default: (props: unknown) => {
     fc.props = props;
@@ -30,7 +36,6 @@ vi.mock("@fullcalendar/interaction", () => ({ default: {} }));
 vi.mock("@fullcalendar/timegrid", () => ({ default: {} }));
 vi.mock("@fullcalendar/list", () => ({ default: {} }));
 vi.mock("@fullcalendar/core/locales/es", () => ({ default: {} }));
-vi.mock("next/navigation", () => ({ useRouter: () => ({ push: fc.push }) }));
 
 afterEach(cleanup);
 
@@ -48,17 +53,20 @@ const setup = (
   canMove: boolean,
   onMove = vi.fn().mockResolvedValue(undefined),
 ) => {
+  const onCreate = vi.fn();
+  const onPick = vi.fn();
   render(
     <ProgramCalendar
-      nodeId="n1"
       start={new Date(2026, 9, 23, 8)}
       end={new Date(2026, 9, 25, 22)}
       items={items}
       canMove={canMove}
       onMove={onMove}
+      onCreate={onCreate}
+      onPick={onPick}
     />,
   );
-  return { props: fc.props as Props, onMove };
+  return { props: fc.props as Props, onMove, onCreate, onPick };
 };
 
 describe("ProgramCalendar", () => {
@@ -72,15 +80,41 @@ describe("ProgramCalendar", () => {
     expect(props.headerToolbar).toBe(false);
   });
 
-  it("opens the sub-event when clicked", () => {
-    const { props } = setup(true);
+  it("hands over the session and its element when it is clicked, without following it", () => {
+    const { props, onPick } = setup(true);
+    const element = document.createElement("a");
+    const preventDefault = vi.fn();
 
     props.eventClick({
-      event: { id: "c1", start: null, end: null },
-      revert: vi.fn(),
+      event: { id: "c1" },
+      el: element,
+      jsEvent: { preventDefault },
     });
 
-    expect(fc.push).toHaveBeenCalledWith("/portal/n1/event/c1/attendance");
+    expect(preventDefault).toHaveBeenCalled();
+    expect(onPick).toHaveBeenCalledWith("c1", element);
+  });
+
+  it("creates a session over the free hours that were dragged", () => {
+    const { props, onCreate } = setup(true);
+    const from = new Date(2026, 9, 24, 17);
+    const to = new Date(2026, 9, 24, 18);
+
+    props.select({ start: from, end: to });
+
+    expect(props.selectable).toBe(true);
+    expect(onCreate).toHaveBeenCalledWith(from, to);
+  });
+
+  it("does not let someone who cannot write select hours", () => {
+    expect(setup(false).props.selectable).toBe(false);
+  });
+
+  it("shows the hours of the sessions, wider than the usual when one needs it", () => {
+    const { props } = setup(true);
+
+    expect(props.slotMinTime).toBe("07:00:00");
+    expect(props.slotMaxTime).toBe("22:00:00");
   });
 
   it("can be dragged only by whoever may write", () => {
