@@ -1,5 +1,6 @@
 "use client";
 
+import { PhoneField } from "@/app/(components)/PhoneField";
 import LoadingButton from "@mui/lab/LoadingButton";
 import { Box, Paper, Stack, TextField, Typography } from "@mui/material";
 import React from "react";
@@ -126,12 +127,13 @@ export const VisitorsPanel = ({
             />
           </Stack>
           <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
-            <TextField
+            <PhoneField
               label="Teléfono del visitante"
               size="small"
-              type="tel"
               value={visitor.phoneNumber}
-              onChange={set("phoneNumber")}
+              onChange={(phoneNumber) =>
+                setVisitor({ ...visitor, phoneNumber })
+              }
               sx={{ flex: 1 }}
             />
             <TextField

@@ -1,5 +1,6 @@
 "use client";
 
+import { PhoneField } from "@/app/(components)/PhoneField";
 import LoadingButton from "@mui/lab/LoadingButton";
 import {
   Alert,
@@ -289,11 +290,10 @@ export const SharedEventPage = ({
                 submitted && missing.email ? "Ingrese un correo válido" : ""
               }
             />
-            <TextField
+            <PhoneField
               label="Teléfono"
-              type="tel"
               value={values.phoneNumber}
-              onChange={set("phoneNumber")}
+              onChange={(phoneNumber) => setValues({ ...values, phoneNumber })}
             />
             <LoadingButton
               type="submit"
