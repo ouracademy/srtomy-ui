@@ -24,8 +24,6 @@ import { AttendanceTools } from "./AttendanceTools";
 import { RegistrationPanel } from "./RegistrationPanel";
 import { SaveButton } from "@/app/(components)/SaveButton";
 import { ContainerNotice } from "./ContainerNotice";
-import { CopyEventDialog } from "./CopyEventDialog";
-import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import { InheritedRegistrationsPanel } from "./InheritedRegistrationsPanel";
 import { EditableEventForm } from "./EditableEventForm";
 import { deleteMessage } from "./program";
@@ -59,7 +57,6 @@ export default function AttendanceEvent(props: {
 
   const [saving, setSaving] = React.useState(false);
   const [editing, setEditing] = React.useState(false);
-  const [copying, setCopying] = React.useState(false);
   const [openDeleteDialog, setOpenDeleteDialog] = React.useState(false);
   const [openConfirmDeleteDialog, setOpenConfirmDeleteDialog] =
     React.useState(false);
@@ -137,15 +134,6 @@ export default function AttendanceEvent(props: {
                   />
                 </Tooltip>
               )}
-              {can("events.write") && !event.parentEventId && !isRecurrent && (
-                <Tooltip title="Duplicar">
-                  <RegisterButton
-                    icon={<ContentCopyIcon />}
-                    ariaLabel="duplicate"
-                    onClick={() => setCopying(true)}
-                  />
-                </Tooltip>
-              )}
               {can("events.write") && (
                 <ShareEventButton
                   eventId={id}
@@ -188,20 +176,6 @@ export default function AttendanceEvent(props: {
                 option: "THIS_EVENT",
               }}
               onDelete={chooseDeleteOption}
-            />
-          )}
-          {copying && (
-            <CopyEventDialog
-              event={event}
-              open
-              close={() => setCopying(false)}
-              copied={(copyId) => {
-                setCopying(false);
-                alert.showMessage(
-                  "Se creó la copia. Revísala antes de publicarla.",
-                );
-                router.push(`/portal/${nodeId}/event/${copyId}/attendance`);
-              }}
             />
           )}
           <DialogDeleteConfirmation

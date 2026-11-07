@@ -2832,47 +2832,6 @@
           }
         }
       }
-    },
-    "/v1/events/{id}/copy": {
-      "post": {
-        "tags": [
-          "events"
-        ],
-        "operationId": "copy",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CopyEventRequest"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "201": {
-            "description": "Created",
-            "content": {
-              "*/*": {
-                "schema": {
-                  "$ref": "#/components/schemas/CopyEventResponse"
-                }
-              }
-            }
-          }
-        }
-      }
     }
   },
   "components": {
@@ -5642,34 +5601,6 @@
               "THIS_AND_THE_FOLLOWING_EVENTS",
               "ALL_EVENTS"
             ]
-          }
-        }
-      },
-      "CopyEventRequest": {
-        "type": "object",
-        "properties": {
-          "startTime": {
-            "type": "string",
-            "minLength": 1
-          },
-          "name": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "startTime"
-        ]
-      },
-      "CopyEventResponse": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "subEvents": {
-            "type": "integer",
-            "format": "int32"
           }
         }
       }
