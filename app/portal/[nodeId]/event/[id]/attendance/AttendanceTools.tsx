@@ -1,8 +1,6 @@
 "use client";
 
-import QrCode2Icon from "@mui/icons-material/QrCode2";
-import QrCodeScannerIcon from "@mui/icons-material/QrCodeScanner";
-import { Button, Stack } from "@mui/material";
+import { Stack } from "@mui/material";
 import React from "react";
 import { useSWRConfig } from "swr";
 import {
@@ -13,9 +11,10 @@ import {
 import type { CheckInResponse } from "@/app/(api)/generated/aPIOvejafiel.schemas";
 import { SnackbarContext } from "@/app/(components)/SnackbarContext";
 import { apiErrorMessage } from "@/app/(components)/apiErrorMessage";
-import { AttendanceQrDialog } from "./AttendanceQrDialog";
-import { TicketScanner } from "./TicketScanner";
-import { VisitorsPanel, type VisitorForm } from "./VisitorsPanel";
+import type { VisitorForm } from "./AddVisitorDialog";
+import { QrCard } from "./QrCard";
+import { ScanCard } from "./ScanCard";
+import { VisitorsCard } from "./VisitorsCard";
 
 type AttendanceToolsProps = Readonly<{
   eventId: string;
@@ -23,22 +22,19 @@ type AttendanceToolsProps = Readonly<{
   guestCount: number;
   // Something changed in the attendance that the list on screen should show.
   onChanged: () => void;
-  // A new visitor was marked as present: keep them in the list being edited.
-  onVisitorAdded: (personId: string) => void;
 }>;
 
-// What the people who take attendance use besides the list: the QR that people
-// scan to mark themselves, the scanner of tickets, and the visitors.
+// What the people who take attendance use besides the list, one card each: the
+// QR that people scan to mark themselves, the scanner of tickets, and the
+// visitors.
 export const AttendanceTools = ({
   eventId,
   title,
   guestCount,
   onChanged,
-  onVisitorAdded,
 }: AttendanceToolsProps) => {
   const alert = React.useContext(SnackbarContext);
   const { mutate } = useSWRConfig();
-  const [showing, setShowing] = React.useState<"qr" | "scanner" | null>(null);
 
   // The people grid reads from the same list the new visitor now belongs to.
   const refreshPeople = () =>
@@ -53,13 +49,13 @@ export const AttendanceTools = ({
 
   const addVisitor = async (visitor: VisitorForm) => {
     try {
-      const result = await postEventsByIdAttendanceVisitors(eventId, {
+      await postEventsByIdAttendanceVisitors(eventId, {
         firstName: visitor.firstName.trim(),
         lastName: visitor.lastName.trim() || undefined,
         phoneNumber: visitor.phoneNumber.trim() || undefined,
         email: visitor.email.trim() || undefined,
       });
-      onVisitorAdded(result.personId ?? "");
+      onChanged();
       await refreshPeople();
       alert.showMessage("Visitante agregado y marcado como presente");
     } catch (failure) {
@@ -103,42 +99,14 @@ export const AttendanceTools = ({
   };
 
   return (
-    <Stack spacing={2}>
-      <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
-        <Button
-          variant="outlined"
-          startIcon={<QrCode2Icon />}
-          onClick={() => setShowing("qr")}
-        >
-          Mostrar QR de asistencia
-        </Button>
-        <Button
-          variant="outlined"
-          startIcon={<QrCodeScannerIcon />}
-          onClick={() => setShowing("scanner")}
-        >
-          Escanear tickets
-        </Button>
-      </Stack>
-      <VisitorsPanel
+    <Stack spacing={3} component="aside">
+      <QrCard eventId={eventId} title={title} />
+      <ScanCard title={title} onCheckIn={checkIn} />
+      <VisitorsCard
         guestCount={guestCount}
         onAddVisitor={addVisitor}
         onSaveGuests={saveGuests}
       />
-      {showing === "qr" && (
-        <AttendanceQrDialog
-          eventId={eventId}
-          title={title}
-          close={() => setShowing(null)}
-        />
-      )}
-      {showing === "scanner" && (
-        <TicketScanner
-          title={title}
-          close={() => setShowing(null)}
-          onCheckIn={checkIn}
-        />
-      )}
     </Stack>
   );
 };

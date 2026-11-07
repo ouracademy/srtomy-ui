@@ -114,6 +114,29 @@ test.describe("Accesibilidad", () => {
           isACourse: true,
           organizationName: "Jóvenes",
           canRegister: true,
+          // The pages of an event that is part of another and of one with a
+          // program are checked too.
+          container: { slug: "congreso", title: "Congreso" },
+          program: [
+            {
+              slug: "taller",
+              title: "Taller de liderazgo",
+              start: "2030-01-05T15:00:00Z",
+              end: "2030-01-05T16:00:00Z",
+              isACourse: false,
+              registrationMode: "INHERIT",
+              includedInTicket: true,
+            },
+            {
+              slug: "escuela",
+              title: "Escuela bíblica",
+              start: "2030-01-06T15:00:00Z",
+              end: "2030-01-06T16:00:00Z",
+              isACourse: true,
+              registrationMode: "OPEN",
+              includedInTicket: false,
+            },
+          ],
           registration: {
             open: true,
             requiresAccount: false,

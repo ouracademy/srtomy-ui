@@ -29,6 +29,8 @@ export type TicketForm = {
   // datetime-local values ("2026-03-01T09:00"); empty is no limit.
   salesStart: string;
   salesEnd: string;
+  // The sub-events of the program it gives access to; empty is the whole program.
+  subEventIds?: string[];
 };
 
 export const FREE_TICKET_NAME = "General";
@@ -79,6 +81,7 @@ export const fromSetupResponse = (
       quantity: ticket.quantity ? String(ticket.quantity) : "",
       salesStart: toLocalInput(ticket.salesStart),
       salesEnd: toLocalInput(ticket.salesEnd),
+      subEventIds: ticket.subEventIds ?? [],
     })),
   };
 };
@@ -140,6 +143,7 @@ export const toSetupRequest = (
       quantity: ticket.quantity.trim() ? Number(ticket.quantity) : undefined,
       salesStart: fromLocalInput(ticket.salesStart),
       salesEnd: fromLocalInput(ticket.salesEnd),
+      subEventIds: ticket.subEventIds ?? [],
     })),
   };
 };

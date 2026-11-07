@@ -90,6 +90,7 @@ describe("RegistrationSetupDialog", () => {
           quantity: 40,
           salesStart: undefined,
           salesEnd: undefined,
+          subEventIds: [],
         },
       ],
     });
