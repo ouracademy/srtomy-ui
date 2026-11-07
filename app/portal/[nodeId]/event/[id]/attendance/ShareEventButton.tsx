@@ -43,7 +43,8 @@ export const ShareEventButton = ({
       ) {
         await putEventsByIdSharing(eventId, {
           generalAccess: draft.generalAccess,
-          applyToProgram: draft.applyToProgram,
+          // Only sent when asked for, so the usual request stays the same.
+          applyToProgram: draft.applyToProgram || undefined,
         });
       }
       for (const shareId of draft.removed) {
