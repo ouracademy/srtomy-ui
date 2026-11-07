@@ -206,6 +206,10 @@ export default function AttendanceEvent(props: {
             <RegistrationPanel
               eventId={id}
               title={event.title ?? ""}
+              subEvents={(event.children ?? []).map((child) => ({
+                id: child.id ?? "",
+                title: child.title ?? "",
+              }))}
               can={{
                 configure: can("registrations.configure"),
                 close: can("registrations.close"),

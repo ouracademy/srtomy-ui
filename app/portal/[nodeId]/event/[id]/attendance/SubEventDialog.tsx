@@ -65,6 +65,7 @@ export const SubEventDialog = ({
       speakers: [],
       registrationMode: "INHERIT",
       track: "",
+      requiresContainerRegistration: false,
       registration: noRegistration(),
     }),
     [start, end, initialRange],
@@ -89,6 +90,10 @@ export const SubEventDialog = ({
         parentEventId: parent.id,
         registrationMode: mode,
         track: values.track?.trim() || undefined,
+        requiresContainerRegistration:
+          mode === "OWN"
+            ? Boolean(values.requiresContainerRegistration)
+            : false,
       });
     } catch (error) {
       alert.showMessage(

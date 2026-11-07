@@ -365,6 +365,21 @@ describe("EventForm", () => {
       ).not.toBeInTheDocument();
     });
 
+    it("offers to ask for a place in the event first only when it has its own sign-up", () => {
+      const { unmount } = renderSubEvent();
+      expect(
+        screen.queryByLabelText(/Solo para quienes ya se inscribieron/),
+      ).not.toBeInTheDocument();
+      unmount();
+
+      renderSubEvent(vi.fn(), { registrationMode: "OWN" });
+      expect(
+        screen.getByLabelText(
+          "Solo para quienes ya se inscribieron a «Congreso»",
+        ),
+      ).toBeInTheDocument();
+    });
+
     it("offers a course or room only for a sub-event", () => {
       renderSubEvent();
 

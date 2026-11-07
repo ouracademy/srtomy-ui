@@ -126,6 +126,27 @@ describe("SubEventDialog", () => {
     expect(api.postEvents.mock.calls[0]?.[0].track).toBe("Curso de liderazgo");
   });
 
+  it("asks for a place in the event first when the organizer says so", async () => {
+    const user = setup();
+    await user.type(
+      screen.getByPlaceholderText("Agregar título"),
+      "Taller extra",
+    );
+    await user.click(screen.getByRole("combobox", { name: "Inscripción" }));
+    await user.click(await screen.findByRole("option", { name: "Propia" }));
+    await user.click(
+      screen.getByLabelText(/Solo para quienes ya se inscribieron/),
+    );
+
+    await user.click(screen.getByRole("button", { name: "Guardar" }));
+
+    await waitFor(() => expect(api.postEvents).toHaveBeenCalledOnce());
+    expect(api.postEvents.mock.calls[0]?.[0]).toMatchObject({
+      registrationMode: "OWN",
+      requiresContainerRegistration: true,
+    });
+  });
+
   it("sets up its own registration when it has one", async () => {
     const user = setup();
     await user.type(screen.getByPlaceholderText("Agregar título"), "Cena");

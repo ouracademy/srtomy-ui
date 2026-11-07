@@ -154,6 +154,10 @@ export const toEditRequest = ({
     recurrence,
     registrationMode: values.registrationMode,
     track: values.track?.trim() ?? "",
+    requiresContainerRegistration:
+      values.registrationMode === "OWN"
+        ? Boolean(values.requiresContainerRegistration)
+        : undefined,
     timeZone: !repeats || recurrence ? timeZone : undefined,
   };
 };

@@ -3317,6 +3317,9 @@
           "track": {
             "type": "string",
             "maxLength": 100
+          },
+          "requiresContainerRegistration": {
+            "type": "boolean"
           }
         },
         "required": [
@@ -3540,6 +3543,13 @@
           "salesEnd": {
             "type": "string",
             "format": "date-time"
+          },
+          "subEventIds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            }
           }
         },
         "required": [
@@ -3606,6 +3616,13 @@
           "sold": {
             "type": "integer",
             "format": "int64"
+          },
+          "subEventIds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            }
           }
         }
       },
@@ -4232,6 +4249,9 @@
           "track": {
             "type": "string",
             "maxLength": 100
+          },
+          "requiresContainerRegistration": {
+            "type": "boolean"
           }
         },
         "required": [
@@ -5486,6 +5506,9 @@
           "programSize": {
             "type": "integer",
             "format": "int32"
+          },
+          "requiresContainerRegistration": {
+            "type": "boolean"
           }
         }
       },

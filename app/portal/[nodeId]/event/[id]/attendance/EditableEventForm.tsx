@@ -84,6 +84,9 @@ export const EditableEventForm = ({
       description: event.description,
       // How a sub-event is entered; an event on its own has no such thing.
       track: parentId ? (event.track ?? "") : undefined,
+      requiresContainerRegistration: parentId
+        ? Boolean(event.requiresContainerRegistration)
+        : undefined,
       registrationMode: parentId
         ? (event.registrationMode ?? "INHERIT")
         : undefined,

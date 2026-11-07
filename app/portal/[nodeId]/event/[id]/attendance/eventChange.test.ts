@@ -165,6 +165,26 @@ describe("toEditRequest", () => {
     timeZone: "America/Lima",
   };
 
+  it("sends whether a sub-event with its own sign-up asks for a place in the event first", () => {
+    const own = { ...initial, registrationMode: "OWN" as const };
+    expect(
+      toEditRequest({
+        ...context,
+        values: { ...own, requiresContainerRegistration: true },
+      }).requiresContainerRegistration,
+    ).toBe(true);
+    expect(
+      toEditRequest({
+        ...context,
+        values: {
+          ...initial,
+          registrationMode: "INHERIT",
+          requiresContainerRegistration: true,
+        },
+      }).requiresContainerRegistration,
+    ).toBeUndefined();
+  });
+
   it("sends the course or room trimmed, and empty to clear it", () => {
     expect(
       toEditRequest({

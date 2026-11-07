@@ -8,6 +8,7 @@ import {
   SubmitHandler,
   TextFieldElement,
   useForm,
+  CheckboxElement,
 } from "react-hook-form-mui";
 import { DatePickerElement } from "react-hook-form-mui/date-pickers";
 import { useDebounce } from "use-debounce";
@@ -50,6 +51,8 @@ const fields = z.object({
   registrationMode: z.enum(["INHERIT", "OWN", "OPEN"]).optional(),
   // The course, room or track of the program a sub-event belongs to.
   track: z.string().max(100).optional(),
+  // A sub-event with its own sign-up asks for a place in its event first.
+  requiresContainerRegistration: z.boolean().optional(),
   registration: z
     .custom<RegistrationFormData>()
     .superRefine((value, context) => {
@@ -232,6 +235,14 @@ export const EventForm = ({
           {container && (
             <Grid size={{ xs: 12 }}>
               <RegistrationModeField />
+            </Grid>
+          )}
+          {container && watch("registrationMode") === "OWN" && (
+            <Grid size={{ xs: 12 }}>
+              <CheckboxElement
+                name="requiresContainerRegistration"
+                label={`Solo para quienes ya se inscribieron a «${container.title}»`}
+              />
             </Grid>
           )}
           {container && (
