@@ -83,9 +83,6 @@ test.describe("Editar un evento", () => {
     await page.getByRole("button", { name: "Editar", exact: true }).click();
     await page.getByPlaceholder("Agregar título").fill("Culto de oración");
     await page.getByRole("button", { name: "Guardar", exact: true }).click();
-    // The people signed up are told, so it asks first.
-    await expect(page.getByText(/recibirán un correo/)).toBeVisible();
-    await page.getByRole("button", { name: "Guardar cambios" }).click();
 
     await expect(
       page.getByRole("alert").filter({ hasText: /Evento actualizado/ }),
@@ -135,7 +132,6 @@ test.describe("Editar un evento", () => {
     await page.getByRole("button", { name: "Editar", exact: true }).click();
     await page.getByPlaceholder("Agregar título").fill("Otro nombre");
     await page.getByRole("button", { name: "Guardar", exact: true }).click();
-    await page.getByRole("button", { name: "Guardar cambios" }).click();
 
     await expect(
       page.getByText("La hora de fin no puede ser anterior a la de inicio"),
@@ -143,11 +139,20 @@ test.describe("Editar un evento", () => {
     await expect(page.getByPlaceholder("Agregar título")).toBeEnabled();
   });
 
-  test("Cancelar descarta los cambios", async ({ page }) => {
+  test("el aviso de los correos se ve al empezar a editar", async ({
+    page,
+  }) => {
+    await page.goto(`/portal/${nodeId}/event/${eventId}/attendance`);
+    await page.getByRole("button", { name: "Editar", exact: true }).click();
+
+    await expect(page.getByText(/recibirán un correo/)).toBeVisible();
+  });
+
+  test("la X cierra el diálogo y descarta los cambios", async ({ page }) => {
     await page.goto(`/portal/${nodeId}/event/${eventId}/attendance`);
     await page.getByRole("button", { name: "Editar", exact: true }).click();
     await page.getByPlaceholder("Agregar título").fill("Descartado");
-    await page.getByRole("button", { name: "Cancelar" }).click();
+    await page.getByRole("button", { name: "Cerrar" }).click();
 
     await expect(
       page.getByRole("dialog", { name: "Editar el evento" }),

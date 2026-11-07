@@ -74,7 +74,9 @@ describe("AttendanceEvent", () => {
     expect(
       screen.getByRole("heading", { name: "Congreso Avivamiento 2026" }),
     ).toBeInTheDocument();
-    expect(screen.getByText("Cualquiera con el enlace")).toBeInTheDocument();
+    expect(
+      screen.getByText("Público: cualquiera con el enlace"),
+    ).toBeInTheDocument();
     expect(screen.getByTestId("detail")).toBeInTheDocument();
     expect(screen.queryByTestId("attendance")).toBeNull();
     expect(screen.getByRole("tab", { name: /Asistencia/ })).toHaveTextContent(
@@ -101,6 +103,16 @@ describe("AttendanceEvent", () => {
     expect(screen.getByRole("dialog")).toContainElement(
       screen.getByTestId("form"),
     );
+  });
+
+  it("closes the editor with the X, not with a Cancelar at the bottom", async () => {
+    const user = await renderPage();
+
+    await user.click(screen.getByRole("button", { name: "Editar" }));
+    expect(screen.queryByRole("button", { name: "Cancelar" })).toBeNull();
+    await user.click(screen.getByRole("button", { name: "Cerrar" }));
+
+    await vi.waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
   });
 
   it("deletes the event after asking, warning about its sub-events", async () => {

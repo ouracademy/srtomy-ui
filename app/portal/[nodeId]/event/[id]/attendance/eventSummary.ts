@@ -17,11 +17,11 @@ export const hoursLabel = (start?: Date, end?: Date): string =>
 export const accessLabel = (generalAccess?: string): string | undefined => {
   switch (generalAccess) {
     case "ANYONE_WITH_LINK":
-      return "Cualquiera con el enlace";
+      return "Público: cualquiera con el enlace";
     case "CHURCH":
-      return "Toda la iglesia";
+      return "Solo la iglesia: con el enlace";
     case "RESTRICTED":
-      return "Solo quienes lo reciben";
+      return "Privado: solo con acceso";
     default:
       return undefined;
   }

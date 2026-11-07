@@ -30,9 +30,11 @@ describe("hoursLabel", () => {
 
 describe("accessLabel", () => {
   it("names who can open the event, and nothing when it is not known", () => {
-    expect(accessLabel("ANYONE_WITH_LINK")).toBe("Cualquiera con el enlace");
-    expect(accessLabel("CHURCH")).toBe("Toda la iglesia");
-    expect(accessLabel("RESTRICTED")).toBe("Solo quienes lo reciben");
+    expect(accessLabel("ANYONE_WITH_LINK")).toBe(
+      "Público: cualquiera con el enlace",
+    );
+    expect(accessLabel("CHURCH")).toBe("Solo la iglesia: con el enlace");
+    expect(accessLabel("RESTRICTED")).toBe("Privado: solo con acceso");
     expect(accessLabel(undefined)).toBeUndefined();
   });
 });

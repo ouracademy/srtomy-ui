@@ -64,7 +64,6 @@ const series: EventResponse = {
 const setup = (event: EventResponse, editing = true) => {
   const showMessage = vi.fn();
   const saved = vi.fn();
-  const cancel = vi.fn();
   render(
     <LocalizationProvider dateAdapter={AdapterDateFns}>
       <SnackbarContext.Provider value={{ message: "", showMessage }}>
@@ -73,13 +72,12 @@ const setup = (event: EventResponse, editing = true) => {
           eventId={EVENT}
           event={event}
           editing={editing}
-          cancel={cancel}
           saved={saved}
         />
       </SnackbarContext.Provider>
     </LocalizationProvider>,
   );
-  return { showMessage, saved, cancel, user: userEvent.setup() };
+  return { showMessage, saved, user: userEvent.setup() };
 };
 
 const rename = async (
@@ -103,7 +101,7 @@ describe("EditableEventForm", () => {
       screen.getByPlaceholderText("Agregar título").matches(":disabled"),
     ).toBe(true);
     expect(screen.queryByRole("button", { name: "Guardar" })).toBeNull();
-    expect(screen.queryByRole("button", { name: "Cancelar" })).toBeNull();
+    expect(screen.queryByText(/recibirán un correo/)).toBeNull();
   });
 
   it("shows the kind (event or course) as a value that cannot change", () => {
@@ -138,22 +136,19 @@ describe("EditableEventForm", () => {
     expect(screen.queryByRole("dialog")).toBeNull();
   });
 
-  it("asks to confirm a new name of a single event, because the people signed up are told", async () => {
+  it("tells from the start that the people signed up get an email, and saves right away", async () => {
     const { user } = setup(oneOff);
 
+    expect(screen.getByText(/recibirán un correo/)).toBeTruthy();
     await rename(user, "Retiro de jóvenes");
     await user.click(screen.getByRole("button", { name: "Guardar" }));
-
-    expect(putEventsById).not.toHaveBeenCalled();
-    expect(screen.getByText(/recibirán un correo/)).toBeTruthy();
-    expect(screen.queryByRole("radio")).toBeNull();
-    await user.click(screen.getByRole("button", { name: "Guardar cambios" }));
 
     await waitFor(() => expect(putEventsById).toHaveBeenCalledTimes(1));
     expect(putEventsById.mock.calls[0]?.[1]).toMatchObject({
       name: "Retiro de jóvenes",
       option: "THIS_EVENT",
     });
+    expect(screen.queryByRole("dialog")).toBeNull();
   });
 
   it("asks which occurrences to edit for an event of a series and sends the choice", async () => {
@@ -211,21 +206,12 @@ describe("EditableEventForm", () => {
 
     await rename(user, "Otro");
     await user.click(screen.getByRole("button", { name: "Guardar" }));
-    await user.click(screen.getByRole("button", { name: "Guardar cambios" }));
 
     await waitFor(() => expect(showMessage).toHaveBeenCalled());
     expect(showMessage).toHaveBeenCalledWith(
       "No se puede cambiar la iglesia, sede o grupo",
     );
     expect(saved).not.toHaveBeenCalled();
-  });
-
-  it("closes the editor with Cancelar", async () => {
-    const { user, cancel } = setup(oneOff);
-
-    await user.click(screen.getByRole("button", { name: "Cancelar" }));
-
-    expect(cancel).toHaveBeenCalled();
   });
 });
 

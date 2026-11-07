@@ -39,7 +39,9 @@ describe("EventHero", () => {
     expect(
       screen.getByRole("heading", { name: "Congreso Avivamiento 2026" }),
     ).toBeInTheDocument();
-    expect(screen.getByText("Cualquiera con el enlace")).toBeInTheDocument();
+    expect(
+      screen.getByText("Público: cualquiera con el enlace"),
+    ).toBeInTheDocument();
     expect(screen.getByText("vie 13 nov a dom 15 nov")).toBeInTheDocument();
     // An event of several days does not say its hours.
     expect(screen.queryByText(/ a \d\d:\d\d$/)).toBeNull();
@@ -73,7 +75,7 @@ describe("EventHero", () => {
 
     expect(screen.queryByRole("button", { name: "Editar" })).toBeNull();
     expect(screen.queryByRole("button", { name: "Más acciones" })).toBeNull();
-    expect(screen.queryByText("Cualquiera con el enlace")).toBeNull();
+    expect(screen.queryByText("Público: cualquiera con el enlace")).toBeNull();
     expect(screen.getByText("vie 13 nov a dom 15 nov")).toBeInTheDocument();
   });
 

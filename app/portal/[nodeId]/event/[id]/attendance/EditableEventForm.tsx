@@ -10,7 +10,7 @@ import { EventDetailFormData, EventForm } from "@/app/(components)/EventForm";
 import { fromRecurrenceResponse } from "@/app/(components)/recurrence";
 import { noRegistration } from "@/app/(components)/registration";
 import { SnackbarContext } from "@/app/(components)/SnackbarContext";
-import { Button, Stack } from "@mui/material";
+import { Alert, Box } from "@mui/material";
 import { useContext, useMemo, useState } from "react";
 import { fullName } from "../../../person/PersonTable";
 import { EditEventDialog } from "./EditEventDialog";
@@ -27,9 +27,12 @@ type EditableEventFormProps = Readonly<{
   event: EventResponse;
   // Read-only until the user asks to edit.
   editing: boolean;
-  cancel: () => void;
   saved: (result: EditEventResponse) => void;
 }>;
+
+// Said on the form, before anything is changed, so nobody is surprised.
+const EMAIL_NOTICE =
+  "Las personas inscritas recibirán un correo si cambia la fecha, la hora, el nombre, el lugar o los ponentes.";
 
 // What the API answers, in a sentence for the snackbar.
 export const savedMessage = (result: EditEventResponse): string => {
@@ -55,7 +58,6 @@ export const EditableEventForm = ({
   eventId,
   event,
   editing,
-  cancel,
   saved,
 }: EditableEventFormProps) => {
   const alert = useContext(SnackbarContext);
@@ -133,18 +135,13 @@ export const EditableEventForm = ({
       alert.showMessage(STOP_REPEATING_MESSAGE);
       return;
     }
-    if (
-      !repeats &&
-      !change.scheduleMoved &&
-      !change.detailsChanged &&
-      !change.ruleChanged &&
-      !change.ownSignUpsEnd
-    ) {
+    // A series asks which occurrences it reaches, and ending the sign-ups of a
+    // sub-event cancels them, so both ask first. Any other event saves right
+    // away: the notice about the emails is already on the form.
+    if (!repeats && !change.ownSignUpsEnd) {
       await save(values, "THIS_EVENT");
       return;
     }
-    // A series asks which occurrences; a single event whose schedule or details
-    // change asks to confirm because of the emails.
     setPending(values);
   };
 
@@ -152,6 +149,12 @@ export const EditableEventForm = ({
 
   return (
     <>
+      {editing && !repeats && (
+        // Room on the right for the close button of the dialog.
+        <Box sx={{ px: 4, pt: 6 }}>
+          <Alert severity="info">{EMAIL_NOTICE}</Alert>
+        </Box>
+      )}
       <EventForm
         // A new form (the saved or the discarded data) each time it opens.
         key={`${editing}-${event.lastModifiedDate?.toString() ?? ""}`}
@@ -170,11 +173,6 @@ export const EditableEventForm = ({
             : undefined
         }
       />
-      {editing && (
-        <Stack direction="row" justifyContent="flex-end" px={4}>
-          <Button onClick={cancel}>Cancelar</Button>
-        </Stack>
-      )}
       {change && (
         <EditEventDialog
           open

@@ -11,7 +11,8 @@ import Loading from "@/app/(components)/Loading";
 import { ResourceError } from "@/app/(components)/ResourceError";
 import { SnackbarContext } from "@/app/(components)/SnackbarContext";
 import { usePermissions } from "@/app/(hooks)/usePermissions";
-import { Box, Chip, Dialog, Stack, Tab, Tabs } from "@mui/material";
+import CloseIcon from "@mui/icons-material/Close";
+import { Box, Chip, Dialog, IconButton, Stack, Tab, Tabs } from "@mui/material";
 import { useRouter } from "next/navigation";
 import React, { useContext } from "react";
 import { AttendanceTab } from "./AttendanceTab";
@@ -152,12 +153,18 @@ export default function AttendanceEvent(props: {
           onClose={() => setEditing(false)}
           slotProps={{ paper: { "aria-label": "Editar el evento" } }}
         >
+          <IconButton
+            aria-label="Cerrar"
+            onClick={() => setEditing(false)}
+            sx={{ position: "absolute", right: 8, top: 8, zIndex: 1 }}
+          >
+            <CloseIcon />
+          </IconButton>
           <EditableEventForm
             nodeId={nodeId}
             eventId={id}
             event={event}
             editing
-            cancel={() => setEditing(false)}
             saved={() => {
               setEditing(false);
               void mutateEvent();
