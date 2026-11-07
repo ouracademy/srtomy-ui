@@ -11,6 +11,17 @@ describe("eventWhen", () => {
     ).toBe("sábado 5 de enero de 2030, 10:00 a 12:30");
   });
 
+  it("says both days when the event lasts several days", () => {
+    expect(
+      eventWhen({
+        start: new Date(2030, 0, 5, 9, 0),
+        end: new Date(2030, 0, 7, 13, 0),
+      }),
+    ).toBe(
+      "Del sábado 5 de enero de 2030, 09:00 al lunes 7 de enero de 2030, 13:00",
+    );
+  });
+
   it("writes only the start when there is no end", () => {
     expect(eventWhen({ start: new Date(2030, 0, 5, 9, 5) })).toBe(
       "sábado 5 de enero de 2030, 09:05",

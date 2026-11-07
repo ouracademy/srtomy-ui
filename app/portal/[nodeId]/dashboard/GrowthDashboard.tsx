@@ -347,6 +347,11 @@ export const GrowthDashboard = ({ nodeId }: { nodeId: string }) => {
                 <Typography variant="h6" component="h2" gutterBottom>
                   Eventos y asistencia
                 </Typography>
+                <Typography variant="body2" color="text.secondary" gutterBottom>
+                  Un megaevento y cada uno de sus sub-eventos cuentan como un
+                  evento, con su propia asistencia. Quien entra con ticket se
+                  cuenta una sola vez.
+                </Typography>
                 <BarChart
                   height={280}
                   xAxis={[{ data: labels, scaleType: "band" }]}

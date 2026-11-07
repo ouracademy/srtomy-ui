@@ -77,11 +77,7 @@ export const AttendanceQrView = ({
 );
 
 // Asks the API for the code and asks again when it is time to renew it.
-export const AttendanceQrDialog = ({
-  eventId,
-  title,
-  close,
-}: Readonly<{ eventId: string; title: string; close: () => void }>) => {
+export const useAttendanceQr = (eventId: string) => {
   const { data, error, mutate } = useGetEventsByIdAttendanceQr(eventId, {
     swr: { shouldRetryOnError: false },
   });
@@ -98,11 +94,23 @@ export const AttendanceQrDialog = ({
     return () => clearTimeout(timer);
   }, [refreshAt, mutate]);
 
+  return {
+    token: data?.token ?? null,
+    onRetry: error && !data ? () => void mutate() : undefined,
+  };
+};
+
+export const AttendanceQrDialog = ({
+  eventId,
+  title,
+  close,
+}: Readonly<{ eventId: string; title: string; close: () => void }>) => {
+  const { token, onRetry } = useAttendanceQr(eventId);
   return (
     <AttendanceQrView
       title={title}
-      token={data?.token ?? null}
-      onRetry={error && !data ? () => void mutate() : undefined}
+      token={token}
+      onRetry={onRetry}
       close={close}
     />
   );

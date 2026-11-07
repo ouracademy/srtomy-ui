@@ -1,25 +1,17 @@
-import { RenderBuilderContent } from "@/components/builder";
-import { builder } from "@builder.io/sdk";
-import LandingLayout from "../landing-layout";
+import type { Metadata } from "next";
+import { LegalDocument } from "../(components)/LegalDocument";
+import { LegalLayout } from "../landing/LegalLayout";
+import { privacyContent } from "./content";
 
-// Builder Public API Key set in .env file
-builder.init(process.env.NEXT_PUBLIC_BUILDER_API_KEY!);
+export const metadata: Metadata = {
+  title: privacyContent.title,
+  alternates: { canonical: "/privacy-policy" },
+};
 
-export default async function PrivacyPolicy() {
-  const content = await builder
-    // Get the page content from Builder with the specified options
-    .get("page", {
-      userAttributes: {
-        // Use the page path specified in the URL to fetch the content
-        urlPath: "/privacy-policy",
-      },
-    })
-    // Convert the result to a promise
-    .toPromise();
-
+export default function PrivacyPolicy() {
   return (
-    <LandingLayout>
-      <RenderBuilderContent content={content} />
-    </LandingLayout>
+    <LegalLayout>
+      <LegalDocument {...privacyContent} />
+    </LegalLayout>
   );
 }

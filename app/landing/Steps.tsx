@@ -7,7 +7,7 @@ import { landingColors } from "./theme";
 export function Steps() {
   return (
     <Section bgcolor={landingColors.sand}>
-      <SectionTitle>Empieza en cuatro pasos.</SectionTitle>
+      <SectionTitle>Empieza en cuatro pasos</SectionTitle>
       <Box
         component="ol"
         sx={{

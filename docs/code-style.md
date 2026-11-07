@@ -82,4 +82,3 @@ Dos reglas: **proximidad** para lo que usa una sola pantalla, y **globales con n
 ## Dependencias
 
 - Antes de agregar una librería, comprueba que MUI, SWR, react-hook-form, zod o date-fns no resuelvan ya el problema. Justifica la nueva en el PR.
-- No agregues nada que dependa de Builder.io: se está retirando.

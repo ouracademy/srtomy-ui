@@ -49,6 +49,8 @@ export type PendingShare = { email: string; role: ShareRole };
 // What the user changed in the dialog and has not saved yet.
 export type SharingDraft = {
   generalAccess: GeneralAccess;
+  // Also give that access to every sub-event of the event's program.
+  applyToProgram?: boolean;
   // People to share with (or whose role changes), by email.
   added: PendingShare[];
   // Ids of the shares to take away.
@@ -63,6 +65,7 @@ export const hasUnsavedChanges = (
   draft: SharingDraft,
 ): boolean =>
   draft.generalAccess !== saved ||
+  draft.applyToProgram === true ||
   draft.added.length > 0 ||
   draft.removed.length > 0;
 

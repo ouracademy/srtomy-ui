@@ -136,6 +136,12 @@ describe("GrowthDashboard", () => {
     ).toBe("30");
   });
 
+  it("explains how mega events and sub-events are counted", () => {
+    render(<GrowthDashboard nodeId="n1" />);
+
+    expect(screen.getByText(/megaevento y cada uno/)).toBeTruthy();
+  });
+
   it("changes the range when a preset is clicked", async () => {
     const user = userEvent.setup();
     render(<GrowthDashboard nodeId="n1" />);
@@ -158,6 +164,7 @@ describe("GrowthDashboard", () => {
     expect(screen.queryByText("Eventos realizados")).toBeNull();
     expect(screen.queryByText("Asistencia total")).toBeNull();
     expect(screen.queryByText("Eventos y asistencia")).toBeNull();
+    expect(screen.queryByText(/megaevento y cada uno/)).toBeNull();
   });
 
   it("opens the table with the numbers of each period", async () => {
