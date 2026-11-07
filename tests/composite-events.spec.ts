@@ -1,5 +1,14 @@
 import { test, expect } from "./fixtures";
 
+// The other endpoints under an event answer lists (notices, sign-ups) or counts.
+const sideEndpoint = (url: string): string | undefined => {
+  if (url.endsWith("/notices") || url.endsWith("/registrations")) return "[]";
+  if (url.endsWith("/attendance/summary")) {
+    return JSON.stringify({ people: 0, ticketOnly: 0, guests: 0, total: 0 });
+  }
+  return undefined;
+};
+
 test.describe("Eventos compuestos", () => {
   const nodeId = "11111111-1111-1111-1111-111111111111";
   const megaId = "55555555-5555-5555-5555-555555555555";
@@ -61,6 +70,15 @@ test.describe("Eventos compuestos", () => {
     await page.route(`**/events/${megaId}**`, async (route) => {
       if (route.request().url().endsWith("/attendance")) {
         await route.fulfill({ status: 204 });
+        return;
+      }
+      const other = sideEndpoint(route.request().url());
+      if (other !== undefined) {
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: other,
+        });
         return;
       }
       await route.fulfill({
@@ -134,7 +152,7 @@ test.describe("Eventos compuestos", () => {
     await dialog.getByRole("button", { name: "Guardar" }).click();
 
     await expect(
-      program.getByRole("link", { name: /Taller de liderazgo/ }),
+      program.getByRole("link", { name: /^Taller de liderazgo/ }),
     ).toBeVisible();
     expect(postedChild).toMatchObject({
       name: "Taller de liderazgo",
@@ -150,6 +168,15 @@ test.describe("Eventos compuestos", () => {
     await page.route(`**/events/${childId}**`, async (route) => {
       if (route.request().url().endsWith("/attendance")) {
         await route.fulfill({ status: 204 });
+        return;
+      }
+      const other = sideEndpoint(route.request().url());
+      if (other !== undefined) {
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: other,
+        });
         return;
       }
       await route.fulfill({
