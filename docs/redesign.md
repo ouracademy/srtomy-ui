@@ -239,6 +239,16 @@ No se construye en 005-009; queda documentado para no perder la idea. Una campan
 - **Preferencias**: pantalla para elegir qué tipos recibir y por qué canal; los avisos del sistema no se pueden silenciar.
 - **Decisiones abiertas**: retención (p. ej. 90 días), si el cumpleaños se genera al vuelo (sin guardar filas) y si hace falta tiempo real (SSE) o basta el polling.
 
+## 12. Trabajo futuro: pantalla del evento
+
+La pantalla del evento se rediseñó con un encabezado de color, dos pestañas (Detalle y Asistencia) y el programa como calendario donde se crean sesiones arrastrando. Queda para después, sin construir:
+
+- **Imagen de portada** («Cambiar portada»): hoy el encabezado es solo un degradado. Hace falta subir y guardar la imagen de cada evento (almacenamiento y límites de tamaño en el API, y mostrarla en el encabezado y en la página pública `/e/{slug}`), y decidir si hay un degradado por defecto según el tipo de evento. Se anota aquí por pedido del dueño del producto; no se hace sin consultarlo.
+- **Fecha, hora y lugar editables en el propio encabezado**: hoy las píldoras abren el mismo formulario de «Editar». Editar cada una en el lugar (con su selector) sería más directo.
+- **Resumen de la inscripción en la columna lateral y tarjetas por tipo de ticket**: hoy el panel de inscripción sigue siendo la tabla completa debajo del programa. El diseño propone un resumen a un lado (abierta o cerrada, cupos, tickets) y los inscritos en tarjetas por ticket.
+- **Selector de sesión en Asistencia**: ver la asistencia de todo el congreso o de una sesión desde la misma pestaña, en vez de entrar a la pantalla de cada sub-evento.
+- **Calendario del programa en el celular**: crear sesiones arrastrando no se puede en la vista de lista; allí queda el botón «Agregar sub-evento».
+
 ## Archivos clave
 
 - API: `src/main/resources/db/migration/` (nueva `V1.1.0__…`), `J/shared/SecurityConfig.java`, `J/organization/command/OrganizationWriter.java`, `J/organization/command/create_church/CreateChurchCommandHandlerImpl.java`, `J/auth/gateway/Auth0Gateway.java` (se elimina el uso de app_metadata), `J/organization/controller/OrganizationController.java`. Módulos nuevos: `user/`, `iam/`, `invitation/`, `notification/`, siguiendo `docs/code-style.md` y `ArchitectureTests`.

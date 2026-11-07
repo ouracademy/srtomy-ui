@@ -17,6 +17,7 @@ import {
   Typography,
 } from "@mui/material";
 import { useState, type ReactNode } from "react";
+import { isSameDay } from "date-fns";
 import { accessLabel, dateRangeLabel, hoursLabel } from "./eventSummary";
 
 type EventHeroProps = Readonly<{
@@ -153,7 +154,10 @@ export const EventHero = ({
         </Typography>
         <Stack direction="row" spacing={1.25} useFlexGap flexWrap="wrap">
           {pill(<CalendarMonthIcon />, dateRangeLabel(event.start, event.end))}
-          {hoursLabel(event.start, event.end) &&
+          {/* The hours say something only for an event of one day. */}
+          {event.start &&
+            event.end &&
+            isSameDay(event.start, event.end) &&
             pill(<AccessTimeIcon />, hoursLabel(event.start, event.end))}
           {event.address && pill(<PlaceOutlinedIcon />, event.address)}
         </Stack>

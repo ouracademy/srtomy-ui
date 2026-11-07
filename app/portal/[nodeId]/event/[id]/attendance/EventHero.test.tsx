@@ -41,7 +41,8 @@ describe("EventHero", () => {
     ).toBeInTheDocument();
     expect(screen.getByText("Cualquiera con el enlace")).toBeInTheDocument();
     expect(screen.getByText("vie 13 nov a dom 15 nov")).toBeInTheDocument();
-    expect(screen.getByText("09:00 a 20:00")).toBeInTheDocument();
+    // An event of several days does not say its hours.
+    expect(screen.queryByText(/ a \d\d:\d\d$/)).toBeNull();
     expect(screen.getByText("Sede Central, Lima")).toBeInTheDocument();
     expect(
       screen.getByRole("button", { name: "Compartir" }),
@@ -74,5 +75,18 @@ describe("EventHero", () => {
     expect(screen.queryByRole("button", { name: "Más acciones" })).toBeNull();
     expect(screen.queryByText("Cualquiera con el enlace")).toBeNull();
     expect(screen.getByText("vie 13 nov a dom 15 nov")).toBeInTheDocument();
+  });
+
+  it("says the hours of an event of one day", () => {
+    setup({
+      event: {
+        ...event,
+        start: new Date(2026, 10, 13, 9, 0),
+        end: new Date(2026, 10, 13, 11, 30),
+      },
+    });
+
+    expect(screen.getByText("vie 13 nov")).toBeInTheDocument();
+    expect(screen.getByText("09:00 a 11:30")).toBeInTheDocument();
   });
 });

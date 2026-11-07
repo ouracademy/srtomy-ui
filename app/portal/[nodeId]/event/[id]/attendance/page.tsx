@@ -150,7 +150,7 @@ export default function AttendanceEvent(props: {
           fullWidth
           maxWidth="md"
           onClose={() => setEditing(false)}
-          aria-label="Editar el evento"
+          slotProps={{ paper: { "aria-label": "Editar el evento" } }}
         >
           <EditableEventForm
             nodeId={nodeId}
