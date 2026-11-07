@@ -248,7 +248,7 @@ describe("savedMessage", () => {
       };
     });
 
-    it("says which event it is part of and keeps how it is entered under the advanced options", async () => {
+    it("says which event it is part of and keeps how it is entered behind a Cambiar button", async () => {
       const { user } = setup(subEvent);
 
       expect(screen.getByText("Parte de «Congreso»")).toBeInTheDocument();
@@ -256,7 +256,7 @@ describe("savedMessage", () => {
         screen.queryByRole("combobox", { name: "Inscripción" }),
       ).toBeNull();
       await user.click(
-        screen.getByRole("button", { name: "Opciones avanzadas" }),
+        screen.getByRole("button", { name: "Cambiar la inscripción" }),
       );
       expect(
         screen.getByRole("combobox", { name: "Inscripción" }),
@@ -267,7 +267,7 @@ describe("savedMessage", () => {
       const { user, saved } = setup(subEvent);
 
       await user.click(
-        screen.getByRole("button", { name: "Opciones avanzadas" }),
+        screen.getByRole("button", { name: "Cambiar la inscripción" }),
       );
 
       await user.click(screen.getByRole("combobox", { name: "Inscripción" }));

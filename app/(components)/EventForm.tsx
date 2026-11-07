@@ -1,13 +1,4 @@
-import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import {
-  Accordion,
-  AccordionDetails,
-  AccordionSummary,
-  Box,
-  Chip,
-  Grid,
-  Typography,
-} from "@mui/material";
+import { Box, Button, Chip, Grid, Stack, Typography } from "@mui/material";
 import { TimePicker } from "@mui/x-date-pickers";
 import { renderTimeViewClock } from "@mui/x-date-pickers/timeViewRenderers";
 import React from "react";
@@ -58,8 +49,6 @@ const fields = z.object({
   // here; for an existing event it is set from the event itself.
   // How a sub-event is entered; only a sub-event has it.
   registrationMode: z.enum(["INHERIT", "OWN", "OPEN"]).optional(),
-  // The course, room or track of the program a sub-event belongs to.
-  track: z.string().max(100).optional(),
   // A sub-event with its own sign-up asks for a place in its event first.
   requiresContainerRegistration: z.boolean().optional(),
   registration: z
@@ -139,6 +128,8 @@ export const EventForm = ({
     date: watch("date"),
     endDate: watch("endDate"),
   });
+
+  const [changingEntry, setChangingEntry] = React.useState(false);
 
   const registrationFields = (
     <RegistrationFields
@@ -255,16 +246,6 @@ export const EventForm = ({
               <RecurrenceFields readOnly={!editable} />
             </Grid>
           )}
-          {container && (
-            <Grid size={{ xs: 12 }}>
-              <TextFieldElement
-                fullWidth
-                name="track"
-                label="Serie o curso (opcional)"
-                helperText="Une sesiones de varios días, por ejemplo «Curso de liderazgo». La sala va en «Agregar lugar»."
-              />
-            </Grid>
-          )}
           <Grid size={{ xs: 12 }}>
             <AutocompleteElement
               autocompleteProps={{
@@ -330,37 +311,49 @@ export const EventForm = ({
             <Grid size={{ xs: 12 }}>
               {/* How a sub-event is entered is rarely changed: it is the one
                   of the event unless the organizers say otherwise. */}
-              <Accordion
-                disableGutters
-                variant="outlined"
-                defaultExpanded={
-                  !editable || watch("registrationMode") !== "INHERIT"
-                }
-              >
-                <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-                  <Typography fontWeight={600}>Opciones avanzadas</Typography>
-                </AccordionSummary>
-                <AccordionDetails>
-                  <Grid container spacing={2}>
-                    <Grid size={{ xs: 12 }}>
-                      <RegistrationModeField />
-                    </Grid>
-                    {watch("registrationMode") === "OWN" && (
-                      <Grid size={{ xs: 12 }}>
-                        <CheckboxElement
-                          name="requiresContainerRegistration"
-                          label={`Solo para quienes ya se inscribieron a «${container.title}»`}
-                        />
-                      </Grid>
-                    )}
-                    {showRegistration &&
-                      editable &&
-                      watch("registrationMode") === "OWN" && (
-                        <Grid size={{ xs: 12 }}>{registrationFields}</Grid>
-                      )}
+              {watch("registrationMode") === "INHERIT" && !changingEntry ? (
+                <Stack
+                  direction="row"
+                  alignItems="center"
+                  justifyContent="space-between"
+                  flexWrap="wrap"
+                  useFlexGap
+                  spacing={1}
+                >
+                  <Typography variant="body2" color="text.secondary">
+                    <strong>Inscripción:</strong> la del evento. Quien se
+                    inscribe al evento puede entrar a esta sesión.
+                  </Typography>
+                  {editable && (
+                    <Button
+                      size="small"
+                      aria-label="Cambiar la inscripción"
+                      onClick={() => setChangingEntry(true)}
+                    >
+                      Cambiar
+                    </Button>
+                  )}
+                </Stack>
+              ) : (
+                <Grid container spacing={2}>
+                  <Grid size={{ xs: 12 }}>
+                    <RegistrationModeField />
                   </Grid>
-                </AccordionDetails>
-              </Accordion>
+                  {watch("registrationMode") === "OWN" && (
+                    <Grid size={{ xs: 12 }}>
+                      <CheckboxElement
+                        name="requiresContainerRegistration"
+                        label={`Solo para quienes ya se inscribieron a «${container.title}»`}
+                      />
+                    </Grid>
+                  )}
+                  {showRegistration &&
+                    editable &&
+                    watch("registrationMode") === "OWN" && (
+                      <Grid size={{ xs: 12 }}>{registrationFields}</Grid>
+                    )}
+                </Grid>
+              )}
             </Grid>
           )}
           {!container && showRegistration && editable && !repeats && (

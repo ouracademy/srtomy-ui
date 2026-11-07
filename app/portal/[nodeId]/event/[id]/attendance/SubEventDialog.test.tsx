@@ -98,7 +98,7 @@ describe("SubEventDialog", () => {
     await user.type(screen.getByPlaceholderText("Agregar título"), "Culto");
     await user.click(screen.getByRole("button", { name: "Curso" }));
     await user.click(
-      screen.getByRole("button", { name: "Opciones avanzadas" }),
+      screen.getByRole("button", { name: "Cambiar la inscripción" }),
     );
     await user.click(screen.getByRole("combobox", { name: "Inscripción" }));
     await user.click(
@@ -115,20 +115,6 @@ describe("SubEventDialog", () => {
     expect(api.putEventsByIdRegistration).not.toHaveBeenCalled();
   });
 
-  it("sends the course or room it belongs to, without the spaces around it", async () => {
-    const user = setup();
-    await user.type(screen.getByPlaceholderText("Agregar título"), "Clase 1");
-    await user.type(
-      screen.getByLabelText(/Serie o curso/),
-      "  Curso de liderazgo ",
-    );
-
-    await user.click(screen.getByRole("button", { name: "Guardar" }));
-
-    await waitFor(() => expect(api.postEvents).toHaveBeenCalledOnce());
-    expect(api.postEvents.mock.calls[0]?.[0].track).toBe("Curso de liderazgo");
-  });
-
   it("asks for a place in the event first when the organizer says so", async () => {
     const user = setup();
     await user.type(
@@ -136,7 +122,7 @@ describe("SubEventDialog", () => {
       "Taller extra",
     );
     await user.click(
-      screen.getByRole("button", { name: "Opciones avanzadas" }),
+      screen.getByRole("button", { name: "Cambiar la inscripción" }),
     );
     await user.click(screen.getByRole("combobox", { name: "Inscripción" }));
     await user.click(await screen.findByRole("option", { name: "Propia" }));
@@ -157,7 +143,7 @@ describe("SubEventDialog", () => {
     const user = setup();
     await user.type(screen.getByPlaceholderText("Agregar título"), "Cena");
     await user.click(
-      screen.getByRole("button", { name: "Opciones avanzadas" }),
+      screen.getByRole("button", { name: "Cambiar la inscripción" }),
     );
     await user.click(screen.getByRole("combobox", { name: "Inscripción" }));
     await user.click(await screen.findByRole("option", { name: "Propia" }));

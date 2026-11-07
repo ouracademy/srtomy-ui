@@ -13,7 +13,6 @@ const session: ChildResponse = {
   end: new Date(2026, 10, 14, 12, 30),
   isACourse: true,
   registrationMode: "INHERIT",
-  track: "Curso de liderazgo",
 };
 
 const setup = (canEdit = true, shown: ChildResponse | null = session) => {
@@ -38,7 +37,6 @@ describe("SessionPopover", () => {
 
     expect(screen.getByText("Liderazgo, clase 2")).toBeInTheDocument();
     expect(screen.getByText("sáb 14 nov, 10:30 a 12:30")).toBeInTheDocument();
-    expect(screen.getByText("Curso de liderazgo")).toBeInTheDocument();
     expect(screen.getByText("Curso")).toBeInTheDocument();
     expect(screen.getByText("Incluido en la inscripción")).toBeInTheDocument();
   });

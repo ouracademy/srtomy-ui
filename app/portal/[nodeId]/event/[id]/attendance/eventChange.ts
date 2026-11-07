@@ -153,7 +153,6 @@ export const toEditRequest = ({
     option,
     recurrence,
     registrationMode: values.registrationMode,
-    track: values.track?.trim() ?? "",
     requiresContainerRegistration:
       values.registrationMode === "OWN"
         ? Boolean(values.requiresContainerRegistration)

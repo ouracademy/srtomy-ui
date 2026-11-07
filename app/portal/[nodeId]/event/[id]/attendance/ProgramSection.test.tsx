@@ -201,14 +201,29 @@ describe("ProgramSection", () => {
     expect(onChanged).not.toHaveBeenCalled();
   });
 
-  it("offers the sessions as a list that is hidden until asked for", async () => {
+  it("shows the program as a calendar or as a list, in two tabs", async () => {
     const { user } = setup(manyDays([child({})]));
 
+    expect(screen.getByRole("tab", { name: "Calendario" })).toHaveAttribute(
+      "aria-selected",
+      "true",
+    );
+    expect(screen.getByTestId("program-calendar")).toBeInTheDocument();
     expect(screen.queryByRole("link", { name: /^Taller/ })).toBeNull();
-    await user.click(screen.getByRole("button", { name: "Ver como lista" }));
 
+    await user.click(screen.getByRole("tab", { name: "Lista" }));
     expect(screen.getByRole("link", { name: /^Taller/ })).toBeInTheDocument();
-    await user.click(screen.getByRole("button", { name: "Ocultar la lista" }));
-    expect(screen.queryByRole("link", { name: /^Taller/ })).toBeNull();
+    expect(screen.queryByTestId("program-calendar")).toBeNull();
+
+    await user.click(screen.getByRole("tab", { name: "Calendario" }));
+    expect(screen.getByTestId("program-calendar")).toBeInTheDocument();
+  });
+
+  it("says there are no sessions in the list when the program is empty", async () => {
+    const { user } = setup(manyDays([]));
+
+    await user.click(screen.getByRole("tab", { name: "Lista" }));
+
+    expect(screen.getByText("Sin sesiones todavía.")).toBeInTheDocument();
   });
 });

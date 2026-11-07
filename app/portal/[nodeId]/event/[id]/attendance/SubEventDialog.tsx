@@ -64,7 +64,6 @@ export const SubEventDialog = ({
       type: 0,
       speakers: [],
       registrationMode: "INHERIT",
-      track: "",
       requiresContainerRegistration: false,
       registration: noRegistration(),
     }),
@@ -89,7 +88,6 @@ export const SubEventDialog = ({
         isACourse: values.type === 1,
         parentEventId: parent.id,
         registrationMode: mode,
-        track: values.track?.trim() || undefined,
         requiresContainerRegistration:
           mode === "OWN"
             ? Boolean(values.requiresContainerRegistration)

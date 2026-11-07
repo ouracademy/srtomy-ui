@@ -17,6 +17,8 @@ import {
   Button,
   Chip,
   Stack,
+  Tab,
+  Tabs,
   Typography,
 } from "@mui/material";
 import { isSameDay } from "date-fns";
@@ -60,7 +62,7 @@ export const ProgramSection = ({
     element: HTMLElement;
   } | null>(null);
   const [removing, setRemoving] = useState<ChildResponse | null>(null);
-  const [showList, setShowList] = useState(false);
+  const [view, setView] = useState<"calendar" | "list">("calendar");
   const pickedSession = sessions.find((item) => item.id === picked?.id) ?? null;
 
   const move = async (id: string, start: Date, end: Date) => {
@@ -146,7 +148,15 @@ export const ProgramSection = ({
               </Button>
             )}
           </Stack>
-          {event.start && event.end && (
+          <Tabs
+            value={view}
+            onChange={(_, next) => setView(next)}
+            aria-label="Cómo ver el programa"
+          >
+            <Tab value="calendar" label="Calendario" />
+            <Tab value="list" label="Lista" />
+          </Tabs>
+          {view === "calendar" && event.start && event.end && (
             <ProgramCalendar
               start={event.start}
               end={event.end}
@@ -157,25 +167,19 @@ export const ProgramSection = ({
               onPick={(id, element) => setPicked({ id, element })}
             />
           )}
-          {sessions.length > 0 && (
-            <div>
-              <Button
-                size="small"
-                aria-expanded={showList}
-                onClick={() => setShowList((current) => !current)}
-              >
-                {showList ? "Ocultar la lista" : "Ver como lista"}
-              </Button>
-              {showList && (
-                <ProgramList
-                  nodeId={nodeId}
-                  sessions={sessions}
-                  canEdit={canAdd}
-                  onRemove={setRemoving}
-                />
-              )}
-            </div>
-          )}
+          {view === "list" &&
+            (sessions.length === 0 ? (
+              <Typography color="text.secondary">
+                Sin sesiones todavía.
+              </Typography>
+            ) : (
+              <ProgramList
+                nodeId={nodeId}
+                sessions={sessions}
+                canEdit={canAdd}
+                onRemove={setRemoving}
+              />
+            ))}
         </Stack>
       </AccordionDetails>
       <SessionPopover

@@ -380,24 +380,21 @@ describe("EventForm", () => {
       ).toBeInTheDocument();
     });
 
-    it("offers a course or room only for a sub-event", () => {
+    it("says it is entered with the sign-up of the event unless changed", () => {
       renderSubEvent();
 
-      expect(screen.getByLabelText(/Serie o curso/)).toBeInTheDocument();
+      expect(screen.getByText(/la del evento/)).toBeInTheDocument();
+      expect(screen.queryByLabelText(/Serie o curso/)).toBeNull();
     });
 
     it("asks how it is entered and saves the choice", async () => {
       const user = userEvent.setup();
       const submit = vi.fn();
       renderSubEvent(submit);
-      expect(
-        screen.getByText(
-          "Quien se inscribe al evento puede entrar a este sub-evento.",
-        ),
-      ).toBeInTheDocument();
+      expect(screen.getByText(/la del evento/)).toBeInTheDocument();
 
       await user.click(
-        screen.getByRole("button", { name: "Opciones avanzadas" }),
+        screen.getByRole("button", { name: "Cambiar la inscripción" }),
       );
 
       await user.click(screen.getByRole("combobox", { name: "Inscripción" }));

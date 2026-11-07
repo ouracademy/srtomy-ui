@@ -45,7 +45,6 @@ describe("ProgramList", () => {
         title: "Escuela bíblica",
         isACourse: true,
         registrationMode: "OPEN",
-        track: "Sala 2",
       }),
     ]);
 
@@ -63,7 +62,6 @@ describe("ProgramList", () => {
     ).toBeInTheDocument();
     const course = screen.getByRole("link", { name: /^Escuela bíblica/ });
     expect(within(course).getByText("Curso")).toBeInTheDocument();
-    expect(within(course).getByText("Sala 2")).toBeInTheDocument();
     expect(within(course).getByText("Sin inscripción")).toBeInTheDocument();
     expect(screen.getByText("viernes 23 de octubre")).toBeInTheDocument();
     expect(screen.getByText("sábado 24 de octubre")).toBeInTheDocument();

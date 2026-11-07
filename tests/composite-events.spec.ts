@@ -150,7 +150,7 @@ test.describe("Eventos compuestos", () => {
       .fill("Taller de liderazgo");
     await dialog.getByRole("button", { name: "Guardar" }).click();
 
-    await program.getByRole("button", { name: "Ver como lista" }).click();
+    await program.getByRole("tab", { name: "Lista" }).click();
     await expect(
       program.getByRole("link", { name: /^Taller de liderazgo/ }),
     ).toBeVisible();

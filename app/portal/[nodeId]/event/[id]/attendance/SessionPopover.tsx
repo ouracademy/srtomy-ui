@@ -44,9 +44,6 @@ export const SessionPopover = ({
           {hoursLabel(session.start, session.end)}
         </Typography>
         <Stack direction="row" spacing={1} useFlexGap flexWrap="wrap">
-          {session.track && (
-            <Chip size="small" color="primary" label={session.track} />
-          )}
           <Chip
             size="small"
             variant="outlined"

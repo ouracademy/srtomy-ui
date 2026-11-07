@@ -8,8 +8,6 @@ import EditIcon from "@mui/icons-material/Edit";
 import {
   Chip,
   IconButton,
-  List,
-  ListItem,
   ListItemButton,
   ListItemText,
   Stack,
@@ -40,51 +38,32 @@ export const ProgramList = ({
   <Stack spacing={2}>
     {groupByDay(sessions).map(({ day, items }) => (
       <div key={day.toISOString()}>
-        <Typography variant="subtitle2" sx={{ textTransform: "capitalize" }}>
+        <Typography
+          variant="subtitle2"
+          sx={{ textTransform: "capitalize", mb: 0.5 }}
+        >
           {format(day, "EEEE d 'de' MMMM", { locale: es })}
         </Typography>
-        <List dense disablePadding>
+        <Stack component="ul" sx={{ listStyle: "none", m: 0, p: 0 }}>
           {items.map((item) => (
-            <ListItem
+            <Stack
+              component="li"
               key={item.id}
-              disablePadding
-              secondaryAction={
-                canEdit && (
-                  <Stack direction="row">
-                    <Tooltip title="Editar">
-                      <IconButton
-                        component={NextLink}
-                        href={`/portal/${nodeId}/event/${item.id}/attendance`}
-                        aria-label={`Editar ${item.title}`}
-                      >
-                        <EditIcon />
-                      </IconButton>
-                    </Tooltip>
-                    <Tooltip title="Eliminar">
-                      <IconButton
-                        aria-label={`Eliminar ${item.title}`}
-                        onClick={() => onRemove(item)}
-                      >
-                        <DeleteIcon />
-                      </IconButton>
-                    </Tooltip>
-                  </Stack>
-                )
-              }
+              direction="row"
+              alignItems="center"
+              sx={{ borderTop: "1px solid", borderColor: "divider" }}
             >
               <ListItemButton
-                sx={{ pr: canEdit ? 14 : undefined }}
                 component={NextLink}
                 href={`/portal/${nodeId}/event/${item.id}/attendance`}
+                sx={{ flex: 1, minWidth: 0, flexWrap: "wrap", gap: 1 }}
               >
                 <ListItemText
+                  sx={{ flex: "1 1 220px", minWidth: 0 }}
                   primary={item.title}
                   secondary={hoursLabel(item.start, item.end)}
                 />
-                <Stack direction="row" spacing={1}>
-                  {item.track && (
-                    <Chip size="small" color="primary" label={item.track} />
-                  )}
+                <Stack direction="row" spacing={1} useFlexGap flexWrap="wrap">
                   <Chip
                     size="small"
                     variant="outlined"
@@ -99,9 +78,30 @@ export const ProgramList = ({
                   />
                 </Stack>
               </ListItemButton>
-            </ListItem>
+              {canEdit && (
+                <Stack direction="row" sx={{ pr: 0.5, flexShrink: 0 }}>
+                  <Tooltip title="Editar">
+                    <IconButton
+                      component={NextLink}
+                      href={`/portal/${nodeId}/event/${item.id}/attendance`}
+                      aria-label={`Editar ${item.title}`}
+                    >
+                      <EditIcon />
+                    </IconButton>
+                  </Tooltip>
+                  <Tooltip title="Eliminar">
+                    <IconButton
+                      aria-label={`Eliminar ${item.title}`}
+                      onClick={() => onRemove(item)}
+                    >
+                      <DeleteIcon />
+                    </IconButton>
+                  </Tooltip>
+                </Stack>
+              )}
+            </Stack>
           ))}
-        </List>
+        </Stack>
       </div>
     ))}
   </Stack>
