@@ -25,6 +25,7 @@ import { RegistrationPanel } from "./RegistrationPanel";
 import { SaveButton } from "@/app/(components)/SaveButton";
 import { AttendanceTotal } from "./AttendanceTotal";
 import { ContainerNotice } from "./ContainerNotice";
+import { NoticesPanel } from "./NoticesPanel";
 import { InheritedRegistrationsPanel } from "./InheritedRegistrationsPanel";
 import { EditableEventForm } from "./EditableEventForm";
 import { deleteMessage } from "./program";
@@ -219,6 +220,9 @@ export default function AttendanceEvent(props: {
             />
           </Grid>
         )}
+        <Grid size={{ xs: 12 }}>
+          <NoticesPanel eventId={id} canPost={can("events.write")} />
+        </Grid>
         {can("registrations.read") && inheritsRegistration && (
           <Grid size={{ xs: 12 }}>
             <InheritedRegistrationsPanel

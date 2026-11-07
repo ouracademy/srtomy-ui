@@ -25,6 +25,7 @@ import { QrImage } from "@/app/(components)/QrImage";
 import { primaryButtonSx } from "@/app/(components)/buttonStyles";
 import { formatPrice, remainingLabel } from "@/app/(components)/registration";
 import { eventWhen } from "./eventWhen";
+import { EventNotices } from "./EventNotices";
 import { EventProgram } from "./EventProgram";
 import { ParentEventNotice } from "./ParentEventNotice";
 
@@ -146,6 +147,7 @@ export const SharedEventPage = ({
           </Typography>
           {event.address && <Typography>Lugar: {event.address}</Typography>}
         </Paper>
+        <EventNotices notices={event.notices ?? []} />
         {event.description && <Typography>{event.description}</Typography>}
         {event.container && (
           <ParentEventNotice
