@@ -133,15 +133,14 @@ test.describe("Eventos compuestos", () => {
     expect(String(postedMega?.endTime)).toMatch(/^2099-12-28T/);
     expect(String(postedMega?.startTime)).not.toMatch(/^2099/);
 
-    const program = page.getByRole("region", { name: "Programa" });
-    await expect(program.getByText(/Es opcional/)).toBeVisible();
+    await expect(page.getByText("Sin sesiones todavía")).toBeVisible();
   });
 
   test("desde el programa se agrega un sub-evento que forma parte del evento", async ({
     page,
   }) => {
     await page.goto(`/portal/${nodeId}/event/${megaId}/attendance`);
-    const program = page.getByRole("region", { name: "Programa" });
+    const program = page.getByRole("region", { name: /Programa/ });
     await program.getByRole("button", { name: "Agregar sub-evento" }).click();
 
     const dialog = page.getByRole("dialog", { name: "Agregar sub-evento" });
@@ -151,6 +150,7 @@ test.describe("Eventos compuestos", () => {
       .fill("Taller de liderazgo");
     await dialog.getByRole("button", { name: "Guardar" }).click();
 
+    await program.getByRole("button", { name: "Ver como lista" }).click();
     await expect(
       program.getByRole("link", { name: /^Taller de liderazgo/ }),
     ).toBeVisible();

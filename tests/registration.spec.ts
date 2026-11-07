@@ -405,9 +405,7 @@ test.describe("Inscripción a eventos y cursos", () => {
 
     await page.goto(`/portal/${NODE_ID}/event/${eventId}/attendance`);
 
-    await expect(
-      page.getByRole("heading", { name: "Toma de asistencia" }),
-    ).toBeVisible();
+    await expect(page.getByRole("tab", { name: /Asistencia/ })).toBeVisible();
     await expect(page.locator('section[aria-label="Inscripción"]')).toHaveCount(
       0,
     );

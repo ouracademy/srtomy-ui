@@ -58,7 +58,8 @@ test.describe("Eliminar un evento con asistencia", () => {
         request.url().endsWith(`/events/${eventId}`),
     );
     await page.goto(`/portal/${nodeId}/event/${eventId}/attendance`);
-    await page.getByRole("button", { name: "Eliminar", exact: true }).click();
+    await page.getByRole("button", { name: "Más acciones" }).click();
+    await page.getByRole("menuitem", { name: "Eliminar" }).click();
     await page.getByLabel("Todos los eventos").check();
     await page
       .getByRole("dialog", { name: "Borrar el evento recurrente" })
@@ -80,7 +81,8 @@ test.describe("Eliminar un evento con asistencia", () => {
     deleteStatus = 500;
 
     await page.goto(`/portal/${nodeId}/event/${eventId}/attendance`);
-    await page.getByRole("button", { name: "Eliminar", exact: true }).click();
+    await page.getByRole("button", { name: "Más acciones" }).click();
+    await page.getByRole("menuitem", { name: "Eliminar" }).click();
     await page
       .getByRole("dialog", { name: "Borrar el evento recurrente" })
       .getByRole("button", { name: "Eliminar" })
