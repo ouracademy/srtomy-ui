@@ -1266,6 +1266,37 @@
         }
       }
     },
+    "/v1/organizations/{id}/whatsapp/templates": {
+      "post": {
+        "tags": [
+          "whatsapp"
+        ],
+        "operationId": "provisionTemplates",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProvisionTemplatesResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/organizations/{id}/whatsapp/setup-link": {
       "post": {
         "tags": [
@@ -4032,6 +4063,31 @@
         "required": [
           "name"
         ]
+      },
+      "ProvisionTemplatesResponse": {
+        "type": "object",
+        "properties": {
+          "templates": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Template"
+            }
+          }
+        }
+      },
+      "Template": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "submitted": {
+            "type": "boolean"
+          },
+          "detail": {
+            "type": "string"
+          }
+        }
       },
       "SetupLinkRequest": {
         "type": "object",

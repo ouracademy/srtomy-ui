@@ -1,7 +1,10 @@
 import { cleanup, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import type { WhatsAppConnectionResponse } from "@/app/(api)/generated/aPIOvejafiel.schemas";
+import type {
+  ProvisionTemplatesResponse,
+  WhatsAppConnectionResponse,
+} from "@/app/(api)/generated/aPIOvejafiel.schemas";
 import { ChurchWhatsAppCard } from "./ChurchWhatsAppCard";
 
 afterEach(cleanup);
@@ -11,18 +14,23 @@ const renderCard = (
   handlers: {
     onConnect?: (mode: string) => Promise<void>;
     onDisconnect?: () => Promise<void>;
+    onSubmitTemplates?: () => Promise<ProvisionTemplatesResponse | undefined>;
   } = {},
 ) => {
   const onConnect = vi.fn(handlers.onConnect ?? (async () => undefined));
   const onDisconnect = vi.fn(handlers.onDisconnect ?? (async () => undefined));
+  const onSubmitTemplates = vi.fn(
+    handlers.onSubmitTemplates ?? (async () => ({ templates: [] })),
+  );
   render(
     <ChurchWhatsAppCard
       connection={connection}
       onConnect={onConnect}
       onDisconnect={onDisconnect}
+      onSubmitTemplates={onSubmitTemplates}
     />,
   );
-  return { onConnect, onDisconnect };
+  return { onConnect, onDisconnect, onSubmitTemplates };
 };
 
 describe("ChurchWhatsAppCard", () => {
@@ -132,6 +140,59 @@ describe("ChurchWhatsAppCard", () => {
     expect(screen.queryByRole("button", { name: "Desconectar" })).toBeNull();
     expect(
       screen.queryByRole("button", { name: "Conectar WhatsApp" }),
+    ).toBeNull();
+  });
+
+  it("sends the templates to Meta and says what happened with each", async () => {
+    const user = userEvent.setup();
+    const { onSubmitTemplates } = renderCard(
+      { status: "CONNECTED", displayNumber: "+51 1" },
+      {
+        onSubmitTemplates: async () => ({
+          templates: [
+            { name: "event_reminder", submitted: true },
+            { name: "welcome", submitted: false, detail: "ya existe" },
+          ],
+        }),
+      },
+    );
+
+    await user.click(
+      screen.getByRole("button", { name: "Enviar plantillas a Meta" }),
+    );
+
+    expect(onSubmitTemplates).toHaveBeenCalledTimes(1);
+    expect(
+      await screen.findByText(/«event_reminder» enviada a Meta/),
+    ).toBeTruthy();
+    expect(screen.getByText(/«welcome» no se envió: ya existe/)).toBeTruthy();
+  });
+
+  it("shows nothing about templates when they could not be sent", async () => {
+    const user = userEvent.setup();
+    const { onSubmitTemplates } = renderCard(
+      { status: "CONNECTED" },
+      { onSubmitTemplates: async () => undefined },
+    );
+
+    await user.click(
+      screen.getByRole("button", { name: "Enviar plantillas a Meta" }),
+    );
+
+    await waitFor(() => expect(onSubmitTemplates).toHaveBeenCalled());
+    expect(screen.queryByText(/enviada a Meta/)).toBeNull();
+  });
+
+  it("offers no templates before the number is connected, nor to a branch", () => {
+    renderCard({ status: "NOT_CONNECTED" });
+    expect(
+      screen.queryByRole("button", { name: "Enviar plantillas a Meta" }),
+    ).toBeNull();
+    cleanup();
+
+    renderCard({ status: "CONNECTED", inherited: true });
+    expect(
+      screen.queryByRole("button", { name: "Enviar plantillas a Meta" }),
     ).toBeNull();
   });
 });

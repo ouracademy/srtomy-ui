@@ -15,6 +15,7 @@ import {
 } from "@mui/material";
 import React from "react";
 import type {
+  ProvisionTemplatesResponse,
   SetupLinkRequestMode,
   WhatsAppConnectionResponse,
 } from "@/app/(api)/generated/aPIOvejafiel.schemas";
@@ -27,6 +28,9 @@ type ChurchWhatsAppCardProps = Readonly<{
   // Asks for the link and sends the pastor to Kapso to finish connecting.
   onConnect: (mode: SetupLinkRequestMode) => Promise<void>;
   onDisconnect: () => Promise<void>;
+  // Sends the message templates to Meta for review. Undefined when it could
+  // not be done: the screen has already said why.
+  onSubmitTemplates: () => Promise<ProvisionTemplatesResponse | undefined>;
 }>;
 
 const modes: { value: SetupLinkRequestMode; title: string; help: string }[] = [
@@ -48,10 +52,14 @@ export const ChurchWhatsAppCard = ({
   connection,
   onConnect,
   onDisconnect,
+  onSubmitTemplates,
 }: ChurchWhatsAppCardProps) => {
   const [mode, setMode] = React.useState<SetupLinkRequestMode>("COEXISTENCE");
   const [connecting, setConnecting] = React.useState(false);
   const [confirmingCut, setConfirmingCut] = React.useState(false);
+  const [submittingTemplates, setSubmittingTemplates] = React.useState(false);
+  const [templates, setTemplates] =
+    React.useState<ProvisionTemplatesResponse | null>(null);
 
   const status = connection.status ?? "NOT_CONNECTED";
   const state = connectionLabels[status];
@@ -63,6 +71,16 @@ export const ChurchWhatsAppCard = ({
       await onConnect(mode);
     } finally {
       setConnecting(false);
+    }
+  };
+
+  const submitTemplates = async () => {
+    setSubmittingTemplates(true);
+    try {
+      const submitted = await onSubmitTemplates();
+      if (submitted) setTemplates(submitted);
+    } finally {
+      setSubmittingTemplates(false);
     }
   };
 
@@ -135,6 +153,37 @@ export const ChurchWhatsAppCard = ({
               />
             </div>
           </>
+        )}
+
+        {connected && !connection.inherited && (
+          <Stack spacing={1}>
+            <Typography component="h3" variant="subtitle1">
+              Plantillas de mensajes
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
+              WhatsApp solo deja que la iglesia escriba primero con mensajes
+              aprobados por Meta, como el recordatorio de un evento. Envíalos
+              una vez para que los revise (suele tomar hasta un día). Repetirlo
+              no hace daño.
+            </Typography>
+            <div>
+              <SaveButton
+                name="Enviar plantillas a Meta"
+                loading={submittingTemplates}
+                onClick={submitTemplates}
+              />
+            </div>
+            {templates?.templates?.map((template) => (
+              <Alert
+                key={template.name}
+                severity={template.submitted ? "success" : "warning"}
+              >
+                {template.submitted
+                  ? `«${template.name}» enviada a Meta para su revisión.`
+                  : `«${template.name}» no se envió: ${template.detail ?? "Meta la rechazó"}`}
+              </Alert>
+            ))}
+          </Stack>
         )}
 
         {connected && !connection.inherited && (

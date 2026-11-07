@@ -35,6 +35,7 @@ vi.mock("@/app/(api)/generated", () => ({
     mutate: vi.fn(),
   }),
   postOrganizationsByIdWhatsappSetupLink: vi.fn(),
+  postOrganizationsByIdWhatsappTemplates: vi.fn(),
   postOrganizationsByIdWhatsappLinkCode: vi.fn(),
   deleteOrganizationsByIdWhatsapp: vi.fn(),
   deleteOrganizationsByIdWhatsappLink: vi.fn(),

@@ -7,6 +7,7 @@ import {
   deleteOrganizationsByIdWhatsappLink,
   postOrganizationsByIdWhatsappLinkCode,
   postOrganizationsByIdWhatsappSetupLink,
+  postOrganizationsByIdWhatsappTemplates,
   useGetOrganizationsByIdWhatsapp,
   useGetOrganizationsByIdWhatsappLink,
 } from "@/app/(api)/generated";
@@ -69,6 +70,16 @@ export default function WhatsAppPage(props: {
               alert.showMessage(
                 apiErrorMessage(error, "No se pudo crear el enlace"),
               );
+            }
+          }}
+          onSubmitTemplates={async () => {
+            try {
+              return await postOrganizationsByIdWhatsappTemplates(nodeId);
+            } catch (error) {
+              alert.showMessage(
+                apiErrorMessage(error, "No se pudieron enviar las plantillas"),
+              );
+              return undefined;
             }
           }}
           onDisconnect={async () => {

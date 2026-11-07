@@ -47,7 +47,10 @@ describe("VisitorsPanel", () => {
 
     await user.type(screen.getByLabelText(/Nombre del visitante/), "Rosa");
     await user.type(screen.getByLabelText("Apellido del visitante"), "Díaz");
-    await user.type(screen.getByLabelText("Teléfono del visitante"), "999");
+    await user.type(
+      screen.getByLabelText("Teléfono del visitante"),
+      "999888777",
+    );
     await user.type(
       screen.getByLabelText("Correo del visitante"),
       "rosa@x.org",
@@ -57,7 +60,7 @@ describe("VisitorsPanel", () => {
     expect(onAddVisitor).toHaveBeenCalledWith({
       firstName: "Rosa",
       lastName: "Díaz",
-      phoneNumber: "999",
+      phoneNumber: "+51999888777",
       email: "rosa@x.org",
     });
   });
