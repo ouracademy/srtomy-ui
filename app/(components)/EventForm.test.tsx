@@ -383,7 +383,7 @@ describe("EventForm", () => {
     it("offers a course or room only for a sub-event", () => {
       renderSubEvent();
 
-      expect(screen.getByLabelText(/Curso o sala/)).toBeInTheDocument();
+      expect(screen.getByLabelText(/Serie o curso/)).toBeInTheDocument();
     });
 
     it("asks how it is entered and saves the choice", async () => {
@@ -395,6 +395,10 @@ describe("EventForm", () => {
           "Quien se inscribe al evento puede entrar a este sub-evento.",
         ),
       ).toBeInTheDocument();
+
+      await user.click(
+        screen.getByRole("button", { name: "Opciones avanzadas" }),
+      );
 
       await user.click(screen.getByRole("combobox", { name: "Inscripción" }));
       await user.click(await screen.findByRole("option", { name: "Propia" }));

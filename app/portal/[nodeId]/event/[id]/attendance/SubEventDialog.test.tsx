@@ -97,6 +97,9 @@ describe("SubEventDialog", () => {
     const user = setup();
     await user.type(screen.getByPlaceholderText("Agregar título"), "Culto");
     await user.click(screen.getByRole("button", { name: "Curso" }));
+    await user.click(
+      screen.getByRole("button", { name: "Opciones avanzadas" }),
+    );
     await user.click(screen.getByRole("combobox", { name: "Inscripción" }));
     await user.click(
       await screen.findByRole("option", { name: "Sin inscripción" }),
@@ -116,7 +119,7 @@ describe("SubEventDialog", () => {
     const user = setup();
     await user.type(screen.getByPlaceholderText("Agregar título"), "Clase 1");
     await user.type(
-      screen.getByLabelText(/Curso o sala/),
+      screen.getByLabelText(/Serie o curso/),
       "  Curso de liderazgo ",
     );
 
@@ -131,6 +134,9 @@ describe("SubEventDialog", () => {
     await user.type(
       screen.getByPlaceholderText("Agregar título"),
       "Taller extra",
+    );
+    await user.click(
+      screen.getByRole("button", { name: "Opciones avanzadas" }),
     );
     await user.click(screen.getByRole("combobox", { name: "Inscripción" }));
     await user.click(await screen.findByRole("option", { name: "Propia" }));
@@ -150,6 +156,9 @@ describe("SubEventDialog", () => {
   it("sets up its own registration when it has one", async () => {
     const user = setup();
     await user.type(screen.getByPlaceholderText("Agregar título"), "Cena");
+    await user.click(
+      screen.getByRole("button", { name: "Opciones avanzadas" }),
+    );
     await user.click(screen.getByRole("combobox", { name: "Inscripción" }));
     await user.click(await screen.findByRole("option", { name: "Propia" }));
     await user.click(

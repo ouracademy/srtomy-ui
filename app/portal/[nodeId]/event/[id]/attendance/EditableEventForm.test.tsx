@@ -248,10 +248,16 @@ describe("savedMessage", () => {
       };
     });
 
-    it("says which event it is part of and how it is entered", () => {
-      setup(subEvent);
+    it("says which event it is part of and keeps how it is entered under the advanced options", async () => {
+      const { user } = setup(subEvent);
 
       expect(screen.getByText("Parte de «Congreso»")).toBeInTheDocument();
+      expect(
+        screen.queryByRole("combobox", { name: "Inscripción" }),
+      ).toBeNull();
+      await user.click(
+        screen.getByRole("button", { name: "Opciones avanzadas" }),
+      );
       expect(
         screen.getByRole("combobox", { name: "Inscripción" }),
       ).toBeInTheDocument();
@@ -259,6 +265,10 @@ describe("savedMessage", () => {
 
     it("saves how it is entered", async () => {
       const { user, saved } = setup(subEvent);
+
+      await user.click(
+        screen.getByRole("button", { name: "Opciones avanzadas" }),
+      );
 
       await user.click(screen.getByRole("combobox", { name: "Inscripción" }));
       await user.click(await screen.findByRole("option", { name: "Propia" }));

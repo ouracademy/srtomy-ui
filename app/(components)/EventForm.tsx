@@ -1,4 +1,13 @@
-import { Box, Chip, Grid, Typography } from "@mui/material";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import {
+  Accordion,
+  AccordionDetails,
+  AccordionSummary,
+  Box,
+  Chip,
+  Grid,
+  Typography,
+} from "@mui/material";
 import { TimePicker } from "@mui/x-date-pickers";
 import { renderTimeViewClock } from "@mui/x-date-pickers/timeViewRenderers";
 import React from "react";
@@ -131,6 +140,20 @@ export const EventForm = ({
     endDate: watch("endDate"),
   });
 
+  const registrationFields = (
+    <RegistrationFields
+      value={registration}
+      onChange={(value) =>
+        formContext.setValue("registration", value, { shouldDirty: true })
+      }
+      errors={
+        formContext.formState.isSubmitted
+          ? registrationErrors(registration)
+          : []
+      }
+    />
+  );
+
   return (
     <FormContainer formContext={formContext} onSuccess={submit}>
       {/* A form that is only shown cannot be typed into. */}
@@ -234,24 +257,11 @@ export const EventForm = ({
           )}
           {container && (
             <Grid size={{ xs: 12 }}>
-              <RegistrationModeField />
-            </Grid>
-          )}
-          {container && watch("registrationMode") === "OWN" && (
-            <Grid size={{ xs: 12 }}>
-              <CheckboxElement
-                name="requiresContainerRegistration"
-                label={`Solo para quienes ya se inscribieron a «${container.title}»`}
-              />
-            </Grid>
-          )}
-          {container && (
-            <Grid size={{ xs: 12 }}>
               <TextFieldElement
                 fullWidth
                 name="track"
-                label="Curso o sala (opcional)"
-                helperText="Para agrupar en el programa, por ejemplo «Curso de liderazgo» o «Sala 2»."
+                label="Serie o curso (opcional)"
+                helperText="Une sesiones de varios días, por ejemplo «Curso de liderazgo». La sala va en «Agregar lugar»."
               />
             </Grid>
           )}
@@ -316,26 +326,46 @@ export const EventForm = ({
               variant="standard"
             />
           </Grid>
-          {showRegistration &&
-            editable &&
-            !repeats &&
-            (!container || watch("registrationMode") === "OWN") && (
-              <Grid size={{ xs: 12 }}>
-                <RegistrationFields
-                  value={registration}
-                  onChange={(value) =>
-                    formContext.setValue("registration", value, {
-                      shouldDirty: true,
-                    })
-                  }
-                  errors={
-                    formContext.formState.isSubmitted
-                      ? registrationErrors(registration)
-                      : []
-                  }
-                />
-              </Grid>
-            )}
+          {container && (
+            <Grid size={{ xs: 12 }}>
+              {/* How a sub-event is entered is rarely changed: it is the one
+                  of the event unless the organizers say otherwise. */}
+              <Accordion
+                disableGutters
+                variant="outlined"
+                defaultExpanded={
+                  !editable || watch("registrationMode") !== "INHERIT"
+                }
+              >
+                <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                  <Typography fontWeight={600}>Opciones avanzadas</Typography>
+                </AccordionSummary>
+                <AccordionDetails>
+                  <Grid container spacing={2}>
+                    <Grid size={{ xs: 12 }}>
+                      <RegistrationModeField />
+                    </Grid>
+                    {watch("registrationMode") === "OWN" && (
+                      <Grid size={{ xs: 12 }}>
+                        <CheckboxElement
+                          name="requiresContainerRegistration"
+                          label={`Solo para quienes ya se inscribieron a «${container.title}»`}
+                        />
+                      </Grid>
+                    )}
+                    {showRegistration &&
+                      editable &&
+                      watch("registrationMode") === "OWN" && (
+                        <Grid size={{ xs: 12 }}>{registrationFields}</Grid>
+                      )}
+                  </Grid>
+                </AccordionDetails>
+              </Accordion>
+            </Grid>
+          )}
+          {!container && showRegistration && editable && !repeats && (
+            <Grid size={{ xs: 12 }}>{registrationFields}</Grid>
+          )}
           <Grid size={{ xs: 6 }}>
             {editable && (
               <SaveButton
