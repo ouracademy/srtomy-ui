@@ -11,27 +11,14 @@ import {
 const NOW = new Date(2026, 9, 30); // Thu 30 Oct 2026
 
 describe("presetToRange", () => {
-  it("last-week: the 7 days ending today", () => {
-    const { start, end } = presetToRange("last-week", NOW);
-    expect(toApiDate(start)).toBe("2026-10-24");
-    expect(toApiDate(end)).toBe("2026-10-30");
-  });
-
-  it("last-month: the month ending today", () => {
-    const { start, end } = presetToRange("last-month", NOW);
-    expect(toApiDate(start)).toBe("2026-09-30");
-    expect(toApiDate(end)).toBe("2026-10-30");
-  });
-
-  it("last-quarter: the 3 months ending today", () => {
-    const { start, end } = presetToRange("last-quarter", NOW);
-    expect(toApiDate(start)).toBe("2026-07-30");
-    expect(toApiDate(end)).toBe("2026-10-30");
-  });
-
-  it("last-year: the year ending today", () => {
-    const { start, end } = presetToRange("last-year", NOW);
-    expect(toApiDate(start)).toBe("2025-10-30");
+  it.each([
+    ["last-week", "the 7 days ending today", "2026-10-24"],
+    ["last-month", "the month ending today", "2026-09-30"],
+    ["last-quarter", "the 3 months ending today", "2026-07-30"],
+    ["last-year", "the year ending today", "2025-10-30"],
+  ] as const)("%s: %s", (preset, _meaning, expectedStart) => {
+    const { start, end } = presetToRange(preset, NOW);
+    expect(toApiDate(start)).toBe(expectedStart);
     expect(toApiDate(end)).toBe("2026-10-30");
   });
 });

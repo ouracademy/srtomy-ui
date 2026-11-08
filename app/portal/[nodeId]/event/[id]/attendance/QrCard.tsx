@@ -24,12 +24,20 @@ export const QrCard = ({ eventId, title }: QrCardProps) => {
       aria-label="Código QR del evento"
       sx={{ p: 2.5, borderRadius: 5 }}
     >
-      <Stack spacing={1.75} alignItems="center">
+      <Stack
+        spacing={1.75}
+        sx={{
+          alignItems: "center",
+        }}
+      >
         <Typography
           variant="h6"
           component="h2"
-          fontWeight={700}
-          sx={{ alignSelf: "flex-start", fontSize: 16 }}
+          sx={{
+            fontWeight: 700,
+            alignSelf: "flex-start",
+            fontSize: 16,
+          }}
         >
           QR para marcar solos
         </Typography>
@@ -40,7 +48,13 @@ export const QrCard = ({ eventId, title }: QrCardProps) => {
             size={168}
           />
         ) : onRetry ? (
-          <Stack spacing={1} alignItems="center" role="alert">
+          <Stack
+            spacing={1}
+            role="alert"
+            sx={{
+              alignItems: "center",
+            }}
+          >
             <Typography variant="body2">
               No se pudo crear el código de asistencia.
             </Typography>
@@ -49,11 +63,22 @@ export const QrCard = ({ eventId, title }: QrCardProps) => {
             </Button>
           </Stack>
         ) : (
-          <Typography variant="body2" color="text.secondary">
+          <Typography
+            variant="body2"
+            sx={{
+              color: "text.secondary",
+            }}
+          >
             Preparando el código…
           </Typography>
         )}
-        <Typography variant="body2" color="text.secondary" align="center">
+        <Typography
+          variant="body2"
+          align="center"
+          sx={{
+            color: "text.secondary",
+          }}
+        >
           Cambia solo cada pocos minutos. Muéstralo en la entrada.
         </Typography>
         <Button

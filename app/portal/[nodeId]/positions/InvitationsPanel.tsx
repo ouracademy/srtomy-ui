@@ -98,7 +98,11 @@ export const InvitationsPanel = ({
 
   return (
     <Stack spacing={2}>
-      <Typography color="text.secondary">
+      <Typography
+        sx={{
+          color: "text.secondary",
+        }}
+      >
         Invite por correo a quien va a usar la aplicación. Al aceptar, queda
         vinculado a su ficha (o se crea una con su nombre) y recibe el cargo que
         elija aquí. Solo puede invitar con cargos cuyos permisos usted también
@@ -182,7 +186,11 @@ export const InvitationsPanel = ({
         </Table>
       </TableContainer>
       {invitations.length === 0 && (
-        <Typography color="text.secondary">
+        <Typography
+          sx={{
+            color: "text.secondary",
+          }}
+        >
           No hay invitaciones pendientes.
         </Typography>
       )}

@@ -18,9 +18,26 @@ type RegistrationSummaryProps = Readonly<{
 }>;
 
 const Line = ({ label, value }: Readonly<{ label: string; value: string }>) => (
-  <Stack direction="row" justifyContent="space-between" spacing={2}>
-    <Typography color="text.secondary">{label}</Typography>
-    <Typography fontWeight={700} textAlign="right">
+  <Stack
+    direction="row"
+    spacing={2}
+    sx={{
+      justifyContent: "space-between",
+    }}
+  >
+    <Typography
+      sx={{
+        color: "text.secondary",
+      }}
+    >
+      {label}
+    </Typography>
+    <Typography
+      sx={{
+        fontWeight: 700,
+        textAlign: "right",
+      }}
+    >
       {value}
     </Typography>
   </Stack>
@@ -71,11 +88,19 @@ export const RegistrationSummary = ({
       <Stack spacing={2}>
         <Stack
           direction="row"
-          alignItems="center"
-          justifyContent="space-between"
           spacing={1}
+          sx={{
+            alignItems: "center",
+            justifyContent: "space-between",
+          }}
         >
-          <Typography variant="h6" component="h2" fontWeight={700}>
+          <Typography
+            variant="h6"
+            component="h2"
+            sx={{
+              fontWeight: 700,
+            }}
+          >
             Inscripción
           </Typography>
           {setup.enabled && (
@@ -104,12 +129,21 @@ export const RegistrationSummary = ({
             ))}
           </Stack>
         ) : (
-          <Typography color="text.secondary">
+          <Typography
+            sx={{
+              color: "text.secondary",
+            }}
+          >
             Este evento no pide inscripción: cualquiera puede venir.
           </Typography>
         )}
         {setup.enabled && !setup.open && (
-          <Typography variant="body2" color="text.secondary">
+          <Typography
+            variant="body2"
+            sx={{
+              color: "text.secondary",
+            }}
+          >
             Las inscripciones están cerradas: nadie más puede anotarse.
           </Typography>
         )}

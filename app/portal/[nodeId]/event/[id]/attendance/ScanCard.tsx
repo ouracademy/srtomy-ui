@@ -44,12 +44,19 @@ export const ScanCard = ({ title, onCheckIn }: ScanCardProps) => {
         <Typography
           variant="h6"
           component="h2"
-          fontWeight={700}
-          sx={{ fontSize: 16 }}
+          sx={{
+            fontWeight: 700,
+            fontSize: 16,
+          }}
         >
           Escanear ticket
         </Typography>
-        <Typography variant="body2" color="text.secondary">
+        <Typography
+          variant="body2"
+          sx={{
+            color: "text.secondary",
+          }}
+        >
           El ticket del congreso vale en cada sesión que lo incluye, tenga
           cuenta o no quien entra.
         </Typography>

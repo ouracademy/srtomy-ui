@@ -107,8 +107,20 @@ export const ProgramSection = ({
         aria-controls="program-content"
         id="program-header"
       >
-        <Stack direction="row" spacing={1.5} alignItems="center">
-          <Typography variant="h6" component="h2" fontWeight={700}>
+        <Stack
+          direction="row"
+          spacing={1.5}
+          sx={{
+            alignItems: "center",
+          }}
+        >
+          <Typography
+            variant="h6"
+            component="h2"
+            sx={{
+              fontWeight: 700,
+            }}
+          >
             Programa
           </Typography>
           <Chip
@@ -127,13 +139,20 @@ export const ProgramSection = ({
         <Stack spacing={2}>
           <Stack
             direction="row"
-            alignItems="center"
-            justifyContent="space-between"
-            flexWrap="wrap"
             useFlexGap
             spacing={1}
+            sx={{
+              alignItems: "center",
+              justifyContent: "space-between",
+              flexWrap: "wrap",
+            }}
           >
-            <Typography variant="body2" color="text.secondary">
+            <Typography
+              variant="body2"
+              sx={{
+                color: "text.secondary",
+              }}
+            >
               {canAdd
                 ? "Arrastra sobre un día para crear una sesión. Arrástrala o estírala para moverla. Púlsala para ver sus opciones."
                 : "Las sesiones del evento, por día y hora."}
@@ -169,7 +188,11 @@ export const ProgramSection = ({
           )}
           {view === "list" &&
             (sessions.length === 0 ? (
-              <Typography color="text.secondary">
+              <Typography
+                sx={{
+                  color: "text.secondary",
+                }}
+              >
                 Sin sesiones todavía.
               </Typography>
             ) : (

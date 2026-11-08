@@ -1,7 +1,7 @@
 "use client";
 
 import AddIcon from "@mui/icons-material/Add";
-import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
+import DeleteOutlineIcon from "@mui/icons-material/DeleteOutlined";
 import {
   Autocomplete,
   Button,
@@ -75,7 +75,9 @@ export const PositionsField = ({
           key={index}
           direction={{ xs: "column", sm: "row" }}
           spacing={1}
-          alignItems={{ sm: "flex-start" }}
+          sx={{
+            alignItems: { sm: "flex-start" },
+          }}
         >
           <Autocomplete
             freeSolo

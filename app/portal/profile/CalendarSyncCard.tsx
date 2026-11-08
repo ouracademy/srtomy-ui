@@ -98,7 +98,12 @@ export const CalendarSyncCard = () => {
               Copiar enlace
             </Button>
           </Stack>
-          <Typography color="text.secondary" variant="body2">
+          <Typography
+            variant="body2"
+            sx={{
+              color: "text.secondary",
+            }}
+          >
             Este enlace es privado: quien lo tenga ve tus eventos. Si lo
             compartiste sin querer, genera uno nuevo y el anterior dejará de
             funcionar.

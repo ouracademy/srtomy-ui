@@ -56,13 +56,16 @@ const PeriodCard = ({ label, value, delta }: PeriodCardProps) => (
       <Typography variant="h4" component="p">
         {value}
       </Typography>
-      <Typography color="text.secondary">{label}</Typography>
+      <Typography sx={{ color: "text.secondary" }}>{label}</Typography>
       {delta !== null && delta !== 0 && (
         <Stack
           direction="row"
           spacing={0.5}
-          alignItems="center"
-          sx={{ color: delta > 0 ? "success.main" : "error.main", mt: 0.5 }}
+          sx={{
+            alignItems: "center",
+            color: delta > 0 ? "success.main" : "error.main",
+            mt: 0.5,
+          }}
         >
           {delta > 0 ? (
             <ArrowUpwardIcon fontSize="inherit" />
@@ -75,7 +78,7 @@ const PeriodCard = ({ label, value, delta }: PeriodCardProps) => (
         </Stack>
       )}
       {delta === null && (
-        <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+        <Typography variant="body2" sx={{ color: "text.secondary", mt: 0.5 }}>
           Nuevo en este período
         </Typography>
       )}
@@ -89,7 +92,7 @@ const SnapshotCard = ({ label, value }: { label: string; value: number }) => (
       <Typography variant="h4" component="p">
         {value}
       </Typography>
-      <Typography color="text.secondary">{label}</Typography>
+      <Typography sx={{ color: "text.secondary" }}>{label}</Typography>
     </CardContent>
   </Card>
 );
@@ -210,10 +213,12 @@ export const GrowthDashboard = ({ nodeId }: { nodeId: string }) => {
     <Stack spacing={3} sx={{ m: { xs: 2, sm: 4 }, maxWidth: 1100 }}>
       <Stack
         direction="row"
-        justifyContent="space-between"
-        alignItems="flex-start"
-        flexWrap="wrap"
-        gap={2}
+        sx={{
+          justifyContent: "space-between",
+          alignItems: "flex-start",
+          flexWrap: "wrap",
+          gap: 2,
+        }}
       >
         <Typography variant="h5" component="h1">
           Resumen{node?.name ? ` de ${node.name}` : ""}
@@ -222,7 +227,7 @@ export const GrowthDashboard = ({ nodeId }: { nodeId: string }) => {
       </Stack>
 
       {isEmpty ? (
-        <Stack spacing={2} alignItems="flex-start">
+        <Stack spacing={2} sx={{ alignItems: "flex-start" }}>
           <Typography>
             Todavía no hay personas. Cuando agregues a la primera, aquí verás
             cómo crece.
@@ -252,7 +257,7 @@ export const GrowthDashboard = ({ nodeId }: { nodeId: string }) => {
                 <SnapshotCard key={card.label} {...card} />
               ))}
             </Box>
-            <Typography variant="body2" color="text.secondary">
+            <Typography variant="body2" sx={{ color: "text.secondary" }}>
               Cada persona cuenta una sola vez, con el estado más alto que tenga
               en este lugar o en cualquier grupo que dependa de él.
             </Typography>
@@ -347,7 +352,11 @@ export const GrowthDashboard = ({ nodeId }: { nodeId: string }) => {
                 <Typography variant="h6" component="h2" gutterBottom>
                   Eventos y asistencia
                 </Typography>
-                <Typography variant="body2" color="text.secondary" gutterBottom>
+                <Typography
+                  variant="body2"
+                  gutterBottom
+                  sx={{ color: "text.secondary" }}
+                >
                   Un megaevento y cada uno de sus sub-eventos cuentan como un
                   evento, con su propia asistencia. Quien entra con ticket se
                   cuenta una sola vez.

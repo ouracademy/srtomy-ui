@@ -36,14 +36,13 @@ export const presetToRange = (
   now: Date,
 ): DateRange => {
   const end = startOfDay(now);
-  const start =
-    preset === "last-week"
-      ? subDays(end, 6)
-      : preset === "last-month"
-        ? subMonths(end, 1)
-        : preset === "last-quarter"
-          ? subQuarters(end, 1)
-          : subYears(end, 1);
+  const startByPreset = {
+    "last-week": () => subDays(end, 6),
+    "last-month": () => subMonths(end, 1),
+    "last-quarter": () => subQuarters(end, 1),
+    "last-year": () => subYears(end, 1),
+  } as const;
+  const start = startByPreset[preset]();
   return { start, end };
 };
 

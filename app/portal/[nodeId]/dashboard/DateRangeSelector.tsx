@@ -51,7 +51,11 @@ export const DateRangeSelector = ({
   };
 
   return (
-    <Stack direction="row" spacing={2} alignItems="center" flexWrap="wrap">
+    <Stack
+      direction="row"
+      spacing={2}
+      sx={{ alignItems: "center", flexWrap: "wrap" }}
+    >
       <ToggleButtonGroup
         exclusive
         size="small"
@@ -72,7 +76,7 @@ export const DateRangeSelector = ({
         </ToggleButton>
       </ToggleButtonGroup>
       {value.preset === "custom" && (
-        <Typography variant="body2" color="text.secondary">
+        <Typography variant="body2" sx={{ color: "text.secondary" }}>
           {value.label}
         </Typography>
       )}
