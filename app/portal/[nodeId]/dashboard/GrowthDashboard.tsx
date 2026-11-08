@@ -56,7 +56,12 @@ export const GrowthDashboard = ({ nodeId }: { nodeId: string }) => {
       </Typography>
 
       {!current.total && rows.every((month) => !month.joined) ? (
-        <Stack spacing={2} alignItems="flex-start">
+        <Stack
+          spacing={2}
+          sx={{
+            alignItems: "flex-start",
+          }}
+        >
           <Typography>
             Todavía no hay personas. Cuando agregues a la primera, aquí verás
             cómo crece.
@@ -84,12 +89,23 @@ export const GrowthDashboard = ({ nodeId }: { nodeId: string }) => {
                   <Typography variant="h4" component="p">
                     {value ?? 0}
                   </Typography>
-                  <Typography color="text.secondary">{label}</Typography>
+                  <Typography
+                    sx={{
+                      color: "text.secondary",
+                    }}
+                  >
+                    {label}
+                  </Typography>
                 </CardContent>
               </Card>
             ))}
           </Box>
-          <Typography variant="body2" color="text.secondary">
+          <Typography
+            variant="body2"
+            sx={{
+              color: "text.secondary",
+            }}
+          >
             Cada persona cuenta una sola vez, con el estado más alto que tenga
             en este lugar o en cualquier grupo que dependa de él.
           </Typography>
@@ -97,10 +113,12 @@ export const GrowthDashboard = ({ nodeId }: { nodeId: string }) => {
           <Stack spacing={2}>
             <Stack
               direction="row"
-              justifyContent="space-between"
-              alignItems="center"
-              flexWrap="wrap"
-              gap={1}
+              sx={{
+                justifyContent: "space-between",
+                alignItems: "center",
+                flexWrap: "wrap",
+                gap: 1,
+              }}
             >
               <Typography variant="h6" component="h2">
                 Crecimiento

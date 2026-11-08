@@ -22,7 +22,12 @@ export const RegistrationModeField = () => {
         label="Inscripción"
         options={REGISTRATION_MODES.map(({ id, label }) => ({ id, label }))}
       />
-      <Typography variant="caption" color="text.secondary">
+      <Typography
+        variant="caption"
+        sx={{
+          color: "text.secondary",
+        }}
+      >
         {describeRegistrationMode(mode)?.help}
       </Typography>
     </>

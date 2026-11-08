@@ -118,7 +118,13 @@ export default function AttendanceEvent(props: {
         <Tab
           value="attendance"
           label={
-            <Stack direction="row" spacing={1} alignItems="center">
+            <Stack
+              direction="row"
+              spacing={1}
+              sx={{
+                alignItems: "center",
+              }}
+            >
               <span>Asistencia</span>
               {summary?.total ? (
                 <Chip size="small" label={summary.total} />

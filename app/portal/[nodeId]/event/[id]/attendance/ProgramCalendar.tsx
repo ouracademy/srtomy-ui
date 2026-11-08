@@ -1,11 +1,15 @@
 "use client";
 
 import type { ChildResponse } from "@/app/(api)/generated/aPIOvejafiel.schemas";
-import esLocale from "@fullcalendar/core/locales/es";
-import interactionPlugin from "@fullcalendar/interaction";
-import listPlugin from "@fullcalendar/list";
 import FullCalendar from "@fullcalendar/react";
-import timeGridPlugin from "@fullcalendar/timegrid";
+import interactionPlugin from "@fullcalendar/react/interaction";
+import listPlugin from "@fullcalendar/react/list";
+import esLocale from "@fullcalendar/react/locales/es";
+import classicThemePlugin from "@fullcalendar/react/themes/classic";
+import timeGridPlugin from "@fullcalendar/react/timegrid";
+import "@fullcalendar/react/skeleton.css";
+import "@fullcalendar/react/themes/classic/theme.css";
+import "@fullcalendar/react/themes/classic/palette.css";
 import { Box, useMediaQuery, useTheme } from "@mui/material";
 import { addDays, differenceInCalendarDays, startOfDay } from "date-fns";
 import { visibleHours } from "./programHours";
@@ -58,7 +62,12 @@ export const ProgramCalendar = ({
     >
       <FullCalendar
         locale={esLocale}
-        plugins={[interactionPlugin, timeGridPlugin, listPlugin]}
+        plugins={[
+          classicThemePlugin,
+          interactionPlugin,
+          timeGridPlugin,
+          listPlugin,
+        ]}
         initialView="program"
         views={{
           program: {

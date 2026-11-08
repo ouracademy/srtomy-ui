@@ -82,11 +82,13 @@ export const EventHero = ({
     >
       <Stack
         direction="row"
-        justifyContent="space-between"
-        alignItems="flex-start"
-        flexWrap="wrap"
         useFlexGap
         spacing={1.5}
+        sx={{
+          justifyContent: "space-between",
+          alignItems: "flex-start",
+          flexWrap: "wrap",
+        }}
       >
         {access ? (
           <Chip
@@ -96,7 +98,14 @@ export const EventHero = ({
         ) : (
           <span />
         )}
-        <Stack direction="row" spacing={1.25} useFlexGap flexWrap="wrap">
+        <Stack
+          direction="row"
+          spacing={1.25}
+          useFlexGap
+          sx={{
+            flexWrap: "wrap",
+          }}
+        >
           {share}
           {canEdit && (
             <Button
@@ -152,7 +161,14 @@ export const EventHero = ({
         >
           {event.title}
         </Typography>
-        <Stack direction="row" spacing={1.25} useFlexGap flexWrap="wrap">
+        <Stack
+          direction="row"
+          spacing={1.25}
+          useFlexGap
+          sx={{
+            flexWrap: "wrap",
+          }}
+        >
           {pill(<CalendarMonthIcon />, dateRangeLabel(event.start, event.end))}
           {/* The hours say something only for an event of one day. */}
           {event.start &&

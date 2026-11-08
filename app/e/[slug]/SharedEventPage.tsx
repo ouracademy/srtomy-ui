@@ -130,7 +130,12 @@ export const SharedEventPage = ({
     <Container component="main" maxWidth="sm" sx={{ py: { xs: 2, sm: 5 } }}>
       <Stack spacing={3}>
         <Box>
-          <Typography variant="overline" color="text.secondary">
+          <Typography
+            variant="overline"
+            sx={{
+              color: "text.secondary",
+            }}
+          >
             {event.isACourse ? "Curso" : "Evento"} · {event.organizationName}
           </Typography>
           <Typography variant="h4" component="h1">
@@ -177,7 +182,12 @@ export const SharedEventPage = ({
             </Alert>
             {outcome.status === "CONFIRMED" && outcome.ticketCode && (
               <Paper variant="outlined" sx={{ p: 2 }}>
-                <Stack spacing={1} alignItems="center">
+                <Stack
+                  spacing={1}
+                  sx={{
+                    alignItems: "center",
+                  }}
+                >
                   <Typography variant="h6" component="h2">
                     Su ticket
                   </Typography>
@@ -186,7 +196,12 @@ export const SharedEventPage = ({
                     label="QR de su ticket"
                     size={200}
                   />
-                  <Typography variant="body2" color="text.secondary">
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      color: "text.secondary",
+                    }}
+                  >
                     Muéstrelo al entrar.
                   </Typography>
                 </Stack>
@@ -198,7 +213,12 @@ export const SharedEventPage = ({
                 aria-label="Cancelar la inscripción"
                 role="group"
               >
-                <Typography variant="body2" color="text.secondary">
+                <Typography
+                  variant="body2"
+                  sx={{
+                    color: "text.secondary",
+                  }}
+                >
                   Guarde este enlace: con él puede cancelar su inscripción sin
                   iniciar sesión.
                 </Typography>

@@ -60,15 +60,29 @@ export function PeopleLayout({
   };
 
   return (
-    <Stack direction="column" spacing={2} p={{ xs: 2, sm: 4 }}>
+    <Stack
+      direction="column"
+      spacing={2}
+      sx={{
+        p: { xs: 2, sm: 4 },
+      }}
+    >
       <Box
-        display="flex"
-        justifyContent="space-between"
-        alignItems="center"
-        flexWrap="wrap"
-        gap={2}
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          flexWrap: "wrap",
+          gap: 2,
+        }}
       >
-        <Stack direction="row" alignItems="center" spacing={2}>
+        <Stack
+          direction="row"
+          spacing={2}
+          sx={{
+            alignItems: "center",
+          }}
+        >
           <Typography variant="h4">Personas</Typography>
         </Stack>
         <Box sx={{ display: "flex", width: { xs: "100%", sm: "auto" } }}>

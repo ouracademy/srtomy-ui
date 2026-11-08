@@ -1,4 +1,5 @@
 import { test, expect } from "./fixtures";
+import { firstCalendarSlot } from "./calendar";
 
 // The other endpoints under an event answer lists (notices, sign-ups) or counts.
 const sideEndpoint = (url: string): string | undefined => {
@@ -106,11 +107,7 @@ test.describe("Eventos compuestos", () => {
     page,
   }) => {
     await page.goto(`/portal/${nodeId}/event`);
-    await page
-      .getByRole("grid")
-      .getByRole("gridcell")
-      .first()
-      .click({ force: true });
+    await firstCalendarSlot(page).click({ force: true });
 
     const dialog = page.getByRole("dialog");
     await dialog.getByPlaceholder(/Agregar título/i).fill("Congreso");

@@ -153,10 +153,21 @@ export const EventForm = ({
         disabled={!editable}
         sx={{ border: 0, p: 0, m: 0, minWidth: 0 }}
       >
-        <Grid container spacing={2} margin={4}>
+        <Grid
+          container
+          spacing={2}
+          sx={{
+            margin: 4,
+          }}
+        >
           {container && (
             <Grid size={{ xs: 12 }}>
-              <Typography variant="overline" color="text.secondary">
+              <Typography
+                variant="overline"
+                sx={{
+                  color: "text.secondary",
+                }}
+              >
                 Parte de «{container.title}»
               </Typography>
             </Grid>
@@ -255,8 +266,8 @@ export const EventForm = ({
                 },
               }}
               textFieldProps={{
-                InputProps: {
-                  startAdornment: <PlaceOutlinedIcon />,
+                slotProps: {
+                  input: { startAdornment: <PlaceOutlinedIcon /> },
                 },
                 placeholder: " Agregar lugar",
                 variant: "standard",
@@ -314,13 +325,20 @@ export const EventForm = ({
               {watch("registrationMode") === "INHERIT" && !changingEntry ? (
                 <Stack
                   direction="row"
-                  alignItems="center"
-                  justifyContent="space-between"
-                  flexWrap="wrap"
                   useFlexGap
                   spacing={1}
+                  sx={{
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    flexWrap: "wrap",
+                  }}
                 >
-                  <Typography variant="body2" color="text.secondary">
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      color: "text.secondary",
+                    }}
+                  >
                     <strong>Inscripción:</strong> la del evento. Quien se
                     inscribe al evento puede entrar a esta sesión.
                   </Typography>

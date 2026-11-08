@@ -1,6 +1,6 @@
 "use client";
 
-import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
+import DeleteOutlineIcon from "@mui/icons-material/DeleteOutlined";
 import {
   Chip,
   IconButton,
@@ -88,7 +88,11 @@ export const AccessList = ({ entries, currentUserId }: AccessListProps) => {
 
   return (
     <Stack spacing={2}>
-      <Typography color="text.secondary">
+      <Typography
+        sx={{
+          color: "text.secondary",
+        }}
+      >
         El acceso viene del cargo que tiene cada persona y vale para este lugar
         y para todo lo que cuelga de él. Para dar o quitar acceso, cambie los
         permisos del cargo o el cargo de la persona.
@@ -154,7 +158,11 @@ export const AccessList = ({ entries, currentUserId }: AccessListProps) => {
         </Table>
       </TableContainer>
       {shown.length === 0 && (
-        <Typography color="text.secondary">
+        <Typography
+          sx={{
+            color: "text.secondary",
+          }}
+        >
           {entries.length === 0 ? "Aún no hay accesos." : "Sin resultados."}
         </Typography>
       )}
@@ -199,7 +207,11 @@ export const OwnersPanel = ({
 
   return (
     <Stack spacing={1}>
-      <Typography color="text.secondary">
+      <Typography
+        sx={{
+          color: "text.secondary",
+        }}
+      >
         Los Propietarios controlan toda la iglesia y no dependen de un cargo. La
         iglesia siempre conserva al menos uno.
       </Typography>
@@ -209,8 +221,10 @@ export const OwnersPanel = ({
             component="li"
             key={owner.bindingId}
             direction="row"
-            alignItems="center"
-            justifyContent="space-between"
+            sx={{
+              alignItems: "center",
+              justifyContent: "space-between",
+            }}
           >
             <Typography>{owner.email}</Typography>
             {canManage && (

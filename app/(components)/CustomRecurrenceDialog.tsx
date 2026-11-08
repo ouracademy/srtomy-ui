@@ -88,7 +88,13 @@ export const CustomRecurrenceDialog = ({
       <DialogTitle>Recurrencia personalizada</DialogTitle>
       <DialogContent>
         <Stack spacing={2} sx={{ paddingTop: 1 }}>
-          <Stack direction="row" spacing={1} alignItems="center">
+          <Stack
+            direction="row"
+            spacing={1}
+            sx={{
+              alignItems: "center",
+            }}
+          >
             <NumberField
               label="Repetir cada"
               value={draft.interval}
@@ -169,7 +175,13 @@ export const CustomRecurrenceDialog = ({
                 control={<Radio />}
                 label="Nunca"
               />
-              <Stack direction="row" alignItems="center" spacing={1}>
+              <Stack
+                direction="row"
+                spacing={1}
+                sx={{
+                  alignItems: "center",
+                }}
+              >
                 <FormControlLabel
                   value="UNTIL"
                   control={<Radio />}
@@ -187,7 +199,13 @@ export const CustomRecurrenceDialog = ({
               {errors.until && (
                 <FormHelperText error>{errors.until}</FormHelperText>
               )}
-              <Stack direction="row" alignItems="center" spacing={1}>
+              <Stack
+                direction="row"
+                spacing={1}
+                sx={{
+                  alignItems: "center",
+                }}
+              >
                 <FormControlLabel
                   value="COUNT"
                   control={<Radio />}

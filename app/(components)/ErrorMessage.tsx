@@ -13,11 +13,22 @@ export const ErrorMessage = ({
   message = "Ocurrió un error inesperado. Puedes intentarlo de nuevo.",
   onRetry,
 }: ErrorMessageProps) => (
-  <Box role="alert" textAlign="center" p={4}>
+  <Box
+    role="alert"
+    sx={{
+      textAlign: "center",
+      p: 4,
+    }}
+  >
     <Typography variant="h5" component="h1" gutterBottom>
       {title}
     </Typography>
-    <Typography color="text.secondary" gutterBottom>
+    <Typography
+      gutterBottom
+      sx={{
+        color: "text.secondary",
+      }}
+    >
       {message}
     </Typography>
     {onRetry && (

@@ -66,24 +66,46 @@ export const RegistrationList = ({
         component="li"
         key={item.id}
         direction="row"
-        flexWrap="wrap"
-        alignItems="center"
-        justifyContent="space-between"
         useFlexGap
         spacing={1}
-        sx={{ py: 1, borderTop: "1px solid #EEF2F7" }}
+        sx={{
+          flexWrap: "wrap",
+          alignItems: "center",
+          justifyContent: "space-between",
+          py: 1,
+          borderTop: "1px solid #EEF2F7",
+        }}
       >
         <Stack>
-          <Typography fontWeight={500}>{name}</Typography>
-          <Typography variant="body2" color="text.secondary">
+          <Typography
+            sx={{
+              fontWeight: 500,
+            }}
+          >
+            {name}
+          </Typography>
+          <Typography
+            variant="body2"
+            sx={{
+              color: "text.secondary",
+            }}
+          >
             {[item.email, item.phoneNumber].filter(Boolean).join(" · ")}
           </Typography>
         </Stack>
-        <Stack direction="row" alignItems="center" spacing={1}>
+        <Stack
+          direction="row"
+          spacing={1}
+          sx={{
+            alignItems: "center",
+          }}
+        >
           <Typography
             variant="body2"
-            fontWeight={600}
-            sx={{ color: item.checkedInAt ? "#14532D" : "text.secondary" }}
+            sx={{
+              fontWeight: 600,
+              color: item.checkedInAt ? "#14532D" : "text.secondary",
+            }}
           >
             {item.checkedInAt
               ? `Ingresó a las ${timeOf(item.checkedInAt)}`
@@ -123,14 +145,30 @@ export const RegistrationList = ({
     items: EventRegistrationResponse[],
   ) => (
     <Stack key={key} spacing={0.5}>
-      <Typography fontWeight={700}>{name}</Typography>
+      <Typography
+        sx={{
+          fontWeight: 700,
+        }}
+      >
+        {name}
+      </Typography>
       {line && (
-        <Typography variant="body2" color="text.secondary">
+        <Typography
+          variant="body2"
+          sx={{
+            color: "text.secondary",
+          }}
+        >
           {line}
         </Typography>
       )}
       {items.length === 0 ? (
-        <Typography variant="body2" color="text.secondary">
+        <Typography
+          variant="body2"
+          sx={{
+            color: "text.secondary",
+          }}
+        >
           Aún no hay inscritos.
         </Typography>
       ) : (
@@ -151,14 +189,26 @@ export const RegistrationList = ({
       <Stack spacing={2.5}>
         <Stack
           direction="row"
-          alignItems="baseline"
-          justifyContent="space-between"
           spacing={2}
+          sx={{
+            alignItems: "baseline",
+            justifyContent: "space-between",
+          }}
         >
-          <Typography variant="h6" component="h2" fontWeight={700}>
+          <Typography
+            variant="h6"
+            component="h2"
+            sx={{
+              fontWeight: 700,
+            }}
+          >
             Inscritos
           </Typography>
-          <Typography color="text.secondary">
+          <Typography
+            sx={{
+              color: "text.secondary",
+            }}
+          >
             {setup.confirmed ?? 0} confirmados
           </Typography>
         </Stack>

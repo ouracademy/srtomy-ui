@@ -83,7 +83,11 @@ export const PendingInvitations = ({
       </Typography>
       {refusal && <Alert severity="error">{refusal}</Alert>}
       {invitations.length === 0 && (
-        <Typography color="text.secondary">
+        <Typography
+          sx={{
+            color: "text.secondary",
+          }}
+        >
           No tienes invitaciones pendientes.
         </Typography>
       )}

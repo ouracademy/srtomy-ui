@@ -71,7 +71,12 @@ export const AddVisitorDialog = ({ onAdd, close }: AddVisitorDialogProps) => {
         <DialogTitle>Agregar visitante</DialogTitle>
         <DialogContent>
           <Stack spacing={2} sx={{ pt: 1 }}>
-            <Typography variant="body2" color="text.secondary">
+            <Typography
+              variant="body2"
+              sx={{
+                color: "text.secondary",
+              }}
+            >
               Quien viene por primera vez queda como visitante en la iglesia,
               con su asistencia marcada. Basta con el nombre.
             </Typography>

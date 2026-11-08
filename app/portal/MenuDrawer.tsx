@@ -84,7 +84,13 @@ export default function MenuDrawer({
               width: "100%",
             }}
           >
-            <Stack direction="row" spacing={2} alignItems="center">
+            <Stack
+              direction="row"
+              spacing={2}
+              sx={{
+                alignItems: "center",
+              }}
+            >
               <Button
                 sx={{ fontSize: { xs: "10px", sm: "12px" } }}
                 variant="outlined"
