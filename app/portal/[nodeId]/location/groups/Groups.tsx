@@ -109,8 +109,20 @@ export function Groups({
   );
 
   return (
-    <Stack direction="column" spacing={2} p={4}>
-      <Stack direction="row" spacing={2} alignItems="center">
+    <Stack
+      direction="column"
+      spacing={2}
+      sx={{
+        p: 4,
+      }}
+    >
+      <Stack
+        direction="row"
+        spacing={2}
+        sx={{
+          alignItems: "center",
+        }}
+      >
         <div
           style={{
             display: "flex",

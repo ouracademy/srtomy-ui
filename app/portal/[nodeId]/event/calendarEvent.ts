@@ -1,4 +1,4 @@
-import type { EventInput } from "@fullcalendar/core";
+import type { EventInput } from "@fullcalendar/react";
 import type { EventResponse } from "@/app/(api)/generated/aPIOvejafiel.schemas";
 import { addDays, differenceInHours, startOfDay } from "date-fns";
 import { originLabel, titleWithOrigin } from "../originLabel";

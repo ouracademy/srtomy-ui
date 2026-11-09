@@ -51,7 +51,13 @@ export const DetailTab = ({
   };
 
   return (
-    <Grid container spacing={3} alignItems="flex-start">
+    <Grid
+      container
+      spacing={3}
+      sx={{
+        alignItems: "flex-start",
+      }}
+    >
       <Grid size={{ xs: 12, md: 8 }}>
         <Stack spacing={3}>
           {event.description && (
@@ -108,7 +114,13 @@ export const DetailTab = ({
               sx={{ p: 2.5, borderRadius: 4 }}
             >
               <Stack spacing={1.5}>
-                <Typography variant="h6" component="h2" fontWeight={700}>
+                <Typography
+                  variant="h6"
+                  component="h2"
+                  sx={{
+                    fontWeight: 700,
+                  }}
+                >
                   Ponentes
                 </Typography>
                 {speakers.map((speaker) => (

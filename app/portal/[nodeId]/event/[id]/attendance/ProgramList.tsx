@@ -50,8 +50,11 @@ export const ProgramList = ({
               component="li"
               key={item.id}
               direction="row"
-              alignItems="center"
-              sx={{ borderTop: "1px solid", borderColor: "divider" }}
+              sx={{
+                alignItems: "center",
+                borderTop: "1px solid",
+                borderColor: "divider",
+              }}
             >
               <ListItemButton
                 component={NextLink}
@@ -63,7 +66,14 @@ export const ProgramList = ({
                   primary={item.title}
                   secondary={hoursLabel(item.start, item.end)}
                 />
-                <Stack direction="row" spacing={1} useFlexGap flexWrap="wrap">
+                <Stack
+                  direction="row"
+                  spacing={1}
+                  useFlexGap
+                  sx={{
+                    flexWrap: "wrap",
+                  }}
+                >
                   <Chip
                     size="small"
                     variant="outlined"

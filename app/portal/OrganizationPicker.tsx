@@ -79,7 +79,12 @@ export const OrganizationPicker = ({
             </ListItemButton>
           ))}
           {rows.length === 0 && (
-            <Typography color="text.secondary" sx={{ p: 2 }}>
+            <Typography
+              sx={{
+                color: "text.secondary",
+                p: 2,
+              }}
+            >
               No hay resultados
             </Typography>
           )}

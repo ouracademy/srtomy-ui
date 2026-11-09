@@ -66,7 +66,12 @@ export const NoticesPanel = ({ eventId, canPost }: NoticesPanelProps) => {
         <Typography variant="h6" component="h2">
           Avisos
         </Typography>
-        <Typography variant="body2" color="text.secondary">
+        <Typography
+          variant="body2"
+          sx={{
+            color: "text.secondary",
+          }}
+        >
           Se muestran en la página del evento para quien abra el enlace, tenga
           cuenta o no. Los cambios de fecha, hora, lugar o ponentes se publican
           solos.

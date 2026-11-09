@@ -77,12 +77,23 @@ export const InheritedRegistrationsPanel = ({
         <Typography variant="h6" component="h2">
           Esperados
         </Typography>
-        <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
+        <Stack
+          direction="row"
+          spacing={1}
+          useFlexGap
+          sx={{
+            flexWrap: "wrap",
+          }}
+        >
           <Chip size="small" label={`Esperados: ${expected.length}`} />
           <Chip size="small" label={`Ingresaron: ${came}`} />
         </Stack>
         {expected.length === 0 ? (
-          <Typography color="text.secondary">
+          <Typography
+            sx={{
+              color: "text.secondary",
+            }}
+          >
             Aún no hay inscritos en el evento.
           </Typography>
         ) : (

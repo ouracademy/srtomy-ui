@@ -46,8 +46,10 @@ export const VisitorsCard = ({
         <Typography
           variant="h6"
           component="h2"
-          fontWeight={700}
-          sx={{ fontSize: 16 }}
+          sx={{
+            fontWeight: 700,
+            fontSize: 16,
+          }}
         >
           Visitantes
         </Typography>
@@ -56,12 +58,20 @@ export const VisitorsCard = ({
         </Button>
         <Stack
           direction="row"
-          alignItems="center"
-          justifyContent="space-between"
           spacing={1}
+          sx={{
+            alignItems: "center",
+            justifyContent: "space-between",
+          }}
         >
           <Typography id="guests-label">Sin nombre</Typography>
-          <Stack direction="row" alignItems="center" spacing={1}>
+          <Stack
+            direction="row"
+            spacing={1}
+            sx={{
+              alignItems: "center",
+            }}
+          >
             <IconButton
               aria-label="Quitar uno"
               disabled={saving || guestCount <= 0}
@@ -87,7 +97,12 @@ export const VisitorsCard = ({
             </IconButton>
           </Stack>
         </Stack>
-        <Typography variant="caption" color="text.secondary">
+        <Typography
+          variant="caption"
+          sx={{
+            color: "text.secondary",
+          }}
+        >
           Quienes no quisieron dar su nombre o no se anotaron. Solo se cuentan.
         </Typography>
       </Stack>

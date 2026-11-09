@@ -41,13 +41,20 @@ export const AttendanceTotal = ({
     >
       <Stack
         direction="row"
-        flexWrap="wrap"
-        alignItems="center"
         useFlexGap
-        sx={{ gap: "24px 40px" }}
+        sx={{
+          flexWrap: "wrap",
+          alignItems: "center",
+          gap: "24px 40px",
+        }}
       >
         <Stack spacing={0.5}>
-          <Typography variant="body2" color="text.secondary">
+          <Typography
+            variant="body2"
+            sx={{
+              color: "text.secondary",
+            }}
+          >
             {total === 1 ? "Asistió" : "Asistieron"}
           </Typography>
           <Typography
@@ -58,14 +65,23 @@ export const AttendanceTotal = ({
             {expected ? (
               <Typography
                 component="span"
-                sx={{ fontSize: 20, fontWeight: 500, ml: 1 }}
-                color="text.secondary"
+                sx={{
+                  color: "text.secondary",
+                  fontSize: 20,
+                  fontWeight: 500,
+                  ml: 1,
+                }}
               >
                 de {expected} esperados
               </Typography>
             ) : null}
           </Typography>
-          <Typography variant="caption" color="text.secondary">
+          <Typography
+            variant="caption"
+            sx={{
+              color: "text.secondary",
+            }}
+          >
             Cada persona cuenta una sola vez.
           </Typography>
         </Stack>
@@ -92,16 +108,20 @@ export const AttendanceTotal = ({
           </Box>
           <Stack
             direction="row"
-            flexWrap="wrap"
             useFlexGap
-            sx={{ gap: "8px 16px" }}
+            sx={{
+              flexWrap: "wrap",
+              gap: "8px 16px",
+            }}
           >
             {parts.map(({ key, label, color }) => (
               <Stack
                 key={key}
                 direction="row"
                 spacing={0.75}
-                alignItems="center"
+                sx={{
+                  alignItems: "center",
+                }}
               >
                 <Box
                   aria-hidden

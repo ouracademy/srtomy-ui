@@ -36,14 +36,32 @@ export const SessionPopover = ({
   >
     {session && (
       <Stack spacing={1.5} sx={{ p: 2, maxWidth: 300 }}>
-        <Typography variant="subtitle1" component="h3" fontWeight={700}>
+        <Typography
+          variant="subtitle1"
+          component="h3"
+          sx={{
+            fontWeight: 700,
+          }}
+        >
           {session.title}
         </Typography>
-        <Typography variant="body2" color="text.secondary">
+        <Typography
+          variant="body2"
+          sx={{
+            color: "text.secondary",
+          }}
+        >
           {dateRangeLabel(session.start, session.end)},{" "}
           {hoursLabel(session.start, session.end)}
         </Typography>
-        <Stack direction="row" spacing={1} useFlexGap flexWrap="wrap">
+        <Stack
+          direction="row"
+          spacing={1}
+          useFlexGap
+          sx={{
+            flexWrap: "wrap",
+          }}
+        >
           <Chip
             size="small"
             variant="outlined"
@@ -55,7 +73,14 @@ export const SessionPopover = ({
             label={describeRegistrationMode(session.registrationMode)?.summary}
           />
         </Stack>
-        <Stack direction="row" spacing={1} useFlexGap flexWrap="wrap">
+        <Stack
+          direction="row"
+          spacing={1}
+          useFlexGap
+          sx={{
+            flexWrap: "wrap",
+          }}
+        >
           <Button
             variant="contained"
             size="small"

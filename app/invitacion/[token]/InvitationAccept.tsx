@@ -96,7 +96,12 @@ export const InvitationAccept = ({
           {!closed && signedIn && (
             <>
               {currentEmail && (
-                <Typography variant="body2" color="text.secondary">
+                <Typography
+                  variant="body2"
+                  sx={{
+                    color: "text.secondary",
+                  }}
+                >
                   Sesión iniciada como {currentEmail}.
                 </Typography>
               )}

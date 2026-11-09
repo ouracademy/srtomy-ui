@@ -34,7 +34,12 @@ export const PublicPage = ({ page }: { page: PublicPageResponse }) => {
     <Container component="main" maxWidth="md" sx={{ py: { xs: 2, sm: 5 } }}>
       <Stack spacing={3}>
         <Box>
-          <Typography variant="overline" color="text.secondary">
+          <Typography
+            variant="overline"
+            sx={{
+              color: "text.secondary",
+            }}
+          >
             {nodeTypeLabels[page.type ?? ""] ?? page.type}
           </Typography>
           <Typography variant="h4" component="h1">
@@ -52,7 +57,13 @@ export const PublicPage = ({ page }: { page: PublicPageResponse }) => {
           </Paper>
         )}
         {links.length > 0 && (
-          <Stack direction="row" spacing={2} flexWrap="wrap">
+          <Stack
+            direction="row"
+            spacing={2}
+            sx={{
+              flexWrap: "wrap",
+            }}
+          >
             {links.map((link) => (
               <Link
                 key={link.url}
@@ -146,7 +157,13 @@ const OrgChart = ({
         <strong>{node.name}</strong>
       )}
       {(node.team ?? []).length > 0 && (
-        <Typography component="span" variant="body2" color="text.secondary">
+        <Typography
+          component="span"
+          variant="body2"
+          sx={{
+            color: "text.secondary",
+          }}
+        >
           {" "}
           — {(node.team ?? []).join(", ")}
         </Typography>

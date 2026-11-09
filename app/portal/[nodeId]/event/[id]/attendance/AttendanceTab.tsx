@@ -126,10 +126,12 @@ const SessionAttendance = ({
   return (
     <Stack
       direction="row"
-      flexWrap="wrap"
-      alignItems="flex-start"
       useFlexGap
-      sx={{ gap: 3 }}
+      sx={{
+        flexWrap: "wrap",
+        alignItems: "flex-start",
+        gap: 3,
+      }}
     >
       <Stack spacing={3} sx={{ flex: "999 1 640px", minWidth: 0 }}>
         <AttendanceTotal eventId={eventId} expected={expected || undefined} />

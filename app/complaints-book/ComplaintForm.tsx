@@ -50,7 +50,14 @@ export default function ComplaintForm({ initialValues }: ComplaintFormProps) {
         alert.showMessage("Enviado");
       }}
     >
-      <Grid container spacing={4} margin={4} sx={{ width: { sm: "600px" } }}>
+      <Grid
+        container
+        spacing={4}
+        sx={{
+          margin: 4,
+          width: { sm: "600px" },
+        }}
+      >
         <Grid size={{ xs: 12 }}>
           <Typography sx={{ fontSize: "40px" }}>Ingresa tus datos</Typography>
         </Grid>

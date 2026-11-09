@@ -117,13 +117,21 @@ export const AttendanceList = ({
       <Stack spacing={2}>
         <Stack
           direction="row"
-          flexWrap="wrap"
-          alignItems="center"
-          justifyContent="space-between"
           useFlexGap
           spacing={1.5}
+          sx={{
+            flexWrap: "wrap",
+            alignItems: "center",
+            justifyContent: "space-between",
+          }}
         >
-          <Typography variant="h6" component="h2" fontWeight={700}>
+          <Typography
+            variant="h6"
+            component="h2"
+            sx={{
+              fontWeight: 700,
+            }}
+          >
             Lista de asistencia
           </Typography>
           <TextField

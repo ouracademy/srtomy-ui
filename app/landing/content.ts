@@ -1,8 +1,8 @@
 import type { SvgIconComponent } from "@mui/icons-material";
 import AccountTreeOutlined from "@mui/icons-material/AccountTreeOutlined";
 import CalendarMonthOutlined from "@mui/icons-material/CalendarMonthOutlined";
-import CheckCircleOutline from "@mui/icons-material/CheckCircleOutline";
-import PeopleOutline from "@mui/icons-material/PeopleOutline";
+import CheckCircleOutline from "@mui/icons-material/CheckCircleOutlined";
+import PeopleOutline from "@mui/icons-material/PeopleOutlined";
 import VerifiedUserOutlined from "@mui/icons-material/VerifiedUserOutlined";
 
 export const brandName = "Oveja Fiel";
