@@ -15,7 +15,12 @@ export const PersonResponseSchema = z.object({
   id: z.string(),
   firstName: z.string(),
   lastName: z.string(),
-  phoneNumber: z.string(),
+  // The API sends null for people who never gave a phone, such as the owner
+  // who created the church.
+  phoneNumber: z
+    .string()
+    .nullish()
+    .transform((val) => val ?? ""),
   email: z
     .string()
     .nullish()
@@ -28,7 +33,10 @@ export const PersonResponseSchema = z.object({
     if (val === null || val === "") return undefined;
     return LocalDateSchema.parse(val);
   }),
-  hasBeenBaptized: z.boolean().optional(),
+  hasBeenBaptized: z
+    .boolean()
+    .nullish()
+    .transform((val) => val ?? undefined),
 });
 
 export type PersonResponse = z.infer<typeof PersonResponseSchema>;

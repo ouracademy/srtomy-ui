@@ -21,7 +21,7 @@ import {
   resolvePositionIds,
   toPositionChoice,
 } from "@/app/portal/[nodeId]/person/positionSelection";
-import { Box } from "@mui/material";
+import { Box, Stack } from "@mui/material";
 import { DeletePersonButton } from "@/app/portal/[nodeId]/person/DeletePersonButton";
 import { useRouter } from "next/navigation";
 import React from "react";
@@ -75,50 +75,58 @@ export default function PersonEdit(props: {
   const standing = standingIn(memberships ?? [], nodeId);
 
   return (
-    <Box>
+    <Box sx={{ p: { xs: 2, sm: 4 }, maxWidth: 1200, mx: "auto" }}>
       {!person ? (
         <div>El usuario no ha esta registrado</div>
       ) : (
-        <>
-          <PersonForm
-            initialValues={{
-              ...person,
-              hasBeenBaptized: person.hasBeenBaptized ? "YES" : "NO",
-              ...standing,
-              positions: positions.map(toPositionChoice),
-            }}
-            submit={async (formValues) => {
-              const positionIds = await resolvePositionIds(
-                formValues.positions,
-                (name) => postOrganizationsByIdPositions(nodeId, { name }),
-              );
-              await putPeopleById(
-                id,
-                toPersonPayload(formValues, nodeId, positionIds),
-              );
-              mutatePerson();
-              mutatePositions();
-              mutateMemberships();
-              alert.showMessage("Guardado exitosamente");
-              router.push(`/portal/${nodeId}/person`);
-            }}
-            nodeId={nodeId}
-          />
-          <PersonMemberships
-            personId={id}
-            personName={`${person.firstName} ${person.lastName}`.trim()}
-            nodeId={nodeId}
-          />
-          <Box sx={{ px: 4, pb: 4 }}>
-            <DeletePersonButton
-              person={{
-                id,
-                name: `${person.firstName} ${person.lastName}`.trim(),
+        <Stack
+          direction={{ xs: "column", lg: "row" }}
+          spacing={3}
+          sx={{ alignItems: "flex-start" }}
+        >
+          <Box sx={{ flex: 1, minWidth: 0, width: "100%" }}>
+            <PersonForm
+              initialValues={{
+                ...person,
+                hasBeenBaptized: person.hasBeenBaptized ? "YES" : "NO",
+                ...standing,
+                positions: positions.map(toPositionChoice),
               }}
+              submit={async (formValues) => {
+                const positionIds = await resolvePositionIds(
+                  formValues.positions,
+                  (name) => postOrganizationsByIdPositions(nodeId, { name }),
+                );
+                await putPeopleById(
+                  id,
+                  toPersonPayload(formValues, nodeId, positionIds),
+                );
+                mutatePerson();
+                mutatePositions();
+                mutateMemberships();
+                alert.showMessage("Guardado exitosamente");
+                router.push(`/portal/${nodeId}/person`);
+              }}
+              nodeId={nodeId}
+              actions={
+                <DeletePersonButton
+                  person={{
+                    id,
+                    name: `${person.firstName} ${person.lastName}`.trim(),
+                  }}
+                  nodeId={nodeId}
+                />
+              }
+            />
+          </Box>
+          <Box sx={{ flex: { lg: "0 0 380px" }, width: "100%" }}>
+            <PersonMemberships
+              personId={id}
+              personName={`${person.firstName} ${person.lastName}`.trim()}
               nodeId={nodeId}
             />
           </Box>
-        </>
+        </Stack>
       )}
     </Box>
   );

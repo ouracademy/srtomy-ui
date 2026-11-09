@@ -36,9 +36,20 @@ export const PermissionsInfo = ({
         anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
       >
         <Stack spacing={0.5} sx={{ p: 2, maxWidth: 360 }}>
-          <Typography fontWeight={600}>Permisos de {label}</Typography>
+          <Typography
+            sx={{
+              fontWeight: 600,
+            }}
+          >
+            Permisos de {label}
+          </Typography>
           {permissions.length === 0 ? (
-            <Typography variant="body2" color="text.secondary">
+            <Typography
+              variant="body2"
+              sx={{
+                color: "text.secondary",
+              }}
+            >
               Ninguno: el cargo es solo un nombre y no da acceso a la
               aplicación.
             </Typography>

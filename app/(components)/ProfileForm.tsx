@@ -15,7 +15,13 @@ export const ProfileForm = () => {
         email: user?.email,
       }}
     >
-      <Grid container spacing={2} margin={4}>
+      <Grid
+        container
+        spacing={2}
+        sx={{
+          margin: 4,
+        }}
+      >
         <Grid size={{ xs: 12 }}>
           <Typography variant="h5" gutterBottom>
             Perfil

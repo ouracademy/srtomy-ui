@@ -24,6 +24,7 @@ import type {
   PermissionGroupResponse,
   PositionSuggestionResponse,
 } from "@/app/(api)/generated/aPIOvejafiel.schemas";
+import { ImageUploadStub } from "../(components)/ImageUploadStub";
 import Loading from "../(components)/Loading";
 import { PositionsField } from "../(components)/PositionsField";
 import { SaveButton } from "../(components)/SaveButton";
@@ -87,6 +88,7 @@ const CreateChurchFields = ({
             1. Tu iglesia
           </Typography>
           <Stack spacing={2}>
+            <ImageUploadStub type="CHURCH" />
             <TextFieldElement
               name="name"
               label="Nombre de la iglesia"
@@ -100,7 +102,13 @@ const CreateChurchFields = ({
           <Typography variant="h6" component="h2" gutterBottom>
             2. Primera sede
           </Typography>
-          <Typography variant="body2" color="text.secondary" gutterBottom>
+          <Typography
+            variant="body2"
+            gutterBottom
+            sx={{
+              color: "text.secondary",
+            }}
+          >
             Toda iglesia tiene al menos una sede. Luego podrá registrar más.
           </Typography>
           <Grid container spacing={2}>
@@ -128,7 +136,13 @@ const CreateChurchFields = ({
           <Typography variant="h6" component="h2" gutterBottom>
             3. Cargos y permisos
           </Typography>
-          <Typography variant="body2" color="text.secondary" gutterBottom>
+          <Typography
+            variant="body2"
+            gutterBottom
+            sx={{
+              color: "text.secondary",
+            }}
+          >
             Cada cargo da un nivel de acceso a la aplicación a quien lo tenga.
             Quite, agregue o renombre los cargos como los llaman en su iglesia y
             cambie el nivel de cada uno. Podrá ajustarlos después.
@@ -150,7 +164,13 @@ const CreateChurchFields = ({
           <Typography variant="h6" component="h2" gutterBottom>
             4. Usted
           </Typography>
-          <Typography variant="body2" color="text.secondary" gutterBottom>
+          <Typography
+            variant="body2"
+            gutterBottom
+            sx={{
+              color: "text.secondary",
+            }}
+          >
             Quedará registrado como persona de la iglesia con su cargo. Siempre
             será Propietario.
           </Typography>

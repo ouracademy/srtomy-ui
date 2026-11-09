@@ -4,13 +4,13 @@ import type {
   EditEventResponse,
   EventResponse,
 } from "@/app/(api)/generated/aPIOvejafiel.schemas";
-import { putEventsById } from "@/app/(api)/generated";
+import { putEventsById, useGetEventsById } from "@/app/(api)/generated";
 import { apiErrorMessage } from "@/app/(components)/apiErrorMessage";
 import { EventDetailFormData, EventForm } from "@/app/(components)/EventForm";
 import { fromRecurrenceResponse } from "@/app/(components)/recurrence";
 import { noRegistration } from "@/app/(components)/registration";
 import { SnackbarContext } from "@/app/(components)/SnackbarContext";
-import { Button, Stack } from "@mui/material";
+import { Alert, Box } from "@mui/material";
 import { useContext, useMemo, useState } from "react";
 import { fullName } from "../../../person/PersonTable";
 import { EditEventDialog } from "./EditEventDialog";
@@ -27,9 +27,12 @@ type EditableEventFormProps = Readonly<{
   event: EventResponse;
   // Read-only until the user asks to edit.
   editing: boolean;
-  cancel: () => void;
   saved: (result: EditEventResponse) => void;
 }>;
+
+// Said on the form, before anything is changed, so nobody is surprised.
+const EMAIL_NOTICE =
+  "Las personas inscritas recibirán un correo si cambia la fecha, la hora, el nombre, el lugar o los ponentes.";
 
 // What the API answers, in a sentence for the snackbar.
 export const savedMessage = (result: EditEventResponse): string => {
@@ -55,17 +58,22 @@ export const EditableEventForm = ({
   eventId,
   event,
   editing,
-  cancel,
   saved,
 }: EditableEventFormProps) => {
   const alert = useContext(SnackbarContext);
   const repeats = Boolean(event.recurrence);
   const [pending, setPending] = useState<EventDetailFormData | null>(null);
+  // A sub-event stays inside the dates of the event it is part of.
+  const parentId = event.parentEventId;
+  const { data: parent } = useGetEventsById(parentId ?? "", {
+    swr: { enabled: Boolean(parentId) },
+  });
 
   const initialValues = useMemo<EventDetailFormData>(
     () => ({
       name: event.title ?? "",
       date: event.start ?? new Date(),
+      endDate: event.end ?? event.start ?? new Date(),
       startTime: event.start ?? new Date(),
       endTime: event.end ?? new Date(),
       recurrence: fromRecurrenceResponse(event.recurrence),
@@ -76,10 +84,17 @@ export const EditableEventForm = ({
         label: fullName(speaker),
       })),
       description: event.description,
+      // How a sub-event is entered; an event on its own has no such thing.
+      requiresContainerRegistration: parentId
+        ? Boolean(event.requiresContainerRegistration)
+        : undefined,
+      registrationMode: parentId
+        ? (event.registrationMode ?? "INHERIT")
+        : undefined,
       // Shown and changed in its own panel, not in this form.
       registration: noRegistration(),
     }),
-    [event],
+    [event, parentId],
   );
 
   const save = async (values: EventDetailFormData, option: EditOption) => {
@@ -119,17 +134,13 @@ export const EditableEventForm = ({
       alert.showMessage(STOP_REPEATING_MESSAGE);
       return;
     }
-    if (
-      !repeats &&
-      !change.scheduleMoved &&
-      !change.detailsChanged &&
-      !change.ruleChanged
-    ) {
+    // A series asks which occurrences it reaches, and ending the sign-ups of a
+    // sub-event cancels them, so both ask first. Any other event saves right
+    // away: the notice about the emails is already on the form.
+    if (!repeats && !change.ownSignUpsEnd) {
       await save(values, "THIS_EVENT");
       return;
     }
-    // A series asks which occurrences; a single event whose schedule or details
-    // change asks to confirm because of the emails.
     setPending(values);
   };
 
@@ -137,6 +148,12 @@ export const EditableEventForm = ({
 
   return (
     <>
+      {editing && !repeats && (
+        // Room on the right for the close button of the dialog.
+        <Box sx={{ px: 4, pt: 6 }}>
+          <Alert severity="info">{EMAIL_NOTICE}</Alert>
+        </Box>
+      )}
       <EventForm
         // A new form (the saved or the discarded data) each time it opens.
         key={`${editing}-${event.lastModifiedDate?.toString() ?? ""}`}
@@ -145,12 +162,16 @@ export const EditableEventForm = ({
         submit={submit}
         editable={editing}
         lockType
+        container={
+          parent?.start && parent.end
+            ? {
+                title: parent.title ?? "",
+                start: parent.start,
+                end: parent.end,
+              }
+            : undefined
+        }
       />
-      {editing && (
-        <Stack direction="row" justifyContent="flex-end" px={4}>
-          <Button onClick={cancel}>Cancelar</Button>
-        </Stack>
-      )}
       {change && (
         <EditEventDialog
           open

@@ -5,11 +5,13 @@ import LoadingButton from "@mui/lab/LoadingButton";
 import {
   Alert,
   Button,
+  Checkbox,
   Chip,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
+  FormControlLabel,
   List,
   ListItem,
   ListItemText,
@@ -41,6 +43,8 @@ type ShareEventDialogProps = Readonly<{
   close: () => void;
   title: string;
   sharing: EventSharingResponse;
+  // How many sub-events the event has: with some, the access can reach them.
+  subEvents?: number;
   // Applies everything the user changed. Resolves when the API accepted it;
   // failures are reported by the caller and rethrown so the dialog keeps the
   // draft.
@@ -58,6 +62,7 @@ export const ShareEventDialog = ({
   close,
   title,
   sharing,
+  subEvents = 0,
   onSave,
   onRenewLink,
   onCopy,
@@ -65,6 +70,7 @@ export const ShareEventDialog = ({
   const saved = (sharing.generalAccess ?? "RESTRICTED") as GeneralAccess;
   const [generalAccess, setGeneralAccess] =
     React.useState<GeneralAccess>(saved);
+  const [applyToProgram, setApplyToProgram] = React.useState(false);
   const [added, setAdded] = React.useState<PendingShare[]>([]);
   const [removed, setRemoved] = React.useState<string[]>([]);
   const [email, setEmail] = React.useState("");
@@ -74,7 +80,12 @@ export const ShareEventDialog = ({
   const [renewing, setRenewing] = React.useState(false);
   const [askingToDiscard, setAskingToDiscard] = React.useState(false);
 
-  const draft: SharingDraft = { generalAccess, added, removed };
+  const draft: SharingDraft = {
+    generalAccess,
+    applyToProgram,
+    added,
+    removed,
+  };
   const dirty = hasUnsavedChanges(saved, draft);
   const url = `${globalThis.location?.origin ?? ""}${sharedEventPath(sharing.slug ?? "")}`;
   const people = (sharing.shares ?? []).filter(
@@ -170,7 +181,11 @@ export const ShareEventDialog = ({
           <div>
             <Typography variant="subtitle2">Personas con acceso</Typography>
             {people.length === 0 && added.length === 0 ? (
-              <Typography color="text.secondary">
+              <Typography
+                sx={{
+                  color: "text.secondary",
+                }}
+              >
                 Aún no se compartió con nadie.
               </Typography>
             ) : (
@@ -263,11 +278,39 @@ export const ShareEventDialog = ({
                 </MenuItem>
               ))}
             </TextField>
-            <Typography variant="body2" color="text.secondary">
+            {subEvents > 0 && (
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    checked={applyToProgram}
+                    onChange={(event) =>
+                      setApplyToProgram(event.target.checked)
+                    }
+                  />
+                }
+                label={
+                  subEvents === 1
+                    ? "Aplicar este acceso también al sub-evento del programa"
+                    : `Aplicar este acceso también a los ${subEvents} sub-eventos del programa`
+                }
+              />
+            )}
+            <Typography
+              variant="body2"
+              sx={{
+                color: "text.secondary",
+              }}
+            >
               {accessSummary(generalAccess)} Para que la gente pueda
               inscribirse, configure la inscripción del evento.
             </Typography>
-            <Stack direction="row" spacing={1} alignItems="center">
+            <Stack
+              direction="row"
+              spacing={1}
+              sx={{
+                alignItems: "center",
+              }}
+            >
               <TextField
                 label="Enlace"
                 size="small"
@@ -290,7 +333,12 @@ export const ShareEventDialog = ({
             >
               Crear un enlace nuevo
             </LoadingButton>
-            <Typography variant="caption" color="text.secondary">
+            <Typography
+              variant="caption"
+              sx={{
+                color: "text.secondary",
+              }}
+            >
               Un enlace nuevo se crea al momento y deja sin efecto el anterior.
             </Typography>
           </Stack>

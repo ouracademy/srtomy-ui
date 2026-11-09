@@ -24,7 +24,11 @@ export default function DirectoryPage(props: {
       <Typography variant="h5" component="h1">
         Directorio de {church.name}
       </Typography>
-      <Typography color="text.secondary">
+      <Typography
+        sx={{
+          color: "text.secondary",
+        }}
+      >
         Las sedes, grupos y ministerios de la iglesia. Cada uno decide quién ve
         su lista de personas.
       </Typography>

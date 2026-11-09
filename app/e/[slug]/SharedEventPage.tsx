@@ -1,5 +1,6 @@
 "use client";
 
+import { PhoneField } from "@/app/(components)/PhoneField";
 import LoadingButton from "@mui/lab/LoadingButton";
 import {
   Alert,
@@ -25,6 +26,9 @@ import { QrImage } from "@/app/(components)/QrImage";
 import { primaryButtonSx } from "@/app/(components)/buttonStyles";
 import { formatPrice, remainingLabel } from "@/app/(components)/registration";
 import { eventWhen } from "./eventWhen";
+import { EventNotices } from "./EventNotices";
+import { EventProgram } from "./EventProgram";
+import { ParentEventNotice } from "./ParentEventNotice";
 
 export type SignUp = {
   ticketTypeId: string;
@@ -127,7 +131,12 @@ export const SharedEventPage = ({
     <Container component="main" maxWidth="sm" sx={{ py: { xs: 2, sm: 5 } }}>
       <Stack spacing={3}>
         <Box>
-          <Typography variant="overline" color="text.secondary">
+          <Typography
+            variant="overline"
+            sx={{
+              color: "text.secondary",
+            }}
+          >
             {event.isACourse ? "Curso" : "Evento"} · {event.organizationName}
           </Typography>
           <Typography variant="h4" component="h1">
@@ -144,7 +153,15 @@ export const SharedEventPage = ({
           </Typography>
           {event.address && <Typography>Lugar: {event.address}</Typography>}
         </Paper>
+        <EventNotices notices={event.notices ?? []} />
         {event.description && <Typography>{event.description}</Typography>}
+        {event.container && (
+          <ParentEventNotice
+            container={event.container}
+            signsUpThere={Boolean(registration) && !event.canRegister}
+          />
+        )}
+        <EventProgram program={event.program ?? []} />
         {hasPlace && event.registrationStatus && (
           <Alert severity="success">
             Ya tiene un lugar en este {kind}. Si tiene cuenta, encuentre su
@@ -166,7 +183,12 @@ export const SharedEventPage = ({
             </Alert>
             {outcome.status === "CONFIRMED" && outcome.ticketCode && (
               <Paper variant="outlined" sx={{ p: 2 }}>
-                <Stack spacing={1} alignItems="center">
+                <Stack
+                  spacing={1}
+                  sx={{
+                    alignItems: "center",
+                  }}
+                >
                   <Typography variant="h6" component="h2">
                     Su ticket
                   </Typography>
@@ -175,7 +197,12 @@ export const SharedEventPage = ({
                     label="QR de su ticket"
                     size={200}
                   />
-                  <Typography variant="body2" color="text.secondary">
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      color: "text.secondary",
+                    }}
+                  >
                     Muéstrelo al entrar.
                   </Typography>
                 </Stack>
@@ -187,7 +214,12 @@ export const SharedEventPage = ({
                 aria-label="Cancelar la inscripción"
                 role="group"
               >
-                <Typography variant="body2" color="text.secondary">
+                <Typography
+                  variant="body2"
+                  sx={{
+                    color: "text.secondary",
+                  }}
+                >
                   Guarde este enlace: con él puede cancelar su inscripción sin
                   iniciar sesión.
                 </Typography>
@@ -289,11 +321,10 @@ export const SharedEventPage = ({
                 submitted && missing.email ? "Ingrese un correo válido" : ""
               }
             />
-            <TextField
+            <PhoneField
               label="Teléfono"
-              type="tel"
               value={values.phoneNumber}
-              onChange={set("phoneNumber")}
+              onChange={(phoneNumber) => setValues({ ...values, phoneNumber })}
             />
             <LoadingButton
               type="submit"

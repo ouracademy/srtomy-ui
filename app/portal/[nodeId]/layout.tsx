@@ -8,6 +8,7 @@ import EventOutlinedIcon from "@mui/icons-material/EventOutlined";
 import BadgeOutlinedIcon from "@mui/icons-material/BadgeOutlined";
 import HomeOutlinedIcon from "@mui/icons-material/HomeOutlined";
 import PersonOutlinedIcon from "@mui/icons-material/PersonOutlined";
+import WhatsAppIcon from "@mui/icons-material/WhatsApp";
 import * as React from "react";
 import MenuDrawer from "../MenuDrawer";
 import { PortalMenu } from "../PortalMenu";
@@ -66,6 +67,8 @@ const menuItems = (type: string | undefined) => [
     ] as Permission[],
   },
   { label: "Directorio", path: "/directory", Icon: ContactsOutlinedIcon },
+  // Any member can link their own WhatsApp; connecting the church's is inside.
+  { label: "WhatsApp", path: "/whatsapp", Icon: WhatsAppIcon },
 ];
 
 export default function NodeLayout(props: {

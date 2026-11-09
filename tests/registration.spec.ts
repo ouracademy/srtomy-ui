@@ -1,5 +1,6 @@
 import AxeBuilder from "@axe-core/playwright";
 import { test, expect } from "./fixtures";
+import { firstCalendarSlot } from "./calendar";
 import { NODE_ID } from "./e2e-env";
 
 const json = (body: unknown, status = 200) => ({
@@ -111,11 +112,7 @@ test.describe("Inscripción a eventos y cursos", () => {
 
     await page.goto(`/portal/${NODE_ID}/event`);
     await expect.poll(() => listCalls).toBeGreaterThan(0);
-    await page
-      .getByRole("grid")
-      .getByRole("gridcell")
-      .first()
-      .click({ force: true });
+    await firstCalendarSlot(page).click({ force: true });
     const dialog = page.getByRole("dialog");
     await expect(dialog).toBeVisible();
     await dialog.getByRole("button", { name: "Curso", exact: true }).click();
@@ -218,13 +215,13 @@ test.describe("Inscripción a eventos y cursos", () => {
     );
 
     await page.goto(`/portal/${NODE_ID}/event/${eventId}/attendance`);
-    const table = page.getByRole("table", { name: "Inscritos" });
-    await expect(table.getByRole("row", { name: /Lucía Mora/ })).toContainText(
-      "Ingresó a las",
-    );
-    await expect(table.getByRole("row", { name: /Eva Sol/ })).toContainText(
-      "Aún no",
-    );
+    const list = page.getByRole("region", { name: "Inscritos" });
+    await expect(
+      list.getByRole("listitem").filter({ hasText: "Lucía Mora" }),
+    ).toContainText("Ingresó a las");
+    await expect(
+      list.getByRole("listitem").filter({ hasText: "Eva Sol" }),
+    ).toContainText("Aún no");
     await expect(page.getByText(/En espera/)).toHaveCount(0);
     await page
       .getByRole("button", { name: "Marcar el ingreso de Ana Paz" })
@@ -383,7 +380,7 @@ test.describe("Inscripción a eventos y cursos", () => {
 
     await page.goto(`/portal/${NODE_ID}/event/${eventId}/attendance`);
 
-    await expect(page.getByRole("table", { name: "Inscritos" })).toBeVisible();
+    await expect(page.getByRole("region", { name: "Inscritos" })).toBeVisible();
     await expect(
       page.getByRole("button", { name: "Configurar inscripción" }),
     ).toHaveCount(0);
@@ -405,9 +402,7 @@ test.describe("Inscripción a eventos y cursos", () => {
 
     await page.goto(`/portal/${NODE_ID}/event/${eventId}/attendance`);
 
-    await expect(
-      page.getByRole("heading", { name: "Toma de asistencia" }),
-    ).toBeVisible();
+    await expect(page.getByRole("tab", { name: /Asistencia/ })).toBeVisible();
     await expect(page.locator('section[aria-label="Inscripción"]')).toHaveCount(
       0,
     );
@@ -425,7 +420,7 @@ test.describe("Inscripción a eventos y cursos", () => {
     );
 
     await page.goto(`/portal/${NODE_ID}/event/${eventId}/attendance`);
-    await expect(page.getByRole("table", { name: "Inscritos" })).toBeVisible();
+    await expect(page.getByRole("region", { name: "Inscritos" })).toBeVisible();
 
     // The panel and the visitors are new; the rest of the screen has contrast
     // problems of its own (see the technical debt table).

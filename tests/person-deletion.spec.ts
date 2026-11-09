@@ -42,7 +42,7 @@ test.describe("Eliminar una persona", () => {
 
   test("confirma y quita a la persona de la sede", async ({ page }) => {
     await page.goto(`/portal/${NODE_ID}/person`);
-    await page.getByRole("menuitem", { name: "Eliminar" }).click();
+    await page.getByRole("button", { name: "Eliminar" }).click();
 
     const dialog = page.getByRole("dialog", {
       name: "Quitar a Ana Diaz de esta sede",
@@ -67,7 +67,7 @@ test.describe("Eliminar una persona", () => {
       detail: "La persona tiene una cuenta.",
     };
     await page.goto(`/portal/${NODE_ID}/person`);
-    await page.getByRole("menuitem", { name: "Eliminar" }).click();
+    await page.getByRole("button", { name: "Eliminar" }).click();
     await page
       .getByRole("dialog")
       .getByRole("button", { name: "Quitar" })
@@ -95,7 +95,7 @@ test.describe("Eliminar una persona", () => {
     deleteStatus = 403;
     deleteBody = { detail: "La persona no pertenece a este grupo" };
     await page.goto(`/portal/${NODE_ID}/person`);
-    await page.getByRole("menuitem", { name: "Eliminar" }).click();
+    await page.getByRole("button", { name: "Eliminar" }).click();
     await page
       .getByRole("dialog")
       .getByRole("button", { name: "Quitar" })
@@ -113,9 +113,7 @@ test.describe("Eliminar una persona", () => {
     await page.goto(`/portal/${NODE_ID}/person`);
 
     await expect(page.getByText("Ana Diaz")).toBeVisible();
-    await expect(page.getByRole("menuitem", { name: "Ver" })).toBeVisible();
-    await expect(page.getByRole("menuitem", { name: "Eliminar" })).toHaveCount(
-      0,
-    );
+    await expect(page.getByRole("button", { name: "Ver" })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Eliminar" })).toHaveCount(0);
   });
 });

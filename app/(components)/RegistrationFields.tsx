@@ -1,7 +1,7 @@
 "use client";
 
 import AddIcon from "@mui/icons-material/Add";
-import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
+import DeleteOutlineIcon from "@mui/icons-material/DeleteOutlined";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import {
   Accordion,
@@ -12,6 +12,7 @@ import {
   FormControlLabel,
   FormHelperText,
   IconButton,
+  MenuItem,
   Paper,
   Stack,
   Switch,
@@ -33,6 +34,9 @@ type RegistrationFieldsProps = Readonly<{
   errors?: string[];
   // Tickets that already have sign-ups cannot be removed: they can be closed.
   heldTicketIds?: readonly string[];
+  // The sub-events of the program of the event: each ticket can give access to
+  // only some of them.
+  subEvents?: readonly { id: string; title: string }[];
 }>;
 
 // One ticket called General is the usual case: the screen then asks only for
@@ -50,6 +54,7 @@ export const RegistrationFields = ({
   onChange,
   errors = [],
   heldTicketIds = [],
+  subEvents = [],
 }: RegistrationFieldsProps) => {
   // Only what the user does moves between the two forms (typing a name must not).
   const [list, setList] = React.useState(!isJustGeneral(value.tickets));
@@ -102,6 +107,7 @@ export const RegistrationFields = ({
                 <TicketFields
                   key={ticket.id ?? `new-${index}`}
                   ticket={ticket}
+                  subEvents={subEvents}
                   index={index}
                   canRemove={
                     value.tickets.length > 1 &&
@@ -245,9 +251,11 @@ const TicketFields = ({
   ticket,
   index,
   canRemove,
+  subEvents,
   onChange,
   onRemove,
 }: Readonly<{
+  subEvents: readonly { id: string; title: string }[];
   ticket: TicketForm;
   index: number;
   canRemove: boolean;
@@ -266,7 +274,13 @@ const TicketFields = ({
       aria-label={`Ticket ${index + 1}`}
     >
       <Stack spacing={2}>
-        <Stack direction="row" spacing={1} alignItems="center">
+        <Stack
+          direction="row"
+          spacing={1}
+          sx={{
+            alignItems: "center",
+          }}
+        >
           <TextField
             label="Nombre"
             size="small"
@@ -302,6 +316,41 @@ const TicketFields = ({
             sx={{ flex: 1 }}
           />
         </Stack>
+        {subEvents.length > 0 && (
+          <TextField
+            select
+            size="small"
+            label="Da acceso a"
+            value={ticket.subEventIds ?? []}
+            onChange={(event) =>
+              onChange({
+                subEventIds: event.target.value as unknown as string[],
+              })
+            }
+            helperText="Vacío es todo el programa."
+            slotProps={{
+              select: {
+                multiple: true,
+                renderValue: (selected) =>
+                  (selected as string[]).length === 0
+                    ? "Todo el programa"
+                    : subEvents
+                        .filter((item) =>
+                          (selected as string[]).includes(item.id),
+                        )
+                        .map((item) => item.title)
+                        .join(", "),
+                displayEmpty: true,
+              },
+            }}
+          >
+            {subEvents.map((item) => (
+              <MenuItem key={item.id} value={item.id}>
+                {item.title}
+              </MenuItem>
+            ))}
+          </TextField>
+        )}
         <div>
           <Button
             size="small"

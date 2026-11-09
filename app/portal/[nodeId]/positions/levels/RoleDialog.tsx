@@ -83,7 +83,7 @@ export const RoleDialog = ({
             label="Nombre"
             value={name}
             onChange={(event) => setName(event.target.value)}
-            inputProps={{ maxLength: 100 }}
+            slotProps={{ htmlInput: { maxLength: 100 } }}
           />
           <TextField
             label="Descripción"
@@ -118,7 +118,11 @@ export const RoleDialog = ({
               >
                 <FormControlLabel
                   label={
-                    <Typography fontWeight={600}>
+                    <Typography
+                      sx={{
+                        fontWeight: 600,
+                      }}
+                    >
                       {resourceLabel(group.resource ?? "")}
                     </Typography>
                   }

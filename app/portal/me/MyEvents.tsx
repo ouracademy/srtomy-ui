@@ -30,6 +30,7 @@ const details = (event: MyEventResponse) =>
   [
     event.isACourse ? "Curso" : "Evento",
     event.organizationName,
+    event.parentTitle ? `Parte de «${event.parentTitle}»` : undefined,
     event.start
       ? format(event.start, "d 'de' MMMM yyyy", { locale: es })
       : undefined,
@@ -58,12 +59,22 @@ export const MyEvents = ({ events, onCancel }: MyEventsProps) => {
       <Typography variant="h6" component="h2">
         Mis eventos y cursos
       </Typography>
-      <Typography variant="body2" color="text.secondary">
+      <Typography
+        variant="body2"
+        sx={{
+          color: "text.secondary",
+        }}
+      >
         Aquí están los eventos y cursos donde tienes un lugar y a los que ya
         asististe.
       </Typography>
       {events.length === 0 && (
-        <Typography color="text.secondary" sx={{ mt: 1 }}>
+        <Typography
+          sx={{
+            color: "text.secondary",
+            mt: 1,
+          }}
+        >
           Aún no te has inscrito ni has asistido a un evento o curso.
         </Typography>
       )}
@@ -97,9 +108,11 @@ export const MyEvents = ({ events, onCancel }: MyEventsProps) => {
                     <Stack
                       direction="row"
                       spacing={1}
-                      alignItems="center"
                       useFlexGap
                       component="span"
+                      sx={{
+                        alignItems: "center",
+                      }}
                     >
                       <span>{details(event)}</span>
                       <Chip size="small" label="Asististe" />
@@ -153,9 +166,11 @@ const PlaceItem = ({
           <Stack
             direction="row"
             spacing={1}
-            alignItems="center"
             useFlexGap
             component="span"
+            sx={{
+              alignItems: "center",
+            }}
           >
             <span>
               {[details(event), event.ticketName].filter(Boolean).join(" · ")}
@@ -192,13 +207,23 @@ const PlaceItem = ({
         )}
       </Stack>
       {showTicket && event.ticketCode && (
-        <Stack alignItems="flex-start" sx={{ mt: 1 }}>
+        <Stack
+          sx={{
+            alignItems: "flex-start",
+            mt: 1,
+          }}
+        >
           <QrImage
             value={event.ticketCode}
             label={`QR de mi ticket de ${event.title}`}
             size={180}
           />
-          <Typography variant="body2" color="text.secondary">
+          <Typography
+            variant="body2"
+            sx={{
+              color: "text.secondary",
+            }}
+          >
             Muéstralo al entrar.
           </Typography>
         </Stack>
@@ -222,7 +247,9 @@ const PlaceItem = ({
             </>
           }
         >
-          ¿Cancelar tu inscripción a «{event.title}»? Tu lugar quedará libre.
+          {event.parentTitle
+            ? `Este sub-evento entra con tu inscripción a «${event.parentTitle}»: cancelarla te quita el lugar en todo el evento y sus sub-eventos. ¿Cancelar tu inscripción?`
+            : `¿Cancelar tu inscripción a «${event.title}»? Tu lugar quedará libre.`}
         </Alert>
       )}
     </ListItem>

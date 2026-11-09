@@ -1266,6 +1266,109 @@
         }
       }
     },
+    "/v1/organizations/{id}/whatsapp/templates": {
+      "post": {
+        "tags": [
+          "whatsapp"
+        ],
+        "operationId": "provisionTemplates",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProvisionTemplatesResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/organizations/{id}/whatsapp/setup-link": {
+      "post": {
+        "tags": [
+          "whatsapp"
+        ],
+        "operationId": "requestSetupLink",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetupLinkRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/SetupLinkResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/organizations/{id}/whatsapp/link-code": {
+      "post": {
+        "tags": [
+          "whatsapp"
+        ],
+        "operationId": "createCode",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/LinkCodeResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/organizations/{id}/roles": {
       "get": {
         "tags": [
@@ -2201,6 +2304,112 @@
         }
       }
     },
+    "/v1/organizations/{id}/whatsapp": {
+      "get": {
+        "tags": [
+          "whatsapp"
+        ],
+        "operationId": "get",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/WhatsAppConnectionResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "whatsapp"
+        ],
+        "operationId": "disconnect",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          }
+        }
+      }
+    },
+    "/v1/organizations/{id}/whatsapp/link": {
+      "get": {
+        "tags": [
+          "whatsapp"
+        ],
+        "operationId": "get_1",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/WhatsAppLinkResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "whatsapp"
+        ],
+        "operationId": "unlink",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          }
+        }
+      }
+    },
     "/v1/organizations/{id}/people/{personId}/positions": {
       "get": {
         "tags": [
@@ -2285,6 +2494,55 @@
         }
       }
     },
+    "/v1/organizations/{id}/growth-range": {
+      "get": {
+        "tags": [
+          "organizations"
+        ],
+        "operationId": "growthRange",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "startDate",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          },
+          {
+            "name": "endDate",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/MemberGrowthRangeResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/organizations/{id}/childs": {
       "get": {
         "tags": [
@@ -2312,6 +2570,55 @@
                   "items": {
                     "$ref": "#/components/schemas/OrganizationResponse"
                   }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/organizations/{id}/attendance-stats": {
+      "get": {
+        "tags": [
+          "organizations"
+        ],
+        "operationId": "attendanceStats",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "startDate",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          },
+          {
+            "name": "endDate",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/AttendanceStatsResponse"
                 }
               }
             }
@@ -2832,6 +3139,103 @@
           }
         }
       }
+    },
+    "/v1/events/{id}/attendance/summary": {
+      "get": {
+        "tags": [
+          "events"
+        ],
+        "operationId": "summary",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/AttendanceSummaryResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/events/{id}/notices": {
+      "get": {
+        "tags": [
+          "events"
+        ],
+        "operationId": "notices",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/EventNoticeResponse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "events"
+        ],
+        "operationId": "postNotice",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EventNoticeRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Created"
+          }
+        }
+      }
     }
   },
   "components": {
@@ -2972,6 +3376,9 @@
             "format": "date"
           },
           "hasBeenBaptized": {
+            "type": "boolean"
+          },
+          "whatsappConsent": {
             "type": "boolean"
           },
           "memberState": {
@@ -3257,6 +3664,18 @@
           "recurrence": {
             "$ref": "#/components/schemas/RecurrenceRequest"
           },
+          "parentEventId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "registrationMode": {
+            "type": "string",
+            "enum": [
+              "INHERIT",
+              "OWN",
+              "OPEN"
+            ]
+          },
           "timeZone": {
             "type": "string"
           },
@@ -3269,6 +3688,13 @@
             ]
           },
           "validTimeZone": {
+            "type": "boolean"
+          },
+          "track": {
+            "type": "string",
+            "maxLength": 100
+          },
+          "requiresContainerRegistration": {
             "type": "boolean"
           }
         },
@@ -3354,6 +3780,9 @@
               "CHURCH",
               "ANYONE_WITH_LINK"
             ]
+          },
+          "applyToProgram": {
+            "type": "boolean"
           }
         },
         "required": [
@@ -3490,6 +3919,13 @@
           "salesEnd": {
             "type": "string",
             "format": "date-time"
+          },
+          "subEventIds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            }
           }
         },
         "required": [
@@ -3556,6 +3992,13 @@
           "sold": {
             "type": "integer",
             "format": "int64"
+          },
+          "subEventIds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            }
           }
         }
       },
@@ -3715,6 +4158,9 @@
           "hasBeenBaptized": {
             "type": "boolean"
           },
+          "whatsappConsent": {
+            "type": "boolean"
+          },
           "memberState": {
             "type": "string",
             "enum": [
@@ -3848,6 +4294,73 @@
         "required": [
           "name"
         ]
+      },
+      "ProvisionTemplatesResponse": {
+        "type": "object",
+        "properties": {
+          "templates": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Template"
+            }
+          }
+        }
+      },
+      "Template": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "submitted": {
+            "type": "boolean"
+          },
+          "detail": {
+            "type": "string"
+          }
+        }
+      },
+      "SetupLinkRequest": {
+        "type": "object",
+        "properties": {
+          "mode": {
+            "type": "string",
+            "enum": [
+              "COEXISTENCE",
+              "DEDICATED"
+            ]
+          }
+        },
+        "required": [
+          "mode"
+        ]
+      },
+      "SetupLinkResponse": {
+        "type": "object",
+        "properties": {
+          "url": {
+            "type": "string"
+          },
+          "expiresAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "LinkCodeResponse": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "expiresAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "displayNumber": {
+            "type": "string"
+          }
+        }
       },
       "CreatePositionRequest": {
         "type": "object",
@@ -4161,10 +4674,29 @@
           "recurrence": {
             "$ref": "#/components/schemas/RecurrenceRequest"
           },
+          "parentEventId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "registrationMode": {
+            "type": "string",
+            "enum": [
+              "INHERIT",
+              "OWN",
+              "OPEN"
+            ]
+          },
           "timeZone": {
             "type": "string"
           },
           "validTimeZone": {
+            "type": "boolean"
+          },
+          "track": {
+            "type": "string",
+            "maxLength": 100
+          },
+          "requiresContainerRegistration": {
             "type": "boolean"
           }
         },
@@ -4457,6 +4989,53 @@
           }
         }
       },
+      "ContainerResponse": {
+        "type": "object",
+        "properties": {
+          "slug": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          }
+        }
+      },
+      "ProgramItemResponse": {
+        "type": "object",
+        "properties": {
+          "slug": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "start": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "end": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "isACourse": {
+            "type": "boolean"
+          },
+          "registrationMode": {
+            "type": "string",
+            "enum": [
+              "INHERIT",
+              "OWN",
+              "OPEN"
+            ]
+          },
+          "includedInTicket": {
+            "type": "boolean"
+          },
+          "track": {
+            "type": "string"
+          }
+        }
+      },
       "RecurrenceResponse": {
         "type": "object",
         "properties": {
@@ -4573,6 +5152,21 @@
               "CONFIRMED",
               "CANCELLED"
             ]
+          },
+          "program": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProgramItemResponse"
+            }
+          },
+          "container": {
+            "$ref": "#/components/schemas/ContainerResponse"
+          },
+          "notices": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EventNoticeResponse"
+            }
           }
         }
       },
@@ -4753,6 +5347,9 @@
           "hasBeenBaptized": {
             "type": "boolean"
           },
+          "whatsappConsent": {
+            "type": "boolean"
+          },
           "createDate": {
             "type": "string",
             "format": "date-time"
@@ -4912,6 +5509,63 @@
           }
         }
       },
+      "WhatsAppConnectionResponse": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "NOT_CONNECTED",
+              "PENDING",
+              "CONNECTED",
+              "DISCONNECTED"
+            ]
+          },
+          "mode": {
+            "type": "string",
+            "enum": [
+              "COEXISTENCE",
+              "DEDICATED"
+            ]
+          },
+          "displayNumber": {
+            "type": "string"
+          },
+          "connectedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "inherited": {
+            "type": "boolean"
+          },
+          "disconnectReason": {
+            "type": "string",
+            "description": "Why the number stopped working, when status is DISCONNECTED",
+            "enum": [
+              "PASTOR",
+              "NUMBER_DELETED",
+              "NUMBER_OFFBOARDED",
+              "ACCESS_REMOVED",
+              "ACCOUNT_DISABLED"
+            ]
+          }
+        }
+      },
+      "WhatsAppLinkResponse": {
+        "type": "object",
+        "properties": {
+          "linked": {
+            "type": "boolean"
+          },
+          "maskedPhone": {
+            "type": "string"
+          },
+          "verifiedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
       "PositionHolderResponse": {
         "type": "object",
         "properties": {
@@ -5031,6 +5685,103 @@
           "membersAtEnd": {
             "type": "integer",
             "format": "int64"
+          }
+        }
+      },
+      "BucketResponse": {
+        "type": "object",
+        "properties": {
+          "periodStart": {
+            "type": "string",
+            "format": "date"
+          },
+          "periodEnd": {
+            "type": "string",
+            "format": "date"
+          },
+          "label": {
+            "type": "string"
+          },
+          "joined": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "becameAttendee": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "becameMember": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "left": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "peopleAtEnd": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "membersAtEnd": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "MemberGrowthRangeResponse": {
+        "type": "object",
+        "properties": {
+          "current": {
+            "$ref": "#/components/schemas/Counts"
+          },
+          "buckets": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BucketResponse"
+            }
+          }
+        }
+      },
+      "AttendanceBucketResponse": {
+        "type": "object",
+        "properties": {
+          "periodStart": {
+            "type": "string",
+            "format": "date"
+          },
+          "periodEnd": {
+            "type": "string",
+            "format": "date"
+          },
+          "label": {
+            "type": "string"
+          },
+          "eventsCount": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "attendanceMarks": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "uniqueAttendees": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "averagePerEvent": {
+            "type": "number",
+            "format": "double"
+          }
+        }
+      },
+      "AttendanceStatsResponse": {
+        "type": "object",
+        "properties": {
+          "buckets": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AttendanceBucketResponse"
+            }
           }
         }
       },
@@ -5236,6 +5987,9 @@
           },
           "ticketCode": {
             "type": "string"
+          },
+          "parentTitle": {
+            "type": "string"
           }
         }
       },
@@ -5250,6 +6004,40 @@
             "items": {
               "type": "string"
             }
+          }
+        }
+      },
+      "ChildResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "title": {
+            "type": "string"
+          },
+          "start": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "end": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "isACourse": {
+            "type": "boolean"
+          },
+          "registrationMode": {
+            "type": "string",
+            "enum": [
+              "INHERIT",
+              "OWN",
+              "OPEN"
+            ]
+          },
+          "track": {
+            "type": "string"
           }
         }
       },
@@ -5299,6 +6087,37 @@
           "lastModifiedDate": {
             "type": "string",
             "format": "date-time"
+          },
+          "parentEventId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "parentTitle": {
+            "type": "string"
+          },
+          "registrationMode": {
+            "type": "string",
+            "enum": [
+              "INHERIT",
+              "OWN",
+              "OPEN"
+            ]
+          },
+          "children": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ChildResponse"
+            }
+          },
+          "track": {
+            "type": "string"
+          },
+          "programSize": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "requiresContainerRegistration": {
+            "type": "boolean"
           }
         }
       },
@@ -5466,6 +6285,61 @@
               "THIS_AND_THE_FOLLOWING_EVENTS",
               "ALL_EVENTS"
             ]
+          }
+        }
+      },
+      "AttendanceSummaryResponse": {
+        "type": "object",
+        "properties": {
+          "people": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "ticketOnly": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "guests": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "total": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "EventNoticeRequest": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "maxLength": 1000,
+            "minLength": 1
+          }
+        },
+        "required": [
+          "message"
+        ]
+      },
+      "EventNoticeResponse": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": [
+              "ANNOUNCEMENT",
+              "CHANGED",
+              "CANCELLED",
+              "REGISTRATION_CHANGED"
+            ]
+          },
+          "message": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
           }
         }
       }

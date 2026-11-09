@@ -72,6 +72,8 @@ test.describe("Registro de persona", () => {
 
     // const birthdateInput = page.getByLabel("Fecha de nacimiento");
     //5. Fecha de nacimiento
+    // Birth date, age and baptism are folded away until asked.
+    await page.getByRole("button", { name: /Datos personales/ }).click();
     const dateGroup = page.getByRole("group", { name: /Fecha de nacimiento/i });
 
     await dateGroup.getByRole("spinbutton", { name: /Day/i }).fill("01");
@@ -81,11 +83,13 @@ test.describe("Registro de persona", () => {
     await dateGroup.getByRole("spinbutton", { name: /Year/i }).press("Tab");
 
     //6. Validación de Edad
-    const ageValue = await page.getByLabel(/Edad/i).inputValue();
+    const ageValue = await page
+      .getByRole("spinbutton", { name: "Edad" })
+      .inputValue();
     expect(Number(ageValue)).toBeGreaterThan(0);
 
     //7. Bautismo y cargos
-    await page.getByRole("radio", { name: "Si" }).check();
+    await page.getByRole("switch", { name: "Bautizado" }).check();
     // const rolesInput = page.getByLabel(/Escriba o seleccione/i);
     const rolesInput = page.getByRole("combobox", {
       name: /Escriba o seleccione/i,

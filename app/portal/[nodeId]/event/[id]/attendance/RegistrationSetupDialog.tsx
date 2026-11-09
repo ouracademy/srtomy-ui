@@ -27,6 +27,8 @@ type RegistrationSetupDialogProps = Readonly<{
   close: () => void;
   title: string;
   setup: EventRegistrationSetupResponse;
+  // The sub-events of the program: a ticket can give access to only some.
+  subEvents?: readonly { id: string; title: string }[];
   // Resolves when the API accepted it; failures are reported by the caller and
   // rethrown so the dialog keeps what the user typed. Null: no registration.
   onSave: (request: EventRegistrationSetupRequest | null) => Promise<void>;
@@ -39,6 +41,7 @@ export const RegistrationSetupDialog = ({
   close,
   title,
   setup,
+  subEvents,
   onSave,
 }: RegistrationSetupDialogProps) => {
   const initial = React.useMemo(() => fromSetupResponse(setup), [setup]);
@@ -84,6 +87,7 @@ export const RegistrationSetupDialog = ({
           onChange={setForm}
           errors={errors}
           heldTicketIds={held}
+          subEvents={subEvents}
         />
         {askingToDiscard && (
           <Alert

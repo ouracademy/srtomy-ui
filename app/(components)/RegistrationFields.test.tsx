@@ -17,11 +17,13 @@ const Harness = ({
   onValue,
   errors,
   heldTicketIds,
+  subEvents,
 }: {
   initial?: RegistrationFormData;
   onValue?: (value: RegistrationFormData) => void;
   errors?: string[];
   heldTicketIds?: string[];
+  subEvents?: { id: string; title: string }[];
 }) => {
   const [value, setValue] = React.useState(initial);
   return (
@@ -29,6 +31,7 @@ const Harness = ({
       value={value}
       errors={errors}
       heldTicketIds={heldTicketIds}
+      subEvents={subEvents}
       onChange={(next) => {
         setValue(next);
         onValue?.(next);
@@ -350,5 +353,61 @@ describe("RegistrationFields", () => {
     expect(
       screen.queryByRole("switch", { name: "Inscripción abierta" }),
     ).toBeNull();
+  });
+
+  describe("with a program", () => {
+    const subEvents = [
+      { id: "s1", title: "Viernes" },
+      { id: "s2", title: "Sábado" },
+    ];
+    const twoTickets = () => ({
+      ...noRegistration(),
+      enabled: true,
+      tickets: [
+        ticket({ name: "Pase completo" }),
+        ticket({ name: "Pase sábado" }),
+      ],
+    });
+
+    it("lets each ticket give access to only some sub-events", async () => {
+      const user = userEvent.setup();
+      const onValue = vi.fn();
+      render(
+        <Harness
+          initial={twoTickets()}
+          subEvents={subEvents}
+          onValue={onValue}
+        />,
+      );
+
+      await user.click(
+        ticketGroup(2).getByRole("combobox", { name: "Da acceso a" }),
+      );
+      await user.click(await screen.findByRole("option", { name: "Sábado" }));
+
+      const sent = toSetupRequest(
+        onValue.mock.lastCall?.[0] as RegistrationFormData,
+      );
+      expect(sent?.tickets.map((item) => item.subEventIds)).toEqual([
+        [],
+        ["s2"],
+      ]);
+    });
+
+    it("says the ticket gives access to the whole program until some are chosen", () => {
+      render(<Harness initial={twoTickets()} subEvents={subEvents} />);
+
+      expect(
+        ticketGroup(1).getByRole("combobox", { name: "Da acceso a" }),
+      ).toHaveTextContent("Todo el programa");
+    });
+
+    it("does not ask about the program when the event has none", () => {
+      render(<Harness initial={twoTickets()} />);
+
+      expect(
+        screen.queryByRole("combobox", { name: "Da acceso a" }),
+      ).toBeNull();
+    });
   });
 });

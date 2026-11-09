@@ -46,7 +46,13 @@ export const AttendanceQrView = ({
       </IconButton>
     </DialogTitle>
     <DialogContent>
-      <Stack spacing={2} alignItems="center" sx={{ p: 2 }}>
+      <Stack
+        spacing={2}
+        sx={{
+          alignItems: "center",
+          p: 2,
+        }}
+      >
         {token ? (
           <QrImage
             value={`${globalThis.location?.origin ?? ""}${attendancePath(token)}`}
@@ -54,20 +60,38 @@ export const AttendanceQrView = ({
             size={320}
           />
         ) : onRetry ? (
-          <Stack spacing={1} alignItems="center" role="alert">
+          <Stack
+            spacing={1}
+            role="alert"
+            sx={{
+              alignItems: "center",
+            }}
+          >
             <Typography>No se pudo crear el código de asistencia.</Typography>
             <Button variant="outlined" onClick={onRetry}>
               Reintentar
             </Button>
           </Stack>
         ) : (
-          <Typography color="text.secondary">Preparando el código…</Typography>
+          <Typography
+            sx={{
+              color: "text.secondary",
+            }}
+          >
+            Preparando el código…
+          </Typography>
         )}
         <Typography align="center">
           Pida a la gente que lo escanee con la cámara del teléfono para marcar
           que vino. No hace falta tener cuenta.
         </Typography>
-        <Typography variant="body2" color="text.secondary" align="center">
+        <Typography
+          variant="body2"
+          align="center"
+          sx={{
+            color: "text.secondary",
+          }}
+        >
           El código se renueva solo cada pocos minutos: deje esta pantalla
           abierta.
         </Typography>
@@ -77,11 +101,7 @@ export const AttendanceQrView = ({
 );
 
 // Asks the API for the code and asks again when it is time to renew it.
-export const AttendanceQrDialog = ({
-  eventId,
-  title,
-  close,
-}: Readonly<{ eventId: string; title: string; close: () => void }>) => {
+export const useAttendanceQr = (eventId: string) => {
   const { data, error, mutate } = useGetEventsByIdAttendanceQr(eventId, {
     swr: { shouldRetryOnError: false },
   });
@@ -98,11 +118,23 @@ export const AttendanceQrDialog = ({
     return () => clearTimeout(timer);
   }, [refreshAt, mutate]);
 
+  return {
+    token: data?.token ?? null,
+    onRetry: error && !data ? () => void mutate() : undefined,
+  };
+};
+
+export const AttendanceQrDialog = ({
+  eventId,
+  title,
+  close,
+}: Readonly<{ eventId: string; title: string; close: () => void }>) => {
+  const { token, onRetry } = useAttendanceQr(eventId);
   return (
     <AttendanceQrView
       title={title}
-      token={data?.token ?? null}
-      onRetry={error && !data ? () => void mutate() : undefined}
+      token={token}
+      onRetry={onRetry}
       close={close}
     />
   );
