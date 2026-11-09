@@ -112,7 +112,7 @@ export default function MenuDrawer({
                   : "Seleccione iglesia o sede"}
               </Button>
             </Stack>
-            <Stack direction="row" spacing={1} sx={{ alignItems:"center" }} >
+            <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
               <EventsBell />
               <UserMenu nodeId={nodeId} />
             </Stack>
