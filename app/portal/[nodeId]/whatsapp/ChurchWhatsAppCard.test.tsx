@@ -195,4 +195,23 @@ describe("ChurchWhatsAppCard", () => {
       screen.queryByRole("button", { name: "Enviar plantillas a Meta" }),
     ).toBeNull();
   });
+
+  it("warns when the number was lost without the pastor cutting it, and offers to connect again", () => {
+    renderCard({ status: "DISCONNECTED", disconnectReason: "ACCESS_REMOVED" });
+
+    expect(screen.getByText("Desconectado")).toBeTruthy();
+    expect(screen.getByText(/Se quitó el acceso de Sr. Tommy/)).toBeTruthy();
+    expect(
+      screen.getByRole("button", { name: "Conectar WhatsApp" }),
+    ).toBeTruthy();
+  });
+
+  it("does not warn when the pastor disconnected it", () => {
+    renderCard({ status: "DISCONNECTED", disconnectReason: "PASTOR" });
+
+    expect(screen.queryByText(/El asistente no responde/)).toBeNull();
+    expect(
+      screen.getByRole("button", { name: "Conectar WhatsApp" }),
+    ).toBeTruthy();
+  });
 });

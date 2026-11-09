@@ -5439,6 +5439,17 @@
           },
           "inherited": {
             "type": "boolean"
+          },
+          "disconnectReason": {
+            "type": "string",
+            "description": "Why the number stopped working, when status is DISCONNECTED",
+            "enum": [
+              "PASTOR",
+              "NUMBER_DELETED",
+              "NUMBER_OFFBOARDED",
+              "ACCESS_REMOVED",
+              "ACCOUNT_DISABLED"
+            ]
           }
         }
       },

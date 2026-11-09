@@ -21,7 +21,7 @@ import type {
 } from "@/app/(api)/generated/aPIOvejafiel.schemas";
 import { DialogDeleteConfirmation } from "@/app/(components)/DialogDeleteConfirmation";
 import { SaveButton } from "@/app/(components)/SaveButton";
-import { connectionLabels } from "./whatsappLink";
+import { connectionLabels, disconnectNotice } from "./whatsappLink";
 
 type ChurchWhatsAppCardProps = Readonly<{
   connection: WhatsAppConnectionResponse;
@@ -64,6 +64,10 @@ export const ChurchWhatsAppCard = ({
   const status = connection.status ?? "NOT_CONNECTED";
   const state = connectionLabels[status];
   const connected = status === "CONNECTED";
+  const lostNotice =
+    status === "DISCONNECTED"
+      ? disconnectNotice(connection.disconnectReason)
+      : undefined;
 
   const connect = async () => {
     setConnecting(true);
@@ -93,6 +97,8 @@ export const ChurchWhatsAppCard = ({
           </Typography>
           <Chip size="small" color={state.color} label={state.label} />
         </Stack>
+
+        {lostNotice && <Alert severity="warning">{lostNotice}</Alert>}
 
         {connected ? (
           <Typography>

@@ -29,6 +29,33 @@ export const connectionLabels: Record<
   DISCONNECTED: { label: "Desconectado", color: "default" },
 };
 
+type DisconnectReason =
+  | "PASTOR"
+  | "NUMBER_DELETED"
+  | "NUMBER_OFFBOARDED"
+  | "ACCESS_REMOVED"
+  | "ACCOUNT_DISABLED";
+
+// What to tell the pastor when the number stopped working without them
+// pressing "Desconectar". Undefined when they did it themselves (or the API
+// does not say why): there is nothing to warn about.
+export const disconnectNotice = (
+  reason: DisconnectReason | undefined,
+): string | undefined => {
+  switch (reason) {
+    case "NUMBER_DELETED":
+      return "El número se quitó de Sr. Tommy. El asistente no responde ni envía avisos. Conéctalo de nuevo.";
+    case "NUMBER_OFFBOARDED":
+      return "Meta dio de baja el número de la API de WhatsApp. El asistente no responde ni envía avisos. Conéctalo de nuevo.";
+    case "ACCESS_REMOVED":
+      return "Se quitó el acceso de Sr. Tommy al número, o se desinstaló la app desde Facebook. El asistente no responde ni envía avisos. Conéctalo de nuevo.";
+    case "ACCOUNT_DISABLED":
+      return "Meta desactivó la cuenta de WhatsApp Business de la iglesia. El asistente no responde ni envía avisos. Revisa el aviso de Meta en el Administrador de WhatsApp Business: cuando la reactive, el asistente vuelve solo.";
+    default:
+      return undefined;
+  }
+};
+
 // Minutes left of a code, never below zero: it lasts ten.
 export const minutesLeft = (expiresAt: Date | undefined, now: Date) =>
   expiresAt

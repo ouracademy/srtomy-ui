@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   connectionLabels,
+  disconnectNotice,
   linkMessage,
   minutesLeft,
   waMeUrl,
@@ -48,5 +49,21 @@ describe("connectionLabels", () => {
       "NOT_CONNECTED",
       "PENDING",
     ]);
+  });
+});
+
+describe("disconnectNotice", () => {
+  it("explains every reason that is not the pastor's own doing", () => {
+    expect(disconnectNotice("NUMBER_DELETED")).toMatch(
+      /El número se quitó de Sr. Tommy/,
+    );
+    expect(disconnectNotice("NUMBER_OFFBOARDED")).toMatch(/Meta dio de baja/);
+    expect(disconnectNotice("ACCESS_REMOVED")).toMatch(/Se quitó el acceso/);
+    expect(disconnectNotice("ACCOUNT_DISABLED")).toMatch(/vuelve solo/);
+  });
+
+  it("says nothing when the pastor disconnected it or the reason is unknown", () => {
+    expect(disconnectNotice("PASTOR")).toBeUndefined();
+    expect(disconnectNotice(undefined)).toBeUndefined();
   });
 });
