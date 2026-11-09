@@ -24,6 +24,7 @@ import type {
   PermissionGroupResponse,
   PositionSuggestionResponse,
 } from "@/app/(api)/generated/aPIOvejafiel.schemas";
+import { ImageUploadStub } from "../(components)/ImageUploadStub";
 import Loading from "../(components)/Loading";
 import { PositionsField } from "../(components)/PositionsField";
 import { SaveButton } from "../(components)/SaveButton";
@@ -87,6 +88,7 @@ const CreateChurchFields = ({
             1. Tu iglesia
           </Typography>
           <Stack spacing={2}>
+            <ImageUploadStub type="CHURCH" />
             <TextFieldElement
               name="name"
               label="Nombre de la iglesia"

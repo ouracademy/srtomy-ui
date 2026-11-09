@@ -11,6 +11,7 @@ import {
   toPersonPayload,
 } from "@/app/portal/[nodeId]/person/PersonForm";
 import React from "react";
+import { Box } from "@mui/material";
 import { SnackbarContext } from "@/app/(components)/SnackbarContext";
 import { returnToFrom } from "@/app/returnTo";
 import { withPersonParam } from "./withPersonParam";
@@ -24,39 +25,41 @@ export default function CreatePerson(props: {
   const { nodeId } = params;
 
   return (
-    <PersonForm
-      initialValues={{
-        firstName: "",
-        lastName: "",
-        phoneNumber: "+51",
-        email: "",
-        memberState: "VISITOR",
-        positions: [],
-      }}
-      submit={async (data) => {
-        const positionIds = await resolvePositionIds(data.positions, (name) =>
-          postOrganizationsByIdPositions(nodeId, { name }),
-        );
-        const personId = await postPeople(
-          toPersonPayload(data, nodeId, positionIds),
-        );
-        alert.showMessage("Guardado exitosamente");
-        // `?next=` sends the user back to what asked for the person (the
-        // invitation dialog), with the new person in `persona`.
-        const next = new URLSearchParams(globalThis.location.search).get(
-          "next",
-        );
-        router.push(
-          next
-            ? withPersonParam(
-                returnToFrom({ returnTo: next }, `/portal/${nodeId}/person`),
-                personId,
-              )
-            : `/portal/${nodeId}/person`,
-        );
-      }}
-      nodeId={nodeId}
-      suggestMatches
-    />
+    <Box sx={{ p: { xs: 2, sm: 4 }, maxWidth: 800, mx: "auto" }}>
+      <PersonForm
+        initialValues={{
+          firstName: "",
+          lastName: "",
+          phoneNumber: "+51",
+          email: "",
+          memberState: "VISITOR",
+          positions: [],
+        }}
+        submit={async (data) => {
+          const positionIds = await resolvePositionIds(data.positions, (name) =>
+            postOrganizationsByIdPositions(nodeId, { name }),
+          );
+          const personId = await postPeople(
+            toPersonPayload(data, nodeId, positionIds),
+          );
+          alert.showMessage("Guardado exitosamente");
+          // `?next=` sends the user back to what asked for the person (the
+          // invitation dialog), with the new person in `persona`.
+          const next = new URLSearchParams(globalThis.location.search).get(
+            "next",
+          );
+          router.push(
+            next
+              ? withPersonParam(
+                  returnToFrom({ returnTo: next }, `/portal/${nodeId}/person`),
+                  personId,
+                )
+              : `/portal/${nodeId}/person`,
+          );
+        }}
+        nodeId={nodeId}
+        suggestMatches
+      />
+    </Box>
   );
 }

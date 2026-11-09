@@ -1,9 +1,11 @@
 import { Box, Stack, Typography } from "@mui/material";
+import { ImageUploadStub } from "@/app/(components)/ImageUploadStub";
 import {
   FormContainer,
   RadioButtonGroup,
   TextFieldElement,
   useForm,
+  useWatch,
 } from "react-hook-form-mui";
 import React from "react";
 import { GroupTypeLabels } from "./Group";
@@ -57,6 +59,7 @@ export const GroupForm = ({
           <Typography variant="h5" gutterBottom>
             Datos generales del Grupo / Ministerio
           </Typography>
+          <GroupImage />
           <TextFieldElement fullWidth name="name" label="Nombre" required />
           <TextFieldElement
             fullWidth
@@ -88,4 +91,10 @@ export const GroupForm = ({
       </Box>
     </FormContainer>
   );
+};
+
+// Inside the form: the default icon follows the name and type as typed.
+const GroupImage = () => {
+  const [name, type] = useWatch({ name: ["name", "type"] });
+  return <ImageUploadStub name={name} type={type} />;
 };

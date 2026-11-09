@@ -1,8 +1,14 @@
 "use client";
 
 import { Grid, Typography } from "@mui/material";
-import { FormContainer, TextFieldElement, useForm } from "react-hook-form-mui";
+import {
+  FormContainer,
+  TextFieldElement,
+  useForm,
+  useWatch,
+} from "react-hook-form-mui";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { ImageUploadStub } from "@/app/(components)/ImageUploadStub";
 import { SaveButton } from "@/app/(components)/SaveButton";
 import { SocialLinksFields } from "@/app/(components)/SocialLinksFields";
 import { TelFieldElement } from "@/app/(components)/TelFieldElement";
@@ -51,6 +57,9 @@ export const LocationForm = ({
             {title}
           </Typography>
         </Grid>
+        <Grid size={{ xs: 12 }}>
+          <LocationImage />
+        </Grid>
         <Grid size={{ xs: 12, sm: 6 }}>
           <TextFieldElement name="name" label="Nombre" required fullWidth />
         </Grid>
@@ -77,4 +86,10 @@ export const LocationForm = ({
       </Grid>
     </FormContainer>
   );
+};
+
+// Inside the form: the default icon follows the name as it is typed.
+const LocationImage = () => {
+  const name = useWatch({ name: "name" });
+  return <ImageUploadStub name={name} type="LOCATION" />;
 };
