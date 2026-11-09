@@ -4,7 +4,7 @@ import { useAuth0 } from "@auth0/auth0-react";
 import { AccountCircle } from "@mui/icons-material";
 import LogoutIcon from "@mui/icons-material/Logout";
 import PersonIcon from "@mui/icons-material/Person";
-import { Button, ListItemIcon, Menu, MenuItem } from "@mui/material";
+import { Box, Button, ListItemIcon, Menu, MenuItem } from "@mui/material";
 import { useRouter } from "next/navigation";
 import * as React from "react";
 
@@ -19,6 +19,7 @@ export const UserMenu = ({ nodeId }: UserMenuProps) => {
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
 
   const close = () => setAnchorEl(null);
+  const initial = user?.name?.trim().charAt(0).toUpperCase();
 
   return (
     <>
@@ -28,12 +29,23 @@ export const UserMenu = ({ nodeId }: UserMenuProps) => {
         variant="text"
         color="inherit"
         startIcon={<AccountCircle />}
+        aria-label={user?.name}
         aria-haspopup="true"
         aria-expanded={Boolean(anchorEl)}
         aria-controls={anchorEl ? "user-menu" : undefined}
         onClick={(event) => setAnchorEl(event.currentTarget)}
       >
-        {user?.name}
+        {/* On phones only the initial fits next to the icon. */}
+        <Box component="span" sx={{ display: { xs: "none", sm: "inline" } }}>
+          {user?.name}
+        </Box>
+        <Box
+          component="span"
+          aria-hidden="true"
+          sx={{ display: { xs: "inline", sm: "none" } }}
+        >
+          {initial}
+        </Box>
       </Button>
       <Menu
         id="user-menu"

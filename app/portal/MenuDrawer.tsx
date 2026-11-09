@@ -13,6 +13,7 @@ import Toolbar from "@mui/material/Toolbar";
 import { styled } from "@mui/material/styles";
 import * as React from "react";
 import { useGetMeOrganizations } from "@/app/(api)/generated";
+import { EventsBell } from "./EventsBell";
 import { OrganizationPicker } from "./OrganizationPicker";
 import { pathTo, withIds } from "./organizationTree";
 import { UserMenu } from "./UserMenu";
@@ -111,7 +112,10 @@ export default function MenuDrawer({
                   : "Seleccione iglesia o sede"}
               </Button>
             </Stack>
-            <UserMenu nodeId={nodeId} />
+            <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
+              <EventsBell />
+              <UserMenu nodeId={nodeId} />
+            </Stack>
             <OrganizationPicker
               open={openPicker}
               onClose={() => setOpenPicker(false)}
