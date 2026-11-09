@@ -70,7 +70,7 @@ export const MyWhatsAppCard = ({
   return (
     <Paper variant="outlined" sx={{ p: 3 }}>
       <Stack spacing={2}>
-        <Stack direction="row" spacing={1} alignItems="center">
+        <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
           <Typography component="h2" variant="h6">
             Mi WhatsApp
           </Typography>
@@ -102,7 +102,7 @@ export const MyWhatsAppCard = ({
                 Envía este mensaje desde tu WhatsApp
                 {code.displayNumber ? ` al ${code.displayNumber}` : ""}:
               </Typography>
-              <Stack direction="row" spacing={1} alignItems="center">
+              <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
                 <Typography
                   component="code"
                   sx={{ fontSize: "1.25rem", fontWeight: 700 }}

@@ -91,7 +91,7 @@ export const ChurchWhatsAppCard = ({
   return (
     <Paper variant="outlined" sx={{ p: 3 }}>
       <Stack spacing={2}>
-        <Stack direction="row" spacing={1} alignItems="center">
+        <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
           <Typography component="h2" variant="h6">
             WhatsApp de la iglesia
           </Typography>
