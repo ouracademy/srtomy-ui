@@ -88,4 +88,28 @@ describe("PhoneField", () => {
 
     expect(screen.getByText("Número inválido")).toBeTruthy();
   });
+
+  it("shows the country code with the digits and gives the form the compact number", async () => {
+    const user = userEvent.setup();
+    const seen = renderField();
+    const input = screen.getByLabelText("Teléfono") as HTMLInputElement;
+
+    await user.type(input, "999888777");
+
+    expect(input.value).toContain("999 888 777");
+    expect(seen.at(-1)).toBe("+51999888777");
+  });
+
+  it("shows a value the form sets later, such as a saved number", () => {
+    const Harness = ({ value }: { value: string }) => (
+      <PhoneField label="Teléfono" value={value} onChange={() => undefined} />
+    );
+    const { rerender } = render(<Harness value="" />);
+
+    rerender(<Harness value="+51987654321" />);
+
+    expect(
+      (screen.getByLabelText("Teléfono") as HTMLInputElement).value,
+    ).toContain("987 654 321");
+  });
 });
