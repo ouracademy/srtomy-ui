@@ -83,7 +83,9 @@ test.describe("Registro de persona", () => {
     await dateGroup.getByRole("spinbutton", { name: /Year/i }).press("Tab");
 
     //6. Validación de Edad
-    const ageValue = await page.getByLabel(/Edad/i).inputValue();
+    const ageValue = await page
+      .getByRole("spinbutton", { name: "Edad" })
+      .inputValue();
     expect(Number(ageValue)).toBeGreaterThan(0);
 
     //7. Bautismo y cargos
