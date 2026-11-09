@@ -73,7 +73,10 @@ test.describe("Asistencia con QR y visitantes", () => {
       .getByRole("button", { name: "Agregar visitante con nombre" })
       .click();
     await page.getByLabel(/Nombre del visitante/).fill("Rosa");
-    await page.getByLabel("Teléfono del visitante").fill("999");
+    // The field starts with the country code of Peru: the digits go after it.
+    await page
+      .getByLabel("Teléfono del visitante")
+      .pressSequentially("999888777");
     await page
       .getByRole("dialog")
       .getByRole("button", { name: "Agregar visitante" })
@@ -83,7 +86,7 @@ test.describe("Asistencia con QR y visitantes", () => {
     ).toBeVisible();
     expect(visitor).toEqual({
       firstName: "Rosa",
-      phoneNumber: "999",
+      phoneNumber: "+51999888777",
     });
 
     await page.getByRole("button", { name: "Sumar uno" }).click();
