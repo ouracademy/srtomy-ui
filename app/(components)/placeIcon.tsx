@@ -6,6 +6,8 @@ import MusicNoteOutlined from "@mui/icons-material/MusicNoteOutlined";
 import PlaceOutlined from "@mui/icons-material/PlaceOutlined";
 import VolunteerActivismOutlined from "@mui/icons-material/VolunteerActivismOutlined";
 import type { SvgIconComponent } from "@mui/icons-material";
+import type { SvgIconProps } from "@mui/material";
+import { createElement } from "react";
 
 // Icon of a sede, grupo or ministerio until it can have its own image: the
 // words of its name decide (jóvenes, alabanza...) and its type is the fallback.
@@ -37,3 +39,12 @@ export const placeIconFor = (
     GroupsOutlined
   );
 };
+
+// The icon of a place as an element: the choice is made by name and type, so
+// the caller does not build a component while rendering.
+export const PlaceIcon = ({
+  name,
+  type,
+  ...props
+}: Readonly<{ name?: string; type?: string } & SvgIconProps>) =>
+  createElement(placeIconFor(name, type), props);

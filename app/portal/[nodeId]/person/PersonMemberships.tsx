@@ -40,7 +40,7 @@ import { AddToNodeDialog } from "./AddToNodeDialog";
 import { DeletePersonDialog } from "./DeletePersonDialog";
 import { addableNodes } from "./addableNodes";
 import { membershipBody } from "./membership";
-import { placeIconFor } from "./placeIcon";
+import { placeIconFor } from "@/app/(components)/placeIcon";
 
 type Props = Readonly<{
   personId: string;

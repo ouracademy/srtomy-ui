@@ -52,7 +52,7 @@ export const PersonHeader = ({
         >
           {initialsOf(firstName, lastName) || undefined}
         </Avatar>
-        <Tooltip title="Subir foto: estamos trabajando en eso">
+        <Tooltip title="Estamos trabajando en ello">
           {/* aria-disabled, not disabled, so the tooltip also shows on focus. */}
           <IconButton
             aria-label="Subir foto de la persona (próximamente)"

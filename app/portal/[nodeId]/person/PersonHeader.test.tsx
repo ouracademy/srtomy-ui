@@ -48,8 +48,6 @@ describe("PersonHeader", () => {
     expect(photo.getAttribute("aria-disabled")).toBe("true");
 
     await user.hover(photo);
-    expect(
-      await screen.findByText("Subir foto: estamos trabajando en eso"),
-    ).toBeTruthy();
+    expect(await screen.findByText("Estamos trabajando en ello")).toBeTruthy();
   });
 });
