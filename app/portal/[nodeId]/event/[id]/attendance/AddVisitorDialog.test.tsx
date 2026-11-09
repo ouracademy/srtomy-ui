@@ -33,14 +33,17 @@ describe("AddVisitorDialog", () => {
 
     await user.type(screen.getByLabelText(/Nombre del visitante/), "Rosa");
     await user.type(screen.getByLabelText("Apellido del visitante"), "Díaz");
-    await user.type(screen.getByLabelText("Teléfono del visitante"), "999");
+    await user.type(
+      screen.getByLabelText("Teléfono del visitante"),
+      "999888777",
+    );
     await user.type(screen.getByLabelText("Correo del visitante"), "r@x.org");
     await user.click(screen.getByRole("button", { name: "Agregar visitante" }));
 
     expect(add).toHaveBeenCalledWith({
       firstName: "Rosa",
       lastName: "Díaz",
-      phoneNumber: "999",
+      phoneNumber: "+51999888777",
       email: "r@x.org",
     });
   });

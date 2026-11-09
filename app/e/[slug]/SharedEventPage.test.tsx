@@ -145,7 +145,7 @@ describe("SharedEventPage", () => {
 
     await user.click(screen.getByRole("radio", { name: /^VIP/ }));
     await fill(user);
-    await user.type(screen.getByLabelText("Teléfono"), "999");
+    await user.type(screen.getByLabelText("Teléfono"), "999888777");
     await user.click(screen.getByRole("button", { name: "Inscribirme" }));
 
     expect(onRegister).toHaveBeenCalledWith({
@@ -153,7 +153,7 @@ describe("SharedEventPage", () => {
       firstName: "Lucía",
       lastName: "Mora",
       email: "lucia@x.org",
-      phoneNumber: "999",
+      phoneNumber: "+51999888777",
     });
     expect(
       await screen.findByText("Listo, quedó inscrito. Gracias."),

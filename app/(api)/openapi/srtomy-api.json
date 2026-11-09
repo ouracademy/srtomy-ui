@@ -1266,6 +1266,109 @@
         }
       }
     },
+    "/v1/organizations/{id}/whatsapp/templates": {
+      "post": {
+        "tags": [
+          "whatsapp"
+        ],
+        "operationId": "provisionTemplates",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProvisionTemplatesResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/organizations/{id}/whatsapp/setup-link": {
+      "post": {
+        "tags": [
+          "whatsapp"
+        ],
+        "operationId": "requestSetupLink",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetupLinkRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/SetupLinkResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/organizations/{id}/whatsapp/link-code": {
+      "post": {
+        "tags": [
+          "whatsapp"
+        ],
+        "operationId": "createCode",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/LinkCodeResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/organizations/{id}/roles": {
       "get": {
         "tags": [
@@ -2197,6 +2300,112 @@
                 }
               }
             }
+          }
+        }
+      }
+    },
+    "/v1/organizations/{id}/whatsapp": {
+      "get": {
+        "tags": [
+          "whatsapp"
+        ],
+        "operationId": "get",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/WhatsAppConnectionResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "whatsapp"
+        ],
+        "operationId": "disconnect",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          }
+        }
+      }
+    },
+    "/v1/organizations/{id}/whatsapp/link": {
+      "get": {
+        "tags": [
+          "whatsapp"
+        ],
+        "operationId": "get_1",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/WhatsAppLinkResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "whatsapp"
+        ],
+        "operationId": "unlink",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
           }
         }
       }
@@ -3169,6 +3378,9 @@
           "hasBeenBaptized": {
             "type": "boolean"
           },
+          "whatsappConsent": {
+            "type": "boolean"
+          },
           "memberState": {
             "type": "string",
             "enum": [
@@ -3946,6 +4158,9 @@
           "hasBeenBaptized": {
             "type": "boolean"
           },
+          "whatsappConsent": {
+            "type": "boolean"
+          },
           "memberState": {
             "type": "string",
             "enum": [
@@ -4079,6 +4294,73 @@
         "required": [
           "name"
         ]
+      },
+      "ProvisionTemplatesResponse": {
+        "type": "object",
+        "properties": {
+          "templates": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Template"
+            }
+          }
+        }
+      },
+      "Template": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "submitted": {
+            "type": "boolean"
+          },
+          "detail": {
+            "type": "string"
+          }
+        }
+      },
+      "SetupLinkRequest": {
+        "type": "object",
+        "properties": {
+          "mode": {
+            "type": "string",
+            "enum": [
+              "COEXISTENCE",
+              "DEDICATED"
+            ]
+          }
+        },
+        "required": [
+          "mode"
+        ]
+      },
+      "SetupLinkResponse": {
+        "type": "object",
+        "properties": {
+          "url": {
+            "type": "string"
+          },
+          "expiresAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "LinkCodeResponse": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "expiresAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "displayNumber": {
+            "type": "string"
+          }
+        }
       },
       "CreatePositionRequest": {
         "type": "object",
@@ -5065,6 +5347,9 @@
           "hasBeenBaptized": {
             "type": "boolean"
           },
+          "whatsappConsent": {
+            "type": "boolean"
+          },
           "createDate": {
             "type": "string",
             "format": "date-time"
@@ -5221,6 +5506,63 @@
             "items": {
               "type": "string"
             }
+          }
+        }
+      },
+      "WhatsAppConnectionResponse": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "NOT_CONNECTED",
+              "PENDING",
+              "CONNECTED",
+              "DISCONNECTED"
+            ]
+          },
+          "mode": {
+            "type": "string",
+            "enum": [
+              "COEXISTENCE",
+              "DEDICATED"
+            ]
+          },
+          "displayNumber": {
+            "type": "string"
+          },
+          "connectedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "inherited": {
+            "type": "boolean"
+          },
+          "disconnectReason": {
+            "type": "string",
+            "description": "Why the number stopped working, when status is DISCONNECTED",
+            "enum": [
+              "PASTOR",
+              "NUMBER_DELETED",
+              "NUMBER_OFFBOARDED",
+              "ACCESS_REMOVED",
+              "ACCOUNT_DISABLED"
+            ]
+          }
+        }
+      },
+      "WhatsAppLinkResponse": {
+        "type": "object",
+        "properties": {
+          "linked": {
+            "type": "boolean"
+          },
+          "maskedPhone": {
+            "type": "string"
+          },
+          "verifiedAt": {
+            "type": "string",
+            "format": "date-time"
           }
         }
       },

@@ -1,7 +1,7 @@
 "use client";
 
-import { MuiTelInput } from "mui-tel-input";
 import { Controller, useFormContext } from "react-hook-form-mui";
+import { PhoneField } from "./PhoneField";
 
 // Phone field for react-hook-form; stores the number without spaces.
 export const TelFieldElement = ({ name }: { name: string }) => {
@@ -15,17 +15,12 @@ export const TelFieldElement = ({ name }: { name: string }) => {
       control={control}
       name={name}
       render={({ field }) => (
-        <MuiTelInput
-          name={field.name}
-          value={field.value}
-          onChange={(value) => {
-            field.onChange(value.replace(/\s+/g, ""));
-          }}
+        <PhoneField
+          label="Teléfono"
+          value={field.value ?? ""}
+          onChange={field.onChange}
           error={Boolean(errors[name])}
           helperText={errors[name]?.message as string | undefined}
-          fullWidth
-          label="Teléfono"
-          onlyCountries={["PE", "CO"]}
         />
       )}
     />
