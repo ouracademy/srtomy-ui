@@ -3,13 +3,15 @@
 import React from "react";
 import {
   Autocomplete,
-  Box,
+  Avatar,
   Button,
   Chip,
   List,
   ListItem,
+  ListItemAvatar,
   ListItemText,
   MenuItem,
+  Paper,
   Select,
   Stack,
   TextField,
@@ -38,6 +40,7 @@ import { AddToNodeDialog } from "./AddToNodeDialog";
 import { DeletePersonDialog } from "./DeletePersonDialog";
 import { addableNodes } from "./addableNodes";
 import { membershipBody } from "./membership";
+import { placeIconFor } from "./placeIcon";
 
 type Props = Readonly<{
   personId: string;
@@ -90,8 +93,10 @@ export const PersonMemberships = ({ personId, personName, nodeId }: Props) => {
   );
 
   return (
-    <Box sx={{ px: 4, pb: 4, maxWidth: 800 }}>
-      <Typography variant="h6">Pertenece a</Typography>
+    <Paper variant="outlined" sx={{ p: 3, borderRadius: 3 }}>
+      <Typography variant="h6" component="h2">
+        Pertenece a
+      </Typography>
       <Typography
         variant="body2"
         sx={{
@@ -105,6 +110,10 @@ export const PersonMemberships = ({ personId, personName, nodeId }: Props) => {
         {memberships.map((membership) => {
           const id = membership.organizationId ?? "";
           const here = id === nodeId;
+          const Icon = placeIconFor(
+            membership.organizationName,
+            membership.organizationType,
+          );
           const state = isMemberState(membership.memberState)
             ? membership.memberState
             : "VISITOR";
@@ -115,8 +124,13 @@ export const PersonMemberships = ({ personId, personName, nodeId }: Props) => {
               disableGutters
               sx={{ flexWrap: "wrap", gap: 1 }}
             >
+              <ListItemAvatar sx={{ minWidth: 0 }}>
+                <Avatar sx={{ bgcolor: "primary.light" }}>
+                  <Icon />
+                </Avatar>
+              </ListItemAvatar>
               <ListItemText
-                sx={{ minWidth: 180 }}
+                sx={{ minWidth: 140 }}
                 primary={membership.organizationName}
                 slotProps={{ secondary: { component: "div" } }}
                 secondary={
@@ -206,6 +220,6 @@ export const PersonMemberships = ({ personId, personName, nodeId }: Props) => {
         close={() => setRemoving(null)}
         onDeleted={() => mutate()}
       />
-    </Box>
+    </Paper>
   );
 };

@@ -2,12 +2,26 @@
 
 import React from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Autocomplete, Chip, Grid, TextField, Typography } from "@mui/material";
+import ExpandMore from "@mui/icons-material/ExpandMore";
+import {
+  Accordion,
+  AccordionDetails,
+  AccordionSummary,
+  Autocomplete,
+  Box,
+  Chip,
+  FormControlLabel,
+  Grid,
+  Paper,
+  Stack,
+  Switch,
+  TextField,
+  Typography,
+} from "@mui/material";
 import { differenceInYears } from "date-fns";
 import {
   Controller,
   FormContainer,
-  RadioButtonGroup,
   SelectElement,
   TextFieldElement,
   useForm,
@@ -41,6 +55,7 @@ import { TelFieldElement } from "@/app/(components)/TelFieldElement";
 import Loading from "@/app/(components)/Loading";
 import { ResourceError } from "@/app/(components)/ResourceError";
 import { PersonMatches } from "./PersonMatches";
+import { PersonHeader } from "./PersonHeader";
 
 const requiredFirstNameMessage = "Por favor ingrese su nombre";
 const requiredLastNameMessage = "Por favor ingrese su apellido";
@@ -93,6 +108,8 @@ type PersonFormProps = {
   nodeId: string;
   // When registering someone new, point out people who may already be them.
   suggestMatches?: boolean;
+  // Buttons next to the name, such as deleting the person.
+  actions?: React.ReactNode;
 };
 
 // How involved the person is. With a position they are a member, and it cannot
@@ -128,6 +145,7 @@ export const PersonForm = ({
   submit,
   nodeId,
   suggestMatches = false,
+  actions,
 }: PersonFormProps) => {
   const {
     data: positions,
@@ -153,116 +171,166 @@ export const PersonForm = ({
     }
   };
 
+  const nodeName = node?.name ?? "este lugar";
+
   return (
     <FormContainer formContext={formContext} onSuccess={submit}>
-      <Grid
-        container
-        spacing={2}
-        sx={{
-          margin: 4,
-        }}
-      >
-        <Grid size={{ xs: 12 }}>
-          <Typography variant="h5" gutterBottom>
-            {suggestMatches
-              ? `Agregar persona a ${node?.name ?? "este lugar"}`
-              : "Datos generales de persona"}
-          </Typography>
-          {suggestMatches && (
-            <Typography
-              sx={{
-                color: "text.secondary",
-              }}
-            >
-              Escribe el nombre: si ya está en la iglesia, la agregas desde aquí
-              sin duplicarla.
-            </Typography>
-          )}
-        </Grid>
-        <Grid size={{ xs: 12, sm: 6 }}>
-          <TextFieldElement
-            fullWidth
-            name="firstName"
-            label="Nombre"
-            required
-          />
-        </Grid>
-        <Grid size={{ xs: 12, sm: 6 }}>
-          <TextFieldElement
-            fullWidth
-            name="lastName"
-            label="Apellido"
-            required
-          />
-        </Grid>
-        <Grid size={{ xs: 12, sm: 6 }}>
-          <TelFieldElement name="phoneNumber" />
-        </Grid>
-        <Grid size={{ xs: 12, sm: 6 }}>
-          <TextFieldElement
-            fullWidth
-            name="email"
-            label="Correo electrónico"
-            type="email"
-            helperText="Con este correo podrá recibir una invitación a la aplicación"
-          />
-        </Grid>
-        {suggestMatches && (
-          <Grid size={{ xs: 12 }}>
-            <PersonMatches nodeId={nodeId} />
+      <Stack spacing={3}>
+        <PersonHeader
+          title={suggestMatches ? `Agregar persona a ${nodeName}` : undefined}
+          subtitle={
+            suggestMatches
+              ? "Escribe el nombre: si ya está en la iglesia, la agregas desde aquí sin duplicarla."
+              : "Datos generales de persona"
+          }
+          actions={actions}
+        />
+        <FormSection
+          title="Contacto"
+          description="Lo básico para ubicar a la persona."
+        >
+          <Grid container spacing={2}>
+            <Grid size={{ xs: 12, sm: 6 }}>
+              <TextFieldElement
+                fullWidth
+                name="firstName"
+                label="Nombre"
+                required
+              />
+            </Grid>
+            <Grid size={{ xs: 12, sm: 6 }}>
+              <TextFieldElement
+                fullWidth
+                name="lastName"
+                label="Apellido"
+                required
+              />
+            </Grid>
+            <Grid size={{ xs: 12, sm: 6 }}>
+              <TelFieldElement name="phoneNumber" />
+            </Grid>
+            <Grid size={{ xs: 12, sm: 6 }}>
+              <TextFieldElement
+                fullWidth
+                name="email"
+                label="Correo electrónico"
+                type="email"
+                helperText="Con este correo podrá recibir una invitación a la aplicación"
+              />
+            </Grid>
           </Grid>
-        )}
-        <Grid size={{ xs: 12, sm: 4 }}>
-          <DatePickerElement
-            sx={{ width: "100%" }}
-            name="birthdate"
-            label="Fecha de nacimiento"
-            onChange={handleChange}
-          />
-        </Grid>
-        <Grid size={{ xs: 12, sm: 4 }}>
-          <TextFieldElement
-            fullWidth
-            name="age"
-            label="Edad"
-            type="number"
-            disabled
-          />
-        </Grid>
-        <Grid size={{ xs: 4 }}>
-          <RadioButtonGroup
-            label="Bautizado:"
-            name="hasBeenBaptized"
-            options={[
-              {
-                id: "YES",
-                label: "Si",
-              },
-              {
-                id: "NO",
-                label: "No",
-              },
-            ]}
-            row
-          />
-        </Grid>
-        <Grid size={{ xs: 12, sm: 6 }}>
-          <MemberStateField nodeName={node?.name ?? "este lugar"} />
-        </Grid>
-        <Grid size={{ xs: 12 }}>
-          <Grid sx={{ paddingBottom: "10px" }}>
-            <Typography variant="h6">Cargos:</Typography>
-          </Grid>
-          <PositionsField positions={positions} />
-        </Grid>
-        <Grid size={{ xs: 12 }}>
+        </FormSection>
+        {suggestMatches && <PersonMatches nodeId={nodeId} />}
+        {/* Optional data: folded away so the form stays short. The fields stay
+            mounted, so what is typed is saved even while it is folded. */}
+        <Accordion
+          disableGutters
+          variant="outlined"
+          sx={{ borderRadius: 3, "&::before": { display: "none" } }}
+        >
+          <AccordionSummary
+            expandIcon={<ExpandMore />}
+            aria-controls="personal-data-content"
+            id="personal-data-header"
+          >
+            <Box>
+              <Typography variant="h6" component="h2">
+                Datos personales
+              </Typography>
+              <Typography variant="body2" sx={{ color: "text.secondary" }}>
+                Fecha de nacimiento, edad y bautismo · opcional
+              </Typography>
+            </Box>
+          </AccordionSummary>
+          <AccordionDetails id="personal-data-content">
+            <Grid container spacing={2} sx={{ alignItems: "flex-start" }}>
+              <Grid size={{ xs: 12, sm: 4 }}>
+                <DatePickerElement
+                  sx={{ width: "100%" }}
+                  name="birthdate"
+                  label="Fecha de nacimiento"
+                  onChange={handleChange}
+                />
+              </Grid>
+              <Grid size={{ xs: 12, sm: 4 }}>
+                <TextFieldElement
+                  fullWidth
+                  name="age"
+                  label="Edad"
+                  type="number"
+                  disabled
+                  helperText="Se calcula con la fecha de nacimiento"
+                />
+              </Grid>
+              <Grid size={{ xs: 12, sm: 4 }}>
+                <BaptizedField />
+              </Grid>
+            </Grid>
+          </AccordionDetails>
+        </Accordion>
+        <FormSection
+          title={`En ${nodeName}`}
+          description="Cómo participa y qué responsabilidades tiene aquí."
+        >
+          <Stack spacing={3}>
+            <MemberStateField nodeName={nodeName} />
+            <PositionsField positions={positions} />
+          </Stack>
+        </FormSection>
+        <Box>
           <SaveButton
             name="Guardar"
             loading={formContext.formState.isSubmitting}
           />
-        </Grid>
-      </Grid>
+        </Box>
+      </Stack>
     </FormContainer>
+  );
+};
+
+// A titled block of the form.
+const FormSection = ({
+  title,
+  description,
+  children,
+}: Readonly<{
+  title: string;
+  description: string;
+  children: React.ReactNode;
+}>) => (
+  <Paper variant="outlined" sx={{ p: 3, borderRadius: 3 }}>
+    <Typography variant="h6" component="h2">
+      {title}
+    </Typography>
+    <Typography variant="body2" sx={{ color: "text.secondary", mb: 2 }}>
+      {description}
+    </Typography>
+    {children}
+  </Paper>
+);
+
+// Yes or no, kept as "YES"/"NO" in the form like the radio buttons were.
+const BaptizedField = () => {
+  const { control } = useFormContext<PersonDetailFormData>();
+  return (
+    <Controller
+      control={control}
+      name="hasBeenBaptized"
+      render={({ field }) => (
+        <FormControlLabel
+          sx={{ minHeight: 56 }}
+          label="Bautizado"
+          control={
+            <Switch
+              checked={field.value === "YES"}
+              onChange={(_event, checked) =>
+                field.onChange(checked ? "YES" : "NO")
+              }
+            />
+          }
+        />
+      )}
+    />
   );
 };
 
