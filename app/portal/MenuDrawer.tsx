@@ -183,6 +183,8 @@ export default function MenuDrawer({
           flexGrow: 1,
           minWidth: 0,
           width: { sm: `calc(100% - ${drawerWidth}px)` },
+          // The one margin of every screen of the portal: the pages do not set their own.
+          p: { xs: 2, sm: 4 },
         }}
       >
         <Toolbar />

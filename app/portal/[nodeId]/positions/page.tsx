@@ -148,7 +148,7 @@ export default function PositionsPage(props: {
       : tab;
 
   return (
-    <Stack spacing={2} sx={{ m: { xs: 2, sm: 4 }, maxWidth: 1000 }}>
+    <Stack spacing={2} sx={{ maxWidth: 1000 }}>
       <Typography variant="h5" component="h1">
         Cargos y accesos
       </Typography>

@@ -210,7 +210,7 @@ export const GrowthDashboard = ({ nodeId }: { nodeId: string }) => {
   const isEmpty = !current.total && buckets.every((bucket) => !bucket.joined);
 
   return (
-    <Stack spacing={3} sx={{ m: { xs: 2, sm: 4 }, maxWidth: 1100 }}>
+    <Stack spacing={3} sx={{ maxWidth: 1100 }}>
       <Stack
         direction="row"
         sx={{

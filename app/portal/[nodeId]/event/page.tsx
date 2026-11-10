@@ -59,13 +59,7 @@ export default function EventListPage(props: {
   );
 
   return (
-    <Stack
-      direction="column"
-      spacing={2}
-      sx={{
-        p: 4,
-      }}
-    >
+    <Stack direction="column" spacing={2}>
       <Stack
         direction="row"
         spacing={2}

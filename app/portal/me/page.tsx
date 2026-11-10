@@ -76,7 +76,7 @@ export default function MySpacePage() {
 
   return (
     <MenuDrawer listDrawer={<PortalMenu items={menu} />}>
-      <Box sx={{ maxWidth: 900, m: { xs: 2, sm: 4 } }}>
+      <Box sx={{ maxWidth: 900 }}>
         <Typography variant="h4" component="h1" gutterBottom>
           Mi espacio
         </Typography>

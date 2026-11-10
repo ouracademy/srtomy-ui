@@ -110,6 +110,9 @@ describe("ChurchWhatsAppCard", () => {
     expect(
       screen.getByText("¿Desconectar el WhatsApp de la iglesia?"),
     ).toBeTruthy();
+    // It says what happens to the number and where else to look.
+    expect(screen.getByText(/se retira de Sr. Tommy y de Kapso/)).toBeTruthy();
+    expect(screen.getByText(/Plataforma comercial/)).toBeTruthy();
 
     const confirm = screen
       .getAllByRole("button", { name: "Desconectar" })
@@ -137,6 +140,8 @@ describe("ChurchWhatsAppCard", () => {
     });
 
     expect(screen.getByText(/esta sede lo usa/)).toBeTruthy();
+    // It says where the buttons are, since a branch does not have them.
+    expect(screen.getByText(/entra a la iglesia/)).toBeTruthy();
     expect(screen.queryByRole("button", { name: "Desconectar" })).toBeNull();
     expect(
       screen.queryByRole("button", { name: "Conectar WhatsApp" }),

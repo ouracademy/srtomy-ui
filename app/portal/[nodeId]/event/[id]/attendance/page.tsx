@@ -90,7 +90,7 @@ export default function AttendanceEvent(props: {
   };
 
   return (
-    <Stack spacing={3} sx={{ p: { xs: 2, md: 4 }, maxWidth: 1320 }}>
+    <Stack spacing={3} sx={{ maxWidth: 1320 }}>
       <EventHero
         event={event}
         generalAccess={sharing?.generalAccess}
