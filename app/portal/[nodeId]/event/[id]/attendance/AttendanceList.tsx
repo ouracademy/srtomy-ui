@@ -162,7 +162,7 @@ export const AttendanceList = ({
                   <TableCell>Nombre</TableCell>
                   <TableCell>Cómo entró</TableCell>
                   <TableCell>Hora</TableCell>
-                  <TableCell align="right" sx={{ position: "relative"}}>
+                  <TableCell align="right" sx={{ position: "relative" }}>
                     <Box component="span" sx={visuallyHidden}>
                       Acciones
                     </Box>
