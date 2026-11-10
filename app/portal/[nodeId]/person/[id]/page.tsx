@@ -75,7 +75,7 @@ export default function PersonEdit(props: {
   const standing = standingIn(memberships ?? [], nodeId);
 
   return (
-    <Box sx={{ p: { xs: 2, sm: 4 }, maxWidth: 1200, mx: "auto" }}>
+    <Box sx={{ maxWidth: 1200, mx: "auto" }}>
       {!person ? (
         <div>El usuario no ha esta registrado</div>
       ) : (

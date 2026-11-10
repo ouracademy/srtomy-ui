@@ -87,7 +87,7 @@ export default function PortalHome() {
         </List>
       }
     >
-      <Box sx={{ maxWidth: 900, m: { xs: 2, sm: 4 } }}>
+      <Box sx={{ maxWidth: 900 }}>
         <Typography variant="h4" component="h1" gutterBottom>
           Bienvenido
           {/* {nodes.length > 0 ? "Registrar otra iglesia" : "Bienvenido"} */}

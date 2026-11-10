@@ -59,7 +59,7 @@ export const CalendarSyncCard = () => {
   };
 
   return (
-    <Card sx={{ margin: 4, maxWidth: 720 }}>
+    <Card sx={{ maxWidth: 720 }}>
       <CardContent>
         <Stack spacing={2}>
           <Typography variant="h5">Sincroniza con tu calendario</Typography>

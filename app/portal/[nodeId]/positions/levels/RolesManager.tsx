@@ -49,7 +49,7 @@ export const RolesManager = ({
   const predefinedRoles = roles.filter((role) => role.predefined);
 
   return (
-    <Stack spacing={2} sx={{ m: { xs: 2, sm: 4 }, maxWidth: 800 }}>
+    <Stack spacing={2} sx={{ maxWidth: 800 }}>
       <Stack
         direction="row"
         sx={{

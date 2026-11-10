@@ -45,13 +45,7 @@ export const LocationForm = ({
 
   return (
     <FormContainer formContext={formContext} onSuccess={submit}>
-      <Grid
-        container
-        spacing={2}
-        sx={{
-          margin: 4,
-        }}
-      >
+      <Grid container spacing={2}>
         <Grid size={{ xs: 12 }}>
           <Typography variant="h5" gutterBottom>
             {title}

@@ -25,7 +25,7 @@ export default function CreatePerson(props: {
   const { nodeId } = params;
 
   return (
-    <Box sx={{ p: { xs: 2, sm: 4 }, maxWidth: 800, mx: "auto" }}>
+    <Box sx={{ maxWidth: 800, mx: "auto" }}>
       <PersonForm
         initialValues={{
           firstName: "",

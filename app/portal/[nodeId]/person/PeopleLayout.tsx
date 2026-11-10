@@ -60,13 +60,7 @@ export function PeopleLayout({
   };
 
   return (
-    <Stack
-      direction="column"
-      spacing={2}
-      sx={{
-        p: { xs: 2, sm: 4 },
-      }}
-    >
+    <Stack direction="column" spacing={2}>
       <Box
         sx={{
           display: "flex",

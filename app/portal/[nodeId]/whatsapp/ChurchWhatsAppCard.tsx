@@ -107,7 +107,7 @@ export const ChurchWhatsAppCard = ({
               {connection.displayNumber ?? "(sin número visible)"}
             </strong>
             {connection.inherited
-              ? ". Es el de la iglesia: esta sede lo usa."
+              ? ". Es el de la iglesia: esta sede lo usa. Para desconectarlo o enviar las plantillas, entra a la iglesia."
               : ""}
           </Typography>
         ) : (
@@ -208,7 +208,7 @@ export const ChurchWhatsAppCard = ({
       <DialogDeleteConfirmation
         open={confirmingCut}
         title="¿Desconectar el WhatsApp de la iglesia?"
-        message="El asistente dejará de responder y los avisos pendientes no saldrán. Podrás conectarlo de nuevo cuando quieras."
+        message="El asistente dejará de responder y los avisos pendientes no saldrán. El número se retira de Sr. Tommy y de Kapso. Si después sigue apareciendo Kapso en «Plataforma comercial» de tu app WhatsApp Business, desconéctalo desde ahí. Podrás conectarlo de nuevo cuando quieras."
         confirmLabel="Desconectar"
         close={() => setConfirmingCut(false)}
         onDelete={async () => {

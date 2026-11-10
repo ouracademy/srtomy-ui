@@ -54,7 +54,7 @@ export const GroupForm = ({
 
   return (
     <FormContainer formContext={formContext} onSuccess={submit}>
-      <Box sx={{ maxWidth: 700, margin: 4 }}>
+      <Box sx={{ maxWidth: 700 }}>
         <Stack spacing={3}>
           <Typography variant="h5" gutterBottom>
             Datos generales del Grupo / Ministerio
