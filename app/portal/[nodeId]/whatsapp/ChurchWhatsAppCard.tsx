@@ -148,8 +148,12 @@ export const ChurchWhatsAppCard = ({
               </RadioGroup>
             </FormControl>
             <Alert severity="info">
-              Los mensajes que envíe el asistente los paga Sr. Tommy a Meta; se
-              cobran al plan de la iglesia.
+              Meta cobra los mensajes de WhatsApp directamente a la iglesia, con
+              su propia tarjeta y en la moneda de su cuenta. Los primeros 1.000
+              mensajes de respuesta de cada mes son gratis. Para los avisos con
+              plantilla (como el recordatorio de un evento), Meta pide tener un
+              método de pago en la cuenta de WhatsApp Business de la iglesia
+              (Meta Billing Hub).
             </Alert>
             <div>
               <SaveButton

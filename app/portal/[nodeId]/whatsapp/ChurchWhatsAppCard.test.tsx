@@ -47,6 +47,14 @@ describe("ChurchWhatsAppCard", () => {
       ).checked,
     ).toBe(true);
 
+    // Who pays Meta is said before connecting: the church, with its own card.
+    expect(
+      screen.getByText(
+        /Meta cobra los mensajes de WhatsApp directamente a la iglesia/,
+      ),
+    ).toBeTruthy();
+    expect(screen.getByText(/Meta Billing Hub/)).toBeTruthy();
+
     await user.click(screen.getByRole("button", { name: "Conectar WhatsApp" }));
 
     expect(onConnect).toHaveBeenCalledWith("COEXISTENCE");
