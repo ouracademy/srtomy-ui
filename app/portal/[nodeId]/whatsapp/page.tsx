@@ -1,6 +1,7 @@
 "use client";
 
-import { Stack, Typography } from "@mui/material";
+import { Alert, Stack, Typography } from "@mui/material";
+import { useSearchParams } from "next/navigation";
 import React from "react";
 import {
   deleteOrganizationsByIdWhatsapp,
@@ -22,6 +23,11 @@ import { MyWhatsAppCard } from "./MyWhatsAppCard";
 // WhatsApp of the church, in two parts: connecting the church's number (whoever
 // can edit the church) and linking one's own WhatsApp to one's account (any
 // signed-in person with a person in the church).
+// How long to wait for the provider's notice after the pastor comes back from
+// the registration: it is not instant.
+const waitForConfirmation = 60_000;
+const checkEvery = 3000;
+
 export default function WhatsAppPage(props: {
   params: Promise<{ nodeId: string }>;
 }) {
@@ -29,6 +35,15 @@ export default function WhatsAppPage(props: {
   const alert = React.useContext(SnackbarContext);
   const { can } = usePermissions(nodeId);
   const canConnect = can("org.update");
+  // The registration page sends the pastor back here with ?conexion=completada
+  // or ?conexion=fallida.
+  const returned = useSearchParams().get("conexion");
+  const [gaveUp, setGaveUp] = React.useState(false);
+  React.useEffect(() => {
+    if (returned !== "completada") return;
+    const timer = setTimeout(() => setGaveUp(true), waitForConfirmation);
+    return () => clearTimeout(timer);
+  }, [returned]);
 
   const {
     data: connection,
@@ -36,7 +51,14 @@ export default function WhatsAppPage(props: {
     isLoading: loadingConnection,
     mutate: refreshConnection,
   } = useGetOrganizationsByIdWhatsapp(nodeId, {
-    swr: { enabled: canConnect },
+    swr: {
+      enabled: canConnect,
+      // Until the notice arrives the connection still says "pending".
+      refreshInterval: (latest) =>
+        returned === "completada" && latest?.status !== "CONNECTED" && !gaveUp
+          ? checkEvery
+          : 0,
+    },
   });
   const {
     data: link,
@@ -55,6 +77,19 @@ export default function WhatsAppPage(props: {
       <Typography component="h1" variant="h5">
         WhatsApp
       </Typography>
+
+      {canConnect && returned === "fallida" && (
+        <Alert severity="error">
+          No se pudo completar la conexión con WhatsApp. Puedes intentarlo de
+          nuevo.
+        </Alert>
+      )}
+      {canConnect && returned === "completada" && (
+        <ReturnedNotice
+          connected={connection?.status === "CONNECTED"}
+          gaveUp={gaveUp}
+        />
+      )}
 
       {canConnect && connection && (
         <ChurchWhatsAppCard
@@ -121,3 +156,27 @@ export default function WhatsAppPage(props: {
     </Stack>
   );
 }
+
+// What the pastor sees after finishing the registration, while we wait for the
+// provider to tell us the number is connected.
+const ReturnedNotice = ({
+  connected,
+  gaveUp,
+}: Readonly<{ connected: boolean; gaveUp: boolean }>) => {
+  if (connected) {
+    return <Alert severity="success">WhatsApp quedó conectado.</Alert>;
+  }
+  if (gaveUp) {
+    return (
+      <Alert severity="warning">
+        Todavía no recibimos la confirmación de WhatsApp. Recarga la página en
+        unos minutos; si sigue pendiente, vuelve a conectar.
+      </Alert>
+    );
+  }
+  return (
+    <Alert severity="info" role="status">
+      Estamos confirmando la conexión con WhatsApp. Puede tardar unos segundos.
+    </Alert>
+  );
+};

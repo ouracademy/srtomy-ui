@@ -16,6 +16,13 @@ const hooks = vi.hoisted(() => ({
     isLoading: false,
   },
   connectionEnabled: [] as boolean[],
+  refreshInterval: undefined as
+    ((latest?: { status?: string }) => number) | undefined,
+  search: "",
+}));
+
+vi.mock("next/navigation", () => ({
+  useSearchParams: () => new URLSearchParams(hooks.search),
 }));
 
 vi.mock("@/app/(hooks)/usePermissions", () => ({
@@ -25,9 +32,15 @@ vi.mock("@/app/(hooks)/usePermissions", () => ({
 vi.mock("@/app/(api)/generated", () => ({
   useGetOrganizationsByIdWhatsapp: (
     _id: string,
-    options?: { swr?: { enabled?: boolean } },
+    options?: {
+      swr?: {
+        enabled?: boolean;
+        refreshInterval?: (latest?: { status?: string }) => number;
+      };
+    },
   ) => {
     hooks.connectionEnabled.push(options?.swr?.enabled ?? true);
+    hooks.refreshInterval = options?.swr?.refreshInterval;
     return { ...hooks.connection, mutate: vi.fn() };
   },
   useGetOrganizationsByIdWhatsappLink: () => ({
@@ -66,8 +79,13 @@ beforeEach(() => {
   };
   hooks.link = { data: { linked: false }, error: undefined, isLoading: false };
   hooks.connectionEnabled = [];
+  hooks.refreshInterval = undefined;
+  hooks.search = "";
 });
-afterEach(cleanup);
+afterEach(() => {
+  cleanup();
+  vi.useRealTimers();
+});
 
 describe("WhatsAppPage", () => {
   it("a plain member only sees their own WhatsApp and the church's is not even asked for", async () => {
@@ -124,5 +142,73 @@ describe("WhatsAppPage", () => {
     await renderPage();
 
     expect(await screen.findByText("Error al cargar")).toBeTruthy();
+  });
+
+  describe("coming back from the registration", () => {
+    const asPastor = () => {
+      hooks.permissions = new Set(["org.update"]);
+    };
+
+    it("says it is confirming while the connection is still pending, and keeps asking", async () => {
+      asPastor();
+      hooks.search = "conexion=completada";
+      hooks.connection.data = { status: "PENDING" };
+
+      await renderPage();
+
+      expect(await screen.findByRole("status")).toBeTruthy();
+      expect(screen.getByText(/confirmando la conexión/i)).toBeTruthy();
+      expect(hooks.refreshInterval?.({ status: "PENDING" })).toBe(3000);
+      expect(hooks.refreshInterval?.({ status: "CONNECTED" })).toBe(0);
+    });
+
+    it("says it is connected once the notice arrived", async () => {
+      asPastor();
+      hooks.search = "conexion=completada";
+      hooks.connection.data = { status: "CONNECTED", displayNumber: "+51 1" };
+
+      await renderPage();
+
+      expect(await screen.findByText("WhatsApp quedó conectado.")).toBeTruthy();
+    });
+
+    it("stops waiting after a minute and tells the pastor what to do", async () => {
+      asPastor();
+      vi.useFakeTimers();
+      hooks.search = "conexion=completada";
+      hooks.connection.data = { status: "PENDING" };
+
+      await renderPage();
+      await act(async () => {
+        vi.advanceTimersByTime(60_000);
+      });
+
+      expect(
+        screen.getByText(/Todavía no recibimos la confirmación/),
+      ).toBeTruthy();
+      expect(hooks.refreshInterval?.({ status: "PENDING" })).toBe(0);
+    });
+
+    it("tells the pastor when the registration failed", async () => {
+      asPastor();
+      hooks.search = "conexion=fallida";
+
+      await renderPage();
+
+      expect(
+        await screen.findByText(/No se pudo completar la conexión/),
+      ).toBeTruthy();
+    });
+
+    it("shows no notice when the pastor did not come back from a registration", async () => {
+      asPastor();
+
+      await renderPage();
+
+      expect(
+        await screen.findByRole("heading", { name: "WhatsApp" }),
+      ).toBeTruthy();
+      expect(screen.queryByRole("status")).toBeNull();
+    });
   });
 });
