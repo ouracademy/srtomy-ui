@@ -62,8 +62,14 @@ describe("disconnectNotice", () => {
     expect(disconnectNotice("ACCOUNT_DISABLED")).toMatch(/vuelve solo/);
   });
 
-  it("says nothing when the pastor disconnected it or the reason is unknown", () => {
-    expect(disconnectNotice("PASTOR")).toBeUndefined();
+  it("tells the pastor who disconnected it what is left to do in the phone", () => {
+    const notice = disconnectNotice("PASTOR");
+
+    expect(notice).toMatch(/Plataforma comercial/);
+    expect(notice).toMatch(/Kapso/);
+  });
+
+  it("says nothing when the reason is unknown", () => {
     expect(disconnectNotice(undefined)).toBeUndefined();
   });
 });

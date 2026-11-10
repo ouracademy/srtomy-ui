@@ -36,13 +36,17 @@ type DisconnectReason =
   | "ACCESS_REMOVED"
   | "ACCOUNT_DISABLED";
 
-// What to tell the pastor when the number stopped working without them
-// pressing "Desconectar". Undefined when they did it themselves (or the API
-// does not say why): there is nothing to warn about.
+// What to tell the pastor once the number is disconnected. When it stopped
+// working without them (Meta, Kapso) it says what happened; when they pressed
+// "Desconectar" it says what is still left to do, because the WhatsApp
+// Business app keeps listing Kapso as a connected platform until it is
+// disconnected there. Undefined when the API does not say why.
 export const disconnectNotice = (
   reason: DisconnectReason | undefined,
 ): string | undefined => {
   switch (reason) {
+    case "PASTOR":
+      return "WhatsApp quedó desconectado de Sr. Tommy: el asistente ya no responde. Para terminar, en tu celular abre WhatsApp Business → Ajustes → Cuenta → Plataforma comercial → Kapso → Desconectar. Si no lo haces, la app sigue mostrando a Kapso como conectado. Para volver a conectar, hazlo después de desconectar allí.";
     case "NUMBER_DELETED":
       return "El número se quitó de Sr. Tommy. El asistente no responde ni envía avisos. Conéctalo de nuevo.";
     case "NUMBER_OFFBOARDED":

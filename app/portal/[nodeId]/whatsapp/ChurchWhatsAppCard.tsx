@@ -98,7 +98,15 @@ export const ChurchWhatsAppCard = ({
           <Chip size="small" color={state.color} label={state.label} />
         </Stack>
 
-        {lostNotice && <Alert severity="warning">{lostNotice}</Alert>}
+        {lostNotice && (
+          <Alert
+            severity={
+              connection.disconnectReason === "PASTOR" ? "info" : "warning"
+            }
+          >
+            {lostNotice}
+          </Alert>
+        )}
 
         {connected ? (
           <Typography>
@@ -212,7 +220,7 @@ export const ChurchWhatsAppCard = ({
       <DialogDeleteConfirmation
         open={confirmingCut}
         title="¿Desconectar el WhatsApp de la iglesia?"
-        message="El asistente dejará de responder y los avisos pendientes no saldrán. El número se retira de Sr. Tommy y de Kapso. Si después sigue apareciendo Kapso en «Plataforma comercial» de tu app WhatsApp Business, desconéctalo desde ahí. Podrás conectarlo de nuevo cuando quieras."
+        message="El asistente dejará de responder y los avisos pendientes no saldrán. El número se retira de Sr. Tommy y de Kapso. Luego, en tu celular, desconecta también Kapso en WhatsApp Business → Ajustes → Cuenta → Plataforma comercial: sin eso la app lo sigue mostrando como conectado. Podrás conectarlo de nuevo cuando quieras."
         confirmLabel="Desconectar"
         close={() => setConfirmingCut(false)}
         onDelete={async () => {

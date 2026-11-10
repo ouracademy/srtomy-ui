@@ -120,7 +120,7 @@ describe("ChurchWhatsAppCard", () => {
     ).toBeTruthy();
     // It says what happens to the number and where else to look.
     expect(screen.getByText(/se retira de Sr. Tommy y de Kapso/)).toBeTruthy();
-    expect(screen.getByText(/Plataforma comercial/)).toBeTruthy();
+    expect(screen.getByText(/desconecta también Kapso/)).toBeTruthy();
 
     const confirm = screen
       .getAllByRole("button", { name: "Desconectar" })
@@ -219,10 +219,12 @@ describe("ChurchWhatsAppCard", () => {
     ).toBeTruthy();
   });
 
-  it("does not warn when the pastor disconnected it", () => {
+  it("tells the pastor who disconnected it to finish in the phone, without alarming", () => {
     renderCard({ status: "DISCONNECTED", disconnectReason: "PASTOR" });
 
-    expect(screen.queryByText(/El asistente no responde/)).toBeNull();
+    expect(screen.getByText(/ya no responde/)).toBeTruthy();
+    expect(screen.getByText(/Plataforma comercial → Kapso/)).toBeTruthy();
+    expect(screen.queryByText(/El asistente no responde ni envía/)).toBeNull();
     expect(
       screen.getByRole("button", { name: "Conectar WhatsApp" }),
     ).toBeTruthy();
