@@ -115,6 +115,7 @@ function Calendar({
           "& .fc-sub-event": { borderStyle: "dashed" },
           // An event that has a program of sessions.
           "& .fc-has-program": { borderBottomWidth: 4 },
+          "& .fc-classic-zIi": { cursor: "pointer" },
         }}
       >
         <Stack
@@ -122,12 +123,6 @@ function Calendar({
           spacing={1}
           sx={{ alignItems: "center", flexWrap: "wrap", mb: 1 }}
         >
-          <Button
-            variant="outlined"
-            onClick={() => calendarRef.current?.getApi().today()}
-          >
-            Hoy
-          </Button>
           <IconButton
             aria-label="Anterior"
             onClick={() => calendarRef.current?.getApi().prev()}
@@ -148,6 +143,12 @@ function Calendar({
           >
             {title}
           </Typography>
+          <Button
+            variant="outlined"
+            onClick={() => calendarRef.current?.getApi().today()}
+          >
+            Hoy
+          </Button>
           {isDesktop && (
             <Button
               variant="contained"
