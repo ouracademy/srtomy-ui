@@ -13,7 +13,10 @@ import { esES } from "@mui/x-data-grid/locales";
 import SearchIcon from "@mui/icons-material/Search";
 import React from "react";
 import { withOutSorting } from "@/app/(components)/helpers/withOutSorting";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useDebounce } from "use-debounce";
+import { DEBOUNCE_WAIT_MS } from "@/app/(components)/helpers/debouncing";
+import { searchQueryFor } from "../../person/searchQuery";
 import {
   deleteOrganizationsById,
   useGetOrganizationsByIdChilds,
@@ -50,8 +53,20 @@ export function Groups({
   const [groupToDeleteId, setGroupToDeleteId] = React.useState<string | null>(
     null,
   );
-  const [search, setSearch] = React.useState("");
   const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  // The search lives in the URL (`?search=`) so it can be copied and shared;
+  // the box keeps the text being typed and the URL follows after a pause.
+  const [search, setSearch] = React.useState(searchParams.get("search") ?? "");
+  const [searchDebounced] = useDebounce(search, DEBOUNCE_WAIT_MS);
+
+  React.useEffect(() => {
+    const query = searchQueryFor(searchParams.toString(), searchDebounced);
+    if (query !== null) {
+      router.replace(query ? `${pathname}?${query}` : pathname);
+    }
+  }, [searchDebounced, pathname, router, searchParams]);
 
   const {
     data: groups,
@@ -196,7 +211,7 @@ export function Groups({
           }}
           loading={isLoading}
           columns={columns}
-          rows={filterByName(groups ?? [], search)}
+          rows={filterByName(groups ?? [], searchDebounced)}
           localeText={esES.components.MuiDataGrid.defaultProps.localeText}
         />
       </div>

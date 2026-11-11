@@ -1,9 +1,16 @@
 import { cleanup, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { Groups } from "./Groups";
 
-vi.mock("next/navigation", () => ({ useRouter: () => ({ push: vi.fn() }) }));
+const replace = vi.fn();
+let query = "";
+
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({ push: vi.fn(), replace }),
+  usePathname: () => "/portal/n/groups",
+  useSearchParams: () => new URLSearchParams(query),
+}));
 vi.mock("@/app/(api)/generated", () => ({
   deleteOrganizationsById: vi.fn(),
   useGetOrganizationsByIdChilds: () => ({
@@ -15,6 +22,11 @@ vi.mock("@/app/(api)/generated", () => ({
     mutate: vi.fn(),
   }),
 }));
+
+beforeEach(() => {
+  replace.mockClear();
+  query = "";
+});
 
 afterEach(cleanup);
 
@@ -42,7 +54,37 @@ describe("Groups", () => {
       "jove",
     );
 
+    await vi.waitFor(() =>
+      expect(screen.queryByText("Alabanza")).not.toBeInTheDocument(),
+    );
     expect(screen.getByText("Jóvenes")).toBeInTheDocument();
-    expect(screen.queryByText("Alabanza")).not.toBeInTheDocument();
+  });
+
+  it("puts the search in the url once, after the typing pauses", async () => {
+    const user = userEvent.setup();
+    render(<Groups nodeId="n" />);
+    expect(replace).not.toHaveBeenCalled();
+
+    await user.type(
+      screen.getByRole("textbox", { name: "Buscar por nombre" }),
+      "ala",
+    );
+
+    await vi.waitFor(() =>
+      expect(replace).toHaveBeenCalledWith("/portal/n/groups?search=ala"),
+    );
+    expect(replace).toHaveBeenCalledTimes(1);
+  });
+
+  it("starts from the search in the url", () => {
+    query = "search=ala";
+    render(<Groups nodeId="n" />);
+
+    expect(
+      screen.getByRole("textbox", { name: "Buscar por nombre" }),
+    ).toHaveValue("ala");
+    expect(screen.queryByText("Jóvenes")).not.toBeInTheDocument();
+    expect(screen.getByText("Alabanza")).toBeInTheDocument();
+    expect(replace).not.toHaveBeenCalled();
   });
 });

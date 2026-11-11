@@ -23,7 +23,11 @@ vi.mock("@/app/(hooks)/usePermissions", () => ({
     can: (permission: string) => state.permissions.includes(permission),
   }),
 }));
-vi.mock("next/navigation", () => ({ useRouter: () => ({ push: vi.fn() }) }));
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({ push: vi.fn(), replace: vi.fn() }),
+  usePathname: () => "/portal/n1/groups",
+  useSearchParams: () => new URLSearchParams(),
+}));
 
 // `params` is a promise in this Next version: React.use suspends until it settles.
 const renderPage = async () => {
