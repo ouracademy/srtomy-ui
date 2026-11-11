@@ -72,11 +72,12 @@ export function Groups({
     () =>
       (
         [
-          { field: "name", headerName: "Nombre", flex: 1 },
+          { field: "name", headerName: "Nombre", flex: 2, minWidth: 130 },
           {
             field: "type",
             headerName: "Tipo",
             flex: 1,
+            minWidth: 110,
             valueGetter: (value) => nodeTypeLabels[value ?? ""] ?? "",
           },
           {
