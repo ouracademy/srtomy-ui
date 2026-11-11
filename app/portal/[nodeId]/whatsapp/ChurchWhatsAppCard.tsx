@@ -1,22 +1,9 @@
 "use client";
 
-import {
-  Alert,
-  Button,
-  Chip,
-  FormControl,
-  FormControlLabel,
-  FormLabel,
-  Paper,
-  Radio,
-  RadioGroup,
-  Stack,
-  Typography,
-} from "@mui/material";
+import { Alert, Button, Chip, Paper, Stack, Typography } from "@mui/material";
 import React from "react";
 import type {
   ProvisionTemplatesResponse,
-  SetupLinkRequestMode,
   WhatsAppConnectionResponse,
 } from "@/app/(api)/generated/aPIOvejafiel.schemas";
 import { DialogDeleteConfirmation } from "@/app/(components)/DialogDeleteConfirmation";
@@ -26,25 +13,14 @@ import { connectionLabels, disconnectNotice } from "./whatsappLink";
 type ChurchWhatsAppCardProps = Readonly<{
   connection: WhatsAppConnectionResponse;
   // Asks for the link and sends the pastor to Kapso to finish connecting.
-  onConnect: (mode: SetupLinkRequestMode) => Promise<void>;
+  onConnect: () => Promise<void>;
   onDisconnect: () => Promise<void>;
+  // Pauses or resumes the assistant; the number stays connected.
+  onSetAgentPaused: (paused: boolean) => Promise<void>;
   // Sends the message templates to Meta for review. Undefined when it could
   // not be done: the screen has already said why.
   onSubmitTemplates: () => Promise<ProvisionTemplatesResponse | undefined>;
 }>;
-
-const modes: { value: SetupLinkRequestMode; title: string; help: string }[] = [
-  {
-    value: "COEXISTENCE",
-    title: "Seguir usando la app de WhatsApp Business",
-    help: "El celular de la iglesia sigue funcionando y el asistente responde al mismo tiempo.",
-  },
-  {
-    value: "DEDICATED",
-    title: "Solo para el asistente",
-    help: "El número se usa solo por la API: ya no se abre en la app del celular.",
-  },
-];
 
 // The WhatsApp of the church: whether it is connected, and the way to connect
 // or cut it. Whoever holds org.update on the church sees it; the API checks.
@@ -52,9 +28,10 @@ export const ChurchWhatsAppCard = ({
   connection,
   onConnect,
   onDisconnect,
+  onSetAgentPaused,
   onSubmitTemplates,
 }: ChurchWhatsAppCardProps) => {
-  const [mode, setMode] = React.useState<SetupLinkRequestMode>("COEXISTENCE");
+  const [changingPause, setChangingPause] = React.useState(false);
   const [connecting, setConnecting] = React.useState(false);
   const [confirmingCut, setConfirmingCut] = React.useState(false);
   const [submittingTemplates, setSubmittingTemplates] = React.useState(false);
@@ -64,6 +41,7 @@ export const ChurchWhatsAppCard = ({
   const status = connection.status ?? "NOT_CONNECTED";
   const state = connectionLabels[status];
   const connected = status === "CONNECTED";
+  const paused = connected && connection.agentPaused === true;
   const lostNotice =
     status === "DISCONNECTED"
       ? disconnectNotice(connection.disconnectReason)
@@ -72,9 +50,18 @@ export const ChurchWhatsAppCard = ({
   const connect = async () => {
     setConnecting(true);
     try {
-      await onConnect(mode);
+      await onConnect();
     } finally {
       setConnecting(false);
+    }
+  };
+
+  const setPaused = async (paused: boolean) => {
+    setChangingPause(true);
+    try {
+      await onSetAgentPaused(paused);
+    } finally {
+      setChangingPause(false);
     }
   };
 
@@ -96,6 +83,9 @@ export const ChurchWhatsAppCard = ({
             WhatsApp de la iglesia
           </Typography>
           <Chip size="small" color={state.color} label={state.label} />
+          {paused && (
+            <Chip size="small" color="warning" label="Asistente en pausa" />
+          )}
         </Stack>
 
         {lostNotice && (
@@ -121,40 +111,16 @@ export const ChurchWhatsAppCard = ({
         ) : (
           <Typography color="text.secondary">
             Conecta el WhatsApp de la iglesia para que el asistente responda a
-            los miembros y para enviarles avisos. Se abre una página de Meta
-            donde inicias sesión con Facebook y verificas el número; toma unos
+            los miembros y para enviarles avisos. El celular de la iglesia sigue
+            funcionando con la app WhatsApp Business (no sirve el WhatsApp
+            personal). Hazlo desde una computadora y con el celular a la mano:
+            Meta muestra un código QR que se escanea desde la app. Toma unos
             cinco minutos.
           </Typography>
         )}
 
         {!connected && !connection.inherited && (
           <>
-            <FormControl>
-              <FormLabel id="whatsapp-mode">Cómo quieres conectarlo</FormLabel>
-              <RadioGroup
-                aria-labelledby="whatsapp-mode"
-                value={mode}
-                onChange={(event) =>
-                  setMode(event.target.value as SetupLinkRequestMode)
-                }
-              >
-                {modes.map((option) => (
-                  <FormControlLabel
-                    key={option.value}
-                    value={option.value}
-                    control={<Radio />}
-                    label={
-                      <>
-                        <Typography>{option.title}</Typography>
-                        <Typography variant="caption" color="text.secondary">
-                          {option.help}
-                        </Typography>
-                      </>
-                    }
-                  />
-                ))}
-              </RadioGroup>
-            </FormControl>
             <Alert severity="info">
               Meta cobra los mensajes de WhatsApp directamente a la iglesia, con
               su propia tarjeta y en la moneda de su cuenta. Los primeros 1.000
@@ -171,6 +137,35 @@ export const ChurchWhatsAppCard = ({
               />
             </div>
           </>
+        )}
+
+        {connected && !connection.inherited && (
+          <Stack spacing={1}>
+            <Typography component="h3" variant="subtitle1">
+              Asistente
+            </Typography>
+            {paused ? (
+              <Alert severity="warning">
+                El asistente está en pausa: no responde a nadie. El número sigue
+                conectado, así que la iglesia puede contestar a mano desde la
+                app WhatsApp Business. Los recordatorios de eventos siguen
+                saliendo y quien escribe STOP sigue dejando de recibirlos.
+              </Alert>
+            ) : (
+              <Typography variant="body2" color="text.secondary">
+                Si quieres contestar tú a los miembros por un tiempo, pausa el
+                asistente. El número sigue conectado y puedes reanudarlo cuando
+                quieras.
+              </Typography>
+            )}
+            <div>
+              <SaveButton
+                name={paused ? "Reanudar asistente" : "Pausar asistente"}
+                loading={changingPause}
+                onClick={() => setPaused(!paused)}
+              />
+            </div>
+          </Stack>
         )}
 
         {connected && !connection.inherited && (
