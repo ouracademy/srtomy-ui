@@ -228,7 +228,7 @@ describe("Calendar", () => {
     await renderCalendar(<Calendar organizationId="n1" onSelect={onSelect} />);
 
     expect(screen.getByText(/arrastra sobre el calendario/i)).toBeTruthy();
-    await user.click(screen.getByRole("button", { name: "Crear" }));
+    await user.click(screen.getByRole("button", { name: "Agregar evento" }));
 
     expect(onSelect).toHaveBeenCalledWith(
       expect.objectContaining({ jsEvent: null }),

@@ -1,5 +1,6 @@
 "use client";
 
+import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
@@ -202,7 +203,12 @@ export const PositionsManager = ({
               </MenuItem>
             ))}
           </TextField>
-          <Button variant="contained" loading={creating} onClick={create}>
+          <Button
+            variant="contained"
+            startIcon={<AddIcon />}
+            loading={creating}
+            onClick={create}
+          >
             Agregar
           </Button>
         </Stack>

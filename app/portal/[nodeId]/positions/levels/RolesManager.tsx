@@ -1,5 +1,6 @@
 "use client";
 
+import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 import {
@@ -61,8 +62,12 @@ export const RolesManager = ({
           Niveles de acceso personalizados
         </Typography>
         {canManage && (
-          <Button variant="contained" onClick={() => setEditing(null)}>
-            Nuevo nivel
+          <Button
+            variant="contained"
+            startIcon={<AddIcon />}
+            onClick={() => setEditing(null)}
+          >
+            Agregar nivel
           </Button>
         )}
       </Stack>

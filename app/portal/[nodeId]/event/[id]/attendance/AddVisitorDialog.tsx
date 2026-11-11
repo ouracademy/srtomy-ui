@@ -1,6 +1,7 @@
 "use client";
 
 import { PhoneField } from "@/app/(components)/PhoneField";
+import AddIcon from "@mui/icons-material/Add";
 import LoadingButton from "@mui/lab/LoadingButton";
 import {
   Button,
@@ -130,6 +131,7 @@ export const AddVisitorDialog = ({ onAdd, close }: AddVisitorDialogProps) => {
             type="submit"
             variant="contained"
             sx={primaryButtonSx}
+            startIcon={<AddIcon />}
             loading={adding}
           >
             Agregar visitante

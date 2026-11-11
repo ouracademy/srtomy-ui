@@ -53,7 +53,11 @@ export const VisitorsCard = ({
         >
           Visitantes
         </Typography>
-        <Button variant="outlined" onClick={() => setAdding(true)}>
+        <Button
+          variant="outlined"
+          startIcon={<AddIcon />}
+          onClick={() => setAdding(true)}
+        >
           Agregar visitante con nombre
         </Button>
         <Stack

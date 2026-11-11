@@ -107,7 +107,7 @@ export const AddToNodeDialog = ({
           <Button onClick={close} disabled={saving}>
             Cancelar
           </Button>
-          <SaveButton name="Agregar" loading={saving} />
+          <SaveButton name="Agregar" add loading={saving} />
         </DialogActions>
       </form>
     </Dialog>

@@ -68,7 +68,7 @@ describe("RolesManager", () => {
   it("creates a level from scratch with the chosen permissions", async () => {
     const { user, onCreate } = setup();
 
-    await user.click(screen.getByRole("button", { name: "Nuevo nivel" }));
+    await user.click(screen.getByRole("button", { name: "Agregar nivel" }));
     const save = screen.getByRole("button", { name: "Guardar" });
     expect(save).toBeDisabled();
     await user.type(screen.getByRole("textbox", { name: "Nombre" }), " Media ");
@@ -89,7 +89,7 @@ describe("RolesManager", () => {
   it("starts from a predefined level and lets you adjust it", async () => {
     const { user, onCreate } = setup();
 
-    await user.click(screen.getByRole("button", { name: "Nuevo nivel" }));
+    await user.click(screen.getByRole("button", { name: "Agregar nivel" }));
     await user.click(
       screen.getByRole("combobox", { name: "Crear a partir de" }),
     );
@@ -111,7 +111,7 @@ describe("RolesManager", () => {
   it("selects a whole resource group at once", async () => {
     const { user } = setup();
 
-    await user.click(screen.getByRole("button", { name: "Nuevo nivel" }));
+    await user.click(screen.getByRole("button", { name: "Agregar nivel" }));
     const group = screen.getByRole("group", { name: "Personas" });
     await user.click(within(group).getByRole("checkbox", { name: "Personas" }));
 
@@ -157,7 +157,7 @@ describe("RolesManager", () => {
     setup(false);
 
     expect(
-      screen.queryByRole("button", { name: "Nuevo nivel" }),
+      screen.queryByRole("button", { name: "Agregar nivel" }),
     ).not.toBeInTheDocument();
     expect(
       screen.queryByRole("button", { name: "Editar Tesorero" }),

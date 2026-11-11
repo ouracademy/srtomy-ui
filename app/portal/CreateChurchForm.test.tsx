@@ -48,7 +48,7 @@ describe("CreateChurchForm", () => {
     render(<CreateChurchForm submit={vi.fn()} />);
 
     expect(
-      screen.queryByRole("button", { name: "Crear iglesia" }),
+      screen.queryByRole("button", { name: "Agregar iglesia" }),
     ).not.toBeInTheDocument();
   });
 
@@ -67,7 +67,7 @@ describe("CreateChurchForm", () => {
     await user.click(
       screen.getByRole("button", { name: "Quitar cargo Maestro" }),
     );
-    await user.click(screen.getByRole("button", { name: "Crear iglesia" }));
+    await user.click(screen.getByRole("button", { name: "Agregar iglesia" }));
 
     expect(submit).toHaveBeenCalledTimes(1);
     const values = submit.mock.calls[0]?.[0];
@@ -100,7 +100,7 @@ describe("CreateChurchForm", () => {
       within(dialog).getByRole("checkbox", { name: "Ver eventos y cursos" }),
     );
     await user.click(within(dialog).getByRole("button", { name: "Listo" }));
-    await user.click(screen.getByRole("button", { name: "Crear iglesia" }));
+    await user.click(screen.getByRole("button", { name: "Agregar iglesia" }));
 
     expect(submit.mock.calls[0]?.[0].positions[1]).toEqual({
       name: "Líder de grupo o ministerio",
@@ -120,7 +120,7 @@ describe("CreateChurchForm", () => {
       screen.getByRole("combobox", { name: "Cargo 5" }),
       "Diácono",
     );
-    await user.click(screen.getByRole("button", { name: "Crear iglesia" }));
+    await user.click(screen.getByRole("button", { name: "Agregar iglesia" }));
 
     expect(submit.mock.calls[0]?.[0].positions[4]).toEqual({
       name: "Diácono",
@@ -145,7 +145,7 @@ describe("CreateChurchForm", () => {
       "Díaz",
     );
     await user.clear(first);
-    await user.click(screen.getByRole("button", { name: "Crear iglesia" }));
+    await user.click(screen.getByRole("button", { name: "Agregar iglesia" }));
 
     expect(await screen.findByText("Ingrese su nombre")).toBeInTheDocument();
     expect(submit).not.toHaveBeenCalled();
@@ -157,7 +157,7 @@ describe("CreateChurchForm", () => {
     const submit = vi.fn();
     render(<CreateChurchForm submit={submit} />);
 
-    await user.click(screen.getByRole("button", { name: "Crear iglesia" }));
+    await user.click(screen.getByRole("button", { name: "Agregar iglesia" }));
 
     expect(
       await screen.findByText("Ingrese el nombre de la iglesia"),

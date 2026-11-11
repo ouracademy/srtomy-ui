@@ -1,5 +1,6 @@
 "use client";
 
+import AddIcon from "@mui/icons-material/Add";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutlined";
 import {
   Chip,
@@ -251,6 +252,7 @@ export const OwnersPanel = ({
           />
           <Button
             variant="contained"
+            startIcon={<AddIcon />}
             loading={adding}
             disabled={!email.trim()}
             onClick={addOwner}

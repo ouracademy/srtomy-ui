@@ -214,7 +214,8 @@ const CreateChurchFields = ({
         </Paper>
         <div>
           <SaveButton
-            name="Crear iglesia"
+            name="Agregar iglesia"
+            add
             loading={formContext.formState.isSubmitting}
           />
         </div>

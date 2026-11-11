@@ -1,5 +1,6 @@
 "use client";
 
+import AddIcon from "@mui/icons-material/Add";
 import { useGetEvents } from "@/app/(api)/generated";
 import type { EventResponse } from "@/app/(api)/generated/aPIOvejafiel.schemas";
 import { Alert, Button, Stack } from "@mui/material";
@@ -37,6 +38,7 @@ export const ProgramPrompt = ({
             key={candidate.id}
             size="small"
             variant="outlined"
+            startIcon={<AddIcon />}
             onClick={() => onChoose(candidate)}
           >
             Agregar al programa de «{candidate.title}»

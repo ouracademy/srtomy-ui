@@ -55,9 +55,10 @@ describe("children of a node", () => {
 
     expect(await screen.findByText("Sedes")).toBeVisible();
     expect(screen.getByText("Sede Norte")).toBeVisible();
-    expect(
-      screen.getByRole("link", { name: "Registrar sede" }),
-    ).toHaveAttribute("href", "/portal/n1/location/new");
+    expect(screen.getByRole("link", { name: "Agregar sede" })).toHaveAttribute(
+      "href",
+      "/portal/n1/location/new",
+    );
   });
 
   it("offers groups inside a group and nothing to create without permission", async () => {
@@ -66,6 +67,6 @@ describe("children of a node", () => {
     await renderPage();
 
     expect(await screen.findByText("Grupos")).toBeVisible();
-    expect(screen.queryByRole("link", { name: /Registrar/ })).toBeNull();
+    expect(screen.queryByRole("link", { name: /Agregar/ })).toBeNull();
   });
 });

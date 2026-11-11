@@ -80,7 +80,7 @@ describe("OrganizationPicker", () => {
     );
 
     expect(
-      screen.getByRole("link", { name: /registrar sede en iglesia vida/i }),
+      screen.getByRole("link", { name: /agregar sede en iglesia vida/i }),
     ).toHaveAttribute("href", "/portal/c/location/new");
     // expect(
     //   screen.getByRole("link", { name: /registrar otra iglesia/i }),

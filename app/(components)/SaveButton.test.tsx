@@ -18,4 +18,12 @@ describe("SaveButton", () => {
     expect(screen.getByRole("button", { name: "Guardar" })).toBeDisabled();
     expect(screen.getByRole("progressbar")).toBeInTheDocument();
   });
+
+  it("shows the add icon only when asked", () => {
+    const { rerender } = render(<SaveButton name="Agregar" />);
+    expect(screen.queryByTestId("AddIcon")).not.toBeInTheDocument();
+
+    rerender(<SaveButton name="Agregar" add />);
+    expect(screen.getByTestId("AddIcon")).toBeInTheDocument();
+  });
 });
