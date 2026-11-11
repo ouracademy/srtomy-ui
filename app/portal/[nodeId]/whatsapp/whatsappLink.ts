@@ -36,17 +36,28 @@ type DisconnectReason =
   | "ACCESS_REMOVED"
   | "ACCOUNT_DISABLED";
 
-// What to tell the pastor once the number is disconnected. When it stopped
-// working without them (Meta, Kapso) it says what happened; when they pressed
-// "Desconectar" it says what is still left to do, because the WhatsApp
-// Business app keeps listing Kapso as a connected platform until it is
-// disconnected there. Undefined when the API does not say why.
+// The steps that cut the link of Kapso in the phone. Only the owner of the
+// WhatsApp Business app can do it: Meta does not let a provider (nor Sr. Tommy)
+// remove a number tied to the app, so the card shows them after "Desconectar".
+export const unlinkSteps = [
+  "Abre la app WhatsApp Business en el celular de la iglesia.",
+  "Entra a Ajustes → Cuenta → Plataforma comercial.",
+  "Toca «Kapso» y luego «Desconectar».",
+];
+
+// Kapso's own guide: where it says the connected provider is listed in the app
+// and has to be disconnected there.
+export const unlinkGuideUrl =
+  "https://docs.kapso.ai/docs/how-to/whatsapp/coexistence-troubleshooting";
+
+// What to tell the pastor when the number stopped working without them
+// pressing "Desconectar" (Meta or Kapso cut it). Undefined when they did it
+// themselves (the card then shows the steps to unlink the phone) or the API
+// does not say why.
 export const disconnectNotice = (
   reason: DisconnectReason | undefined,
 ): string | undefined => {
   switch (reason) {
-    case "PASTOR":
-      return "WhatsApp quedó desconectado de Sr. Tommy: el asistente ya no responde ni envía avisos. Tu app WhatsApp Business puede seguir mostrando a Kapso en Ajustes → Cuenta → Plataforma comercial: Meta no deja que Sr. Tommy lo quite. No es necesario quitarlo, pero si más adelante quieres usar otro proveedor o falla al volver a conectar, desconéctalo desde ahí.";
     case "NUMBER_DELETED":
       return "El número se quitó de Sr. Tommy. El asistente no responde ni envía avisos. Conéctalo de nuevo.";
     case "NUMBER_OFFBOARDED":

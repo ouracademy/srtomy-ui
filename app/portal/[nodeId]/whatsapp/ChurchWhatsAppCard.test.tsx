@@ -248,15 +248,34 @@ describe("ChurchWhatsAppCard", () => {
     ).toBeTruthy();
   });
 
-  it("tells the pastor who disconnected it to finish in the phone, without alarming", () => {
+  it("gives the steps to unlink the phone to the pastor who disconnected, without alarming", () => {
     renderCard({ status: "DISCONNECTED", disconnectReason: "PASTOR" });
 
-    expect(screen.getByText(/ya no responde/)).toBeTruthy();
-    expect(screen.getByText(/Plataforma comercial/)).toBeTruthy();
-    expect(screen.getByText(/No es necesario quitarlo/)).toBeTruthy();
+    expect(
+      screen.getByText("WhatsApp quedó desconectado de Sr. Tommy"),
+    ).toBeTruthy();
+    const steps = screen.getAllByRole("listitem").map((i) => i.textContent);
+    expect(steps).toEqual([
+      "Abre la app WhatsApp Business en el celular de la iglesia.",
+      "Entra a Ajustes → Cuenta → Plataforma comercial.",
+      "Toca «Kapso» y luego «Desconectar».",
+    ]);
+    expect(screen.getByText(/No es necesario para dejar de usar/)).toBeTruthy();
+    const guide = screen.getByRole("link", {
+      name: "Guía de Kapso para desconectarlo",
+    });
+    expect(guide.getAttribute("href")).toMatch(/^https:\/\/docs\.kapso\.ai\//);
+    expect(guide.getAttribute("target")).toBe("_blank");
     expect(screen.queryByText(/El asistente no responde ni envía/)).toBeNull();
     expect(
       screen.getByRole("button", { name: "Conectar WhatsApp" }),
     ).toBeTruthy();
+  });
+
+  it("does not show the phone steps when Meta or Kapso cut the number", () => {
+    renderCard({ status: "DISCONNECTED", disconnectReason: "ACCESS_REMOVED" });
+
+    expect(screen.queryByRole("listitem")).toBeNull();
+    expect(screen.queryByRole("link")).toBeNull();
   });
 });

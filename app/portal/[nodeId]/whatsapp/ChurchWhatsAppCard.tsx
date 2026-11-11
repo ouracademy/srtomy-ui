@@ -1,6 +1,15 @@
 "use client";
 
-import { Alert, Button, Chip, Paper, Stack, Typography } from "@mui/material";
+import {
+  Alert,
+  AlertTitle,
+  Button,
+  Chip,
+  Link,
+  Paper,
+  Stack,
+  Typography,
+} from "@mui/material";
 import React from "react";
 import type {
   ProvisionTemplatesResponse,
@@ -8,7 +17,12 @@ import type {
 } from "@/app/(api)/generated/aPIOvejafiel.schemas";
 import { DialogDeleteConfirmation } from "@/app/(components)/DialogDeleteConfirmation";
 import { SaveButton } from "@/app/(components)/SaveButton";
-import { connectionLabels, disconnectNotice } from "./whatsappLink";
+import {
+  connectionLabels,
+  disconnectNotice,
+  unlinkGuideUrl,
+  unlinkSteps,
+} from "./whatsappLink";
 
 type ChurchWhatsAppCardProps = Readonly<{
   connection: WhatsAppConnectionResponse;
@@ -88,15 +102,27 @@ export const ChurchWhatsAppCard = ({
           )}
         </Stack>
 
-        {lostNotice && (
-          <Alert
-            severity={
-              connection.disconnectReason === "PASTOR" ? "info" : "warning"
-            }
-          >
-            {lostNotice}
-          </Alert>
-        )}
+        {lostNotice && <Alert severity="warning">{lostNotice}</Alert>}
+
+        {status === "DISCONNECTED" &&
+          connection.disconnectReason === "PASTOR" && (
+            <Alert severity="info">
+              <AlertTitle>WhatsApp quedó desconectado de Sr. Tommy</AlertTitle>
+              El asistente ya no responde ni envía avisos. Para desconectarlo
+              por completo, hazlo también en el celular de la iglesia (Meta no
+              deja que Sr. Tommy lo quite por ti):
+              <ol>
+                {unlinkSteps.map((step) => (
+                  <li key={step}>{step}</li>
+                ))}
+              </ol>
+              No es necesario para dejar de usar el asistente, pero sí si más
+              adelante quieres usar otro proveedor o falla al volver a conectar.{" "}
+              <Link href={unlinkGuideUrl} target="_blank" rel="noreferrer">
+                Guía de Kapso para desconectarlo
+              </Link>
+            </Alert>
+          )}
 
         {connected ? (
           <Typography>

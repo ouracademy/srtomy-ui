@@ -4,6 +4,8 @@ import {
   disconnectNotice,
   linkMessage,
   minutesLeft,
+  unlinkGuideUrl,
+  unlinkSteps,
   waMeUrl,
 } from "./whatsappLink";
 
@@ -62,14 +64,19 @@ describe("disconnectNotice", () => {
     expect(disconnectNotice("ACCOUNT_DISABLED")).toMatch(/vuelve solo/);
   });
 
-  it("tells the pastor who disconnected it what is left to do in the phone", () => {
-    const notice = disconnectNotice("PASTOR");
-
-    expect(notice).toMatch(/Plataforma comercial/);
-    expect(notice).toMatch(/Kapso/);
+  it("says nothing for the pastor: the card shows the steps of the phone", () => {
+    expect(disconnectNotice("PASTOR")).toBeUndefined();
   });
 
   it("says nothing when the reason is unknown", () => {
     expect(disconnectNotice(undefined)).toBeUndefined();
+  });
+});
+
+describe("the steps to unlink the phone", () => {
+  it("name the menu and the platform to disconnect, and point to a guide", () => {
+    expect(unlinkSteps.join(" ")).toMatch(/Plataforma comercial/);
+    expect(unlinkSteps.join(" ")).toMatch(/Kapso/);
+    expect(unlinkGuideUrl).toMatch(/^https:\/\//);
   });
 });
