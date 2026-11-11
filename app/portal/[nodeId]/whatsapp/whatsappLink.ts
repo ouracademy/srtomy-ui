@@ -46,7 +46,7 @@ export const disconnectNotice = (
 ): string | undefined => {
   switch (reason) {
     case "PASTOR":
-      return "WhatsApp quedó desconectado de Sr. Tommy: el asistente ya no responde. Para terminar, en tu celular abre WhatsApp Business → Ajustes → Cuenta → Plataforma comercial → Kapso → Desconectar. Si no lo haces, la app sigue mostrando a Kapso como conectado. Para volver a conectar, hazlo después de desconectar allí.";
+      return "WhatsApp quedó desconectado de Sr. Tommy: el asistente ya no responde ni envía avisos. Tu app WhatsApp Business puede seguir mostrando a Kapso en Ajustes → Cuenta → Plataforma comercial: Meta no deja que Sr. Tommy lo quite. No es necesario quitarlo, pero si más adelante quieres usar otro proveedor o falla al volver a conectar, desconéctalo desde ahí.";
     case "NUMBER_DELETED":
       return "El número se quitó de Sr. Tommy. El asistente no responde ni envía avisos. Conéctalo de nuevo.";
     case "NUMBER_OFFBOARDED":
