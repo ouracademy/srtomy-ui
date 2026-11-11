@@ -54,13 +54,15 @@ export const DateRangeSelector = ({
     <Stack
       direction="row"
       spacing={2}
-      sx={{ alignItems: "center", flexWrap: "wrap" }}
+      useFlexGap
+      sx={{ alignItems: "center", flexWrap: "wrap", maxWidth: "100%" }}
     >
       <ToggleButtonGroup
         exclusive
         size="small"
         aria-label="Periodo"
         value={value.preset}
+        sx={{ flexWrap: "wrap", maxWidth: "100%" }}
         onChange={(_event, preset: RangePreset | null) => {
           if (!preset || preset === "custom") return;
           onChange(selectionForPreset(preset, new Date()));
@@ -86,7 +88,10 @@ export const DateRangeSelector = ({
         onClose={() => setAnchorEl(null)}
         anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
       >
-        <Stack spacing={2} sx={{ p: 2, minWidth: 280 }}>
+        <Stack
+          spacing={2}
+          sx={{ p: 2, width: 280, maxWidth: "calc(100vw - 64px)" }}
+        >
           <DatePicker
             label="Desde"
             value={draftStart}
