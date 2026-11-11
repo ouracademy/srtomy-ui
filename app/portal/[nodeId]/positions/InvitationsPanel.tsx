@@ -1,5 +1,6 @@
 "use client";
 
+import AddIcon from "@mui/icons-material/Add";
 import {
   Alert,
   Button,
@@ -112,6 +113,7 @@ export const InvitationsPanel = ({
         <Button
           variant="contained"
           sx={primaryButtonSx}
+          startIcon={<AddIcon />}
           onClick={() => setInviting(true)}
         >
           Invitar

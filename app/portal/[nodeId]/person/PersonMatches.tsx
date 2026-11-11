@@ -1,5 +1,6 @@
 "use client";
 
+import AddIcon from "@mui/icons-material/Add";
 import React from "react";
 import {
   Alert,
@@ -135,7 +136,11 @@ export const PersonMatches = ({ nodeId }: { nodeId: string }) => {
                   </Button>
                 ) : (
                   <Stack direction="row" spacing={1} sx={{ flexShrink: 0 }}>
-                    <Button size="small" onClick={() => setAdding(match)}>
+                    <Button
+                      size="small"
+                      startIcon={<AddIcon />}
+                      onClick={() => setAdding(match)}
+                    >
                       Agregar aquí
                     </Button>
                     <Button size="small" onClick={() => open(match.id)}>

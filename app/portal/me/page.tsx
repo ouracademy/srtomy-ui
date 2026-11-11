@@ -132,7 +132,7 @@ export default function MySpacePage() {
                 href="/portal?nueva=1"
                 startIcon={<AddIcon />}
               >
-                Registrar otra iglesia
+                Agregar otra iglesia
               </Button>
             </Box> */}
           </Stack>

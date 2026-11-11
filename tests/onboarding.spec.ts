@@ -83,7 +83,7 @@ test.describe("Alta de iglesia", () => {
     const request = page.waitForRequest(
       (r) => r.method() === "POST" && r.url().endsWith("/v1/organizations"),
     );
-    await page.getByRole("button", { name: "Crear iglesia" }).click();
+    await page.getByRole("button", { name: "Agregar iglesia" }).click();
 
     expect((await request).postDataJSON()).toMatchObject({
       name: "Iglesia Vida",

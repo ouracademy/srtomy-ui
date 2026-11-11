@@ -1,3 +1,4 @@
+import AddIcon from "@mui/icons-material/Add";
 import { Button } from "@mui/material";
 import Link from "next/link";
 
@@ -13,6 +14,7 @@ export const RButton = ({ name, href, padding }: RButtonProps) => {
       variant="contained"
       component={Link}
       href={href}
+      startIcon={<AddIcon />}
       sx={{
         fontSize: "12px",
         marginRight: "20px",

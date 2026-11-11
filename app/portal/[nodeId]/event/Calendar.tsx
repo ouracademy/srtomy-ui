@@ -154,7 +154,7 @@ function Calendar({
               startIcon={<AddIcon />}
               onClick={addNow}
             >
-              Crear
+              Agregar evento
             </Button>
           )}
         </Stack>

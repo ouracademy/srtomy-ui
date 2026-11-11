@@ -98,7 +98,7 @@ export const OrganizationPicker = ({
             onClick={onClose}
             startIcon={<AddIcon />}
           >
-            Registrar sede en {church.name}
+            Agregar sede en {church.name}
           </Button>
         )}
         {/* <Button
@@ -107,7 +107,7 @@ export const OrganizationPicker = ({
           onClick={onClose}
           startIcon={<AddIcon />}
         >
-          Registrar otra iglesia
+          Agregar otra iglesia
         </Button> */}
       </DialogActions>
     </Dialog>

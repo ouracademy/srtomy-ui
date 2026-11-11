@@ -1,12 +1,22 @@
 "use client";
 
-import { Stack, Tooltip, Typography } from "@mui/material";
+import {
+  Box,
+  InputAdornment,
+  Stack,
+  TextField,
+  Tooltip,
+  Typography,
+} from "@mui/material";
 import { DataGrid, GridActionsCellItem, GridColDef } from "@mui/x-data-grid";
 import { esES } from "@mui/x-data-grid/locales";
 import SearchIcon from "@mui/icons-material/Search";
 import React from "react";
 import { withOutSorting } from "@/app/(components)/helpers/withOutSorting";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useDebounce } from "use-debounce";
+import { DEBOUNCE_WAIT_MS } from "@/app/(components)/helpers/debouncing";
+import { searchQueryFor } from "../../person/searchQuery";
 import {
   deleteOrganizationsById,
   useGetOrganizationsByIdChilds,
@@ -19,6 +29,7 @@ import { SnackbarContext } from "@/app/(components)/SnackbarContext";
 import { pink } from "@mui/material/colors";
 import { RButton } from "@/app/(components)/RButton";
 import { childrenLabels } from "./childrenLabels";
+import { filterByName } from "./filterByName";
 
 type GroupsProps = {
   nodeId: string;
@@ -43,6 +54,19 @@ export function Groups({
     null,
   );
   const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  // The search lives in the URL (`?search=`) so it can be copied and shared;
+  // the box keeps the text being typed and the URL follows after a pause.
+  const [search, setSearch] = React.useState(searchParams.get("search") ?? "");
+  const [searchDebounced] = useDebounce(search, DEBOUNCE_WAIT_MS);
+
+  React.useEffect(() => {
+    const query = searchQueryFor(searchParams.toString(), searchDebounced);
+    if (query !== null) {
+      router.replace(query ? `${pathname}?${query}` : pathname);
+    }
+  }, [searchDebounced, pathname, router, searchParams]);
 
   const {
     data: groups,
@@ -63,11 +87,12 @@ export function Groups({
     () =>
       (
         [
-          { field: "name", headerName: "Nombre", flex: 1 },
+          { field: "name", headerName: "Nombre", flex: 2, minWidth: 130 },
           {
             field: "type",
             headerName: "Tipo",
             flex: 1,
+            minWidth: 110,
             valueGetter: (value) => nodeTypeLabels[value ?? ""] ?? "",
           },
           {
@@ -110,32 +135,48 @@ export function Groups({
 
   return (
     <Stack direction="column" spacing={2}>
-      <Stack
-        direction="row"
-        spacing={2}
+      <Box
         sx={{
+          display: "flex",
+          justifyContent: "space-between",
           alignItems: "center",
+          flexWrap: "wrap",
+          gap: 2,
         }}
       >
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            width: "100%",
-          }}
-        >
-          <Typography variant="h6">
-            {childrenLabels(isChurch, insideGroup).title}
-          </Typography>
+        <Typography variant="h6">
+          {childrenLabels(isChurch, insideGroup).title}
+        </Typography>
+        <Box sx={{ display: "flex", width: { xs: "100%", sm: "auto" } }}>
           {canCreate && (
             <RButton
               name={childrenLabels(isChurch, insideGroup).create}
               href={`/portal/${nodeId}/location/${isChurch ? "new" : "groups/create"}`}
-              padding="10px 40px"
             />
           )}
-        </div>
-      </Stack>
+          <TextField
+            sx={{ minWidth: 0 }}
+            placeholder="Buscar"
+            variant="outlined"
+            slotProps={{
+              input: {
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <SearchIcon />
+                  </InputAdornment>
+                ),
+              },
+              htmlInput: {
+                "aria-label": "Buscar por nombre",
+                style: { padding: "12px 10px 12px 10px" },
+              },
+            }}
+            fullWidth
+            value={search}
+            onChange={(event) => setSearch(event.target.value)}
+          />
+        </Box>
+      </Box>
       <div style={{ width: "100%", height: "70vh" }}>
         <DataGrid
           sx={{
@@ -170,7 +211,7 @@ export function Groups({
           }}
           loading={isLoading}
           columns={columns}
-          rows={groups || []}
+          rows={filterByName(groups ?? [], searchDebounced)}
           localeText={esES.components.MuiDataGrid.defaultProps.localeText}
         />
       </div>

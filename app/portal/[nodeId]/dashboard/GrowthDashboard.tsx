@@ -1,5 +1,6 @@
 "use client";
 
+import AddIcon from "@mui/icons-material/Add";
 import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
 import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
 import {
@@ -236,6 +237,7 @@ export const GrowthDashboard = ({ nodeId }: { nodeId: string }) => {
             variant="contained"
             component={NextLink}
             href={`/portal/${nodeId}/person/create`}
+            startIcon={<AddIcon />}
           >
             Agregar persona
           </Button>

@@ -74,11 +74,11 @@ export const PersonTable = ({
     () =>
       (
         [
-          { field: "fullName", headerName: "Nombre", flex: 1 },
+          { field: "fullName", headerName: "Nombre", flex: 1, minWidth: 130 },
           {
             field: "memberState",
             headerName: "Estado",
-            width: 200,
+            width: 130,
             renderCell: ({ row }) =>
               row.memberState ? (
                 <Stack

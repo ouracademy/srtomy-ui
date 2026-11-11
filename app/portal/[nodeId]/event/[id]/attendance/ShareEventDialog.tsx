@@ -1,5 +1,6 @@
 "use client";
 
+import AddIcon from "@mui/icons-material/Add";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import LoadingButton from "@mui/lab/LoadingButton";
 import {
@@ -174,7 +175,7 @@ export const ShareEventDialog = ({
                 </MenuItem>
               ))}
             </TextField>
-            <Button type="submit" variant="outlined">
+            <Button type="submit" variant="outlined" startIcon={<AddIcon />}>
               Agregar
             </Button>
           </Stack>
