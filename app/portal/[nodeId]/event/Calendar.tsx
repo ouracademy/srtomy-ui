@@ -115,14 +115,14 @@ function Calendar({
           "& .fc-sub-event": { borderStyle: "dashed" },
           // An event that has a program of sessions.
           "& .fc-has-program": { borderBottomWidth: 4 },
-          "& .fc-classic-zIi": { cursor: "pointer" }
+          "& .fc-classic-zIi": { cursor: "pointer" },
         }}
       >
         <Stack
           direction="row"
           spacing={1}
           sx={{ alignItems: "center", flexWrap: "wrap", mb: 1 }}
-        >          
+        >
           <IconButton
             aria-label="Anterior"
             onClick={() => calendarRef.current?.getApi().prev()}
