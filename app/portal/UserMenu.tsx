@@ -3,7 +3,14 @@
 import { useAuth0 } from "@auth0/auth0-react";
 import LogoutIcon from "@mui/icons-material/Logout";
 import PersonIcon from "@mui/icons-material/Person";
-import { Avatar, Box, Button, ListItemIcon, Menu, MenuItem } from "@mui/material";
+import {
+  Avatar,
+  Box,
+  Button,
+  ListItemIcon,
+  Menu,
+  MenuItem,
+} from "@mui/material";
 import { useRouter } from "next/navigation";
 import * as React from "react";
 import { initialsOf } from "./[nodeId]/person/PersonHeader";
@@ -19,7 +26,7 @@ export const UserMenu = ({ nodeId }: UserMenuProps) => {
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
 
   const close = () => setAnchorEl(null);
-  const initial = user?.name?.trim().charAt(0).toUpperCase();
+  // const initial = user?.name?.trim().charAt(0).toUpperCase();
 
   const initials = initialsOf(
     user?.given_name ?? user?.name ?? "",
@@ -30,7 +37,11 @@ export const UserMenu = ({ nodeId }: UserMenuProps) => {
     <>
       <Button
         id="user-menu-button"
-        sx={{ fontSize: { xs: "10px", sm: "12px" }, gap: 1, textTransform: "none" }}
+        sx={{
+          fontSize: { xs: "10px", sm: "12px" },
+          gap: 1,
+          textTransform: "none",
+        }}
         variant="text"
         color="inherit"
         // startIcon={<AccountCircle />}
@@ -40,8 +51,9 @@ export const UserMenu = ({ nodeId }: UserMenuProps) => {
         aria-controls={anchorEl ? "user-menu" : undefined}
         onClick={(event) => setAnchorEl(event.currentTarget)}
       >
-        {/* On phones only the initial fits next to the icon. */}       
+        {/* On phones only the initial fits next to the icon. */}
         <Avatar
+          aria-hidden="true"
           sx={{
             width: 32,
             height: 32,
@@ -56,13 +68,13 @@ export const UserMenu = ({ nodeId }: UserMenuProps) => {
         <Box component="span" sx={{ display: { xs: "none", sm: "inline" } }}>
           {user?.name}
         </Box>
-        <Box
+        {/* <Box
           component="span"
           aria-hidden="true"
           sx={{ display: { xs: "inline", sm: "none" } }}
         >
           {initial}
-        </Box>
+        </Box> */}
       </Button>
       <Menu
         id="user-menu"
