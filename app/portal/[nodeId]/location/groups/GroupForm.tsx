@@ -1,20 +1,20 @@
-import { Box, Stack, Typography } from "@mui/material";
-import { ImageUploadStub } from "@/app/(components)/ImageUploadStub";
+import { Alert, Box, Grid, Stack } from "@mui/material";
 import {
   FormContainer,
-  RadioButtonGroup,
   TextFieldElement,
+  ToggleButtonGroupElement,
   useForm,
-  useWatch,
 } from "react-hook-form-mui";
 import React from "react";
 import { GroupTypeLabels } from "./Group";
+import { GroupHeader } from "./GroupHeader";
+import { GroupSocialLinksSection } from "./GroupSocialLinksSection";
+import { GroupVisibilitySection } from "./GroupVisibilitySection";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import { FormSection } from "@/app/(components)/FormSection";
 import { SaveButton } from "@/app/(components)/SaveButton";
 import { socialLinksSchema } from "@/app/(components)/SocialLinks";
-import { SocialLinksFields } from "@/app/(components)/SocialLinksFields";
-import { VisibilityFields } from "@/app/(components)/VisibilityFields";
 import { visibilitySchema } from "@/app/(components)/visibility";
 
 const baseSchema = z.object({
@@ -54,47 +54,87 @@ export const GroupForm = ({
 
   return (
     <FormContainer formContext={formContext} onSuccess={submit}>
-      <Box sx={{ maxWidth: 700 }}>
-        <Stack spacing={3}>
-          <Typography variant="h5" gutterBottom>
-            Datos generales del Grupo / Ministerio
-          </Typography>
-          <GroupImage />
-          <TextFieldElement fullWidth name="name" label="Nombre" required />
+      <Stack spacing={3} sx={{ maxWidth: 760 }}>
+        <GroupHeader />
+        {!canSave && (
+          <Alert severity="info">
+            Puede ver estos datos, pero no cambiarlos. Pídale a un líder que lo
+            haga.
+          </Alert>
+        )}
+        <FormSection
+          title="Identidad"
+          description="Cómo se llama y de qué trata."
+        >
+          <Grid container spacing={2}>
+            <Grid size={{ xs: 12, sm: "grow" }}>
+              <TextFieldElement
+                fullWidth
+                name="name"
+                label="Nombre"
+                required
+                disabled={!canSave}
+              />
+            </Grid>
+            <Grid size={{ xs: 12, sm: "auto" }}>
+              <ToggleButtonGroupElement
+                name="type"
+                aria-label="Tipo"
+                exclusive
+                enforceAtLeastOneSelected
+                color="primary"
+                disabled={!canSave}
+                sx={{ height: 56 }}
+                options={[
+                  { id: "GROUP", label: GroupTypeLabels.GROUP },
+                  { id: "MINISTRY", label: GroupTypeLabels.MINISTRY },
+                ]}
+              />
+            </Grid>
+            <Grid size={12}>
+              <TextFieldElement
+                fullWidth
+                name="description"
+                label="Descripción"
+                multiline
+                rows={3}
+                disabled={!canSave}
+              />
+            </Grid>
+          </Grid>
+        </FormSection>
+        <FormSection title="Reunión" description="Cuándo se junta.">
           <TextFieldElement
             fullWidth
-            name="description"
-            label="Descripción"
-            multiline
-            rows={4}
+            name="schedule"
+            label="Horario"
+            placeholder="Sábados 5 pm"
+            disabled={!canSave}
           />
-          <RadioButtonGroup
-            label="Tipo"
-            name="type"
-            options={[
-              { id: "GROUP", label: GroupTypeLabels.GROUP },
-              { id: "MINISTRY", label: GroupTypeLabels.MINISTRY },
-            ]}
-            row
-          />
-          <SocialLinksFields prefix="socialLinks" />
-          <VisibilityFields slug={slug} onCopy={onCopy} />
-          {canSave && (
-            <Box>
-              <SaveButton
-                name="Guardar"
-                loading={formContext.formState.isSubmitting}
-              />
-            </Box>
-          )}
-        </Stack>
-      </Box>
+        </FormSection>
+        <GroupVisibilitySection
+          disabled={!canSave}
+          slug={slug}
+          onCopy={onCopy}
+        />
+        <GroupSocialLinksSection prefix="socialLinks" disabled={!canSave} />
+        {canSave && (
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "flex-end",
+              borderTop: 1,
+              borderColor: "divider",
+              pt: 2,
+            }}
+          >
+            <SaveButton
+              name="Guardar"
+              loading={formContext.formState.isSubmitting}
+            />
+          </Box>
+        )}
+      </Stack>
     </FormContainer>
   );
-};
-
-// Inside the form: the default icon follows the name and type as typed.
-const GroupImage = () => {
-  const [name, type] = useWatch({ name: ["name", "type"] });
-  return <ImageUploadStub name={name} type={type} />;
 };
