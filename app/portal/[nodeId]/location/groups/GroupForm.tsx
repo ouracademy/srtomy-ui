@@ -82,9 +82,17 @@ export const GroupForm = ({
                 aria-label="Tipo"
                 exclusive
                 enforceAtLeastOneSelected
-                color="primary"
                 disabled={!canSave}
-                sx={{ height: 56 }}
+                sx={{
+                  height: 56,
+                  // The default selected look (primary text on a pale wash)
+                  // is under the 4.5:1 contrast of WCAG AA.
+                  "& .MuiToggleButton-root.Mui-selected": {
+                    bgcolor: "primary.dark",
+                    color: "primary.contrastText",
+                    "&:hover": { bgcolor: "primary.dark" },
+                  },
+                }}
                 options={[
                   { id: "GROUP", label: GroupTypeLabels.GROUP },
                   { id: "MINISTRY", label: GroupTypeLabels.MINISTRY },
