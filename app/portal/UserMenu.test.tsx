@@ -4,7 +4,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { UserMenu } from "./UserMenu";
 
 const auth = vi.hoisted(() => ({
-  user: { name: "Ana Díaz" } as { name?: string } | undefined,
+  user: { name: "Ana Díaz" } as
+    { name?: string; given_name?: string; family_name?: string } | undefined,
   logout: vi.fn(),
 }));
 
@@ -37,6 +38,13 @@ describe("UserMenu", () => {
     render(<UserMenu />);
 
     expect(screen.getByText("A")).toBeTruthy();
+  });
+
+  it("renders the initials of the given and family name", () => {
+    auth.user = { name: "Ana Díaz", given_name: "Ana", family_name: "Díaz" };
+    render(<UserMenu />);
+
+    expect(screen.getByText("AD").getAttribute("aria-hidden")).toBe("true");
   });
 
   it("renders no initial when there is no name", () => {
