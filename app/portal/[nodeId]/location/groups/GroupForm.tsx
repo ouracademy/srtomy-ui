@@ -87,10 +87,17 @@ export const GroupForm = ({
                   height: 56,
                   // The default selected look (primary text on a pale wash)
                   // is under the 4.5:1 contrast of WCAG AA.
-                  "& .MuiToggleButton-root.Mui-selected": {
+                  // "& .MuiToggleButton-root.Mui-selected": {
+                  //   bgcolor: "primary.dark",
+                  //   color: "primary.contrastText",
+                  //   "&:hover": { bgcolor: "primary.dark" },
+                  // },
+                  "&& .MuiToggleButton-root.Mui-selected": {
                     bgcolor: "primary.dark",
-                    color: "primary.contrastText",
-                    "&:hover": { bgcolor: "primary.dark" },
+                    color: "#ffffff",
+                    "&:hover": {
+                      bgcolor: "primary.dark",
+                    },
                   },
                 }}
                 options={[
