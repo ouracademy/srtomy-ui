@@ -3,7 +3,7 @@ import userEvent from "@testing-library/user-event";
 import { FormContainer } from "react-hook-form-mui";
 import { afterEach, describe, expect, it } from "vitest";
 import { emptySocialLinks } from "@/app/(components)/SocialLinks";
-import { GroupSocialLinksSection } from "./GroupSocialLinksSection";
+import { SocialLinksSection } from "./SocialLinksSection";
 
 afterEach(cleanup);
 
@@ -17,13 +17,13 @@ const setup = (disabled = false) => {
         },
       }}
     >
-      <GroupSocialLinksSection prefix="socialLinks" disabled={disabled} />
+      <SocialLinksSection prefix="socialLinks" disabled={disabled} />
     </FormContainer>,
   );
   return userEvent.setup();
 };
 
-describe("GroupSocialLinksSection", () => {
+describe("SocialLinksSection", () => {
   it("is folded and says it is optional", () => {
     setup();
 
