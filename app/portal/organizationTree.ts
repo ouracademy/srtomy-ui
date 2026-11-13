@@ -68,22 +68,6 @@ export const flatten = (
 ): OrganizationTreeNode[] =>
   forest.flatMap((node) => [node, ...flatten(node.children)]);
 
-/**
- * Where to land after sign-in: the last visited node if the user can still
- * open it, else their first location, else any node they can open.
- */
-export const pickLandingNode = (
-  nodes: OrganizationNode[],
-  lastVisited: string | null,
-): OrganizationNode | undefined => {
-  const accessible = nodes.filter((node) => node.accessible);
-  return (
-    accessible.find((node) => node.id === lastVisited) ??
-    accessible.find((node) => node.type === "LOCATION") ??
-    accessible[0]
-  );
-};
-
 const sortByName = <T extends { name?: string }>(list: T[]) =>
   [...list].sort((a, b) => (a.name ?? "").localeCompare(b.name ?? "", "es"));
 

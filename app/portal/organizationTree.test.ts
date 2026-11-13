@@ -4,7 +4,6 @@ import {
   churchOf,
   flatten,
   pathTo,
-  pickLandingNode,
   withIds,
   type OrganizationNode,
 } from "./organizationTree";
@@ -92,20 +91,6 @@ describe("buildForest", () => {
 
   it("makes a node whose parent is not visible a root", () => {
     expect(buildForest([cell]).map((node) => node.id)).toEqual(["g"]);
-  });
-});
-
-describe("pickLandingNode", () => {
-  const breadcrumb = { ...church, accessible: false };
-
-  it("prefers the last visited node", () => {
-    expect(pickLandingNode(nodes, "y")?.id).toBe("y");
-  });
-
-  it("falls back to the first location, then to any accessible node", () => {
-    expect(pickLandingNode(nodes, "gone")?.type).toBe("LOCATION");
-    expect(pickLandingNode([breadcrumb, cell], null)?.id).toBe("g");
-    expect(pickLandingNode([breadcrumb], null)).toBeUndefined();
   });
 });
 
