@@ -2,6 +2,8 @@
 
 Lista viva de lo que queda por limpiar o construir. Lo ya hecho vive en cada spec (`specs/NNN-*`) y en [architecture.md](architecture.md); aquí solo está lo pendiente.
 
+El diseño original del rediseño (IAM, jerarquía, invitaciones, visibilidad, compartir) se retiró de aquí. Para consultarlo: `git show a6d9310:docs/redesign.md`.
+
 **Regla:** cada ítem se consulta con el dueño del producto antes de hacerlo; nada de aquí se borra ni se cambia por iniciativa propia. Todo lo que quede por hacer o por limpiar al cerrar una fase se agrega aquí, y un ítem que se hace se quita de la lista. Los números no se reutilizan (los specs los citan), por eso hay huecos.
 
 ## Deuda técnica y limpieza pendiente
