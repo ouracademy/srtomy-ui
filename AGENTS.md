@@ -54,6 +54,8 @@ Claude Code runs Prettier and ESLint `--fix` on every file it edits (`.claude/ho
 
 Anything left to do or to clean up (unused secrets, dead code, legacy names...) goes into `docs/tech-debt-and-future-work.md`. Ask the product owner before doing any item from that list, especially cleanups; never remove things on your own initiative.
 
+What the product owner decides **not** to do (a discarded item or idea) does not stay in that file: record it as an ADR in `docs/adr/` (`NNNN-short-title.md`, see its README) with the context and the reason the owner gave, then remove the item from the table. Never invent a reason; if none was given, say so. Done items are removed from the table too.
+
 ## Specs and plans
 
 Use spec-kit (the `speckit-*` skills) for specs, plans and task lists. Do not use addy's `/spec` or `/planning` commands, the `spec-driven-development` and `planning-and-task-breakdown` skills, or write `SPEC.md` or `tasks/plan.md` at the repo root. Those write to a second place and split the plan.
