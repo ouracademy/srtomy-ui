@@ -138,9 +138,21 @@ El formulario de persona muestra, al elegir un cargo, cuántos permisos da.
 **Cómo se nombran los permisos.** `app/(components)/permissionLabels.ts` traduce el catálogo del API al español, y `permissionLabel(permiso, tipoDeNodo?)` tiene dos redacciones, porque un permiso vale para el nodo donde se otorga **y para todo lo que cuelga de él**:
 
 - **Neutra** (sin tipo de nodo): en el editor de permisos de un cargo, que es de toda la iglesia y aún no saben dónde se otorgarán. Dice «la iglesia, sede, grupo o ministerio».
-- **Según el nodo** (`CHURCH`, `LOCATION`, `GROUP` o `MINISTRY`): hoy ninguna pantalla la usa (ver la deuda técnica 11 en [redesign.md](redesign.md)).
+- **Según el nodo** (`CHURCH`, `LOCATION`, `GROUP` o `MINISTRY`): hoy ninguna pantalla la usa (ver la deuda técnica 11 en [tech-debt-and-future-work.md](tech-debt-and-future-work.md)).
 
-Al sumar un permiso al catálogo del API, agrégalo a `permissionLabels` (y a `nodePermissionLabels` si su texto cambia con el nodo); si falta, la pantalla muestra el valor técnico en vez de romperse. Nunca pases `permissionLabel` directo a `.map(...)`: el índice entraría como tipo de nodo. Diseño completo: [redesign.md](redesign.md).
+Al sumar un permiso al catálogo del API, agrégalo a `permissionLabels` (y a `nodePermissionLabels` si su texto cambia con el nodo); si falta, la pantalla muestra el valor técnico en vez de romperse. Nunca pases `permissionLabel` directo a `.map(...)`: el índice entraría como tipo de nodo.
+
+## Personas por nodo
+
+Solo existe una persona por iglesia; lo que cambia es dónde está y cómo está en cada lugar. «Personas» sustituye a «Miembros»: el formulario del grupo ya no gestiona a su gente. (Reglas del API: `specs/012-node-states-growth` en srtomy-api.)
+
+- **Agregar persona** (`/portal/[nodeId]/person/create`): se escribe el nombre y, si ya está en la iglesia, aparece «¿Es alguna de estas personas?» con **Agregar aquí** (elige su estado en ese lugar) en vez de duplicarla. Si no existe, se crea con su estado. Quien se agrega a un grupo queda también en su iglesia, con el mismo estado si no la conocía.
+- **Lista de personas**: cada fila trae su estado en el nodo; el filtro Todos / Visitantes / Asistentes / Miembros viaja en la URL (`?estado=`).
+- **Persona → «Pertenece a»**: la iglesia, sedes, grupos y ministerios de la persona, cada uno con su estado y sus cargos; se cambia o se quita ahí y se puede agregar a otro lugar de la misma iglesia.
+- **Liderar son cargos**: no hay marca de líder ni `LEADER`. Al crear una iglesia se sugiere un solo cargo, «Líder de grupo o ministerio», y un grupo puede tener los que quiera (tesorera, etc.). El directorio y la página pública muestran el «Equipo» (quien tiene un cargo en el nodo) y «Mis grupos» lista donde la persona está anotada o tiene un cargo.
+- **Menú del nodo**: «Resumen» (antes Dashboard), los datos del nodo, una pestaña «Sedes» o «Grupos», «Personas», «Eventos y cursos», «Cargos y accesos» y «Directorio».
+- **Resumen** (`dashboard/`): tarjetas por estado y crecimiento mes a mes de `GET /organizations/{id}/growth`. Lo ven quienes tienen `members.read` en el nodo.
+- **Se quitó el tablero de estados** (`person/board`, su API y `@hello-pangea/dnd`): la lista ya muestra y filtra por estado.
 
 ## Carga, vacío y error
 

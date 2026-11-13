@@ -42,4 +42,4 @@
 
 ## Fuera de alcance
 
-Pagos reales, correo de confirmación, preguntas propias, varios boletos por compra (deuda técnica `docs/redesign.md` §10).
+Pagos reales, correo de confirmación, preguntas propias, varios boletos por compra (deuda técnica `docs/tech-debt-and-future-work.md`).

@@ -6,7 +6,7 @@
 
 **Status**: Implemented
 
-**Input**: Fase 008 del rediseño ([`docs/redesign.md`](../../docs/redesign.md) §4.6 y §9; deuda técnica 9). Contrato y reglas en la spec del API: `srtomy-api/specs/008-my-space/`. Depende de la 005 (invitaciones), la 006 (directorio) y la 007 (compartidos).
+**Input**: Fase 008 del rediseño (`docs/redesign.md` (retirado; ver `git show a6d9310:docs/redesign.md`) §4.6 y §9; deuda técnica 9). Contrato y reglas en la spec del API: `srtomy-api/specs/008-my-space/`. Depende de la 005 (invitaciones), la 006 (directorio) y la 007 (compartidos).
 
 ## User Scenarios & Testing
 
@@ -32,4 +32,4 @@ En el menú de un nodo, «Cargos y accesos» solo sale con `members.read`, `posi
 
 ## Fuera de alcance
 
-La edición del perfil propio y el resto de deuda técnica de `docs/redesign.md` §10.
+La edición del perfil propio y el resto de deuda técnica de `docs/tech-debt-and-future-work.md`.
