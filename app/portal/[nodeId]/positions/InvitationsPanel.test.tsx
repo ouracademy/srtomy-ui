@@ -20,16 +20,16 @@ vi.mock("@/app/(api)/generated", () => ({
   ) => ({
     data: options?.swr?.enabled
       ? {
-        content: [
-          {
-            id: "per1",
-            name: "Ana Ruiz",
-            fullName: "Ana Ruiz",
-            email: "ana@x.org",
-          },
-          { id: "per2", name: "Sin Correo", fullName: "Sin Correo" },
-        ],
-      }
+          content: [
+            {
+              id: "per1",
+              name: "Ana Ruiz",
+              fullName: "Ana Ruiz",
+              email: "ana@x.org",
+            },
+            { id: "per2", name: "Sin Correo", fullName: "Sin Correo" },
+          ],
+        }
       : undefined,
   }),
 }));
