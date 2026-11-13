@@ -11,7 +11,7 @@ type ImageUploadStubProps = Readonly<{
 }>;
 
 // Where a church, sede, grupo or ministerio will get its own image. It cannot
-// be uploaded yet (see docs/redesign.md, section 10), so the button only
+// be uploaded yet (see docs/tech-debt-and-future-work.md), so the button only
 // explains that and the default icon stands in.
 export const ImageUploadStub = ({ name, type }: ImageUploadStubProps) => {
   return (

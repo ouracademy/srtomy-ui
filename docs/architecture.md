@@ -138,9 +138,9 @@ El formulario de persona muestra, al elegir un cargo, cuántos permisos da.
 **Cómo se nombran los permisos.** `app/(components)/permissionLabels.ts` traduce el catálogo del API al español, y `permissionLabel(permiso, tipoDeNodo?)` tiene dos redacciones, porque un permiso vale para el nodo donde se otorga **y para todo lo que cuelga de él**:
 
 - **Neutra** (sin tipo de nodo): en el editor de permisos de un cargo, que es de toda la iglesia y aún no saben dónde se otorgarán. Dice «la iglesia, sede, grupo o ministerio».
-- **Según el nodo** (`CHURCH`, `LOCATION`, `GROUP` o `MINISTRY`): hoy ninguna pantalla la usa (ver la deuda técnica 11 en [redesign.md](redesign.md)).
+- **Según el nodo** (`CHURCH`, `LOCATION`, `GROUP` o `MINISTRY`): hoy ninguna pantalla la usa (ver la deuda técnica 11 en [tech-debt-and-future-work.md](tech-debt-and-future-work.md)).
 
-Al sumar un permiso al catálogo del API, agrégalo a `permissionLabels` (y a `nodePermissionLabels` si su texto cambia con el nodo); si falta, la pantalla muestra el valor técnico en vez de romperse. Nunca pases `permissionLabel` directo a `.map(...)`: el índice entraría como tipo de nodo. Diseño completo: [redesign.md](redesign.md).
+Al sumar un permiso al catálogo del API, agrégalo a `permissionLabels` (y a `nodePermissionLabels` si su texto cambia con el nodo); si falta, la pantalla muestra el valor técnico en vez de romperse. Nunca pases `permissionLabel` directo a `.map(...)`: el índice entraría como tipo de nodo.
 
 ## Carga, vacío y error
 

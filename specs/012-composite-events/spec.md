@@ -22,4 +22,4 @@
 
 ## Fuera de alcance
 
-Mover un sub-evento a otro evento, mover un mega evento con todos sus sub-eventos de una vez, más de un nivel, repetir un evento compuesto (`docs/redesign.md` §10).
+Mover un sub-evento a otro evento, mover un mega evento con todos sus sub-eventos de una vez, más de un nivel, repetir un evento compuesto (`docs/tech-debt-and-future-work.md`).

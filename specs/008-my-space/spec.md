@@ -32,4 +32,4 @@ En el menú de un nodo, «Cargos y accesos» solo sale con `members.read`, `posi
 
 ## Fuera de alcance
 
-La edición del perfil propio y el resto de deuda técnica de `docs/redesign.md` §10.
+La edición del perfil propio y el resto de deuda técnica de `docs/tech-debt-and-future-work.md`.
