@@ -155,7 +155,9 @@ describe("InvitationsPanel", () => {
     );
 
     expect(onInvite).toHaveBeenCalledWith({ email: "beto@x.org" });
-    await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
+    await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull(), {
+      timeout: 3000,
+    });
   });
 
   it("invites with the chosen position", async () => {

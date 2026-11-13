@@ -62,7 +62,10 @@ test.describe("Grupos y Ministerios", () => {
 
     //2. Verificar el título del formulario
     await expect(
-      page.getByText("Datos generales del Grupo / Ministerio"),
+      page.getByRole("heading", { level: 1, name: "Nuevo grupo" }),
+    ).toBeVisible();
+    await expect(
+      page.getByText("Datos generales del grupo o ministerio"),
     ).toBeVisible();
 
     //3. Llenar nombre y descripción
@@ -73,8 +76,8 @@ test.describe("Grupos y Ministerios", () => {
       .getByRole("textbox", { name: /descripción/i })
       .fill("Encargados de la música");
 
-    //4. Seleccionar el tipo (button)
-    await page.getByLabel(/ministerio/i).check();
+    //4. Seleccionar el tipo (botones Grupo / Ministerio)
+    await page.getByRole("button", { name: "Ministerio", exact: true }).click();
 
     //5. Guardar
     await page.getByRole("button", { name: /Guardar/i }).click();

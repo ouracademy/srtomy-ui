@@ -12,7 +12,6 @@ import {
   Chip,
   FormControlLabel,
   Grid,
-  Paper,
   Stack,
   Switch,
   TextField,
@@ -44,6 +43,7 @@ import {
   toPositionChoice,
   type PositionChoice,
 } from "./positionSelection";
+import { FormSection } from "@/app/(components)/FormSection";
 import { SaveButton } from "@/app/(components)/SaveButton";
 import {
   effectiveMemberState,
@@ -287,27 +287,6 @@ export const PersonForm = ({
     </FormContainer>
   );
 };
-
-// A titled block of the form.
-const FormSection = ({
-  title,
-  description,
-  children,
-}: Readonly<{
-  title: string;
-  description: string;
-  children: React.ReactNode;
-}>) => (
-  <Paper variant="outlined" sx={{ p: 3, borderRadius: 3 }}>
-    <Typography variant="h6" component="h2">
-      {title}
-    </Typography>
-    <Typography variant="body2" sx={{ color: "text.secondary", mb: 2 }}>
-      {description}
-    </Typography>
-    {children}
-  </Paper>
-);
 
 // Yes or no, kept as "YES"/"NO" in the form like the radio buttons were.
 const BaptizedField = () => {
