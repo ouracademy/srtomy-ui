@@ -8,7 +8,7 @@ import {
 import React from "react";
 import { GroupTypeLabels } from "./Group";
 import { GroupHeader } from "./GroupHeader";
-import { GroupSocialLinksSection } from "./GroupSocialLinksSection";
+import { SocialLinksSection } from "@/app/(components)/SocialLinksSection";
 import { GroupVisibilitySection } from "./GroupVisibilitySection";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -132,7 +132,7 @@ export const GroupForm = ({
           slug={slug}
           onCopy={onCopy}
         />
-        <GroupSocialLinksSection prefix="socialLinks" disabled={!canSave} />
+        <SocialLinksSection prefix="socialLinks" disabled={!canSave} />
         {canSave && (
           <Box
             sx={{

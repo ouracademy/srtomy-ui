@@ -10,7 +10,7 @@ import {
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ImageUploadStub } from "@/app/(components)/ImageUploadStub";
 import { SaveButton } from "@/app/(components)/SaveButton";
-import { SocialLinksFields } from "@/app/(components)/SocialLinksFields";
+import { SocialLinksSection } from "@/app/(components)/SocialLinksSection";
 import { TelFieldElement } from "@/app/(components)/TelFieldElement";
 import { VisibilityFields } from "@/app/(components)/VisibilityFields";
 import {
@@ -64,7 +64,7 @@ export const LocationForm = ({
           <TelFieldElement name="phoneNumber" />
         </Grid>
         <Grid size={{ xs: 12 }}>
-          <SocialLinksFields prefix="socialLinks" />
+          <SocialLinksSection prefix="socialLinks" />
         </Grid>
         <Grid size={{ xs: 12 }}>
           <VisibilityFields orgChart slug={slug} onCopy={onCopy} />
