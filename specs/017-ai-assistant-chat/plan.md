@@ -22,7 +22,7 @@ Siguiente paso tras revisar este plan: `/speckit-tasks`.
 
 ### Lo que cambió en `main` mientras se escribía (PR de pausar el asistente)
 
-- **Pausa del asistente**: srtomy-api responde `AGENT_PAUSED` a la identidad y el agente calla. El agente nuevo debe portar ese estado y su prueba. La pausa es del WhatsApp de la iglesia; el chat del portal no se pausa con ella (supuesto a confirmar por el dueño).
+- **Pausa del asistente**: srtomy-api responde `AGENT_PAUSED` a la identidad y el agente calla. El agente nuevo debe portar ese estado y su prueba. Es solo de WhatsApp: el chat del portal no se pausa (confirmado por el dueño).
 - **El asistente no administra su propio WhatsApp**: `/v1/organizations/{id}/whatsapp/**` ya quedó fuera de las herramientas (`_is_whatsapp_admin`). Es el primer elemento de la lista de operaciones sensibles de FR-012; se porta tal cual, con su prueba.
 - **Kapso**: el cliente ahora registra por qué Kapso rechaza un mensaje (sin datos personales); se porta.
 - **ADR**: lo que el dueño decide no hacer va a `docs/adr/`. Las alternativas descartadas de [research.md](./research.md) son de diseño; si el dueño descarta alguna como decisión de producto (por ejemplo, guardar la conversación del portal), se anota allí.
@@ -33,7 +33,7 @@ Siguiente paso tras revisar este plan: `/speckit-tasks`.
 
 **Primary Dependencies**:
 
-- srtomy-agent: `ai` 7 (`ToolLoopAgent`, `dynamicTool`, `jsonSchema`, `toolApproval`, `ai/test`), `@ai-sdk/anthropic` (y `@ai-sdk/google-vertex` para volver a Vertex), `hono` + `@hono/node-server`, `jose` (verificar el token de Auth0), `pg`, `zod`, `google-auth-library` (ID token para `/v1/internal/**`).
+- srtomy-agent: `ai` 7 (`ToolLoopAgent`, `dynamicTool`, `jsonSchema`, `toolApproval`, `toolSearch`, `ai/test`), `@ai-sdk/anthropic` (y `@ai-sdk/google-vertex` para volver a Vertex), `hono` + `@hono/node-server`, `jose` (verificar el token de Auth0), `pg`, `zod`, `google-auth-library` (ID token para `/v1/internal/**`), `langsmith` (trazas con anonimizador y evaluaciones con Vitest).
 - srtomy-ui: `ai` y `@ai-sdk/react` (nuevas; justificación en Constitution Check). El resto es lo que ya hay: MUI, SWR, Auth0.
 
 **Storage**: Postgres del agente, como hoy. Tabla `seen_key` sin cambios; tabla nueva `conversation` (un hilo de WhatsApp por fila) en lugar de las `checkpoints*` de LangGraph. El chat del portal no guarda nada en el servidor.
@@ -48,7 +48,7 @@ Siguiente paso tras revisar este plan: `/speckit-tasks`.
 
 **Constraints**: el token del usuario no entra en mensajes, estado ni trazas; ninguna escritura sin aprobación firmada; sin datos personales en logs; respuestas de la API recortadas a un tamaño fijo antes de llegar al modelo.
 
-**Scale/Scope**: una iglesia piloto; 95 operaciones de la API (unos 19 000 tokens de definiciones de herramientas por petición si se envían todas); unas 1 000 líneas de Python y 13 archivos de pruebas a portar.
+**Scale/Scope**: una iglesia piloto; 95 operaciones de la API (unos 19 000 tokens si se enviaran todas: por eso se buscan, ver Diseño); unas 1 000 líneas de Python y 13 archivos de pruebas a portar.
 
 ## Constitution Check
 
@@ -91,7 +91,8 @@ srtomy-agent/                    (reemplaza a src/srtomy_agent y tests/ en Pytho
 │   ├── tools/describe.ts        una acción en palabras, para la tarjeta y para WhatsApp
 │   ├── api-client.ts            srtomy-api: identidad, vincular, stop, y las herramientas
 │   ├── privacy.ts               redact (teléfonos, correos, tokens, códigos)
-│   ├── telemetry.ts             trazas apagadas por defecto y con redact
+│   ├── tools/search.ts          núcleo siempre cargado y búsqueda con sinónimos en español
+│   ├── telemetry.ts             LangSmith: apagado por defecto, con anonimizador
 │   ├── rate-limit.ts            ritmo por usuario (interfaz; memoria)
 │   ├── chat/route.ts            POST /chat: verifica el token, arma el contexto, hace stream
 │   ├── chat/auth.ts             verificación del JWT de Auth0 (JWKS)
@@ -102,7 +103,7 @@ srtomy-agent/                    (reemplaza a src/srtomy_agent y tests/ en Pytho
 │   ├── whatsapp/conversation.ts hilo guardado (interfaz; memoria y Postgres)
 │   ├── whatsapp/seen.ts         deduplicación (interfaz; memoria y Postgres)
 │   └── kapso/                   firma, webhook y envío
-├── evals/                       preguntas de ejemplo en español y su corredor (fuera del CI)
+├── evals/                       casos en español y su corrida con langsmith/vitest (fuera del CI)
 ├── openapi/srtomy-api.json
 └── (pruebas *.test.ts junto a cada archivo)
 
@@ -137,7 +138,9 @@ srtomy-api/
 - **Token**: viaja en el contexto de ejecución del SDK (`toolsContext`), no en los mensajes; la telemetría no lo incluye. Sustituye a la variable de contexto `Session`.
 - **Instrucciones**: comunes (español, breve, no inventar, no pedir contraseñas, no reintentar lo cancelado) más un bloque por canal: WhatsApp (texto plano, niveles, vinculación) o portal (nombre del usuario, nodo abierto con su id y su nombre, fecha y zona horaria de hoy).
 - **Límites**: `stopWhen: isStepCount(8)`, tope de tokens de salida, resultados de herramientas recortados (4 000 caracteres, como hoy) y ritmo por usuario.
-- **Costo**: instrucciones y herramientas con caché de prompt del proveedor. Se empieza enviando todas las herramientas permitidas; si las evaluaciones muestran que el modelo se confunde o el costo pesa, se pasa la cola larga a `toolSearch` con `deferLoading` (ver research.md).
+- **Búsqueda de herramientas**: todas las operaciones permitidas se registran con `deferLoading: true` detrás de `toolSearch()` con búsqueda propia (nombre, descripción, etiqueta y sinónimos en español). Un núcleo explícito (`CORE`, unas seis lecturas de uso diario) va siempre cargado. Las instrucciones y el núcleo van primero para conservar la caché de prompt. Ver research.md, sección 6.
+- **Pausa**: `AGENT_PAUSED` solo existe en WhatsApp; el chat del portal no consulta la identidad de WhatsApp y no se pausa.
+- **Trazas**: LangSmith con `langsmith/experimental/vercel` y el anonimizador con las reglas de `privacy.ts`; apagadas por defecto.
 
 ### Chat del portal (`POST /chat`)
 
@@ -159,7 +162,24 @@ Cada fase es un PR publicable por sí solo.
 2. **`POST /chat`, solo lecturas** (srtomy-agent + Terraform en srtomy-api): verificación del token, CORS, contexto de pantalla, ritmo. En esta fase toda herramienta que escribe se niega automáticamente.
 3. **Panel del asistente** (srtomy-ui): botón, panel, mensajes, estados, sugerencias, e2e y axe. Con esto queda publicada la historia 1.
 4. **Acciones con confirmación** (ambos): política `user-approval`, firma, `ApprovalCard`, revalidación de SWR. Historia 2.
-5. **Evaluaciones** (srtomy-agent): 30 preguntas en español con la herramienta esperada, para medir SC-003 antes de cada cambio de prompt o de herramientas.
+5. **Evaluaciones** (srtomy-agent): dataset de LangSmith con unas 30 preguntas en español y `langsmith/vitest`, para medir SC-003 y comparar núcleo + búsqueda contra todas las herramientas. Puede ir en paralelo a las fases 2 a 4.
+
+## PRs apilados
+
+Cada fase es un PR cuya base es el anterior (se revisan y se mergean en orden).
+
+| Repo         | Rama                              | Base                  | Contenido                                                                                    |
+| ------------ | --------------------------------- | --------------------- | -------------------------------------------------------------------------------------------- |
+| srtomy-api   | `ccr-e703f55f-lo650n`             | `main`                | Descripciones del OpenAPI y su prueba (hecho)                                                |
+| srtomy-ui    | `ccr-e703f55f-lo650n`             | `main`                | Spec, plan y tareas; OpenAPI sincronizado; política de privacidad con Claude; trabajo futuro |
+| srtomy-agent | `ccr-e703f55f-lo650n`             | `main`                | Agente Python: las descripciones llegan al modelo (útil mientras no se reemplace)            |
+| srtomy-agent | `ccr-e703f55f-lo650n-ts`          | la anterior           | Fase 1: agente en TypeScript, WhatsApp igual, búsqueda de herramientas, LangSmith            |
+| srtomy-agent | `ccr-e703f55f-lo650n-chat`        | `-ts`                 | Fase 2: `POST /chat`, solo lecturas                                                          |
+| srtomy-agent | `ccr-e703f55f-lo650n-approvals`   | `-chat`               | Fase 4 (servidor): aprobaciones firmadas y descripción de acciones                           |
+| srtomy-agent | `ccr-e703f55f-lo650n-evals`       | `-ts`                 | Fase 5: evaluaciones en LangSmith                                                            |
+| srtomy-api   | `ccr-e703f55f-lo650n-agent-infra` | `ccr-e703f55f-lo650n` | Terraform: secreto de aprobaciones, Auth0 y orígenes del agente                              |
+| srtomy-ui    | `ccr-e703f55f-lo650n-panel`       | `ccr-e703f55f-lo650n` | Fase 3: panel del asistente, solo lecturas                                                   |
+| srtomy-ui    | `ccr-e703f55f-lo650n-approvals`   | `-panel`              | Fase 4 (UI): tarjeta de confirmación y revalidación                                          |
 
 ## Riesgos
 

@@ -34,6 +34,15 @@ El diseño original del rediseño (IAM, jerarquía, invitaciones, visibilidad, c
 | 33  | Imágenes de iglesias, lugares y personas                 | UI y API | Los botones «Subir imagen» (iglesia, sede, grupo y ministerio) y «Subir foto» (persona) son un stub: están deshabilitados con el tooltip «Estamos trabajando en ello», y cada lugar muestra un ícono por defecto según su nombre o tipo (`app/(components)/placeIcon.tsx`). La API no tiene almacén de archivos ni campo de imagen. | Pensar el flujo completo antes de construirlo: dónde se guardan los archivos (¿bucket de GCS?), cómo se suben (URL firmada o multipart), el preprocesado (tipo y tamaño permitidos, recorte, redimensionado y miniaturas, quitar metadatos), cómo se sirven (URL pública o firmada, caché) y el campo `imageUrl` en iglesia, sede, grupo, ministerio y persona. Luego habilitar los botones. | Pendiente (consultar) |
 | 34  | Federación de identidad (WIF) de Claude para el agente   | Agente   | El agente de WhatsApp usa una llave de API de Anthropic guardada en Secret Manager (`agent-anthropic-api-key`). Anthropic permite que una carga de trabajo de Google Cloud entre con un token de identidad de corta vida (Workload Identity Federation), sin llave de larga vida.                                                   | Registrar la cuenta de servicio `srtomy-agent` en la consola de Claude (Settings > Workload identity), pasar el cliente a la federación y quitar la llave y su secreto. Ojo con que una `ANTHROPIC_API_KEY` que quede en el entorno puede tener prioridad (verificar).                                                                                                                       | Pendiente (consultar) |
 
+## Trabajo futuro: asistente de IA (spec 017)
+
+Lo que se dejó fuera del asistente del portal y del agente unificado. Plan y decisiones en `specs/017-ai-assistant-chat/`.
+
+- **Límite de gasto de modelo por iglesia**: hoy el costo de Claude lo asume el producto sin tope. Hace falta contar los tokens por iglesia (las trazas ya llevan la iglesia), un tope mensual configurable y qué hace el asistente al llegar a él (avisar y dejar de responder preguntas, sin cortar STOP, ALTA ni VINCULAR).
+- **Servidor MCP de srtomy-api**: expondría las operaciones a otros asistentes (por ejemplo Claude Desktop) con el token del usuario. Se descartó para el chat porque no reduce las herramientas que ve el modelo y agrega un proceso más; el AI SDK lo podría consumir más adelante sin cambiar el agente.
+- **Conversación del portal guardada en el servidor**: hoy vive en la pestaña; guardarla permitiría seguirla en otro dispositivo, pero conserva datos de personas y necesita retención acordada.
+- **Activar las trazas de LangSmith con iglesias reales**: falta que el dueño elija región y retención; al activarlas, revisar la política de privacidad (hoy solo nombra a Claude).
+
 ## Trabajo futuro: centro de notificaciones (campana)
 
 No se construye en 005-009; queda documentado para no perder la idea. Una campana en la cabecera de la app, **genérica**: no pensada solo para invitaciones, sino para cualquier aviso dirigido a un usuario.

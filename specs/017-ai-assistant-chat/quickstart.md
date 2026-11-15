@@ -24,7 +24,7 @@ cd srtomy-agent && pnpm check:fast     # tipos, lint, formato y pruebas (con Pos
 cd srtomy-ui && pnpm check:fast && E2E_PORT=3100 pnpm test:e2e
 ```
 
-Deben cubrir, como mínimo: comandos antes del modelo; tres niveles; nada se escribe sin un sí; «sí, pero…» es no; una aprobación alterada no ejecuta; firma y deduplicación del webhook; el hilo sobrevive a un reinicio; `redact`; `POST /chat` sin token responde 401.
+Deben cubrir, como mínimo: comandos antes del modelo; tres niveles; silencio con `AGENT_PAUSED`; la búsqueda encuentra operaciones fuera del núcleo; nada se escribe sin un sí; «sí, pero…» es no; una aprobación alterada no ejecuta; firma y deduplicación del webhook; el hilo sobrevive a un reinicio; `redact`; `POST /chat` sin token responde 401.
 
 ## 2. Consultar desde el portal (historia 1)
 
@@ -52,7 +52,7 @@ Con un túnel y el webhook del número registrado, como describe el README de sr
 ## 5. Evaluaciones
 
 ```sh
-cd srtomy-agent && pnpm eval
+cd srtomy-agent && LANGSMITH_API_KEY=… ANTHROPIC_API_KEY=… pnpm eval
 ```
 
-Tabla con las 30 preguntas y si eligió la operación esperada; el objetivo es 90 % o más (SC-003).
+Crea un experimento en el dataset `srtomy-agent-es` de LangSmith; el objetivo es 90 % o más de aciertos de operación (SC-003) y 100 % de confirmación antes de escribir. Comparar con la corrida anterior antes de mergear un cambio de instrucciones, descripciones o herramientas.

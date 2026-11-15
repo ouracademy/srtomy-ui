@@ -16,9 +16,10 @@ Abarca tres repositorios: **srtomy-ui** (el chat del portal), **srtomy-agent** (
 2. **En el portal no hay «niveles»**: quien chatea ya inició sesión, así que el asistente actúa con su propia credencial y srtomy-api decide qué puede ver y hacer, igual que en las pantallas. El asistente nunca tiene más permisos que el usuario.
 3. **Nada cambia datos sin confirmación.** Antes de cada acción que crea, cambia o elimina, el asistente muestra qué va a hacer y espera: en el portal, una tarjeta con «Confirmar» y «Cancelar»; en WhatsApp, «SÍ» o «NO» como hoy. Un mensaje nuevo en vez de la confirmación cancela la acción.
 4. **El asistente trabaja sobre el nodo que el usuario tiene abierto** (iglesia, sede, grupo o ministerio) y lo sabe sin que se lo digan: «¿quiénes faltaron el domingo?» se entiende en ese nodo.
-5. **WhatsApp no cambia para el miembro**: mismos tres niveles, mismos comandos (STOP, BAJA, ALTA, VINCULAR), mismas respuestas. La reescritura no debe notarse.
-6. **Las herramientas salen del OpenAPI de srtomy-api**, que ahora describe cada operación, parámetro y campo. No se escriben herramientas a mano para lo que la API ya hace.
+5. **WhatsApp no cambia para el miembro**: mismos tres niveles, mismos comandos (STOP, BAJA, ALTA, VINCULAR), mismas respuestas. La reescritura no debe notarse. **Pausar el asistente** (decisión 6b de la spec 014 de srtomy-api) es solo de WhatsApp: el chat del portal sigue funcionando aunque el pastor lo haya pausado (confirmado por el dueño el 15-nov-2026).
+6. **Las herramientas salen del OpenAPI de srtomy-api**, que ahora describe cada operación, parámetro y campo. No se escriben herramientas a mano para lo que la API ya hace. El asistente no recibe las ~95 operaciones de una vez: primero **busca** las que necesita por su descripción y solo esas se le muestran (decidido por el dueño el 15-nov-2026).
 7. **La conversación del portal no se guarda en el servidor** en esta versión: vive en el navegador mientras dura la sesión. (WhatsApp sigue guardando la suya, porque la confirmación llega en otro mensaje.)
+8. **El proveedor de IA es Claude** (Anthropic), y la política de privacidad lo dice. **Trazas y evaluaciones en LangSmith**, apagadas por defecto y con los datos personales ocultos.
 
 ## User Scenarios & Testing _(mandatory)_
 
@@ -124,9 +125,12 @@ Al abrir el asistente vacío, el usuario ve unas pocas sugerencias según la pan
 
 - **FR-011**: las herramientas del agente MUST generarse desde la especificación de srtomy-api; las lecturas se ejecutan solas y todo lo demás requiere confirmación.
 - **FR-012**: el agente MUST quedar fuera de lo que no es para personas (operaciones internas y webhooks), de la administración del WhatsApp de la iglesia (conectar, desconectar, pausar, vincular; ya excluida hoy) y, en el portal, de las operaciones sensibles que tienen su propia pantalla (dar o quitar propietarios, borrar una iglesia) hasta que el dueño del producto las habilite.
-- **FR-013**: WhatsApp MUST conservar el comportamiento actual: tres niveles decididos por srtomy-api, lista explícita de lecturas públicas para desconocidos, comandos antes del modelo, confirmación con sí/no exacto, firma y deduplicación de webhooks, y estado que sobrevive a un reinicio.
+- **FR-013**: WhatsApp MUST conservar el comportamiento actual: tres niveles decididos por srtomy-api, lista explícita de lecturas públicas para desconocidos, comandos antes del modelo, confirmación con sí/no exacto, firma y deduplicación de webhooks, silencio mientras la iglesia pausó el asistente (los comandos siguen funcionando), y estado que sobrevive a un reinicio.
 - **FR-014**: la credencial del usuario MUST NOT aparecer en la conversación guardada, en lo que ve el modelo ni en las trazas. Las trazas MUST seguir ocultando teléfonos, correos, credenciales y códigos, y estar apagadas por defecto.
 - **FR-015**: el agente MUST limitar el ritmo de mensajes por usuario y el tamaño de lo que lee de la API, y avisar cuando recorta.
+- **FR-015b**: el asistente MUST encontrar las operaciones por su descripción antes de usarlas, en lugar de recibirlas todas en cada mensaje; las de uso diario pueden estar siempre disponibles.
+- **FR-015c**: la política de privacidad MUST decir que los mensajes al asistente y los datos que consulta se envían a Claude, de Anthropic, para generar la respuesta.
+- **FR-015d**: un conjunto de evaluaciones con preguntas en español MUST poder correrse antes de cambiar instrucciones, descripciones o herramientas, y sus resultados MUST quedar comparables entre corridas.
 - **FR-016**: el servicio anterior MUST poder retirarse solo cuando la batería de pruebas equivalente pase en el nuevo y una iglesia piloto lo haya usado por WhatsApp sin incidentes.
 
 **API**
@@ -158,7 +162,6 @@ Al abrir el asistente vacío, el usuario ve unas pocas sugerencias según la pan
 - El chat del portal es para usuarios con sesión; el visitante de la landing queda fuera de esta versión.
 - Solo texto: sin voz, imágenes ni archivos adjuntos.
 - La conversación del portal no se sincroniza entre dispositivos ni se guarda al cerrar sesión.
-- El costo del modelo lo asume el producto; el límite de gasto por iglesia queda como trabajo futuro (ya anotado para WhatsApp).
-- El modelo es Claude por la API de Anthropic, como hoy; cambiar de proveedor no es parte de esta entrega.
-- La política de privacidad debe mencionar que los mensajes al asistente se envían a un proveedor de IA antes de activar el chat con iglesias reales.
+- El costo del modelo lo asume el producto; el **límite de gasto por iglesia** queda como trabajo futuro (`docs/tech-debt-and-future-work.md`).
+- El modelo es Claude por la API de Anthropic, como hoy; cambiar de proveedor no es parte de esta entrega. Activar las trazas de LangSmith con iglesias reales sigue pendiente de que el dueño elija región y retención.
 - El orden de entrega es: descripciones del OpenAPI (hecho), reescritura del agente con WhatsApp igual que antes, y después el chat del portal (primero lecturas, luego acciones con confirmación).
