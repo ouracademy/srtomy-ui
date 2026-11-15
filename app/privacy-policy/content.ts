@@ -1,6 +1,7 @@
 import type { LegalContent } from "../(components)/LegalDocument";
 
-// Text exported verbatim from the Builder.io page of the same path.
+// Text exported from the Builder.io page of the same path; the section on the
+// AI assistant was added for spec 017.
 export const privacyContent: LegalContent = {
   title: "Política de privacidad",
   intro: [
@@ -11,6 +12,13 @@ export const privacyContent: LegalContent = {
       title: "RECOLECCIÓN DE DATA Y USO",
       paragraphs: [
         "Nosotros somos los únicos que disponemos de la data que usted nos brinde de forma voluntaria, ya se vía email, whatsapp o que nos brinde de forma directa. No compartiremos su información/data con terceros salvo que se para confirmar su cuenta. Al menos que nos solicite que no lo hagamos, es posible que le enviemos algunas notificaciones sobre la plataforma como mejoras, actualizaciones y cambios de la política de privacidad y otros.",
+      ],
+    },
+    {
+      title: "ASISTENTE DE INTELIGENCIA ARTIFICIAL",
+      paragraphs: [
+        "Sr. Tommy tiene un asistente de inteligencia artificial que responde por WhatsApp y dentro de la plataforma. Para responder, los mensajes que usted le escribe y los datos de la iglesia que el asistente consulta se envían a Claude, el modelo de inteligencia artificial de Anthropic.",
+        "El asistente solo consulta y cambia lo que su cuenta o su nivel de acceso le permiten, y no cambia ningún dato sin que usted lo confirme. Si no desea que sus mensajes se procesen así, no le escriba al asistente.",
       ],
     },
     {

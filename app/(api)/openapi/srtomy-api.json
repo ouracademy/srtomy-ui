@@ -24,11 +24,14 @@
         "tags": [
           "iam"
         ],
+        "summary": "Changes the name, description or permissions of an access level of a church.",
+        "description": "Changes the name, description or permissions of an access level of a church. Everyone who has it through a position is affected. Needs `iam.manage` on its church.",
         "operationId": "updateRole",
         "parameters": [
           {
             "name": "roleId",
             "in": "path",
+            "description": "Id of the access level.",
             "required": true,
             "schema": {
               "type": "string",
@@ -63,11 +66,14 @@
         "tags": [
           "iam"
         ],
+        "summary": "Deletes an access level of a church.",
+        "description": "Deletes an access level of a church. Needs `iam.manage` on its church.",
         "operationId": "deleteRole",
         "parameters": [
           {
             "name": "roleId",
             "in": "path",
+            "description": "Id of the access level.",
             "required": true,
             "schema": {
               "type": "string",
@@ -87,11 +93,14 @@
         "tags": [
           "positions"
         ],
+        "summary": "Renames a position (cargo).",
+        "description": "Renames a position (cargo). Needs `positions.manage` on its church.",
         "operationId": "rename",
         "parameters": [
           {
             "name": "id",
             "in": "path",
+            "description": "Id of the position.",
             "required": true,
             "schema": {
               "type": "string",
@@ -126,11 +135,14 @@
         "tags": [
           "positions"
         ],
+        "summary": "Deletes a position (cargo); whoever held it loses the access it gave.",
+        "description": "Deletes a position (cargo); whoever held it loses the access it gave. Needs `positions.manage` on its church.",
         "operationId": "delete",
         "parameters": [
           {
             "name": "id",
             "in": "path",
+            "description": "Id of the position.",
             "required": true,
             "schema": {
               "type": "string",
@@ -150,11 +162,14 @@
         "tags": [
           "positions"
         ],
+        "summary": "Changes the access a position gives to whoever holds it.",
+        "description": "Changes the access a position gives to whoever holds it. With no roles and no permissions it becomes a plain label. Needs `positions.manage`, and the caller cannot give more access than they have.",
         "operationId": "setAccess",
         "parameters": [
           {
             "name": "id",
             "in": "path",
+            "description": "Id of the position.",
             "required": true,
             "schema": {
               "type": "string",
@@ -191,11 +206,14 @@
         "tags": [
           "people"
         ],
+        "summary": "Gets the record of one person: name, phone, email, birthdate and the rest of their details.",
+        "description": "Gets the record of one person: name, phone, email, birthdate and the rest of their details. Needs `members.read` on any node the person belongs to.",
         "operationId": "findById",
         "parameters": [
           {
             "name": "id",
             "in": "path",
+            "description": "Id of the person.",
             "required": true,
             "schema": {
               "type": "string",
@@ -220,11 +238,14 @@
         "tags": [
           "people"
         ],
+        "summary": "Changes the record of a person.",
+        "description": "Changes the record of a person. Send the whole record, not only what changes: a field left out is cleared. `organizationId` must be a node the person belongs to. Needs `members.write` on that node.",
         "operationId": "edit",
         "parameters": [
           {
             "name": "id",
             "in": "path",
+            "description": "Id of the person.",
             "required": true,
             "schema": {
               "type": "string",
@@ -260,11 +281,14 @@
         "tags": [
           "people"
         ],
+        "summary": "Removes a person from a node and from what hangs from it.",
+        "description": "Removes a person from a node and from what hangs from it. From the church itself it removes them from the church altogether; if the person has an account it answers 409 `PERSON_HAS_ACCOUNT` until `confirmUnlinkUser` is sent. Needs `members.delete` on the node.",
         "operationId": "delete_1",
         "parameters": [
           {
             "name": "id",
             "in": "path",
+            "description": "Id of the person.",
             "required": true,
             "schema": {
               "type": "string",
@@ -274,6 +298,7 @@
           {
             "name": "organizationId",
             "in": "query",
+            "description": "Id of the node the person is removed from.",
             "required": true,
             "schema": {
               "type": "string",
@@ -283,6 +308,7 @@
           {
             "name": "confirmUnlinkUser",
             "in": "query",
+            "description": "true to remove a person who has an account; the account loses its access to the church.",
             "required": false,
             "schema": {
               "type": "boolean",
@@ -302,11 +328,14 @@
         "tags": [
           "people"
         ],
+        "summary": "Puts an existing person in a node (a location, group or ministry) with a state, or changes the state they have there.",
+        "description": "Puts an existing person in a node (a location, group or ministry) with a state, or changes the state they have there. The person must already belong to the same church; the church and the nodes in between get to know them too. Needs `members.write` on the node.",
         "operationId": "setMembership",
         "parameters": [
           {
             "name": "id",
             "in": "path",
+            "description": "Id of the person.",
             "required": true,
             "schema": {
               "type": "string",
@@ -316,6 +345,7 @@
           {
             "name": "organizationId",
             "in": "path",
+            "description": "Id of the node the person is put in.",
             "required": true,
             "schema": {
               "type": "string",
@@ -345,11 +375,14 @@
         "tags": [
           "organizations"
         ],
+        "summary": "Gets a node (church, location, group or ministry).",
+        "description": "Gets a node (church, location, group or ministry). Returns its name, type, description, address, phone, links and schedule. Needs `org.read`.",
         "operationId": "findById_1",
         "parameters": [
           {
             "name": "id",
             "in": "path",
+            "description": "Id of the node: a church, location, group or ministry.",
             "required": true,
             "schema": {
               "type": "string",
@@ -374,11 +407,14 @@
         "tags": [
           "organizations"
         ],
+        "summary": "Changes a church.",
+        "description": "Changes a church. Send the whole node, not only what changes: a text field left out is cleared. Needs `org.update` on it.",
         "operationId": "edit_1",
         "parameters": [
           {
             "name": "id",
             "in": "path",
+            "description": "Id of the church.",
             "required": true,
             "schema": {
               "type": "string",
@@ -413,11 +449,14 @@
         "tags": [
           "organizations"
         ],
+        "summary": "Deletes a node; it cannot be undone.",
+        "description": "Deletes a node; it cannot be undone. 400 when the node cannot be deleted. Needs `org.delete` on it.",
         "operationId": "delete_2",
         "parameters": [
           {
             "name": "id",
             "in": "path",
+            "description": "Id of the node: a church, location, group or ministry.",
             "required": true,
             "schema": {
               "type": "string",
@@ -432,16 +471,56 @@
         }
       }
     },
+    "/v1/organizations/{id}/whatsapp/agent": {
+      "put": {
+        "tags": [
+          "whatsapp"
+        ],
+        "summary": "Pauses or resumes the AI assistant that answers the WhatsApp of a church, so the church can answer by hand.",
+        "description": "Pauses or resumes the AI assistant that answers the WhatsApp of a church, so the church can answer by hand. The number stays connected, reminders keep going out and STOP, ALTA and VINCULAR still work; only the answers to questions stop. Only a connected church can be paused. Needs `org.update`.",
+        "operationId": "setAgentPaused",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Id of the node: a church, location, group or ministry.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AgentPausedRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "No Content"
+          }
+        }
+      }
+    },
     "/v1/organizations/locations/{id}": {
       "put": {
         "tags": [
           "organizations"
         ],
+        "summary": "Changes a location.",
+        "description": "Changes a location. Send the whole node, not only what changes: a text field left out is cleared. Needs `org.update` on it.",
         "operationId": "updateLocation",
         "parameters": [
           {
             "name": "id",
             "in": "path",
+            "description": "Id of the location.",
             "required": true,
             "schema": {
               "type": "string",
@@ -478,11 +557,14 @@
         "tags": [
           "organizations"
         ],
+        "summary": "Changes a group or ministry.",
+        "description": "Changes a group or ministry. Send the whole node, not only what changes: a text field left out is cleared. Needs `org.update` on it.",
         "operationId": "updateLocationChild",
         "parameters": [
           {
             "name": "id",
             "in": "path",
+            "description": "Id of the group or ministry.",
             "required": true,
             "schema": {
               "type": "string",
@@ -519,11 +601,14 @@
         "tags": [
           "events"
         ],
+        "summary": "Gets one event or course.",
+        "description": "Gets one event or course. Returns its name, time, place, description, speakers, recurrence and the node it belongs to; 404 when it does not exist, 403 when the caller cannot view it.",
         "operationId": "findById_2",
         "parameters": [
           {
             "name": "id",
             "in": "path",
+            "description": "Id of the event or course.",
             "required": true,
             "schema": {
               "type": "string",
@@ -548,11 +633,14 @@
         "tags": [
           "events"
         ],
+        "summary": "Changes an event or course.",
+        "description": "Changes an event or course. Send the whole event, not only what changes: a field left out is cleared. For a recurring event `option` says which occurrences change. Answers how many occurrences were kept untouched and how many people were told by email. Needs edit rights on the event.",
         "operationId": "edit_2",
         "parameters": [
           {
             "name": "id",
             "in": "path",
+            "description": "Id of the event or course.",
             "required": true,
             "schema": {
               "type": "string",
@@ -587,11 +675,14 @@
         "tags": [
           "events"
         ],
+        "summary": "Deletes an event or course; it cannot be undone.",
+        "description": "Deletes an event or course; it cannot be undone. For a recurring event the body says whether only this occurrence, this and the following ones or all of them go. Needs manager rights on the event.",
         "operationId": "delete_3",
         "parameters": [
           {
             "name": "id",
             "in": "path",
+            "description": "Id of the event or course.",
             "required": true,
             "schema": {
               "type": "string",
@@ -621,11 +712,14 @@
         "tags": [
           "event-sharing"
         ],
+        "summary": "Gets how an event is shared.",
+        "description": "Gets how an event is shared. Returns who can open it through its link, the people it is shared with and how many sign-ups it has. Needs manager rights on the event.",
         "operationId": "sharing",
         "parameters": [
           {
             "name": "id",
             "in": "path",
+            "description": "Id of the event or course.",
             "required": true,
             "schema": {
               "type": "string",
@@ -650,11 +744,14 @@
         "tags": [
           "event-sharing"
         ],
+        "summary": "Changes who can open an event through its link: only invited people, anyone in the church or anyone with the link.",
+        "description": "Changes who can open an event through its link: only invited people, anyone in the church or anyone with the link. Needs manager rights on the event.",
         "operationId": "setSharing",
         "parameters": [
           {
             "name": "id",
             "in": "path",
+            "description": "Id of the event or course.",
             "required": true,
             "schema": {
               "type": "string",
@@ -691,11 +788,14 @@
         "tags": [
           "events"
         ],
+        "summary": "Marks a sign-up as present by hand, or takes the mark back.",
+        "description": "Marks a sign-up as present by hand, or takes the mark back. Needs `attendance.write`.",
         "operationId": "setCheckIn",
         "parameters": [
           {
             "name": "id",
             "in": "path",
+            "description": "Id of the event or course.",
             "required": true,
             "schema": {
               "type": "string",
@@ -705,6 +805,7 @@
           {
             "name": "registrationId",
             "in": "path",
+            "description": "Id of the sign-up, from the list of registrations of the event.",
             "required": true,
             "schema": {
               "type": "string",
@@ -741,11 +842,14 @@
         "tags": [
           "event-sharing"
         ],
+        "summary": "Gets how an event takes sign-ups: its tickets with their seats and prices, whether an account is required and whether it is open.",
+        "description": "Gets how an event takes sign-ups: its tickets with their seats and prices, whether an account is required and whether it is open. Needs `registrations.read`.",
         "operationId": "registration",
         "parameters": [
           {
             "name": "id",
             "in": "path",
+            "description": "Id of the event or course.",
             "required": true,
             "schema": {
               "type": "string",
@@ -770,11 +874,14 @@
         "tags": [
           "event-sharing"
         ],
+        "summary": "Turns on or changes the sign-ups of an event: its tickets, seats and whether an account is required.",
+        "description": "Turns on or changes the sign-ups of an event: its tickets, seats and whether an account is required. The list of tickets replaces the current one. Needs `registrations.configure`.",
         "operationId": "setRegistration",
         "parameters": [
           {
             "name": "id",
             "in": "path",
+            "description": "Id of the event or course.",
             "required": true,
             "schema": {
               "type": "string",
@@ -809,11 +916,14 @@
         "tags": [
           "event-sharing"
         ],
+        "summary": "Turns off the sign-ups of an event altogether, removing its tickets.",
+        "description": "Turns off the sign-ups of an event altogether, removing its tickets. Needs `registrations.configure`.",
         "operationId": "removeRegistration",
         "parameters": [
           {
             "name": "id",
             "in": "path",
+            "description": "Id of the event or course.",
             "required": true,
             "schema": {
               "type": "string",
@@ -833,11 +943,14 @@
         "tags": [
           "event-sharing"
         ],
+        "summary": "Closes the sign-ups of an event so nobody else can sign up, or opens them again.",
+        "description": "Closes the sign-ups of an event so nobody else can sign up, or opens them again. Existing sign-ups are kept. Needs `registrations.close`.",
         "operationId": "setRegistrationOpen",
         "parameters": [
           {
             "name": "id",
             "in": "path",
+            "description": "Id of the event or course.",
             "required": true,
             "schema": {
               "type": "string",
@@ -874,11 +987,14 @@
         "tags": [
           "events"
         ],
+        "summary": "Gets who attended an event.",
+        "description": "Gets who attended an event. Returns the ids of the people marked present, how each one was marked and the count of guests without a name; 204 with no body when attendance was never taken. Needs `events.read`.",
         "operationId": "getAttendance",
         "parameters": [
           {
             "name": "id",
             "in": "path",
+            "description": "Id of the event or course.",
             "required": true,
             "schema": {
               "type": "string",
@@ -903,11 +1019,14 @@
         "tags": [
           "events"
         ],
+        "summary": "Saves the attendance list of an event, replacing the previous one.",
+        "description": "Saves the attendance list of an event, replacing the previous one. The people in `personIds` are present and nobody else is, so send the complete list. Needs `attendance.write` on the node of the event.",
         "operationId": "registerAttendance",
         "parameters": [
           {
             "name": "id",
             "in": "path",
+            "description": "Id of the event or course.",
             "required": true,
             "schema": {
               "type": "string",
@@ -937,11 +1056,14 @@
         "tags": [
           "events"
         ],
+        "summary": "Sets how many visitors without a name came to an event.",
+        "description": "Sets how many visitors without a name came to an event. It replaces the previous count. Needs `attendance.write`.",
         "operationId": "setGuests",
         "parameters": [
           {
             "name": "id",
             "in": "path",
+            "description": "Id of the event or course.",
             "required": true,
             "schema": {
               "type": "string",
@@ -978,11 +1100,14 @@
         "tags": [
           "event-sharing"
         ],
+        "summary": "Signs someone up for an event or course with one of its tickets.",
+        "description": "Signs someone up for an event or course with one of its tickets. Anyone who can open the page of the event can; the answer carries the ticket and the code to cancel.",
         "operationId": "register",
         "parameters": [
           {
             "name": "slug",
             "in": "path",
+            "description": "The slug of the event: the last part of its shared link (`/e/{slug`}).",
             "required": true,
             "schema": {
               "type": "string"
@@ -1018,11 +1143,14 @@
         "tags": [
           "events"
         ],
+        "summary": "Says what event the scanned QR belongs to, before marking attendance.",
+        "description": "Says what event the scanned QR belongs to, before marking attendance. 404 when the code is not valid. No sign-in needed.",
         "operationId": "welcome",
         "parameters": [
           {
             "name": "token",
             "in": "path",
+            "description": "The code inside the QR of the event.",
             "required": true,
             "schema": {
               "type": "string"
@@ -1046,11 +1174,14 @@
         "tags": [
           "events"
         ],
+        "summary": "Marks the attendance of whoever scanned the QR of the event.",
+        "description": "Marks the attendance of whoever scanned the QR of the event. Works with or without an account; without one the name may be sent.",
         "operationId": "markMyself",
         "parameters": [
           {
             "name": "token",
             "in": "path",
+            "description": "The code inside the QR of the event.",
             "required": true,
             "schema": {
               "type": "string"
@@ -1085,11 +1216,14 @@
         "tags": [
           "people"
         ],
+        "summary": "Searches the people of a node, one page at a time.",
+        "description": "Searches the people of a node, one page at a time. Filters by part of the name and by how involved they are. Needs `members.read` on the node.",
         "operationId": "findAll",
         "parameters": [
           {
             "name": "organizationId",
             "in": "query",
+            "description": "Id of the node (church, location, group or ministry) whose people are listed.",
             "required": true,
             "schema": {
               "type": "string",
@@ -1099,6 +1233,7 @@
           {
             "name": "searchText",
             "in": "query",
+            "description": "Part of a first or last name; upper and lower case are the same. Optional.",
             "required": true,
             "schema": {
               "type": "string"
@@ -1107,6 +1242,7 @@
           {
             "name": "memberState",
             "in": "query",
+            "description": "Only the people in this state in the node. Optional.",
             "required": false,
             "schema": {
               "type": "string",
@@ -1169,6 +1305,8 @@
         "tags": [
           "people"
         ],
+        "summary": "Registers a new person in a node and returns their id.",
+        "description": "Registers a new person in a node and returns their id. Look for people who look alike first (`GET /v1/people/matches`) so nobody is registered twice. Needs `members.write` on the node.",
         "operationId": "create",
         "requestBody": {
           "content": {
@@ -1200,11 +1338,14 @@
         "tags": [
           "people"
         ],
+        "summary": "Brings back a removed person as a visitor of a node.",
+        "description": "Brings back a removed person as a visitor of a node. It is a new membership; their history is kept. Needs `members.write` on the node.",
         "operationId": "restore",
         "parameters": [
           {
             "name": "id",
             "in": "path",
+            "description": "Id of the person.",
             "required": true,
             "schema": {
               "type": "string",
@@ -1214,6 +1355,7 @@
           {
             "name": "organizationId",
             "in": "query",
+            "description": "Id of the node the person comes back to.",
             "required": true,
             "schema": {
               "type": "string",
@@ -1241,6 +1383,8 @@
         "tags": [
           "organizations"
         ],
+        "summary": "Creates a church with its first location and its initial positions.",
+        "description": "Creates a church with its first location and its initial positions. Any signed-in user may; they become its Owner.",
         "operationId": "create_1",
         "requestBody": {
           "content": {
@@ -1271,11 +1415,14 @@
         "tags": [
           "whatsapp"
         ],
+        "summary": "Submits the message templates of the church to Meta for review.",
+        "description": "Submits the message templates of the church to Meta for review. Harmless to repeat. Needs `org.update`.",
         "operationId": "provisionTemplates",
         "parameters": [
           {
             "name": "id",
             "in": "path",
+            "description": "Id of the node: a church, location, group or ministry.",
             "required": true,
             "schema": {
               "type": "string",
@@ -1302,11 +1449,14 @@
         "tags": [
           "whatsapp"
         ],
+        "summary": "Creates the link the pastor opens to connect the WhatsApp number of the church.",
+        "description": "Creates the link the pastor opens to connect the WhatsApp number of the church. The link expires. Needs `org.update` on the node.",
         "operationId": "requestSetupLink",
         "parameters": [
           {
             "name": "id",
             "in": "path",
+            "description": "Id of the node: a church, location, group or ministry.",
             "required": true,
             "schema": {
               "type": "string",
@@ -1343,11 +1493,14 @@
         "tags": [
           "whatsapp"
         ],
+        "summary": "Creates the code the signed-in user sends from their WhatsApp to link it to their account.",
+        "description": "Creates the code the signed-in user sends from their WhatsApp to link it to their account. It is valid for ten minutes; asking again replaces it.",
         "operationId": "createCode",
         "parameters": [
           {
             "name": "id",
             "in": "path",
+            "description": "Id of the node: a church, location, group or ministry.",
             "required": true,
             "schema": {
               "type": "string",
@@ -1374,11 +1527,14 @@
         "tags": [
           "iam"
         ],
+        "summary": "Lists the access levels of a church: the predefined ones plus its own, each with its permissions.",
+        "description": "Lists the access levels of a church: the predefined ones plus its own, each with its permissions. Needs `iam.read`.",
         "operationId": "roles",
         "parameters": [
           {
             "name": "id",
             "in": "path",
+            "description": "Id of any node of the church.",
             "required": true,
             "schema": {
               "type": "string",
@@ -1406,11 +1562,14 @@
         "tags": [
           "iam"
         ],
+        "summary": "Creates an access level of its own for a church: a named set of permissions to give to positions.",
+        "description": "Creates an access level of its own for a church: a named set of permissions to give to positions. Needs `iam.manage`.",
         "operationId": "createRole",
         "parameters": [
           {
             "name": "id",
             "in": "path",
+            "description": "Id of any node of the church.",
             "required": true,
             "schema": {
               "type": "string",
@@ -1447,11 +1606,14 @@
         "tags": [
           "positions"
         ],
+        "summary": "Lists the positions (cargos) of a church, such as pastor or usher, with the access level each one gives.",
+        "description": "Lists the positions (cargos) of a church, such as pastor or usher, with the access level each one gives. Needs `org.read`.",
         "operationId": "findAll_1",
         "parameters": [
           {
             "name": "id",
             "in": "path",
+            "description": "Id of any node of the church.",
             "required": true,
             "schema": {
               "type": "string",
@@ -1479,11 +1641,14 @@
         "tags": [
           "positions"
         ],
+        "summary": "Creates a position (cargo) in a church, optionally with an access level.",
+        "description": "Creates a position (cargo) in a church, optionally with an access level. Whoever holds the position gets that access. Needs `positions.manage` on the church.",
         "operationId": "create_2",
         "parameters": [
           {
             "name": "id",
             "in": "path",
+            "description": "Id of any node of the church.",
             "required": true,
             "schema": {
               "type": "string",
@@ -1520,11 +1685,14 @@
         "tags": [
           "iam"
         ],
+        "summary": "Makes someone an Owner of a church, by email.",
+        "description": "Makes someone an Owner of a church, by email. Owners can do everything in it; only an Owner can add another.",
         "operationId": "addOwner",
         "parameters": [
           {
             "name": "id",
             "in": "path",
+            "description": "Id of any node of the church.",
             "required": true,
             "schema": {
               "type": "string",
@@ -1554,11 +1722,14 @@
         "tags": [
           "invitations"
         ],
+        "summary": "Lists the invitations of a node that nobody accepted yet.",
+        "description": "Lists the invitations of a node that nobody accepted yet. Expired ones are included and flagged by their status. Needs `invitations.send`.",
         "operationId": "ofOrganization",
         "parameters": [
           {
             "name": "id",
             "in": "path",
+            "description": "Id of the node: a church, location, group or ministry.",
             "required": true,
             "schema": {
               "type": "string",
@@ -1586,11 +1757,14 @@
         "tags": [
           "invitations"
         ],
+        "summary": "Invites someone by email to use the app as a person of a node, optionally with a position.",
+        "description": "Invites someone by email to use the app as a person of a node, optionally with a position. Inviting the same email again sends the email again. Needs `invitations.send` on the node.",
         "operationId": "create_3",
         "parameters": [
           {
             "name": "id",
             "in": "path",
+            "description": "Id of the node: a church, location, group or ministry.",
             "required": true,
             "schema": {
               "type": "string",
@@ -1627,6 +1801,8 @@
         "tags": [
           "organizations"
         ],
+        "summary": "Creates a location (sede) under a church.",
+        "description": "Creates a location (sede) under a church. Needs `org.create_child` on the church.",
         "operationId": "createLocation",
         "requestBody": {
           "content": {
@@ -1657,6 +1833,8 @@
         "tags": [
           "organizations"
         ],
+        "summary": "Creates a group or ministry under a location, group or ministry.",
+        "description": "Creates a group or ministry under a location, group or ministry. It may start with some people as members. Needs `org.create_child` on the parent.",
         "operationId": "createLocationChild",
         "requestBody": {
           "content": {
@@ -1687,11 +1865,14 @@
         "tags": [
           "invitations"
         ],
+        "summary": "Accepts one of the invitations waiting for the signed-in user.",
+        "description": "Accepts one of the invitations waiting for the signed-in user. The user becomes that person of the node.",
         "operationId": "acceptMine",
         "parameters": [
           {
             "name": "id",
             "in": "path",
+            "description": "Id of the invitation, from the invitations of the signed-in user.",
             "required": true,
             "schema": {
               "type": "string",
@@ -1727,6 +1908,8 @@
         "tags": [
           "calendar-feed"
         ],
+        "summary": "Replaces the private calendar address of the signed-in user.",
+        "description": "Replaces the private calendar address of the signed-in user. The old address stops working, so calendar apps must subscribe again.",
         "operationId": "renew",
         "responses": {
           "200": {
@@ -1747,11 +1930,14 @@
         "tags": [
           "invitations"
         ],
+        "summary": "Accepts an invitation with the token of its link.",
+        "description": "Accepts an invitation with the token of its link. The signed-in user's verified email must be the invited one; the user then becomes that person of the node.",
         "operationId": "accept",
         "parameters": [
           {
             "name": "token",
             "in": "path",
+            "description": "The token in the link of the invitation email.",
             "required": true,
             "schema": {
               "type": "string"
@@ -1786,11 +1972,14 @@
         "tags": [
           "events"
         ],
+        "summary": "Lists the events and courses of a node between two moments.",
+        "description": "Lists the events and courses of a node between two moments. Every occurrence of a recurring event comes as its own event. Needs `events.read` on the node.",
         "operationId": "findAll_2",
         "parameters": [
           {
             "name": "organizationId",
             "in": "query",
+            "description": "Id of the node (church, location, group or ministry) whose events are listed.",
             "required": true,
             "schema": {
               "type": "string",
@@ -1800,6 +1989,7 @@
           {
             "name": "start",
             "in": "query",
+            "description": "Start of the range: date and time in UTC, without offset (2026-03-01T00:00:00). Required.",
             "required": true,
             "schema": {
               "type": "string",
@@ -1809,6 +1999,7 @@
           {
             "name": "end",
             "in": "query",
+            "description": "End of the range: date and time in UTC, without offset (2026-03-31T23:59:59). Required.",
             "required": true,
             "schema": {
               "type": "string",
@@ -1836,6 +2027,8 @@
         "tags": [
           "events"
         ],
+        "summary": "Creates an event or course in a node and returns its id.",
+        "description": "Creates an event or course in a node and returns its id. Needs `events.write` on the node; a sub-event also needs edit rights on its mega event.",
         "operationId": "create_4",
         "requestBody": {
           "content": {
@@ -1867,11 +2060,14 @@
         "tags": [
           "event-sharing"
         ],
+        "summary": "Replaces the shared link of an event with a new one.",
+        "description": "Replaces the shared link of an event with a new one. The old link stops working, so everyone who had it needs the new one. Needs manager rights on the event.",
         "operationId": "renewLink",
         "parameters": [
           {
             "name": "id",
             "in": "path",
+            "description": "Id of the event or course.",
             "required": true,
             "schema": {
               "type": "string",
@@ -1898,11 +2094,14 @@
         "tags": [
           "event-sharing"
         ],
+        "summary": "Shares an event with one person by email, as viewer or editor, and emails them.",
+        "description": "Shares an event with one person by email, as viewer or editor, and emails them. Sharing again with the same email changes the role. Needs manager rights on the event.",
         "operationId": "share",
         "parameters": [
           {
             "name": "id",
             "in": "path",
+            "description": "Id of the event or course.",
             "required": true,
             "schema": {
               "type": "string",
@@ -1934,16 +2133,91 @@
         }
       }
     },
+    "/v1/events/{id}/notices": {
+      "get": {
+        "tags": [
+          "events"
+        ],
+        "summary": "Lists the announcements of an event, the newest first.",
+        "description": "Lists the announcements of an event, the newest first. They are what the organizers and the system have told whoever follows the event.",
+        "operationId": "notices",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Id of the event or course.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/EventNoticeResponse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "events"
+        ],
+        "summary": "Posts an announcement on the page of an event.",
+        "description": "Posts an announcement on the page of an event. Whoever follows the event sees it, with or without an account. Needs edit rights on the event.",
+        "operationId": "postNotice",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Id of the event or course.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EventNoticeRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Created"
+          }
+        }
+      }
+    },
     "/v1/events/{id}/attendance/visitors": {
       "post": {
         "tags": [
           "events"
         ],
+        "summary": "Registers someone who comes for the first time as a visitor of the node of the event and marks them present.",
+        "description": "Registers someone who comes for the first time as a visitor of the node of the event and marks them present. Returns the id of the new person. Needs `attendance.write`.",
         "operationId": "addVisitor",
         "parameters": [
           {
             "name": "id",
             "in": "path",
+            "description": "Id of the event or course.",
             "required": true,
             "schema": {
               "type": "string",
@@ -1980,11 +2254,14 @@
         "tags": [
           "events"
         ],
+        "summary": "Checks in a sign-up by the code of its ticket QR, as an usher does at the door.",
+        "description": "Checks in a sign-up by the code of its ticket QR, as an usher does at the door. Needs `attendance.write`.",
         "operationId": "checkInWithTicket",
         "parameters": [
           {
             "name": "id",
             "in": "path",
+            "description": "Id of the event or course.",
             "required": true,
             "schema": {
               "type": "string",
@@ -2021,6 +2298,8 @@
         "tags": [
           "complaints"
         ],
+        "summary": "Files a complaint in the complaints book (libro de reclamaciones) of the product.",
+        "description": "Files a complaint in the complaints book (libro de reclamaciones) of the product. It is the public legal form; no sign-in needed.",
         "operationId": "create_5",
         "requestBody": {
           "content": {
@@ -2051,11 +2330,14 @@
         "tags": [
           "directory"
         ],
+        "summary": "Gets the public page of a church, location, group or ministry by its slug: what it publishes about itself (description, address, phone, schedule, links, team).",
+        "description": "Gets the public page of a church, location, group or ministry by its slug: what it publishes about itself (description, address, phone, schedule, links, team). 404 unless the node is public. No sign-in needed.",
         "operationId": "publicPage",
         "parameters": [
           {
             "name": "slug",
             "in": "path",
+            "description": "The slug of the node: the last part of the address of its public page.",
             "required": true,
             "schema": {
               "type": "string"
@@ -2081,11 +2363,14 @@
         "tags": [
           "invitations"
         ],
+        "summary": "Shows what an invitation is for, to whoever opens the link of the email: the church and who invites.",
+        "description": "Shows what an invitation is for, to whoever opens the link of the email: the church and who invites. No sign-in needed; 404 when the token is not valid.",
         "operationId": "preview",
         "parameters": [
           {
             "name": "token",
             "in": "path",
+            "description": "The token in the link of the invitation email.",
             "required": true,
             "schema": {
               "type": "string"
@@ -2111,11 +2396,14 @@
         "tags": [
           "event-sharing"
         ],
+        "summary": "Gets the shared page of an event or course by its slug: what, when, where, its program and its tickets.",
+        "description": "Gets the shared page of an event or course by its slug: what, when, where, its program and its tickets. 404 when the visitor cannot open it. No sign-in needed for events open to anyone with the link.",
         "operationId": "sharedEvent",
         "parameters": [
           {
             "name": "slug",
             "in": "path",
+            "description": "The slug of the event: the last part of its shared link (`/e/{slug`}).",
             "required": true,
             "schema": {
               "type": "string"
@@ -2141,11 +2429,14 @@
         "tags": [
           "calendar-feed"
         ],
+        "summary": "The calendar of a user in iCalendar format, for calendar apps.",
+        "description": "The calendar of a user in iCalendar format, for calendar apps. 404 for an unknown or renewed token.",
         "operationId": "feed",
         "parameters": [
           {
             "name": "token",
             "in": "path",
+            "description": "The secret token of the calendar address.",
             "required": true,
             "schema": {
               "type": "string"
@@ -2171,6 +2462,8 @@
         "tags": [
           "positions"
         ],
+        "summary": "Lists common names of positions (pastor, deacon, usher...) to offer when a church creates its own. Nothing is specific to a church.",
+        "description": "Lists common names of positions (pastor, deacon, usher...) to offer when a church creates its own. Nothing is specific to a church.",
         "operationId": "suggestions",
         "responses": {
           "200": {
@@ -2194,11 +2487,14 @@
         "tags": [
           "people"
         ],
+        "summary": "Lists the nodes a person belongs to, with their state, leadership and positions in each.",
+        "description": "Lists the nodes a person belongs to, with their state, leadership and positions in each. Only the nodes whose people the caller can read are included.",
         "operationId": "memberships",
         "parameters": [
           {
             "name": "id",
             "in": "path",
+            "description": "Id of the person.",
             "required": true,
             "schema": {
               "type": "string",
@@ -2228,11 +2524,14 @@
         "tags": [
           "people"
         ],
+        "summary": "Finds people of the church who look like the one about to be registered, by name or email.",
+        "description": "Finds people of the church who look like the one about to be registered, by name or email. Removed people are included, so they can be restored instead of creating a duplicate. Needs `members.write` on the node.",
         "operationId": "findMatches",
         "parameters": [
           {
             "name": "organizationId",
             "in": "query",
+            "description": "Id of the node where the person would be registered.",
             "required": true,
             "schema": {
               "type": "string",
@@ -2242,6 +2541,7 @@
           {
             "name": "searchText",
             "in": "query",
+            "description": "The name of the person being registered. Optional.",
             "required": false,
             "schema": {
               "type": "string"
@@ -2250,6 +2550,7 @@
           {
             "name": "email",
             "in": "query",
+            "description": "The email of the person being registered. Optional.",
             "required": false,
             "schema": {
               "type": "string"
@@ -2278,11 +2579,14 @@
         "tags": [
           "directory"
         ],
+        "summary": "Gets a node of the church directory.",
+        "description": "Gets a node of the church directory. Includes its people when the visibility of the node lets the caller see them.",
         "operationId": "entry",
         "parameters": [
           {
             "name": "nodeId",
             "in": "path",
+            "description": "Id of the node: a church, location, group or ministry.",
             "required": true,
             "schema": {
               "type": "string",
@@ -2309,11 +2613,14 @@
         "tags": [
           "whatsapp"
         ],
+        "summary": "Gets the state of the WhatsApp connection of a church: whether a number is connected and which one.",
+        "description": "Gets the state of the WhatsApp connection of a church: whether a number is connected and which one. Needs `org.update`.",
         "operationId": "get",
         "parameters": [
           {
             "name": "id",
             "in": "path",
+            "description": "Id of the node: a church, location, group or ministry.",
             "required": true,
             "schema": {
               "type": "string",
@@ -2338,11 +2645,14 @@
         "tags": [
           "whatsapp"
         ],
+        "summary": "Disconnects the WhatsApp number of a church: no more messages are sent or answered.",
+        "description": "Disconnects the WhatsApp number of a church: no more messages are sent or answered. Needs `org.update`.",
         "operationId": "disconnect",
         "parameters": [
           {
             "name": "id",
             "in": "path",
+            "description": "Id of the node: a church, location, group or ministry.",
             "required": true,
             "schema": {
               "type": "string",
@@ -2362,11 +2672,14 @@
         "tags": [
           "whatsapp"
         ],
+        "summary": "Says whether the signed-in user linked their WhatsApp to their account in this church, with the number masked.",
+        "description": "Says whether the signed-in user linked their WhatsApp to their account in this church, with the number masked.",
         "operationId": "get_1",
         "parameters": [
           {
             "name": "id",
             "in": "path",
+            "description": "Id of the node: a church, location, group or ministry.",
             "required": true,
             "schema": {
               "type": "string",
@@ -2391,11 +2704,14 @@
         "tags": [
           "whatsapp"
         ],
+        "summary": "Unlinks the WhatsApp of the signed-in user from their account in this church.",
+        "description": "Unlinks the WhatsApp of the signed-in user from their account in this church.",
         "operationId": "unlink",
         "parameters": [
           {
             "name": "id",
             "in": "path",
+            "description": "Id of the node: a church, location, group or ministry.",
             "required": true,
             "schema": {
               "type": "string",
@@ -2415,11 +2731,14 @@
         "tags": [
           "positions"
         ],
+        "summary": "Lists the positions (cargos) a person holds in a node.",
+        "description": "Lists the positions (cargos) a person holds in a node. Needs `members.read` on the node.",
         "operationId": "findOfPerson",
         "parameters": [
           {
             "name": "id",
             "in": "path",
+            "description": "Id of the node: a church, location, group or ministry.",
             "required": true,
             "schema": {
               "type": "string",
@@ -2429,6 +2748,7 @@
           {
             "name": "personId",
             "in": "path",
+            "description": "Id of the person.",
             "required": true,
             "schema": {
               "type": "string",
@@ -2458,11 +2778,14 @@
         "tags": [
           "organizations"
         ],
+        "summary": "How the people of a node and of everything below it are doing over the last months.",
+        "description": "How the people of a node and of everything below it are doing over the last months. Says how many are visitors, in progress or members now and, month by month, how many joined, progressed or left. Needs `members.read`.",
         "operationId": "growth",
         "parameters": [
           {
             "name": "id",
             "in": "path",
+            "description": "Id of the node: a church, location, group or ministry.",
             "required": true,
             "schema": {
               "type": "string",
@@ -2472,6 +2795,7 @@
           {
             "name": "months",
             "in": "query",
+            "description": "How many months back, from 1 to 36. 12 when omitted.",
             "required": false,
             "schema": {
               "type": "integer",
@@ -2499,11 +2823,14 @@
         "tags": [
           "organizations"
         ],
+        "summary": "How the people of a node and of everything below it changed over a range of dates.",
+        "description": "How the people of a node and of everything below it changed over a range of dates. Like the growth by months, but grouped by day (ranges up to a month), week (up to about four months) or month. Needs `members.read`.",
         "operationId": "growthRange",
         "parameters": [
           {
             "name": "id",
             "in": "path",
+            "description": "Id of the node: a church, location, group or ministry.",
             "required": true,
             "schema": {
               "type": "string",
@@ -2513,6 +2840,7 @@
           {
             "name": "startDate",
             "in": "query",
+            "description": "First day of the range, as an ISO date (2026-01-01).",
             "required": true,
             "schema": {
               "type": "string",
@@ -2522,6 +2850,7 @@
           {
             "name": "endDate",
             "in": "query",
+            "description": "Last day of the range, as an ISO date (2026-03-31).",
             "required": true,
             "schema": {
               "type": "string",
@@ -2548,11 +2877,14 @@
         "tags": [
           "organizations"
         ],
+        "summary": "Lists the nodes directly under a node: the locations of a church, or the groups and ministries of a location, group or ministry.",
+        "description": "Lists the nodes directly under a node: the locations of a church, or the groups and ministries of a location, group or ministry. Needs `org.read`.",
         "operationId": "findAll_3",
         "parameters": [
           {
             "name": "id",
             "in": "path",
+            "description": "Id of the node: a church, location, group or ministry.",
             "required": true,
             "schema": {
               "type": "string",
@@ -2582,11 +2914,14 @@
         "tags": [
           "organizations"
         ],
+        "summary": "Attendance statistics of a node and everything below it over a range of dates.",
+        "description": "Attendance statistics of a node and everything below it over a range of dates. Says how many events happened and how attendance moved, grouped by day (ranges up to a month), week (up to about four months) or month. Needs `events.read`.",
         "operationId": "attendanceStats",
         "parameters": [
           {
             "name": "id",
             "in": "path",
+            "description": "Id of the node: a church, location, group or ministry.",
             "required": true,
             "schema": {
               "type": "string",
@@ -2596,6 +2931,7 @@
           {
             "name": "startDate",
             "in": "query",
+            "description": "First day of the range, as an ISO date (2026-01-01).",
             "required": true,
             "schema": {
               "type": "string",
@@ -2605,6 +2941,7 @@
           {
             "name": "endDate",
             "in": "query",
+            "description": "Last day of the range, as an ISO date (2026-03-31).",
             "required": true,
             "schema": {
               "type": "string",
@@ -2631,11 +2968,14 @@
         "tags": [
           "iam"
         ],
+        "summary": "Lists who has access to a node and where it comes from: a position, leading a group or being an Owner.",
+        "description": "Lists who has access to a node and where it comes from: a position, leading a group or being an Owner. Includes the access inherited from the nodes above. Needs `iam.read`.",
         "operationId": "access",
         "parameters": [
           {
             "name": "id",
             "in": "path",
+            "description": "Id of the node: a church, location, group or ministry.",
             "required": true,
             "schema": {
               "type": "string",
@@ -2665,11 +3005,14 @@
         "tags": [
           "directory"
         ],
+        "summary": "Lists every node of a church with its basic information: name, type, description, schedule and leaders.",
+        "description": "Lists every node of a church with its basic information: name, type, description, schedule and leaders. For anyone with access somewhere in the church.",
         "operationId": "directory",
         "parameters": [
           {
             "name": "churchId",
             "in": "path",
+            "description": "Id of the church.",
             "required": true,
             "schema": {
               "type": "string",
@@ -2699,6 +3042,8 @@
         "tags": [
           "me"
         ],
+        "summary": "Gets the signed-in user.",
+        "description": "Gets the signed-in user. Registers them on their first sign-in and refreshes their email afterwards.",
         "operationId": "me",
         "responses": {
           "200": {
@@ -2719,6 +3064,8 @@
         "tags": [
           "event-sharing"
         ],
+        "summary": "Lists the events that other people shared with the signed-in user.",
+        "description": "Lists the events that other people shared with the signed-in user.",
         "operationId": "sharedWithMe",
         "responses": {
           "200": {
@@ -2742,11 +3089,14 @@
         "tags": [
           "me"
         ],
+        "summary": "Lists the permissions the signed-in user holds on a node, inherited ones included.",
+        "description": "Lists the permissions the signed-in user holds on a node, inherited ones included. They are values such as `members.read` or `events.write`.",
         "operationId": "permissions",
         "parameters": [
           {
             "name": "organizationId",
             "in": "query",
+            "description": "Id of the node: a church, location, group or ministry.",
             "required": true,
             "schema": {
               "type": "string",
@@ -2776,6 +3126,8 @@
         "tags": [
           "me"
         ],
+        "summary": "Lists the churches, locations, groups and ministries the signed-in user can reach, with the parent of each one and the roles the user has there.",
+        "description": "Lists the churches, locations, groups and ministries the signed-in user can reach, with the parent of each one and the roles the user has there. Start here to find the ids of the nodes.",
         "operationId": "organizations",
         "responses": {
           "200": {
@@ -2799,6 +3151,8 @@
         "tags": [
           "directory"
         ],
+        "summary": "Lists the groups and ministries where the signed-in user is a member or a leader.",
+        "description": "Lists the groups and ministries where the signed-in user is a member or a leader.",
         "operationId": "myNodes",
         "responses": {
           "200": {
@@ -2822,6 +3176,8 @@
         "tags": [
           "invitations"
         ],
+        "summary": "Lists the invitations waiting for the signed-in user, found by their verified email.",
+        "description": "Lists the invitations waiting for the signed-in user, found by their verified email.",
         "operationId": "mine",
         "responses": {
           "200": {
@@ -2845,6 +3201,8 @@
         "tags": [
           "event-sharing"
         ],
+        "summary": "Lists the events and courses of the signed-in user: those where they have a place or were present, most recent first.",
+        "description": "Lists the events and courses of the signed-in user: those where they have a place or were present, most recent first.",
         "operationId": "myEvents",
         "responses": {
           "200": {
@@ -2868,6 +3226,8 @@
         "tags": [
           "calendar-feed"
         ],
+        "summary": "Gets the private calendar address of the signed-in user.",
+        "description": "Gets the private calendar address of the signed-in user. Calendar apps subscribe to it to show the user's events; it is created the first time it is asked for.",
         "operationId": "myFeed",
         "responses": {
           "200": {
@@ -2888,6 +3248,8 @@
         "tags": [
           "iam"
         ],
+        "summary": "Lists every permission an access level may include, grouped by what it is about (people, events, attendance...).",
+        "description": "Lists every permission an access level may include, grouped by what it is about (people, events, attendance...).",
         "operationId": "permissions_1",
         "responses": {
           "200": {
@@ -2911,6 +3273,8 @@
         "tags": [
           "iam"
         ],
+        "summary": "Lists the predefined access levels, the same for every church.",
+        "description": "Lists the predefined access levels, the same for every church. Any signed-in user can read them; forms use them before a church exists.",
         "operationId": "levels",
         "responses": {
           "200": {
@@ -2934,11 +3298,14 @@
         "tags": [
           "event-sharing"
         ],
+        "summary": "Lists the people signed up for an event or course, with their ticket and whether they checked in.",
+        "description": "Lists the people signed up for an event or course, with their ticket and whether they checked in. Needs `registrations.read`.",
         "operationId": "registrations",
         "parameters": [
           {
             "name": "id",
             "in": "path",
+            "description": "Id of the event or course.",
             "required": true,
             "schema": {
               "type": "string",
@@ -2963,16 +3330,53 @@
         }
       }
     },
+    "/v1/events/{id}/attendance/summary": {
+      "get": {
+        "tags": [
+          "events"
+        ],
+        "summary": "Counts how many came to an event.",
+        "description": "Counts how many came to an event. Each person counts once, whether marked on the list, checked in with a ticket or added as a visitor. Needs `events.read`.",
+        "operationId": "summary",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Id of the event or course.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/AttendanceSummaryResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/events/{id}/attendance/qr": {
       "get": {
         "tags": [
           "events"
         ],
+        "summary": "Gets the code for the QR that an usher shows so people mark their own attendance.",
+        "description": "Gets the code for the QR that an usher shows so people mark their own attendance. The code changes every few minutes; the answer says when to ask again. Needs `attendance.write`.",
         "operationId": "qr",
         "parameters": [
           {
             "name": "id",
             "in": "path",
+            "description": "Id of the event or course.",
             "required": true,
             "schema": {
               "type": "string",
@@ -2999,11 +3403,14 @@
         "tags": [
           "event-sharing"
         ],
+        "summary": "Cancels a sign-up with the code its owner received when signing up.",
+        "description": "Cancels a sign-up with the code its owner received when signing up. No account needed.",
         "operationId": "cancelWithCode",
         "parameters": [
           {
             "name": "cancelCode",
             "in": "path",
+            "description": "The cancel code given when the person signed up.",
             "required": true,
             "schema": {
               "type": "string"
@@ -3022,11 +3429,14 @@
         "tags": [
           "iam"
         ],
+        "summary": "Takes away the Owner access of someone.",
+        "description": "Takes away the Owner access of someone. Only an Owner can.",
         "operationId": "removeOwner",
         "parameters": [
           {
             "name": "id",
             "in": "path",
+            "description": "Id of any node of the church.",
             "required": true,
             "schema": {
               "type": "string",
@@ -3036,6 +3446,7 @@
           {
             "name": "bindingId",
             "in": "path",
+            "description": "Id of the access entry of that Owner, from the access list of the node.",
             "required": true,
             "schema": {
               "type": "string",
@@ -3055,11 +3466,14 @@
         "tags": [
           "invitations"
         ],
+        "summary": "Cancels an invitation so its link stops working.",
+        "description": "Cancels an invitation so its link stops working. Needs `invitations.send` on its node.",
         "operationId": "revoke",
         "parameters": [
           {
             "name": "id",
             "in": "path",
+            "description": "Id of the invitation.",
             "required": true,
             "schema": {
               "type": "string",
@@ -3079,11 +3493,14 @@
         "tags": [
           "event-sharing"
         ],
+        "summary": "Stops sharing an event with one person.",
+        "description": "Stops sharing an event with one person. Needs manager rights on the event.",
         "operationId": "unshare",
         "parameters": [
           {
             "name": "id",
             "in": "path",
+            "description": "Id of the event or course.",
             "required": true,
             "schema": {
               "type": "string",
@@ -3093,6 +3510,7 @@
           {
             "name": "shareId",
             "in": "path",
+            "description": "Id of the share, from the sharing of the event.",
             "required": true,
             "schema": {
               "type": "string",
@@ -3112,11 +3530,14 @@
         "tags": [
           "event-sharing"
         ],
+        "summary": "Cancels the sign-up of one person, freeing their seat.",
+        "description": "Cancels the sign-up of one person, freeing their seat. Needs `registrations.remove`.",
         "operationId": "cancelRegistration",
         "parameters": [
           {
             "name": "id",
             "in": "path",
+            "description": "Id of the event or course.",
             "required": true,
             "schema": {
               "type": "string",
@@ -3126,6 +3547,7 @@
           {
             "name": "registrationId",
             "in": "path",
+            "description": "Id of the sign-up, from the list of registrations of the event.",
             "required": true,
             "schema": {
               "type": "string",
@@ -3139,156 +3561,29 @@
           }
         }
       }
-    },
-    "/v1/events/{id}/attendance/summary": {
-      "get": {
-        "tags": [
-          "events"
-        ],
-        "operationId": "summary",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "*/*": {
-                "schema": {
-                  "$ref": "#/components/schemas/AttendanceSummaryResponse"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v1/events/{id}/notices": {
-      "get": {
-        "tags": [
-          "events"
-        ],
-        "operationId": "notices",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "*/*": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/EventNoticeResponse"
-                  }
-                }
-              }
-            }
-          }
-        }
-      },
-      "post": {
-        "tags": [
-          "events"
-        ],
-        "operationId": "postNotice",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/EventNoticeRequest"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "201": {
-            "description": "Created"
-          }
-        }
-      }
-    },
-    "/v1/organizations/{id}/whatsapp/agent": {
-      "put": {
-        "tags": [
-          "whatsapp"
-        ],
-        "operationId": "setAgentPaused",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/AgentPausedRequest"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "204": {
-            "description": "No Content"
-          }
-        }
-      }
     }
   },
   "components": {
     "schemas": {
       "RoleRequest": {
         "type": "object",
+        "description": "An access level of a church: a named set of permissions.",
         "properties": {
           "name": {
             "type": "string",
+            "description": "Name of the access level, as the church calls it.",
             "maxLength": 100,
             "minLength": 0
           },
           "description": {
             "type": "string",
+            "description": "What the level is for. Optional.",
             "maxLength": 1000,
             "minLength": 0
           },
           "permissions": {
             "type": "array",
+            "description": "Permission values, such as `members.read`; the full list is in `GET /v1/iam/permissions`.",
             "items": {
               "type": "string"
             }
@@ -3328,9 +3623,11 @@
       },
       "PositionRequest": {
         "type": "object",
+        "description": "The new name of a position.",
         "properties": {
           "name": {
             "type": "string",
+            "description": "Name of the position (cargo), such as Pastor or Usher.",
             "maxLength": 255,
             "minLength": 0
           }
@@ -3341,6 +3638,7 @@
       },
       "PositionResponse": {
         "type": "object",
+        "description": "A position. `roleIds` and the loose `permissions` are what it gives; with neither it is only a label.",
         "properties": {
           "id": {
             "type": "string",
@@ -3366,9 +3664,11 @@
       },
       "PositionAccessRequest": {
         "type": "object",
+        "description": "What the position gives from now on; both empty or missing makes it a plain label.",
         "properties": {
           "roleIds": {
             "type": "array",
+            "description": "Ids of access levels, from the roles of the church. Optional.",
             "items": {
               "type": "string",
               "format": "uuid"
@@ -3376,6 +3676,7 @@
           },
           "permissions": {
             "type": "array",
+            "description": "Loose permission values, such as `members.read`; the full list is in `GET /v1/iam/permissions`. Optional.",
             "items": {
               "type": "string"
             }
@@ -3387,36 +3688,45 @@
         "properties": {
           "firstName": {
             "type": "string",
+            "description": "First names.",
             "minLength": 1
           },
           "lastName": {
             "type": "string",
+            "description": "Last names.",
             "minLength": 1
           },
           "phoneNumber": {
-            "type": "string"
+            "type": "string",
+            "description": "Phone number, with country code (+51987654321). Optional."
           },
           "email": {
             "type": "string",
-            "format": "email"
+            "format": "email",
+            "description": "Email. Optional."
           },
           "age": {
             "type": "integer",
             "format": "int32",
+            "description": "Age in years, when the birthdate is not known. Optional.",
             "minimum": 0
           },
           "birthdate": {
             "type": "string",
-            "format": "date"
+            "format": "date",
+            "description": "Date of birth, as an ISO date (1990-05-17). Optional."
           },
           "hasBeenBaptized": {
-            "type": "boolean"
+            "type": "boolean",
+            "description": "Whether the person has been baptized. Optional."
           },
           "whatsappConsent": {
-            "type": "boolean"
+            "type": "boolean",
+            "description": "Accepts WhatsApp notices. Optional: absent keeps the current choice (true for a new person)."
           },
           "memberState": {
             "type": "string",
+            "description": "How involved the person is: visitor, membership in progress or member. Optional (a new person is a visitor); whoever holds a position is a member whatever it says.",
             "enum": [
               "VISITOR",
               "MEMBERSHIP_IN_PROGRESS",
@@ -3425,6 +3735,7 @@
           },
           "positionIds": {
             "type": "array",
+            "description": "Ids of positions (cargos) of the church; others are ignored.",
             "items": {
               "type": "string",
               "format": "uuid"
@@ -3433,7 +3744,8 @@
           },
           "organizationId": {
             "type": "string",
-            "format": "uuid"
+            "format": "uuid",
+            "description": "Id of the node (church, location, group or ministry) the person is registered in."
           }
         },
         "required": [
@@ -3447,6 +3759,7 @@
         "properties": {
           "memberState": {
             "type": "string",
+            "description": "How involved the person is in this node: visitor, membership in progress or member.",
             "enum": [
               "VISITOR",
               "MEMBERSHIP_IN_PROGRESS",
@@ -3463,25 +3776,32 @@
         "properties": {
           "name": {
             "type": "string",
+            "description": "Name of the node.",
             "minLength": 1
           },
           "description": {
-            "type": "string"
+            "type": "string",
+            "description": "What the node is about. Optional."
           },
           "address": {
-            "type": "string"
+            "type": "string",
+            "description": "Street address where it meets. Optional."
           },
           "phoneNumber": {
-            "type": "string"
+            "type": "string",
+            "description": "Contact phone number. Optional."
           },
           "socialLinks": {
-            "$ref": "#/components/schemas/SocialLinksRequest"
+            "$ref": "#/components/schemas/SocialLinksRequest",
+            "description": "Its website and social networks. Optional."
           },
           "schedule": {
-            "type": "string"
+            "type": "string",
+            "description": "When the node meets (free text)."
           },
           "memberVisibility": {
             "type": "string",
+            "description": "Who sees the list of people; omitted keeps the current one (public for a new node).",
             "enum": [
               "PUBLIC",
               "CHURCH",
@@ -3490,11 +3810,13 @@
             ]
           },
           "showOrgChart": {
-            "type": "boolean"
+            "type": "boolean",
+            "description": "Whether the public page shows the org chart; omitted keeps the current value."
           },
           "parentId": {
             "type": "string",
-            "format": "uuid"
+            "format": "uuid",
+            "description": "Id of the node it hangs from: the church of a location, or the location, group or ministry of a group or ministry."
           }
         },
         "required": [
@@ -3503,25 +3825,31 @@
       },
       "SocialLinksRequest": {
         "type": "object",
+        "description": "Optional links; each one, when present, must be an http(s) URL.",
         "properties": {
           "website": {
             "type": "string",
+            "description": "Address of the website.",
             "pattern": "^(\\s*|https?://\\S+)$"
           },
           "facebookUrl": {
             "type": "string",
+            "description": "Address of the Facebook page.",
             "pattern": "^(\\s*|https?://\\S+)$"
           },
           "instagramUrl": {
             "type": "string",
+            "description": "Address of the Instagram profile.",
             "pattern": "^(\\s*|https?://\\S+)$"
           },
           "youtubeUrl": {
             "type": "string",
+            "description": "Address of the YouTube channel.",
             "pattern": "^(\\s*|https?://\\S+)$"
           },
           "tiktokUrl": {
             "type": "string",
+            "description": "Address of the TikTok profile.",
             "pattern": "^(\\s*|https?://\\S+)$"
           }
         }
@@ -3591,6 +3919,7 @@
       },
       "SocialLinks": {
         "type": "object",
+        "description": "Optional public links of an organization; every field may be null.",
         "properties": {
           "website": {
             "type": "string"
@@ -3609,30 +3938,49 @@
           }
         }
       },
+      "AgentPausedRequest": {
+        "type": "object",
+        "properties": {
+          "paused": {
+            "type": "boolean",
+            "description": "true pauses the assistant, false resumes it"
+          }
+        },
+        "required": [
+          "paused"
+        ]
+      },
       "UpdateLocationChildRequest": {
         "type": "object",
         "properties": {
           "name": {
             "type": "string",
+            "description": "Name of the node.",
             "minLength": 1
           },
           "description": {
-            "type": "string"
+            "type": "string",
+            "description": "What the node is about. Optional."
           },
           "address": {
-            "type": "string"
+            "type": "string",
+            "description": "Street address where it meets. Optional."
           },
           "phoneNumber": {
-            "type": "string"
+            "type": "string",
+            "description": "Contact phone number. Optional."
           },
           "socialLinks": {
-            "$ref": "#/components/schemas/SocialLinksRequest"
+            "$ref": "#/components/schemas/SocialLinksRequest",
+            "description": "Its website and social networks. Optional."
           },
           "schedule": {
-            "type": "string"
+            "type": "string",
+            "description": "When the node meets (free text)."
           },
           "memberVisibility": {
             "type": "string",
+            "description": "Who sees the list of people; omitted keeps the current one (public for a new node).",
             "enum": [
               "PUBLIC",
               "CHURCH",
@@ -3641,14 +3989,17 @@
             ]
           },
           "showOrgChart": {
-            "type": "boolean"
+            "type": "boolean",
+            "description": "Whether the public page shows the org chart; omitted keeps the current value."
           },
           "parentId": {
             "type": "string",
-            "format": "uuid"
+            "format": "uuid",
+            "description": "Id of the node it hangs from: the church of a location, or the location, group or ministry of a group or ministry."
           },
           "type": {
             "type": "string",
+            "description": "GROUP or MINISTRY.",
             "enum": [
               "CHURCH",
               "LOCATION",
@@ -3667,69 +4018,82 @@
         "properties": {
           "name": {
             "type": "string",
+            "description": "Name of the event or course.",
             "minLength": 1
           },
           "startTime": {
-            "type": "string"
+            "type": "string",
+            "description": "When it starts: ISO date and time with offset (2026-03-08T10:00:00-05:00)."
           },
           "endTime": {
-            "type": "string"
+            "type": "string",
+            "description": "When it ends: ISO date and time with offset (2026-03-08T12:00:00-05:00)."
           },
           "speakerIds": {
             "type": "array",
+            "description": "Ids of the people who speak or teach. Optional.",
             "items": {
               "type": "string",
               "format": "uuid"
             }
           },
           "address": {
-            "type": "string"
+            "type": "string",
+            "description": "Where it takes place. Optional."
           },
           "organizationId": {
             "type": "string",
-            "format": "uuid"
+            "format": "uuid",
+            "description": "Id of the node (church, location, group or ministry) that holds the event."
           },
           "description": {
-            "type": "string"
+            "type": "string",
+            "description": "What the event is about. Optional."
           },
           "isACourse": {
-            "type": "boolean"
+            "type": "boolean",
+            "description": "true for a course, false (the default) for an event."
           },
           "recurrence": {
-            "$ref": "#/components/schemas/RecurrenceRequest"
+            "$ref": "#/components/schemas/RecurrenceRequest",
+            "description": "Present when the event repeats."
           },
           "parentEventId": {
             "type": "string",
-            "format": "uuid"
+            "format": "uuid",
+            "description": "The container this event goes inside (a sub-event of a mega event)."
           },
           "registrationMode": {
             "type": "string",
+            "description": "How a sub-event is entered; inherits the container's registration when omitted.",
             "enum": [
               "INHERIT",
               "OWN",
               "OPEN"
             ]
           },
+          "track": {
+            "type": "string",
+            "description": "The course, room or track of the program a sub-event belongs to; optional.",
+            "maxLength": 100,
+            "minLength": 0
+          },
+          "requiresContainerRegistration": {
+            "type": "boolean",
+            "description": "A sub-event with its own sign-up asks for a place in its mega event first."
+          },
           "timeZone": {
-            "type": "string"
+            "type": "string",
+            "description": "IANA zone the event repeats in (e.g. America/Lima); UTC when omitted."
           },
           "option": {
             "type": "string",
+            "description": "For a recurring event, which occurrences change; only this one when omitted.",
             "enum": [
               "THIS_EVENT",
               "THIS_AND_THE_FOLLOWING_EVENTS",
               "ALL_EVENTS"
             ]
-          },
-          "validTimeZone": {
-            "type": "boolean"
-          },
-          "track": {
-            "type": "string",
-            "maxLength": 100
-          },
-          "requiresContainerRegistration": {
-            "type": "boolean"
           }
         },
         "required": [
@@ -3741,9 +4105,11 @@
       },
       "RecurrenceRequest": {
         "type": "object",
+        "description": "How an event repeats. `daysOfWeek` (0 = Sunday ... 6 = Saturday) is for weekly recurrences, `monthlyMode` for monthly ones; `until` goes with the end type UNTIL and `count` with COUNT. Not said: every 1 `frequency`, no days, never ends.",
         "properties": {
           "frequency": {
             "type": "string",
+            "description": "How often it repeats.",
             "enum": [
               "DAILY",
               "WEEKLY",
@@ -3753,10 +4119,12 @@
           },
           "interval": {
             "type": "integer",
-            "format": "int32"
+            "format": "int32",
+            "description": "Every how many days, weeks, months or years; 1 when omitted."
           },
           "daysOfWeek": {
             "type": "array",
+            "description": "Weekly only: the days it happens, 0 for Sunday to 6 for Saturday.",
             "items": {
               "type": "integer",
               "format": "int32"
@@ -3764,6 +4132,7 @@
           },
           "monthlyMode": {
             "type": "string",
+            "description": "Monthly only: on the same day of the month, or on the same weekday (the second Tuesday).",
             "enum": [
               "DAY_OF_MONTH",
               "NTH_WEEKDAY"
@@ -3771,6 +4140,7 @@
           },
           "endType": {
             "type": "string",
+            "description": "How the repetition ends; never when omitted.",
             "enum": [
               "NEVER",
               "UNTIL",
@@ -3779,16 +4149,19 @@
           },
           "until": {
             "type": "string",
-            "format": "date"
+            "format": "date",
+            "description": "With the end type UNTIL: the last day, as an ISO date."
           },
           "count": {
             "type": "integer",
-            "format": "int32"
+            "format": "int32",
+            "description": "With the end type COUNT: how many times it happens."
           }
         }
       },
       "EditEventResponse": {
         "type": "object",
+        "description": "`keptEvents`: occurrences left untouched, as one-off events, because they are past or have sign-ups or attendance. `notifiedPeople`: people emailed about a change in the time, name, place or speakers.",
         "properties": {
           "id": {
             "type": "string",
@@ -3806,9 +4179,11 @@
       },
       "EventSharingRequest": {
         "type": "object",
+        "description": "Who can open the event through its link. With `applyToProgram` the same access is given to every sub-event of a mega event, so the public program does not lose sub-events that were left with another one.",
         "properties": {
           "generalAccess": {
             "type": "string",
+            "description": "Who can open the event besides the people it is shared with.",
             "enum": [
               "RESTRICTED",
               "CHURCH",
@@ -3816,7 +4191,8 @@
             ]
           },
           "applyToProgram": {
-            "type": "boolean"
+            "type": "boolean",
+            "description": "true to give the same access to every sub-event of a mega event. Optional."
           }
         },
         "required": [
@@ -3825,6 +4201,7 @@
       },
       "EventSharingResponse": {
         "type": "object",
+        "description": "How an event is shared; the link of the shared page is `/e/{slug`}.",
         "properties": {
           "generalAccess": {
             "type": "string",
@@ -3873,14 +4250,17 @@
       },
       "RegistrationCheckInRequest": {
         "type": "object",
+        "description": "Mark a sign-up as present, or take the mark back.",
         "properties": {
           "checkedIn": {
-            "type": "boolean"
+            "type": "boolean",
+            "description": "true marks the sign-up as present, false takes the mark back."
           }
         }
       },
       "CheckInResponse": {
         "type": "object",
+        "description": "Who was checked in. `alreadyCheckedIn` when they had been before (`checkedInAt` is then the first time); `checkedInAt` is null after taking the mark back.",
         "properties": {
           "registrationId": {
             "type": "string",
@@ -3903,12 +4283,15 @@
       },
       "EventRegistrationSetupRequest": {
         "type": "object",
+        "description": "How the event takes sign-ups. `tickets` is the whole list: one with an `id` updates that ticket, one without creates it, one left out is removed. The seats are the quantity of each ticket (null: unlimited) and the price is informational. Closing the registration is another call.",
         "properties": {
           "requiresAccount": {
-            "type": "boolean"
+            "type": "boolean",
+            "description": "true when only signed-in users can sign up."
           },
           "tickets": {
             "type": "array",
+            "description": "The complete list of tickets of the event; at least one.",
             "items": {
               "$ref": "#/components/schemas/TicketRequest"
             },
@@ -3921,41 +4304,50 @@
       },
       "TicketRequest": {
         "type": "object",
+        "description": "A kind of ticket of an event.",
         "properties": {
           "id": {
             "type": "string",
-            "format": "uuid"
+            "format": "uuid",
+            "description": "Id of an existing ticket to update; omit it to create a new one."
           },
           "name": {
             "type": "string",
+            "description": "Name of the ticket, such as General or Students.",
             "maxLength": 100,
             "minLength": 0
           },
           "priceCents": {
             "type": "integer",
             "format": "int32",
+            "description": "Price in cents (1500 is 15.00); 0 when free. Informational only: nothing is charged.",
             "minimum": 0
           },
           "currency": {
             "type": "string",
+            "description": "Currency code of three letters, such as PEN. Optional.",
             "maxLength": 3,
             "minLength": 0
           },
           "quantity": {
             "type": "integer",
             "format": "int32",
+            "description": "How many seats there are; omit for unlimited.",
             "minimum": 1
           },
           "salesStart": {
             "type": "string",
-            "format": "date-time"
+            "format": "date-time",
+            "description": "When sign-ups with this ticket start. Optional."
           },
           "salesEnd": {
             "type": "string",
-            "format": "date-time"
+            "format": "date-time",
+            "description": "When sign-ups with this ticket end. Optional."
           },
           "subEventIds": {
             "type": "array",
+            "description": "Mega events only: ids of the sub-events this ticket lets in. Optional.",
             "items": {
               "type": "string",
               "format": "uuid"
@@ -3968,6 +4360,7 @@
       },
       "EventRegistrationSetupResponse": {
         "type": "object",
+        "description": "How the event takes sign-ups, for its organizers. `enabled` is false when it takes none. `sold` counts the confirmed sign-ups of each ticket.",
         "properties": {
           "enabled": {
             "type": "boolean"
@@ -4038,17 +4431,21 @@
       },
       "RegistrationOpenRequest": {
         "type": "object",
+        "description": "Whether the event takes sign-ups right now: false closes the registration, true reopens it.",
         "properties": {
           "open": {
-            "type": "boolean"
+            "type": "boolean",
+            "description": "false closes the sign-ups, true opens them again."
           }
         }
       },
       "AttendanceRequest": {
         "type": "object",
+        "description": "Who attended. `personIds` is required: a missing or null list is rejected, so a client cannot clear the attendance by mistake (an empty list is how it is cleared).",
         "properties": {
           "personIds": {
             "type": "array",
+            "description": "Ids of everyone who attended. An empty list clears the attendance.",
             "items": {
               "type": "string",
               "format": "uuid"
@@ -4061,10 +4458,12 @@
       },
       "GuestsRequest": {
         "type": "object",
+        "description": "How many visitors without a name came.",
         "properties": {
           "guestCount": {
             "type": "integer",
             "format": "int32",
+            "description": "How many visitors without a name came; 0 or more.",
             "minimum": 0
           }
         }
@@ -4080,29 +4479,35 @@
       },
       "EventRegistrationRequest": {
         "type": "object",
+        "description": "Someone signing up for an event or course with a ticket.",
         "properties": {
           "ticketTypeId": {
             "type": "string",
-            "format": "uuid"
+            "format": "uuid",
+            "description": "Id of the ticket chosen, from the shared page of the event."
           },
           "firstName": {
             "type": "string",
+            "description": "First names of who signs up.",
             "maxLength": 100,
             "minLength": 0
           },
           "lastName": {
             "type": "string",
+            "description": "Last names of who signs up.",
             "maxLength": 100,
             "minLength": 0
           },
           "email": {
             "type": "string",
             "format": "email",
+            "description": "Email where the ticket is sent.",
             "maxLength": 200,
             "minLength": 0
           },
           "phoneNumber": {
             "type": "string",
+            "description": "Phone number. Optional.",
             "maxLength": 40,
             "minLength": 0
           }
@@ -4116,6 +4521,7 @@
       },
       "RegistrationOutcomeResponse": {
         "type": "object",
+        "description": "How a sign-up went. Keep `cancelCode` to cancel without an account and show `ticketCode` as the QR of the ticket.",
         "properties": {
           "alreadyRegistered": {
             "type": "boolean"
@@ -4137,9 +4543,11 @@
       },
       "SelfAttendanceRequest": {
         "type": "object",
+        "description": "Optional: the name of someone who has no person in the church yet.",
         "properties": {
           "name": {
             "type": "string",
+            "description": "Name of whoever marks their attendance, when they have no account.",
             "maxLength": 150,
             "minLength": 0
           }
@@ -4147,6 +4555,7 @@
       },
       "SelfAttendanceResponse": {
         "type": "object",
+        "description": "What the scan did, and whether they had already been marked.",
         "properties": {
           "kind": {
             "type": "string",
@@ -4167,36 +4576,45 @@
         "properties": {
           "firstName": {
             "type": "string",
+            "description": "First names.",
             "minLength": 1
           },
           "lastName": {
             "type": "string",
+            "description": "Last names.",
             "minLength": 1
           },
           "phoneNumber": {
-            "type": "string"
+            "type": "string",
+            "description": "Phone number, with country code (+51987654321). Optional."
           },
           "email": {
             "type": "string",
-            "format": "email"
+            "format": "email",
+            "description": "Email. Optional."
           },
           "age": {
             "type": "integer",
             "format": "int32",
+            "description": "Age in years, when the birthdate is not known. Optional.",
             "minimum": 0
           },
           "birthdate": {
             "type": "string",
-            "format": "date"
+            "format": "date",
+            "description": "Date of birth, as an ISO date (1990-05-17). Optional."
           },
           "hasBeenBaptized": {
-            "type": "boolean"
+            "type": "boolean",
+            "description": "Whether the person has been baptized. Optional."
           },
           "whatsappConsent": {
-            "type": "boolean"
+            "type": "boolean",
+            "description": "Accepts WhatsApp notices. Optional: absent keeps the current choice (true for a new person)."
           },
           "memberState": {
             "type": "string",
+            "description": "How involved the person is: visitor, membership in progress or member. Optional (a new person is a visitor); whoever holds a position is a member whatever it says.",
             "enum": [
               "VISITOR",
               "MEMBERSHIP_IN_PROGRESS",
@@ -4205,6 +4623,7 @@
           },
           "positionIds": {
             "type": "array",
+            "description": "Ids of positions (cargos) of the church; others are ignored.",
             "items": {
               "type": "string",
               "format": "uuid"
@@ -4213,7 +4632,8 @@
           },
           "organizationId": {
             "type": "string",
-            "format": "uuid"
+            "format": "uuid",
+            "description": "Id of the node (church, location, group or ministry) the person is registered in."
           }
         },
         "required": [
@@ -4224,13 +4644,16 @@
       },
       "ChurchPositionRequest": {
         "type": "object",
+        "description": "What the position gives: roles and/or loose permissions; both empty is a plain label.",
         "properties": {
           "name": {
             "type": "string",
+            "description": "Name of the position (cargo), such as Pastor.",
             "minLength": 1
           },
           "roleIds": {
             "type": "array",
+            "description": "Ids of access levels, from the roles of the church. Optional.",
             "items": {
               "type": "string",
               "format": "uuid"
@@ -4238,6 +4661,7 @@
           },
           "permissions": {
             "type": "array",
+            "description": "Loose permission values, such as `members.read`; the full list is in `GET /v1/iam/permissions`. Optional.",
             "items": {
               "type": "string"
             }
@@ -4249,34 +4673,43 @@
       },
       "CreateChurchRequest": {
         "type": "object",
+        "description": "A new church with its mandatory first location and its initial positions (cargos). `positions` may be empty or missing; repeated names are created once.",
         "properties": {
           "name": {
             "type": "string",
+            "description": "Name of the church.",
             "minLength": 1
           },
           "description": {
-            "type": "string"
+            "type": "string",
+            "description": "What the church is about. Optional."
           },
           "address": {
-            "type": "string"
+            "type": "string",
+            "description": "Street address of the church. Optional."
           },
           "phoneNumber": {
-            "type": "string"
+            "type": "string",
+            "description": "Contact phone number. Optional."
           },
           "socialLinks": {
-            "$ref": "#/components/schemas/SocialLinksRequest"
+            "$ref": "#/components/schemas/SocialLinksRequest",
+            "description": "Its website and social networks. Optional."
           },
           "location": {
-            "$ref": "#/components/schemas/LocationInfoRequest"
+            "$ref": "#/components/schemas/LocationInfoRequest",
+            "description": "The first location (sede) of the church."
           },
           "positions": {
             "type": "array",
+            "description": "Positions to create with their access level. Optional.",
             "items": {
               "$ref": "#/components/schemas/ChurchPositionRequest"
             }
           },
           "creator": {
-            "$ref": "#/components/schemas/CreatorRequest"
+            "$ref": "#/components/schemas/CreatorRequest",
+            "description": "The person who creates the church, as one of its people."
           }
         },
         "required": [
@@ -4287,17 +4720,21 @@
       },
       "CreatorRequest": {
         "type": "object",
+        "description": "`positionName` is created as a plain label when it is not in `positions`.",
         "properties": {
           "firstName": {
             "type": "string",
+            "description": "First names of who creates the church.",
             "minLength": 1
           },
           "lastName": {
             "type": "string",
+            "description": "Last names of who creates the church.",
             "minLength": 1
           },
           "positionName": {
-            "type": "string"
+            "type": "string",
+            "description": "Name of the position they hold. Optional."
           }
         },
         "required": [
@@ -4307,22 +4744,28 @@
       },
       "LocationInfoRequest": {
         "type": "object",
+        "description": "The first location (sede) of a new church.",
         "properties": {
           "name": {
             "type": "string",
+            "description": "Name of the location.",
             "minLength": 1
           },
           "description": {
-            "type": "string"
+            "type": "string",
+            "description": "What the location is about. Optional."
           },
           "address": {
-            "type": "string"
+            "type": "string",
+            "description": "Street address of the location. Optional."
           },
           "phoneNumber": {
-            "type": "string"
+            "type": "string",
+            "description": "Contact phone number. Optional."
           },
           "socialLinks": {
-            "$ref": "#/components/schemas/SocialLinksRequest"
+            "$ref": "#/components/schemas/SocialLinksRequest",
+            "description": "Its website and social networks. Optional."
           }
         },
         "required": [
@@ -4356,9 +4799,11 @@
       },
       "SetupLinkRequest": {
         "type": "object",
+        "description": "How the number of the church will be connected.",
         "properties": {
           "mode": {
             "type": "string",
+            "description": "COEXISTENCE keeps the WhatsApp Business app working next to the API; DEDICATED leaves the number for the API only.",
             "enum": [
               "COEXISTENCE",
               "DEDICATED"
@@ -4383,6 +4828,7 @@
       },
       "LinkCodeResponse": {
         "type": "object",
+        "description": "What the portal shows: \"send this code from your WhatsApp to this number\".",
         "properties": {
           "code": {
             "type": "string"
@@ -4398,14 +4844,17 @@
       },
       "CreatePositionRequest": {
         "type": "object",
+        "description": "Both lists are optional: with neither, the position is only a label.",
         "properties": {
           "name": {
             "type": "string",
+            "description": "Name of the position (cargo), such as Pastor or Usher.",
             "maxLength": 255,
             "minLength": 0
           },
           "roleIds": {
             "type": "array",
+            "description": "Ids of access levels, from the roles of the church. Optional.",
             "items": {
               "type": "string",
               "format": "uuid"
@@ -4413,6 +4862,7 @@
           },
           "permissions": {
             "type": "array",
+            "description": "Loose permission values, such as `members.read`; the full list is in `GET /v1/iam/permissions`. Optional.",
             "items": {
               "type": "string"
             }
@@ -4424,10 +4874,12 @@
       },
       "OwnerRequest": {
         "type": "object",
+        "description": "Who becomes an Owner.",
         "properties": {
           "email": {
             "type": "string",
             "format": "email",
+            "description": "Email of the user who becomes an Owner; they must already have an account.",
             "minLength": 1
           }
         },
@@ -4437,25 +4889,31 @@
       },
       "CreateInvitationRequest": {
         "type": "object",
+        "description": "Invites `email`. `personId` links an existing person of the node (who gets that email if they have none); without it the only person of the node with that email is linked, and otherwise a person is created when the invitation is accepted, named by `firstName` and `lastName` if given or by whoever accepts. `positionId` (optional) is the position they take.",
         "properties": {
           "email": {
             "type": "string",
             "format": "email",
+            "description": "Email the invitation is sent to.",
             "minLength": 1
           },
           "positionId": {
             "type": "string",
-            "format": "uuid"
+            "format": "uuid",
+            "description": "Id of the position (cargo) they take. Optional."
           },
           "personId": {
             "type": "string",
-            "format": "uuid"
+            "format": "uuid",
+            "description": "Id of an existing person of the node to link the account to. Optional."
           },
           "firstName": {
-            "type": "string"
+            "type": "string",
+            "description": "First names for the person to create, when none is linked. Optional."
           },
           "lastName": {
-            "type": "string"
+            "type": "string",
+            "description": "Last names for the person to create, when none is linked. Optional."
           }
         },
         "required": [
@@ -4464,6 +4922,7 @@
       },
       "CreateInvitationResponse": {
         "type": "object",
+        "description": "`emailSent` is true once the email left. When false the invitation exists anyway and the email is retried on its own; `invitation.emailStatus` says whether it is still waiting or gave up.",
         "properties": {
           "invitation": {
             "$ref": "#/components/schemas/InvitationResponse"
@@ -4528,28 +4987,36 @@
       },
       "CreateLocationRequest": {
         "type": "object",
+        "description": "A location under the church `parentId`.",
         "properties": {
           "name": {
             "type": "string",
+            "description": "Name of the node.",
             "minLength": 1
           },
           "description": {
-            "type": "string"
+            "type": "string",
+            "description": "What the node is about. Optional."
           },
           "address": {
-            "type": "string"
+            "type": "string",
+            "description": "Street address where it meets. Optional."
           },
           "phoneNumber": {
-            "type": "string"
+            "type": "string",
+            "description": "Contact phone number. Optional."
           },
           "socialLinks": {
-            "$ref": "#/components/schemas/SocialLinksRequest"
+            "$ref": "#/components/schemas/SocialLinksRequest",
+            "description": "Its website and social networks. Optional."
           },
           "schedule": {
-            "type": "string"
+            "type": "string",
+            "description": "When the node meets (free text)."
           },
           "memberVisibility": {
             "type": "string",
+            "description": "Who sees the list of people; omitted keeps the current one (public for a new node).",
             "enum": [
               "PUBLIC",
               "CHURCH",
@@ -4558,11 +5025,13 @@
             ]
           },
           "showOrgChart": {
-            "type": "boolean"
+            "type": "boolean",
+            "description": "Whether the public page shows the org chart; omitted keeps the current value."
           },
           "parentId": {
             "type": "string",
-            "format": "uuid"
+            "format": "uuid",
+            "description": "Id of the node it hangs from: the church of a location, or the location, group or ministry of a group or ministry."
           }
         },
         "required": [
@@ -4575,25 +5044,32 @@
         "properties": {
           "name": {
             "type": "string",
+            "description": "Name of the node.",
             "minLength": 1
           },
           "description": {
-            "type": "string"
+            "type": "string",
+            "description": "What the node is about. Optional."
           },
           "address": {
-            "type": "string"
+            "type": "string",
+            "description": "Street address where it meets. Optional."
           },
           "phoneNumber": {
-            "type": "string"
+            "type": "string",
+            "description": "Contact phone number. Optional."
           },
           "socialLinks": {
-            "$ref": "#/components/schemas/SocialLinksRequest"
+            "$ref": "#/components/schemas/SocialLinksRequest",
+            "description": "Its website and social networks. Optional."
           },
           "schedule": {
-            "type": "string"
+            "type": "string",
+            "description": "When the node meets (free text)."
           },
           "memberVisibility": {
             "type": "string",
+            "description": "Who sees the list of people; omitted keeps the current one (public for a new node).",
             "enum": [
               "PUBLIC",
               "CHURCH",
@@ -4602,14 +5078,17 @@
             ]
           },
           "showOrgChart": {
-            "type": "boolean"
+            "type": "boolean",
+            "description": "Whether the public page shows the org chart; omitted keeps the current value."
           },
           "parentId": {
             "type": "string",
-            "format": "uuid"
+            "format": "uuid",
+            "description": "Id of the node it hangs from: the church of a location, or the location, group or ministry of a group or ministry."
           },
           "type": {
             "type": "string",
+            "description": "GROUP or MINISTRY.",
             "enum": [
               "CHURCH",
               "LOCATION",
@@ -4619,6 +5098,7 @@
           },
           "memberIds": {
             "type": "array",
+            "description": "People to start the group with, as members. Optional.",
             "items": {
               "type": "string",
               "format": "uuid"
@@ -4634,14 +5114,17 @@
       },
       "AcceptInvitationRequest": {
         "type": "object",
+        "description": "Only needed when the invitation names no person: the name of the one that will be created.",
         "properties": {
           "firstName": {
             "type": "string",
+            "description": "First names of the person to create.",
             "maxLength": 100,
             "minLength": 0
           },
           "lastName": {
             "type": "string",
+            "description": "Last names of the person to create.",
             "maxLength": 100,
             "minLength": 0
           }
@@ -4666,6 +5149,7 @@
       },
       "CalendarFeedResponse": {
         "type": "object",
+        "description": "The address of the calendar feed, relative to the API origin: subscribe to it from Google Calendar or Apple Calendar.",
         "properties": {
           "path": {
             "type": "string"
@@ -4677,61 +5161,73 @@
         "properties": {
           "name": {
             "type": "string",
+            "description": "Name of the event or course.",
             "minLength": 1
           },
           "startTime": {
-            "type": "string"
+            "type": "string",
+            "description": "When it starts: ISO date and time with offset (2026-03-08T10:00:00-05:00)."
           },
           "endTime": {
-            "type": "string"
+            "type": "string",
+            "description": "When it ends: ISO date and time with offset (2026-03-08T12:00:00-05:00)."
           },
           "speakerIds": {
             "type": "array",
+            "description": "Ids of the people who speak or teach. Optional.",
             "items": {
               "type": "string",
               "format": "uuid"
             }
           },
           "address": {
-            "type": "string"
+            "type": "string",
+            "description": "Where it takes place. Optional."
           },
           "organizationId": {
             "type": "string",
-            "format": "uuid"
+            "format": "uuid",
+            "description": "Id of the node (church, location, group or ministry) that holds the event."
           },
           "description": {
-            "type": "string"
+            "type": "string",
+            "description": "What the event is about. Optional."
           },
           "isACourse": {
-            "type": "boolean"
+            "type": "boolean",
+            "description": "true for a course, false (the default) for an event."
           },
           "recurrence": {
-            "$ref": "#/components/schemas/RecurrenceRequest"
+            "$ref": "#/components/schemas/RecurrenceRequest",
+            "description": "Present when the event repeats."
           },
           "parentEventId": {
             "type": "string",
-            "format": "uuid"
+            "format": "uuid",
+            "description": "The container this event goes inside (a sub-event of a mega event)."
           },
           "registrationMode": {
             "type": "string",
+            "description": "How a sub-event is entered; inherits the container's registration when omitted.",
             "enum": [
               "INHERIT",
               "OWN",
               "OPEN"
             ]
           },
-          "timeZone": {
-            "type": "string"
-          },
-          "validTimeZone": {
-            "type": "boolean"
-          },
           "track": {
             "type": "string",
-            "maxLength": 100
+            "description": "The course, room or track of the program a sub-event belongs to; optional.",
+            "maxLength": 100,
+            "minLength": 0
           },
           "requiresContainerRegistration": {
-            "type": "boolean"
+            "type": "boolean",
+            "description": "A sub-event with its own sign-up asks for a place in its mega event first."
+          },
+          "timeZone": {
+            "type": "string",
+            "description": "IANA zone the event repeats in (e.g. America/Lima); UTC when omitted."
           }
         },
         "required": [
@@ -4743,6 +5239,7 @@
       },
       "EventLinkResponse": {
         "type": "object",
+        "description": "The address of the shared page of an event is `/e/{slug`}.",
         "properties": {
           "slug": {
             "type": "string"
@@ -4751,14 +5248,17 @@
       },
       "ShareEventRequest": {
         "type": "object",
+        "description": "Shares an event with one person.",
         "properties": {
           "email": {
             "type": "string",
             "format": "email",
+            "description": "Email of the person the event is shared with.",
             "minLength": 1
           },
           "role": {
             "type": "string",
+            "description": "What they can do: view or edit.",
             "enum": [
               "VIEWER",
               "EDITOR"
@@ -4772,6 +5272,7 @@
       },
       "ShareEventResponse": {
         "type": "object",
+        "description": "The email is sent soon after the share is saved: `emailStatus` is PENDING until it leaves (it is retried on its own), SENT, or FAILED when it was given up. The share applies anyway. `emailSent` is true only for SENT.",
         "properties": {
           "share": {
             "$ref": "#/components/schemas/ShareResponse"
@@ -4784,27 +5285,47 @@
           }
         }
       },
+      "EventNoticeRequest": {
+        "type": "object",
+        "description": "An announcement for the page of the event.",
+        "properties": {
+          "message": {
+            "type": "string",
+            "description": "The text of the announcement, up to 1000 characters.",
+            "maxLength": 1000,
+            "minLength": 0
+          }
+        },
+        "required": [
+          "message"
+        ]
+      },
       "VisitorRequest": {
         "type": "object",
+        "description": "A new visitor: only the first name is required.",
         "properties": {
           "firstName": {
             "type": "string",
+            "description": "First names.",
             "maxLength": 100,
             "minLength": 0
           },
           "lastName": {
             "type": "string",
+            "description": "Last names. Optional.",
             "maxLength": 100,
             "minLength": 0
           },
           "phoneNumber": {
             "type": "string",
+            "description": "Phone number. Optional.",
             "maxLength": 40,
             "minLength": 0
           },
           "email": {
             "type": "string",
             "format": "email",
+            "description": "Email. Optional.",
             "maxLength": 200,
             "minLength": 0
           }
@@ -4815,6 +5336,7 @@
       },
       "VisitorResponse": {
         "type": "object",
+        "description": "The person created for the visitor.",
         "properties": {
           "personId": {
             "type": "string",
@@ -4824,9 +5346,11 @@
       },
       "TicketCheckInRequest": {
         "type": "object",
+        "description": "The code of the ticket QR an usher scanned.",
         "properties": {
           "ticketCode": {
             "type": "string",
+            "description": "The code read from the QR of the ticket.",
             "minLength": 1
           }
         },
@@ -4836,29 +5360,36 @@
       },
       "CreateComplaintRequest": {
         "type": "object",
+        "description": "Body of the public complaint form; same fields and constraints as the `Complaint`.",
         "properties": {
           "firstName": {
             "type": "string",
+            "description": "First names of who complains.",
             "minLength": 1
           },
           "lastName": {
             "type": "string",
+            "description": "Last names of who complains.",
             "minLength": 1
           },
           "dni": {
             "type": "string",
+            "description": "National identity document: 8 digits. Optional.",
             "pattern": "^\\d{8}$"
           },
           "address": {
-            "type": "string"
+            "type": "string",
+            "description": "Home address. Optional."
           },
           "email": {
             "type": "string",
             "format": "email",
+            "description": "Email where the answer is sent.",
             "minLength": 1
           },
           "comment": {
             "type": "string",
+            "description": "The complaint itself.",
             "minLength": 1
           }
         },
@@ -4871,6 +5402,7 @@
       },
       "ComplaintResponse": {
         "type": "object",
+        "description": "Same JSON fields the endpoint returned when it serialized the Complaint entity.",
         "properties": {
           "id": {
             "type": "string",
@@ -4906,6 +5438,7 @@
       },
       "OrgChartNode": {
         "type": "object",
+        "description": "`slug` links to the page of the node itself when it is public, and is null otherwise.",
         "properties": {
           "name": {
             "type": "string"
@@ -4952,6 +5485,7 @@
       },
       "PublicPageResponse": {
         "type": "object",
+        "description": "The public page of a node, with only adults named; see `GetPublicPageResult`.",
         "properties": {
           "name": {
             "type": "string"
@@ -5005,6 +5539,7 @@
       },
       "InvitationPreviewResponse": {
         "type": "object",
+        "description": "What the invitee sees before signing in: where they are invited, as what, and to which email. `needsName` says the invitee will be asked for their name when accepting.",
         "properties": {
           "email": {
             "type": "string"
@@ -5025,6 +5560,7 @@
       },
       "ContainerResponse": {
         "type": "object",
+        "description": "The mega event a sub-event belongs to.",
         "properties": {
           "slug": {
             "type": "string"
@@ -5034,8 +5570,31 @@
           }
         }
       },
+      "EventNoticeResponse": {
+        "type": "object",
+        "description": "A notice of an event: what happened and when, shown on its page.",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": [
+              "ANNOUNCEMENT",
+              "CHANGED",
+              "CANCELLED",
+              "REGISTRATION_CHANGED"
+            ]
+          },
+          "message": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
       "ProgramItemResponse": {
         "type": "object",
+        "description": "A sub-event of a mega event; never lists who signed up.",
         "properties": {
           "slug": {
             "type": "string"
@@ -5072,6 +5631,7 @@
       },
       "RecurrenceResponse": {
         "type": "object",
+        "description": "How the series of an event repeats; absent for a one-off event.",
         "properties": {
           "seriesId": {
             "type": "string",
@@ -5147,6 +5707,7 @@
       },
       "SharedEventResponse": {
         "type": "object",
+        "description": "The page of a shared event: what it is, where and when, how to sign up, and where the visitor stands. `registration` is null when the event takes no sign-ups.",
         "properties": {
           "title": {
             "type": "string"
@@ -5206,6 +5767,7 @@
       },
       "TicketResponse": {
         "type": "object",
+        "description": "`remaining` is null when nothing limits the ticket.",
         "properties": {
           "id": {
             "type": "string",
@@ -5232,6 +5794,7 @@
       },
       "AttendanceWelcomeResponse": {
         "type": "object",
+        "description": "What someone who scanned the QR sees; `status` says whether they can mark themselves.",
         "properties": {
           "title": {
             "type": "string"
@@ -5255,6 +5818,7 @@
       },
       "PositionSuggestionResponse": {
         "type": "object",
+        "description": "A common position name with the permissions it usually gives (empty for a plain label).",
         "properties": {
           "name": {
             "type": "string"
@@ -5341,6 +5905,7 @@
       },
       "PersonResponse": {
         "type": "object",
+        "description": "Same JSON fields the endpoints returned when they serialized the Person entity.",
         "properties": {
           "id": {
             "type": "string",
@@ -5447,6 +6012,7 @@
       },
       "PersonMatchResponse": {
         "type": "object",
+        "description": "A person who may be the one being registered. `status` is ACTIVE while they belong to some node of the church and REMOVED after they were taken out (`removedTime` says when).",
         "properties": {
           "id": {
             "type": "string",
@@ -5476,6 +6042,7 @@
       },
       "DirectoryEntryResponse": {
         "type": "object",
+        "description": "`members` is empty and `membersVisible` false when the caller may not see them.",
         "properties": {
           "node": {
             "$ref": "#/components/schemas/DirectoryNodeResponse"
@@ -5606,6 +6173,7 @@
       },
       "PositionHolderResponse": {
         "type": "object",
+        "description": "`email` is the linked user's, null when the person has no account.",
         "properties": {
           "personId": {
             "type": "string",
@@ -5624,6 +6192,7 @@
       },
       "PositionSummaryResponse": {
         "type": "object",
+        "description": "A position with all the permissions it gives (`effectivePermissions`: roles plus loose ones) and the people who hold it.",
         "properties": {
           "id": {
             "type": "string",
@@ -5682,6 +6251,7 @@
       },
       "MemberGrowthResponse": {
         "type": "object",
+        "description": "How many people the node has in each state and how that moved month by month.",
         "properties": {
           "current": {
             "$ref": "#/components/schemas/Counts"
@@ -5768,6 +6338,7 @@
       },
       "MemberGrowthRangeResponse": {
         "type": "object",
+        "description": "How many people the node has in each state and how that moved over an explicit date range.",
         "properties": {
           "current": {
             "$ref": "#/components/schemas/Counts"
@@ -5814,6 +6385,7 @@
       },
       "AttendanceStatsResponse": {
         "type": "object",
+        "description": "Attendance over a date range, sliced into periods.",
         "properties": {
           "buckets": {
             "type": "array",
@@ -5825,6 +6397,7 @@
       },
       "AccessEntryResponse": {
         "type": "object",
+        "description": "`bindingId` is only set for direct accesses (Owner); `source` says where the access comes from and `positionName` is the position when it comes from one.",
         "properties": {
           "bindingId": {
             "type": "string",
@@ -5887,6 +6460,7 @@
       },
       "SharedWithMeResponse": {
         "type": "object",
+        "description": "An event someone shared with the user; open it at `/e/{slug`}.",
         "properties": {
           "title": {
             "type": "string"
@@ -5915,6 +6489,7 @@
       },
       "MyOrganizationResponse": {
         "type": "object",
+        "description": "A node of the user's trees; the client builds the tree from `parentId`.",
         "properties": {
           "id": {
             "type": "string",
@@ -5949,6 +6524,7 @@
       },
       "MyNodeResponse": {
         "type": "object",
+        "description": "A group, ministry or location where the user's own person is on the list or holds a position.",
         "properties": {
           "id": {
             "type": "string",
@@ -5983,6 +6559,7 @@
       },
       "MyEventResponse": {
         "type": "object",
+        "description": "An event or course where the user has a place or was present; open it at `/e/{slug`}. The registration fields are null without a sign-up; `cancelCode` and `ticketCode` are the user's own.",
         "properties": {
           "title": {
             "type": "string"
@@ -6047,6 +6624,7 @@
       },
       "ChildResponse": {
         "type": "object",
+        "description": "A sub-event listed inside its container.",
         "properties": {
           "id": {
             "type": "string",
@@ -6081,6 +6659,7 @@
       },
       "EventResponse": {
         "type": "object",
+        "description": "Same JSON fields the endpoints returned when they serialized the event entity, plus `recurrence` when it belongs to a series.",
         "properties": {
           "id": {
             "type": "string",
@@ -6141,14 +6720,14 @@
               "OPEN"
             ]
           },
+          "track": {
+            "type": "string"
+          },
           "children": {
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/ChildResponse"
             }
-          },
-          "track": {
-            "type": "string"
           },
           "programSize": {
             "type": "integer",
@@ -6161,6 +6740,7 @@
       },
       "SpeakerResponse": {
         "type": "object",
+        "description": "Same JSON fields as the serialized Person entity.",
         "properties": {
           "id": {
             "type": "string",
@@ -6270,10 +6850,12 @@
           },
           "guestCount": {
             "type": "integer",
-            "format": "int32"
+            "format": "int32",
+            "description": "Visitors who gave no name, only counted."
           },
           "marks": {
             "type": "array",
+            "description": "How and when each person was marked.",
             "items": {
               "$ref": "#/components/schemas/Mark"
             }
@@ -6301,33 +6883,9 @@
           }
         }
       },
-      "AttendanceQrResponse": {
-        "type": "object",
-        "properties": {
-          "token": {
-            "type": "string"
-          },
-          "refreshAt": {
-            "type": "string",
-            "format": "date-time"
-          }
-        }
-      },
-      "EventDeleteRequest": {
-        "type": "object",
-        "properties": {
-          "option": {
-            "type": "string",
-            "enum": [
-              "THIS_EVENT",
-              "THIS_AND_THE_FOLLOWING_EVENTS",
-              "ALL_EVENTS"
-            ]
-          }
-        }
-      },
       "AttendanceSummaryResponse": {
         "type": "object",
+        "description": "How many came to the event, counting each person once: `people` marked in the attendance, `ticketOnly` who came in with a ticket without being one of those people, `guests` visitors without a name, and the `total` of the three.",
         "properties": {
           "people": {
             "type": "integer",
@@ -6347,51 +6905,33 @@
           }
         }
       },
-      "EventNoticeRequest": {
+      "AttendanceQrResponse": {
         "type": "object",
+        "description": "The code to show as a QR (the page is `/a/{token`}); ask for a new one at `refreshAt`.",
         "properties": {
-          "message": {
-            "type": "string",
-            "maxLength": 1000,
-            "minLength": 1
-          }
-        },
-        "required": [
-          "message"
-        ]
-      },
-      "EventNoticeResponse": {
-        "type": "object",
-        "properties": {
-          "kind": {
-            "type": "string",
-            "enum": [
-              "ANNOUNCEMENT",
-              "CHANGED",
-              "CANCELLED",
-              "REGISTRATION_CHANGED"
-            ]
-          },
-          "message": {
+          "token": {
             "type": "string"
           },
-          "createdAt": {
+          "refreshAt": {
             "type": "string",
             "format": "date-time"
           }
         }
       },
-      "AgentPausedRequest": {
+      "EventDeleteRequest": {
         "type": "object",
+        "description": "Which events of a recurring series to delete; only this one when not said.",
         "properties": {
-          "paused": {
-            "type": "boolean",
-            "description": "true pauses the assistant, false resumes it"
+          "option": {
+            "type": "string",
+            "description": "Which occurrences to delete; only this one when omitted.",
+            "enum": [
+              "THIS_EVENT",
+              "THIS_AND_THE_FOLLOWING_EVENTS",
+              "ALL_EVENTS"
+            ]
           }
-        },
-        "required": [
-          "paused"
-        ]
+        }
       }
     }
   }
