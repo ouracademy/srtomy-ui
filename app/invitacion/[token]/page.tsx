@@ -14,7 +14,6 @@ import { apiErrorMessage } from "@/app/(components)/apiErrorMessage";
 import Loading from "@/app/(components)/Loading";
 import { ResourceError } from "@/app/(components)/ResourceError";
 import { SnackbarContext } from "@/app/(components)/SnackbarContext";
-import { saveLastNode } from "@/app/portal/lastNode";
 import { suggestedNames, type PersonName } from "@/app/portal/userNames";
 import { InvitationAccept } from "./InvitationAccept";
 
@@ -42,7 +41,6 @@ export default function InvitationPage(props: {
       const joined = await postInvitationsByTokenAccept(token, name);
       await mutate(getGetMeOrganizationsKey());
       alert.showMessage("Invitación aceptada");
-      saveLastNode(joined.organizationId ?? "");
       router.push(`/portal/${joined.organizationId}`);
       return undefined;
     } catch (failure) {

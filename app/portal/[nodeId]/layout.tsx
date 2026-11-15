@@ -14,7 +14,6 @@ import MenuDrawer from "../MenuDrawer";
 import { PortalMenu } from "../PortalMenu";
 import { useGetOrganizationsById } from "@/app/(api)/generated";
 import { usePermissions, type Permission } from "@/app/(hooks)/usePermissions";
-import { saveLastNode } from "../lastNode";
 import { nodeTypeLabels } from "../organizationTree";
 import { childrenLabels } from "./location/groups/childrenLabels";
 
@@ -81,8 +80,6 @@ export default function NodeLayout(props: {
 
   const { data: node } = useGetOrganizationsById(nodeId);
   const { can } = usePermissions(nodeId);
-
-  React.useEffect(() => saveLastNode(nodeId), [nodeId]);
 
   const items = [
     { label: "Mi espacio", href: "/portal/me", Icon: HomeOutlinedIcon },
