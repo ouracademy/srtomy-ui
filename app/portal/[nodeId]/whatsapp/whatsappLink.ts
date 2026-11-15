@@ -36,9 +36,24 @@ type DisconnectReason =
   | "ACCESS_REMOVED"
   | "ACCOUNT_DISABLED";
 
+// The steps that cut the link of Kapso in the phone. Only the owner of the
+// WhatsApp Business app can do it: Meta does not let a provider (nor Sr. Tommy)
+// remove a number tied to the app, so the card shows them after "Desconectar".
+export const unlinkSteps = [
+  "Abre la app WhatsApp Business en el celular de la iglesia.",
+  "Entra a Ajustes → Cuenta → Plataforma comercial.",
+  "Toca «Kapso» y luego «Desconectar».",
+];
+
+// Kapso's own guide: where it says the connected provider is listed in the app
+// and has to be disconnected there.
+export const unlinkGuideUrl =
+  "https://docs.kapso.ai/docs/how-to/whatsapp/coexistence-troubleshooting";
+
 // What to tell the pastor when the number stopped working without them
-// pressing "Desconectar". Undefined when they did it themselves (or the API
-// does not say why): there is nothing to warn about.
+// pressing "Desconectar" (Meta or Kapso cut it). Undefined when they did it
+// themselves (the card then shows the steps to unlink the phone) or the API
+// does not say why.
 export const disconnectNotice = (
   reason: DisconnectReason | undefined,
 ): string | undefined => {

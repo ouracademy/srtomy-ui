@@ -12,13 +12,17 @@ afterEach(cleanup);
 const renderCard = (
   connection: WhatsAppConnectionResponse,
   handlers: {
-    onConnect?: (mode: string) => Promise<void>;
+    onConnect?: () => Promise<void>;
     onDisconnect?: () => Promise<void>;
+    onSetAgentPaused?: (paused: boolean) => Promise<void>;
     onSubmitTemplates?: () => Promise<ProvisionTemplatesResponse | undefined>;
   } = {},
 ) => {
   const onConnect = vi.fn(handlers.onConnect ?? (async () => undefined));
   const onDisconnect = vi.fn(handlers.onDisconnect ?? (async () => undefined));
+  const onSetAgentPaused = vi.fn(
+    handlers.onSetAgentPaused ?? (async () => undefined),
+  );
   const onSubmitTemplates = vi.fn(
     handlers.onSubmitTemplates ?? (async () => ({ templates: [] })),
   );
@@ -27,25 +31,22 @@ const renderCard = (
       connection={connection}
       onConnect={onConnect}
       onDisconnect={onDisconnect}
+      onSetAgentPaused={onSetAgentPaused}
       onSubmitTemplates={onSubmitTemplates}
     />,
   );
-  return { onConnect, onDisconnect, onSubmitTemplates };
+  return { onConnect, onDisconnect, onSetAgentPaused, onSubmitTemplates };
 };
 
 describe("ChurchWhatsAppCard", () => {
-  it("offers to connect a church without WhatsApp, keeping the app by default", async () => {
+  it("offers to connect a church without WhatsApp, with no choice of mode", async () => {
     const user = userEvent.setup();
     const { onConnect } = renderCard({ status: "NOT_CONNECTED" });
 
     expect(screen.getByText("Sin conectar")).toBeTruthy();
-    expect(
-      (
-        screen.getByRole("radio", {
-          name: /Seguir usando la app de WhatsApp Business/,
-        }) as HTMLInputElement
-      ).checked,
-    ).toBe(true);
+    // The church keeps its phone and the app: there is nothing to choose.
+    expect(screen.queryByRole("radio")).toBeNull();
+    expect(screen.getByText(/código QR/)).toBeTruthy();
 
     // Who pays Meta is said before connecting: the church, with its own card.
     expect(
@@ -57,19 +58,47 @@ describe("ChurchWhatsAppCard", () => {
 
     await user.click(screen.getByRole("button", { name: "Conectar WhatsApp" }));
 
-    expect(onConnect).toHaveBeenCalledWith("COEXISTENCE");
+    expect(onConnect).toHaveBeenCalledTimes(1);
   });
 
-  it("connects in the mode the pastor chooses", async () => {
+  it("pauses the assistant while the number stays connected", async () => {
     const user = userEvent.setup();
-    const { onConnect } = renderCard({ status: "NOT_CONNECTED" });
+    const { onSetAgentPaused } = renderCard({
+      status: "CONNECTED",
+      displayNumber: "+51 1",
+      agentPaused: false,
+    });
 
+    expect(screen.queryByText("Asistente en pausa")).toBeNull();
+    await user.click(screen.getByRole("button", { name: "Pausar asistente" }));
+
+    expect(onSetAgentPaused).toHaveBeenCalledWith(true);
+  });
+
+  it("says the assistant is paused and offers to resume it", async () => {
+    const user = userEvent.setup();
+    const { onSetAgentPaused } = renderCard({
+      status: "CONNECTED",
+      displayNumber: "+51 1",
+      agentPaused: true,
+    });
+
+    expect(screen.getByText("Asistente en pausa")).toBeTruthy();
+    expect(screen.getByText(/no responde a nadie/)).toBeTruthy();
     await user.click(
-      screen.getByRole("radio", { name: /Solo para el asistente/ }),
+      screen.getByRole("button", { name: "Reanudar asistente" }),
     );
-    await user.click(screen.getByRole("button", { name: "Conectar WhatsApp" }));
 
-    expect(onConnect).toHaveBeenCalledWith("DEDICATED");
+    expect(onSetAgentPaused).toHaveBeenCalledWith(false);
+  });
+
+  it("does not offer to pause from a branch, whose number is the church's", () => {
+    renderCard({ status: "CONNECTED", inherited: true, agentPaused: true });
+
+    expect(
+      screen.queryByRole("button", { name: "Reanudar asistente" }),
+    ).toBeNull();
+    expect(screen.getByText("Asistente en pausa")).toBeTruthy();
   });
 
   it("is blocked while the link is being made", async () => {
@@ -120,7 +149,7 @@ describe("ChurchWhatsAppCard", () => {
     ).toBeTruthy();
     // It says what happens to the number and where else to look.
     expect(screen.getByText(/se retira de Sr. Tommy y de Kapso/)).toBeTruthy();
-    expect(screen.getByText(/Plataforma comercial/)).toBeTruthy();
+    expect(screen.getByText(/usa «Pausar asistente»/)).toBeTruthy();
 
     const confirm = screen
       .getAllByRole("button", { name: "Desconectar" })
@@ -219,12 +248,34 @@ describe("ChurchWhatsAppCard", () => {
     ).toBeTruthy();
   });
 
-  it("does not warn when the pastor disconnected it", () => {
+  it("gives the steps to unlink the phone to the pastor who disconnected, without alarming", () => {
     renderCard({ status: "DISCONNECTED", disconnectReason: "PASTOR" });
 
-    expect(screen.queryByText(/El asistente no responde/)).toBeNull();
+    expect(
+      screen.getByText("WhatsApp quedó desconectado de Sr. Tommy"),
+    ).toBeTruthy();
+    const steps = screen.getAllByRole("listitem").map((i) => i.textContent);
+    expect(steps).toEqual([
+      "Abre la app WhatsApp Business en el celular de la iglesia.",
+      "Entra a Ajustes → Cuenta → Plataforma comercial.",
+      "Toca «Kapso» y luego «Desconectar».",
+    ]);
+    expect(screen.getByText(/No es necesario para dejar de usar/)).toBeTruthy();
+    const guide = screen.getByRole("link", {
+      name: "Guía de Kapso para desconectarlo",
+    });
+    expect(guide.getAttribute("href")).toMatch(/^https:\/\/docs\.kapso\.ai\//);
+    expect(guide.getAttribute("target")).toBe("_blank");
+    expect(screen.queryByText(/El asistente no responde ni envía/)).toBeNull();
     expect(
       screen.getByRole("button", { name: "Conectar WhatsApp" }),
     ).toBeTruthy();
+  });
+
+  it("does not show the phone steps when Meta or Kapso cut the number", () => {
+    renderCard({ status: "DISCONNECTED", disconnectReason: "ACCESS_REMOVED" });
+
+    expect(screen.queryByRole("listitem")).toBeNull();
+    expect(screen.queryByRole("link")).toBeNull();
   });
 });

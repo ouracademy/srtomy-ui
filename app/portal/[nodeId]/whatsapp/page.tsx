@@ -9,6 +9,7 @@ import {
   postOrganizationsByIdWhatsappLinkCode,
   postOrganizationsByIdWhatsappSetupLink,
   postOrganizationsByIdWhatsappTemplates,
+  putOrganizationsByIdWhatsappAgent,
   useGetOrganizationsByIdWhatsapp,
   useGetOrganizationsByIdWhatsappLink,
 } from "@/app/(api)/generated";
@@ -94,16 +95,30 @@ export default function WhatsAppPage(props: {
       {canConnect && connection && (
         <ChurchWhatsAppCard
           connection={connection}
-          onConnect={async (mode) => {
+          onConnect={async () => {
             try {
+              // Always Coexistence: the church keeps its phone and the app.
               const created = await postOrganizationsByIdWhatsappSetupLink(
                 nodeId,
-                { mode },
+                { mode: "COEXISTENCE" },
               );
               if (created.url) globalThis.location.assign(created.url);
             } catch (error) {
               alert.showMessage(
                 apiErrorMessage(error, "No se pudo crear el enlace"),
+              );
+            }
+          }}
+          onSetAgentPaused={async (paused) => {
+            try {
+              await putOrganizationsByIdWhatsappAgent(nodeId, { paused });
+              await refreshConnection();
+              alert.showMessage(
+                paused ? "Asistente en pausa" : "Asistente reanudado",
+              );
+            } catch (error) {
+              alert.showMessage(
+                apiErrorMessage(error, "No se pudo cambiar el asistente"),
               );
             }
           }}

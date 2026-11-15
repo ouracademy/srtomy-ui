@@ -3236,6 +3236,40 @@
           }
         }
       }
+    },
+    "/v1/organizations/{id}/whatsapp/agent": {
+      "put": {
+        "tags": [
+          "whatsapp"
+        ],
+        "operationId": "setAgentPaused",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AgentPausedRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "No Content"
+          }
+        }
+      }
     }
   },
   "components": {
@@ -5548,6 +5582,10 @@
               "ACCESS_REMOVED",
               "ACCOUNT_DISABLED"
             ]
+          },
+          "agentPaused": {
+            "type": "boolean",
+            "description": "The assistant is paused: the number is connected but it does not answer"
           }
         }
       },
@@ -6342,6 +6380,18 @@
             "format": "date-time"
           }
         }
+      },
+      "AgentPausedRequest": {
+        "type": "object",
+        "properties": {
+          "paused": {
+            "type": "boolean",
+            "description": "true pauses the assistant, false resumes it"
+          }
+        },
+        "required": [
+          "paused"
+        ]
       }
     }
   }
