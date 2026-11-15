@@ -34,12 +34,13 @@ describe("LegalDocument", () => {
     expect(screen.getByText(/info@sr-tommy\.com/)).toBeVisible();
   });
 
-  it("keeps every clause exported from the old privacy page", () => {
+  it("keeps every clause exported from the old privacy page, plus the one on the AI assistant", () => {
     render(<LegalDocument {...privacyContent} />);
     expect(
       screen.getAllByRole("heading", { level: 2 }).map((h) => h.textContent),
     ).toEqual([
       "RECOLECCIÓN DE DATA Y USO",
+      "ASISTENTE DE INTELIGENCIA ARTIFICIAL",
       "COMO SOLICITAR LA ELIMINACIÓN DE SU DATA DE NUESTRO SISTEMA",
       "SEGURIDAD",
       "REGISTRO",
