@@ -1,5 +1,5 @@
 import { defineConfig, devices } from "@playwright/test";
-import { APP_ORIGIN, E2E_PORT } from "./tests/e2e-env";
+import { AGENT_URL, APP_ORIGIN, E2E_PORT } from "./tests/e2e-env";
 
 /**
  * See https://playwright.dev/docs/test-configuration.
@@ -82,6 +82,7 @@ export default defineConfig({
       NEXT_PUBLIC_AUTH0_DOMAIN: "test.auth0.local",
       NEXT_PUBLIC_AUTH0_CLIENT_ID: "e2e-client",
       NEXT_PUBLIC_API_URL: "http://localhost:8080",
+      NEXT_PUBLIC_AGENT_URL: AGENT_URL,
     },
   },
 });

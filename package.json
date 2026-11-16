@@ -21,6 +21,7 @@
     "postinstall": "pnpm api:generate"
   },
   "dependencies": {
+    "@ai-sdk/react": "^4.0.177",
     "@auth0/auth0-react": "^2.30.0",
     "@emotion/cache": "^11.14.0",
     "@emotion/react": "^11.14.0",
@@ -36,6 +37,7 @@
     "@mui/x-data-grid": "^9.17.0",
     "@mui/x-date-pickers": "^9.17.0",
     "@next/third-parties": "^16.4.3",
+    "ai": "^7.0.173",
     "axios": "^1.21.0",
     "date-fns": "^4.4.0",
     "mui-tel-input": "^11.0.0",
