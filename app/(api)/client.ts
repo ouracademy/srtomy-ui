@@ -15,15 +15,19 @@ export const setAccessTokenProvider = (provider?: AccessTokenProvider) => {
   accessTokenProvider = provider;
 };
 
+// The access token of the signed-in user, for the other backend the portal
+// talks to (the AI assistant, see ./assistant.ts). Undefined without a
+// provider; rejects when Auth0 cannot give one (expired session).
+export const getAccessToken = async (): Promise<string | undefined> =>
+  accessTokenProvider?.();
+
 // The only HTTP client of the app. Components never use it directly: they go
 // through the functions and hooks in ./services.
 export const apiClient = axios.create({ baseURL: apiUrl });
 
 apiClient.interceptors.request.use(async (config) => {
-  if (!accessTokenProvider) return config;
-
   try {
-    const token = await accessTokenProvider();
+    const token = await getAccessToken();
     if (token) config.headers.set("authorization", `Bearer ${token}`);
   } catch {
     // Anonymous visitor (e.g. the public complaints book): send the request

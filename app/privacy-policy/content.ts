@@ -18,6 +18,7 @@ export const privacyContent: LegalContent = {
       title: "ASISTENTE DE INTELIGENCIA ARTIFICIAL",
       paragraphs: [
         "Sr. Tommy tiene un asistente de inteligencia artificial que responde por WhatsApp y dentro de la plataforma. Para responder, los mensajes que usted le escribe y los datos de la iglesia que el asistente consulta se envían a Claude, el modelo de inteligencia artificial de Anthropic.",
+        "Si su iglesia tiene un plan con inteligencia artificial, sus datos y los mensajes que escriba al asistente pueden ser enviados a aplicaciones de terceros, como Claude (Anthropic), OpenAI u otros proveedores de inteligencia artificial, solo para generar la respuesta del asistente.",
         "El asistente solo consulta y cambia lo que su cuenta o su nivel de acceso le permiten, y no cambia ningún dato sin que usted lo confirme. Si no desea que sus mensajes se procesen así, no le escriba al asistente.",
       ],
     },

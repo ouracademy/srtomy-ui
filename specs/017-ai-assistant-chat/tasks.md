@@ -89,16 +89,16 @@ description: "Task list for 017-ai-assistant-chat"
 
 **Objetivo**: el panel del asistente, solo lecturas (US1) y sugerencias (US4). Puede empezar sin esperar al PR 2: las pruebas simulan `POST /chat`.
 
-- [ ] T037 [US1] Instalar las últimas `ai` y `@ai-sdk/react`; `NEXT_PUBLIC_AGENT_URL` opcional en `app/env.ts` con su prueba en `app/env.test.ts`; documentar en `README.md` y `.env.example`
-- [ ] T038 [US1] `app/(api)/assistant.ts` + test: `DefaultChatTransport` hacia `${NEXT_PUBLIC_AGENT_URL}/chat` con `authorization` del mismo proveedor de token que `app/(api)/client.ts` (exportar un `getAccessToken` desde allí) y el contexto de pantalla en el cuerpo
-- [ ] T039 [P] [US4] `app/portal/assistant/screenContext.ts` + test: `nodeId`, `eventId` y `personId` a partir de la ruta `/portal/[nodeId]/...`; `timeZone` del navegador
-- [ ] T040 [US1] `app/portal/assistant/useAssistant.ts` + test: `useChat` con el transporte, el contexto actual en cada envío, «Conversación nueva», manejo de 401 (pedir iniciar sesión sin perder lo escrito), 429 (deshabilitar enviar hasta `Retry-After`) y error con reintento
-- [ ] T041 [P] [US1] `app/portal/assistant/MessageList.tsx` + test: mensajes en texto plano con saltos de línea, «Consultando eventos…» con el nombre del recurso en español mientras una herramienta corre, región viva `aria-live="polite"` para la respuesta nueva
-- [ ] T042 [P] [US4] `app/portal/assistant/suggestions.ts` + test: 3 o 4 sugerencias según la pantalla y los permisos (`useMyPermissions` existente); ninguna sobre algo que el usuario no puede hacer
-- [ ] T043 [US1] `app/portal/assistant/AssistantPanel.tsx` + test (user-event): `Drawer` a la derecha, pantalla completa en móvil; campo de texto con etiqueta, enviar con Enter, botón «Detener» mientras responde, «Conversación nueva», estados vacío (sugerencias), cargando, error y sesión vencida; foco al campo al abrir y de vuelta al botón al cerrar
-- [ ] T044 [US1] `app/portal/assistant/AssistantButton.tsx` + test: botón flotante con nombre accesible «Abrir asistente»; montado en `app/portal/PortalProviders.tsx` solo con `NEXT_PUBLIC_AGENT_URL`; la conversación se conserva al navegar dentro del portal y se borra al cerrar sesión
-- [ ] T045 [US1] `tests/assistant.spec.ts` (Playwright): interceptar `POST /chat` con un stream grabado; preguntar y ver la respuesta progresiva; error con reintento; `tests/a11y.spec.ts` con el panel abierto sin infracciones serias o críticas
-- [ ] T046 [US1] `docs/architecture.md`: el asistente como segundo backend y por qué su transporte vive en `app/(api)/assistant.ts`
+- [x] T037 [US1] Instalar las últimas `ai` y `@ai-sdk/react`; `NEXT_PUBLIC_AGENT_URL` opcional en `app/env.ts` con su prueba en `app/env.test.ts`; documentar en `README.md` y `.env.example`
+- [x] T038 [US1] `app/(api)/assistant.ts` + test: `DefaultChatTransport` hacia `${NEXT_PUBLIC_AGENT_URL}/chat` con `authorization` del mismo proveedor de token que `app/(api)/client.ts` (exportar un `getAccessToken` desde allí) y el contexto de pantalla en el cuerpo
+- [x] T039 [P] [US4] `app/portal/assistant/screenContext.ts` + test: `nodeId`, `eventId` y `personId` a partir de la ruta `/portal/[nodeId]/...`; `timeZone` del navegador
+- [x] T040 [US1] `app/portal/assistant/useAssistant.ts` + test: `useChat` con el transporte, el contexto actual en cada envío, «Conversación nueva», manejo de 401 (pedir iniciar sesión sin perder lo escrito), 429 (deshabilitar enviar hasta `Retry-After`) y error con reintento
+- [x] T041 [P] [US1] `app/portal/assistant/MessageList.tsx` + test: mensajes en texto plano con saltos de línea, «Consultando eventos…» con el nombre del recurso en español mientras una herramienta corre, región viva `aria-live="polite"` para la respuesta nueva
+- [x] T042 [P] [US4] `app/portal/assistant/suggestions.ts` + test: 3 o 4 sugerencias según la pantalla y los permisos (`useMyPermissions` existente); ninguna sobre algo que el usuario no puede hacer
+- [x] T043 [US1] `app/portal/assistant/AssistantPanel.tsx` + test (user-event): `Drawer` a la derecha, pantalla completa en móvil; campo de texto con etiqueta, enviar con Enter, botón «Detener» mientras responde, «Conversación nueva», estados vacío (sugerencias), cargando, error y sesión vencida; foco al campo al abrir y de vuelta al botón al cerrar
+- [x] T044 [US1] `app/portal/assistant/AssistantButton.tsx` + test: botón flotante con nombre accesible «Abrir asistente»; montado en `app/portal/PortalProviders.tsx` solo con `NEXT_PUBLIC_AGENT_URL`; la conversación se conserva al navegar dentro del portal y se borra al cerrar sesión
+- [x] T045 [US1] `tests/assistant.spec.ts` (Playwright): interceptar `POST /chat` con un stream grabado; preguntar y ver la respuesta progresiva; error con reintento; `tests/a11y.spec.ts` con el panel abierto sin infracciones serias o críticas
+- [x] T046 [US1] `docs/architecture.md`: el asistente como segundo backend y por qué su transporte vive en `app/(api)/assistant.ts`
 
 ---
 
@@ -113,9 +113,9 @@ description: "Task list for 017-ai-assistant-chat"
 
 ## PR 4b — srtomy-ui `ccr-e703f55f-lo650n-approvals` (base `-panel`) · sesión UI
 
-- [ ] T051 [US2] `app/portal/assistant/ApprovalCard.tsx` + test (user-event): muestra `approval.requestReason` y los datos principales de `input`; «Confirmar» y «Cancelar» con `addToolApprovalResponse`; una eliminación con color de peligro y «No se puede deshacer»; botones con spinner y bloqueados mientras se envía (skill `api-submit-button`)
-- [ ] T052 [US2] `useAssistant.ts`: `sendAutomaticallyWhen: lastAssistantMessageIsCompleteWithApprovalResponses`; enviar un mensaje nuevo con una aprobación pendiente la responde antes con «no»; al terminar bien una herramienta que escribe, revalidar SWR (`mutate` global) para que las pantallas muestren el cambio; con tests
-- [ ] T053 [US2] `tests/assistant.spec.ts`: pedir crear un evento → tarjeta → «Confirmar» → la llamada sale y el calendario se revalida; «Cancelar» → no sale ninguna escritura
+- [x] T051 [US2] `app/portal/assistant/ApprovalCard.tsx` + test (user-event): muestra `approval.requestReason` y los datos principales de `input`; «Confirmar» y «Cancelar» con `addToolApprovalResponse`; una eliminación con color de peligro y «No se puede deshacer»; botones con spinner y bloqueados mientras se envía (skill `api-submit-button`)
+- [x] T052 [US2] `useAssistant.ts`: `sendAutomaticallyWhen: lastAssistantMessageIsCompleteWithApprovalResponses`; enviar un mensaje nuevo con una aprobación pendiente la responde antes con «no»; al terminar bien una herramienta que escribe, revalidar SWR (`mutate` global) para que las pantallas muestren el cambio; con tests
+- [x] T053 [US2] `tests/assistant.spec.ts`: pedir crear un evento → tarjeta → «Confirmar» → la llamada sale y el calendario se revalida; «Cancelar» → no sale ninguna escritura
 
 ---
 

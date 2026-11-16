@@ -26,6 +26,7 @@ import {
   useTheme,
 } from "@mui/material";
 import { toCalendarEvent } from "./calendarEvent";
+import { useOnDataChanged } from "@/app/(hooks)/dataChanged";
 
 export type DatesSelection = {
   start: Date;
@@ -102,6 +103,9 @@ function Calendar({
         .catch((err) => failureCallback(err)),
     [organizationId],
   );
+
+  // The assistant may create or change events: show them without reloading.
+  useOnDataChanged(() => calendarRef.current?.getApi().refetchEvents());
 
   return (
     <>

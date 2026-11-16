@@ -103,3 +103,30 @@ describe("apiClient", () => {
     expect(data.start).toBeInstanceOf(Date);
   });
 });
+
+describe("getAccessToken", () => {
+  beforeEach(() => vi.unstubAllEnvs());
+  afterEach(() => vi.unstubAllEnvs());
+
+  it("is undefined before Auth0 registers a provider", async () => {
+    const { getAccessToken } = await load();
+
+    await expect(getAccessToken()).resolves.toBeUndefined();
+  });
+
+  it("returns the token of the registered provider", async () => {
+    const { getAccessToken, setAccessTokenProvider } = await load();
+    setAccessTokenProvider(async () => "token-123");
+
+    await expect(getAccessToken()).resolves.toBe("token-123");
+  });
+
+  it("rejects when the session cannot give a token", async () => {
+    const { getAccessToken, setAccessTokenProvider } = await load();
+    setAccessTokenProvider(async () => {
+      throw new Error("login_required");
+    });
+
+    await expect(getAccessToken()).rejects.toThrow("login_required");
+  });
+});

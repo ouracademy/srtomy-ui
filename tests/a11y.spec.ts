@@ -1,4 +1,5 @@
 import AxeBuilder from "@axe-core/playwright";
+import { CHAT_URL, eventsThisWeek, fulfillChat } from "./chatStream";
 import { test, expect } from "./fixtures";
 
 const nodeId = "11111111-1111-1111-1111-111111111111";
@@ -55,6 +56,46 @@ test.describe("Accesibilidad", () => {
       ).toEqual([]);
     });
   }
+
+  test("El panel del asistente no tiene violaciones graves", async ({
+    page,
+  }) => {
+    await page.route(CHAT_URL, (route) => fulfillChat(route, eventsThisWeek));
+    await page.goto(`/portal/${nodeId}/location`);
+    await page.getByRole("button", { name: "Abrir asistente" }).click();
+    const panel = page.getByRole("dialog", { name: "Asistente" });
+
+    // Empty, with its suggestions, and then with an answer.
+    for (const step of ["vacío", "con respuesta"]) {
+      if (step === "con respuesta") {
+        const field = panel.getByRole("textbox", {
+          name: "Escribe tu pregunta",
+        });
+        await field.fill("¿Qué eventos hay esta semana?");
+        await field.press("Enter");
+        await expect(
+          panel.getByRole("list", { name: "Conversación" }),
+        ).toContainText("Ensayo de alabanza");
+      } else {
+        await expect(
+          panel.getByRole("list", { name: "Sugerencias" }),
+        ).toBeVisible();
+      }
+
+      const { violations } = await new AxeBuilder({ page })
+        .withTags(["wcag2a", "wcag2aa"])
+        .analyze();
+      const serious = violations.filter((v) =>
+        ["serious", "critical"].includes(v.impact ?? ""),
+      );
+      expect(
+        serious.map(
+          (v) =>
+            `${step} ${v.id}: ${v.nodes.map((n) => n.target.join(" ")).join(" | ")}`,
+        ),
+      ).toEqual([]);
+    }
+  });
 
   test("Página pública, invitación y directorio no tienen violaciones graves", async ({
     page,

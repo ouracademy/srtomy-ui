@@ -2,6 +2,7 @@ import { act, cleanup, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import React from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { notifyDataChanged } from "@/app/(hooks)/dataChanged";
 import Calendar from "./Calendar";
 
 type Source = (
@@ -92,6 +93,15 @@ beforeEach(() => {
 afterEach(cleanup);
 
 describe("Calendar", () => {
+  it("loads the events again when something else changed the data", async () => {
+    await renderCalendar(<Calendar organizationId="n1" onSelect={vi.fn()} />);
+    expect(calendar.refetchEvents).not.toHaveBeenCalled();
+
+    act(() => notifyDataChanged());
+
+    expect(calendar.refetchEvents).toHaveBeenCalledOnce();
+  });
+
   it("does not ask for the events again when the page renders again", async () => {
     const { rerender } = await renderCalendar(
       <Calendar organizationId="n1" onSelect={vi.fn()} />,
