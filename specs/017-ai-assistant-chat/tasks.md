@@ -113,9 +113,9 @@ description: "Task list for 017-ai-assistant-chat"
 
 ## PR 4b — srtomy-ui `ccr-e703f55f-lo650n-approvals` (base `-panel`) · sesión UI
 
-- [ ] T051 [US2] `app/portal/assistant/ApprovalCard.tsx` + test (user-event): muestra `approval.requestReason` y los datos principales de `input`; «Confirmar» y «Cancelar» con `addToolApprovalResponse`; una eliminación con color de peligro y «No se puede deshacer»; botones con spinner y bloqueados mientras se envía (skill `api-submit-button`)
-- [ ] T052 [US2] `useAssistant.ts`: `sendAutomaticallyWhen: lastAssistantMessageIsCompleteWithApprovalResponses`; enviar un mensaje nuevo con una aprobación pendiente la responde antes con «no»; al terminar bien una herramienta que escribe, revalidar SWR (`mutate` global) para que las pantallas muestren el cambio; con tests
-- [ ] T053 [US2] `tests/assistant.spec.ts`: pedir crear un evento → tarjeta → «Confirmar» → la llamada sale y el calendario se revalida; «Cancelar» → no sale ninguna escritura
+- [x] T051 [US2] `app/portal/assistant/ApprovalCard.tsx` + test (user-event): muestra `approval.requestReason` y los datos principales de `input`; «Confirmar» y «Cancelar» con `addToolApprovalResponse`; una eliminación con color de peligro y «No se puede deshacer»; botones con spinner y bloqueados mientras se envía (skill `api-submit-button`)
+- [x] T052 [US2] `useAssistant.ts`: `sendAutomaticallyWhen: lastAssistantMessageIsCompleteWithApprovalResponses`; enviar un mensaje nuevo con una aprobación pendiente la responde antes con «no»; al terminar bien una herramienta que escribe, revalidar SWR (`mutate` global) para que las pantallas muestren el cambio; con tests
+- [x] T053 [US2] `tests/assistant.spec.ts`: pedir crear un evento → tarjeta → «Confirmar» → la llamada sale y el calendario se revalida; «Cancelar» → no sale ninguna escritura
 
 ---
 

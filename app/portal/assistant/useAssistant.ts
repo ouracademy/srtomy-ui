@@ -1,13 +1,21 @@
 "use client";
 
 import { useChat } from "@ai-sdk/react";
+import {
+  getToolName,
+  isToolUIPart,
+  lastAssistantMessageIsCompleteWithApprovalResponses,
+} from "ai";
 import { useAuth0 } from "@auth0/auth0-react";
 import * as React from "react";
+import { useSWRConfig } from "swr";
 import {
   createAssistantTransport,
   type ScreenContext,
 } from "@/app/(api)/assistant";
 import { AssistantRequestError } from "@/app/(api)/assistantError";
+import { notifyDataChanged } from "@/app/(hooks)/dataChanged";
+import { isWrite } from "./approval";
 
 // Why the last request failed, as the panel explains it (contracts/chat.md).
 export type AssistantProblem =
@@ -41,9 +49,19 @@ export const useAssistant = (context: ScreenContext | undefined) => {
 
   const [blockedUntil, setBlockedUntil] = React.useState<number>();
 
+  const { mutate } = useSWRConfig();
+  // Set while a new message is about to answer a pending confirmation with
+  // «no»: that answer must not be sent on its own, the message carries it.
+  const holdAutoSend = React.useRef(false);
+
   const chat = useChat({
     id: `assistant-${user?.sub ?? "anonymous"}`,
     transport,
+    // Answering a confirmation sends it to the agent, which then runs the
+    // action (or drops it).
+    sendAutomaticallyWhen: (options) =>
+      !holdAutoSend.current &&
+      lastAssistantMessageIsCompleteWithApprovalResponses(options),
     onError: (error) => {
       if (error instanceof AssistantRequestError && error.status === 429) {
         const seconds = error.retryAfterSeconds ?? DEFAULT_WAIT_SECONDS;
@@ -61,7 +79,52 @@ export const useAssistant = (context: ScreenContext | undefined) => {
     return () => clearTimeout(timer);
   }, [blockedUntil]);
 
-  const { status, error, sendMessage, regenerate, stop, setMessages } = chat;
+  const {
+    status,
+    error,
+    messages,
+    sendMessage,
+    regenerate,
+    stop,
+    setMessages,
+    addToolApprovalResponse,
+  } = chat;
+
+  // When an action that changes data finishes, every screen revalidates so it
+  // shows the change without reloading.
+  const revalidated = React.useRef(new Set<string>());
+  React.useEffect(() => {
+    let changed = false;
+    for (const message of messages) {
+      for (const part of message.parts) {
+        if (
+          isToolUIPart(part) &&
+          part.state === "output-available" &&
+          isWrite(getToolName(part)) &&
+          !revalidated.current.has(part.toolCallId)
+        ) {
+          revalidated.current.add(part.toolCallId);
+          changed = true;
+        }
+      }
+    }
+    if (changed) {
+      void mutate(() => true);
+      notifyDataChanged();
+    }
+  }, [messages, mutate]);
+
+  const pendingApprovals = () =>
+    messages
+      .flatMap((message) => message.parts)
+      .filter(isToolUIPart)
+      .flatMap((part) =>
+        part.state === "approval-requested" ? [part.approval.id] : [],
+      );
+
+  const respondToApproval = async (id: string, approved: boolean) => {
+    await addToolApprovalResponse({ id, approved });
+  };
   const busy = status === "submitted" || status === "streaming";
   const blocked = blockedUntil !== undefined;
   const canSend = Boolean(context) && !busy && !blocked;
@@ -69,6 +132,18 @@ export const useAssistant = (context: ScreenContext | undefined) => {
   const send = async (text: string) => {
     const trimmed = text.trim();
     if (!trimmed || !canSend) return false;
+    // A message instead of the buttons cancels the pending action.
+    const pending = pendingApprovals();
+    if (pending.length > 0) {
+      holdAutoSend.current = true;
+      try {
+        for (const id of pending) {
+          await addToolApprovalResponse({ id, approved: false });
+        }
+      } finally {
+        holdAutoSend.current = false;
+      }
+    }
     await sendMessage({ text: trimmed }, request);
     return true;
   };
@@ -96,7 +171,7 @@ export const useAssistant = (context: ScreenContext | undefined) => {
   };
 
   return {
-    messages: chat.messages,
+    messages,
     status,
     busy,
     blocked,
@@ -107,6 +182,7 @@ export const useAssistant = (context: ScreenContext | undefined) => {
     retry,
     signInAgain,
     newConversation,
+    respondToApproval,
   };
 };
 

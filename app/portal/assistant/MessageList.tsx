@@ -3,6 +3,7 @@
 import { Box, CircularProgress, Typography } from "@mui/material";
 import { getToolName, isToolUIPart, type UIMessage } from "ai";
 import * as React from "react";
+import { ApprovalCard } from "./ApprovalCard";
 import { toolActivityLabel } from "./toolActivity";
 
 // Read by screen readers, not shown.
@@ -62,7 +63,12 @@ const Activity = ({ label }: Readonly<{ label: string }>) => (
   </Box>
 );
 
-const AssistantPart = ({ part }: Readonly<{ part: Part }>) => {
+type Respond = (approvalId: string, approved: boolean) => void;
+
+const AssistantPart = ({
+  part,
+  onApproval,
+}: Readonly<{ part: Part; onApproval: Respond }>) => {
   if (part.type === "text") {
     // Plain text: line breaks kept, nothing interpreted as markup.
     return (
@@ -72,6 +78,29 @@ const AssistantPart = ({ part }: Readonly<{ part: Part }>) => {
     );
   }
   if (!isToolUIPart(part)) return null;
+  if (
+    (part.state === "approval-requested" ||
+      part.state === "approval-responded") &&
+    !part.approval.isAutomatic
+  ) {
+    return (
+      <ApprovalCard
+        part={{
+          toolName: getToolName(part),
+          input: part.input,
+          approval: part.approval,
+        }}
+        onRespond={onApproval}
+      />
+    );
+  }
+  if (part.state === "output-denied") {
+    return (
+      <Typography variant="body2" sx={{ color: "text.secondary" }}>
+        Acción cancelada. No se cambió nada.
+      </Typography>
+    );
+  }
   if (isRunning(part)) {
     return <Activity label={toolActivityLabel(getToolName(part))} />;
   }
@@ -90,11 +119,17 @@ type MessageListProps = Readonly<{
   // Waiting for the first chunk of the answer.
   thinking: boolean;
   busy: boolean;
+  onApproval: Respond;
 }>;
 
 // The conversation, newest at the bottom, and a polite live region that
 // announces the new answer.
-export const MessageList = ({ messages, thinking, busy }: MessageListProps) => {
+export const MessageList = ({
+  messages,
+  thinking,
+  busy,
+  onApproval,
+}: MessageListProps) => {
   const endRef = React.useRef<HTMLDivElement>(null);
 
   React.useEffect(() => {
@@ -153,7 +188,11 @@ export const MessageList = ({ messages, thinking, busy }: MessageListProps) => {
                 Asistente:
               </Box>
               {message.parts.map((part, index) => (
-                <AssistantPart key={index} part={part} />
+                <AssistantPart
+                  key={index}
+                  part={part}
+                  onApproval={onApproval}
+                />
               ))}
             </Box>
           ),

@@ -1,6 +1,8 @@
 import type { Page, Request } from "@playwright/test";
 import {
+  askToCreateEvent,
   CHAT_URL,
+  eventCreated,
   eventsThisWeek,
   fulfillChat,
   textAnswer,
@@ -176,5 +178,95 @@ test.describe("Asistente del portal", () => {
     await expect(
       page.getByRole("button", { name: "Abrir asistente" }),
     ).toBeFocused();
+  });
+
+  // The agent is simulated end to end: the first POST /chat asks to create an
+  // event; the second carries the user's answer and, only if it is a yes, the
+  // simulated agent "runs" the write (recorded in `writes`).
+  const simulateCreation = async (page: Page) => {
+    const writes: unknown[] = [];
+    const answers: Array<boolean | undefined> = [];
+    let eventListReads = 0;
+    page.on("request", (request) => {
+      const url = new URL(request.url());
+      if (request.method() === "GET" && url.pathname === "/v1/events") {
+        eventListReads += 1;
+      }
+    });
+    await page.route("**/v1/events?**", (route) => route.fulfill(json([])));
+    await page.route(CHAT_URL, async (route) => {
+      const { messages } = route.request().postDataJSON() as {
+        messages: Array<{
+          parts: Array<{ approval?: { approved?: boolean } }>;
+        }>;
+      };
+      const answered = messages
+        .flatMap((message) => message.parts)
+        .find((part) => part.approval?.approved !== undefined);
+      if (!answered) {
+        await fulfillChat(route, askToCreateEvent);
+        return;
+      }
+      answers.push(answered.approval?.approved);
+      if (answered.approval?.approved) writes.push("post_events");
+      await fulfillChat(
+        route,
+        answered.approval?.approved
+          ? eventCreated
+          : textAnswer("Está bien, no creé nada."),
+      );
+    });
+    return { writes, answers, reads: () => eventListReads };
+  };
+
+  test("pide confirmación, crea el evento al confirmar y revalida el calendario", async ({
+    page,
+  }) => {
+    const agent = await simulateCreation(page);
+    await page.goto(`/portal/${NODE_ID}/event`);
+    await page.getByRole("button", { name: "Abrir asistente" }).click();
+    const panel = page.getByRole("dialog", { name: "Asistente" });
+    const field = panel.getByRole("textbox", { name: "Escribe tu pregunta" });
+    await field.fill(
+      'Crea un evento "Ensayo de alabanza" el viernes a las 7 pm',
+    );
+    await field.press("Enter");
+
+    const card = panel.getByRole("group", { name: "Confirmar acción" });
+    await expect(card).toContainText("Crear evento: Ensayo de alabanza");
+    await expect(card).toContainText("Nombre:");
+    // Nothing is written until the user confirms.
+    expect(agent.writes).toEqual([]);
+    const readsBefore = agent.reads();
+
+    await card.getByRole("button", { name: "Confirmar" }).click();
+
+    await expect(
+      panel.getByRole("list", { name: "Conversación" }),
+    ).toContainText("Listo, creé el evento.");
+    expect(agent.writes).toEqual(["post_events"]);
+    expect(agent.answers).toEqual([true]);
+    await expect.poll(() => agent.reads()).toBeGreaterThan(readsBefore);
+  });
+
+  test("al cancelar no sale ninguna escritura", async ({ page }) => {
+    const agent = await simulateCreation(page);
+    await page.goto(`/portal/${NODE_ID}/event`);
+    await page.getByRole("button", { name: "Abrir asistente" }).click();
+    const panel = page.getByRole("dialog", { name: "Asistente" });
+    const field = panel.getByRole("textbox", { name: "Escribe tu pregunta" });
+    await field.fill("Crea un evento Ensayo de alabanza");
+    await field.press("Enter");
+
+    await panel
+      .getByRole("group", { name: "Confirmar acción" })
+      .getByRole("button", { name: "Cancelar" })
+      .click();
+
+    await expect(
+      panel.getByRole("list", { name: "Conversación" }),
+    ).toContainText("Está bien, no creé nada.");
+    expect(agent.writes).toEqual([]);
+    expect(agent.answers).toEqual([false]);
   });
 });
