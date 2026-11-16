@@ -104,6 +104,7 @@ El panel del asistente (`app/portal/assistant/`, botón flotante montado en `Por
 - `useAssistant` envuelve `useChat` del AI SDK; cada mensaje lleva el contexto de la pantalla (`screenContext.ts`: nodo, evento o persona de la ruta, y zona horaria). El agente no lo usa para permisos: los decide srtomy-api con el token.
 - La conversación vive en la pestaña (estado de `useChat`), por usuario; no se guarda en el servidor ni en `localStorage`.
 - Errores del agente: 401 pide iniciar sesión (ventana emergente de Auth0, sin perder lo escrito), 429 deshabilita enviar hasta `Retry-After`, el resto ofrece reintentar.
+- Acciones que cambian datos: el agente pide aprobación y la UI muestra `ApprovalCard` (la frase `approval.requestReason` armada por el servidor y los datos de `input`; las eliminaciones van en rojo y con «No se puede deshacer»). `useAssistant` usa `sendAutomaticallyWhen: lastAssistantMessageIsCompleteWithApprovalResponses`; escribir un mensaje con una acción pendiente la responde antes con «no». Al terminar una herramienta que escribe, `mutate` global revalida SWR y `notifyDataChanged` (`app/(hooks)/dataChanged.ts`) recarga lo que no usa SWR, como el calendario de eventos.
 - Las respuestas son texto plano (sin librería de markdown). Las pruebas simulan el stream de mensajes de UI; ninguna llama a la red.
 
 ## Autenticación

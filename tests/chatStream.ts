@@ -63,3 +63,49 @@ export const fulfillChat = (route: Route, chunks: readonly Chunk[]) =>
     },
     body: sse(chunks),
   });
+
+// The agent asks to create an event and waits for the user's answer.
+export const askToCreateEvent: Chunk[] = [
+  { type: "start" },
+  { type: "start-step" },
+  {
+    type: "tool-input-available",
+    toolCallId: "call-w",
+    toolName: "post_events",
+    input: {
+      body: {
+        name: "Ensayo de alabanza",
+        startTime: "2026-11-20T19:00:00",
+      },
+    },
+    dynamic: true,
+  },
+  {
+    type: "tool-approval-request",
+    toolCallId: "call-w",
+    approvalId: "ap-1",
+    reason:
+      "Crear evento: Ensayo de alabanza, viernes 20 de noviembre, 7:00 p. m.",
+  },
+  { type: "finish-step" },
+  { type: "finish" },
+];
+
+// What the agent says once the action ran.
+export const eventCreated: Chunk[] = [
+  { type: "start" },
+  { type: "start-step" },
+  {
+    type: "tool-output-available",
+    toolCallId: "call-w",
+    output: { id: "e-1" },
+    dynamic: true,
+  },
+  { type: "finish-step" },
+  { type: "start-step" },
+  { type: "text-start", id: "t-2" },
+  { type: "text-delta", id: "t-2", delta: "Listo, creé el evento." },
+  { type: "text-end", id: "t-2" },
+  { type: "finish-step" },
+  { type: "finish" },
+];

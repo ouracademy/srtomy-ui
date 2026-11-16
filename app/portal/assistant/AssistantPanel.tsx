@@ -32,6 +32,7 @@ type PanelAssistant = Pick<
   | "retry"
   | "signInAgain"
   | "newConversation"
+  | "respondToApproval"
 >;
 
 type AssistantPanelProps = Readonly<{
@@ -57,7 +58,8 @@ const EmptyState = ({
   <Stack spacing={2}>
     <Typography variant="body2">
       Pregúntame por {nodeName ?? "tu iglesia"}: eventos, asistencia, personas y
-      grupos. Por ahora solo consulto; todavía no hago cambios.
+      grupos. Si me pides un cambio, antes te muestro qué voy a hacer y espero
+      tu confirmación.
     </Typography>
     {suggestions.length > 0 && (
       <Stack
@@ -232,7 +234,12 @@ export const AssistantPanel = ({
               onPick={(text) => void assistant.send(text)}
             />
           ) : (
-            <MessageList messages={messages} thinking={thinking} busy={busy} />
+            <MessageList
+              messages={messages}
+              thinking={thinking}
+              busy={busy}
+              onApproval={assistant.respondToApproval}
+            />
           )}
           <Problem assistant={assistant} nodeName={nodeName} />
         </Stack>

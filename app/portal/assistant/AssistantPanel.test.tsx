@@ -23,6 +23,7 @@ const fakeAssistant = (overrides: Partial<Assistant> = {}) => ({
   retry: vi.fn(async () => undefined),
   signInAgain: vi.fn(async () => undefined),
   newConversation: vi.fn(async () => undefined),
+  respondToApproval: vi.fn(async () => undefined),
   ...overrides,
 });
 
@@ -293,5 +294,35 @@ describe("AssistantPanel", () => {
     expect(
       await screen.findByRole("textbox", { name: "Escribe tu pregunta" }),
     ).toHaveValue("A medias");
+  });
+
+  it("shows the confirmation card inside the conversation and answers it", async () => {
+    const user = userEvent.setup();
+    const assistant = fakeAssistant({
+      messages: [
+        {
+          id: "a-2",
+          role: "assistant",
+          parts: [
+            {
+              type: "dynamic-tool",
+              toolName: "post_events",
+              toolCallId: "call-1",
+              state: "approval-requested",
+              input: { body: { name: "Ensayo" } },
+              approval: { id: "ap-1", requestReason: "Crear evento: Ensayo" },
+            },
+          ],
+        },
+      ],
+    });
+    renderPanel(assistant);
+
+    expect(
+      screen.getByRole("group", { name: "Confirmar acción" }),
+    ).toHaveTextContent("Crear evento: Ensayo");
+    await user.click(screen.getByRole("button", { name: "Confirmar" }));
+
+    expect(assistant.respondToApproval).toHaveBeenCalledWith("ap-1", true);
   });
 });

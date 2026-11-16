@@ -1,6 +1,6 @@
 import { cleanup, render, screen, within } from "@testing-library/react";
 import type { UIMessage } from "ai";
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { announcementFor, MessageList } from "./MessageList";
 
 const user = (text: string, id = "u-1"): UIMessage => ({
@@ -37,6 +37,7 @@ describe("MessageList", () => {
         ]}
         thinking={false}
         busy={false}
+        onApproval={vi.fn()}
       />,
     );
 
@@ -60,6 +61,7 @@ describe("MessageList", () => {
         ]}
         thinking={false}
         busy
+        onApproval={vi.fn()}
       />,
     );
 
@@ -89,6 +91,7 @@ describe("MessageList", () => {
         ]}
         thinking={false}
         busy={false}
+        onApproval={vi.fn()}
       />,
     );
 
@@ -115,6 +118,7 @@ describe("MessageList", () => {
         ]}
         thinking={false}
         busy={false}
+        onApproval={vi.fn()}
       />,
     );
 
@@ -124,7 +128,14 @@ describe("MessageList", () => {
   });
 
   it("shows that it is thinking before the answer starts", () => {
-    render(<MessageList messages={[user("Hola")]} thinking busy />);
+    render(
+      <MessageList
+        messages={[user("Hola")]}
+        thinking
+        busy
+        onApproval={vi.fn()}
+      />,
+    );
 
     expect(screen.getByText("Pensando…")).toBeInTheDocument();
     expect(screen.getByRole("status")).toHaveTextContent(
@@ -138,12 +149,62 @@ describe("MessageList", () => {
         messages={[user("Hola"), answer([{ type: "text", text: "¡Hola!" }])]}
         thinking={false}
         busy={false}
+        onApproval={vi.fn()}
       />,
     );
 
     const status = screen.getByRole("status");
     expect(status).toHaveAttribute("aria-live", "polite");
     expect(status).toHaveTextContent("¡Hola!");
+  });
+});
+
+describe("MessageList approvals", () => {
+  afterEach(cleanup);
+
+  const requested = (state: "approval-requested" | "output-denied") =>
+    answer([
+      {
+        type: "dynamic-tool",
+        toolName: "delete_people_id",
+        toolCallId: "call-1",
+        state,
+        input: { id: "p-1" },
+        approval:
+          state === "approval-requested"
+            ? { id: "ap-1", requestReason: "Eliminar a Ana Díaz" }
+            : { id: "ap-1", approved: false },
+      } as UIMessage["parts"][number],
+    ]);
+
+  it("shows a card for a pending action", () => {
+    render(
+      <MessageList
+        messages={[requested("approval-requested")]}
+        thinking={false}
+        busy={false}
+        onApproval={vi.fn()}
+      />,
+    );
+
+    expect(
+      screen.getByRole("group", { name: "Confirmar eliminación" }),
+    ).toHaveTextContent("Eliminar a Ana Díaz");
+  });
+
+  it("says a denied action was not done", () => {
+    render(
+      <MessageList
+        messages={[requested("output-denied")]}
+        thinking={false}
+        busy={false}
+        onApproval={vi.fn()}
+      />,
+    );
+
+    expect(
+      screen.getByText("Acción cancelada. No se cambió nada."),
+    ).toBeInTheDocument();
   });
 });
 
