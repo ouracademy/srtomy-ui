@@ -97,6 +97,15 @@ La conversión formulario → cuerpo (por ejemplo `toPersonPayload`) vive junto 
 - Un interceptor de petición agrega `Authorization: Bearer <token>`. Si no hay token (visitante anónimo, como en el libro de reclamaciones) la petición sale sin él y la API decide.
 - Un interceptor de respuesta convierte las fechas ISO con hora en `Date` (`date.ts`). Las fechas sin hora (`yyyy-MM-dd`) quedan como texto; el esquema de la persona las interpreta.
 
+## Asistente de IA (segundo backend)
+
+El panel del asistente (`app/portal/assistant/`, botón flotante montado en `PortalProviders`) habla con **srtomy-agent**, un servicio aparte con su propio `POST /chat` (contrato en `specs/017-ai-assistant-chat/contracts/chat.md`). Es un segundo backend, así que su transporte vive en `app/(api)/assistant.ts` y no en los componentes: allí está la URL (`NEXT_PUBLIC_AGENT_URL`; sin ella el botón no aparece) y el `authorization` con el token de Auth0 del usuario, obtenido con `getAccessToken` de `client.ts` (el mismo proveedor que usa srtomy-api). Los componentes no leen tokens ni arman URLs.
+
+- `useAssistant` envuelve `useChat` del AI SDK; cada mensaje lleva el contexto de la pantalla (`screenContext.ts`: nodo, evento o persona de la ruta, y zona horaria). El agente no lo usa para permisos: los decide srtomy-api con el token.
+- La conversación vive en la pestaña (estado de `useChat`), por usuario; no se guarda en el servidor ni en `localStorage`.
+- Errores del agente: 401 pide iniciar sesión (ventana emergente de Auth0, sin perder lo escrito), 429 deshabilita enviar hasta `Retry-After`, el resto ofrece reintentar.
+- Las respuestas son texto plano (sin librería de markdown). Las pruebas simulan el stream de mensajes de UI; ninguna llama a la red.
+
 ## Autenticación
 
 1. `app/Providers.tsx` monta `Auth0Provider` y `AuthTokenBridge`, que entrega a `client.ts` la función para obtener el token.

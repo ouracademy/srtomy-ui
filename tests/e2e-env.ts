@@ -10,3 +10,6 @@ export const APP_ORIGIN = `http://localhost:${E2E_PORT}`;
 // The church and location the e2e user belongs to (see tests/fixtures.ts).
 export const CHURCH_ID = "00000000-0000-0000-0000-00000000c0de";
 export const NODE_ID = "11111111-1111-1111-1111-111111111111";
+// Fake srtomy-agent: the assistant button shows only with an agent URL, and
+// tests/assistant.spec.ts intercepts its POST /chat.
+export const AGENT_URL = "http://agent.e2e.local";
