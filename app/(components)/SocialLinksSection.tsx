@@ -36,19 +36,19 @@ const icons: Record<keyof SocialLinksForm, SvgIconComponent> = {
   tiktokUrl: MusicNoteOutlined,
 };
 
-type GroupSocialLinksSectionProps = Readonly<{
+type SocialLinksSectionProps = Readonly<{
   // `prefix` is the path of the links object in the form values.
   prefix: string;
   disabled?: boolean;
 }>;
 
-// Optional links of the group, folded away so the form stays short. The
+// Optional links of a church, location, group or ministry, folded away so the form stays short. The
 // summary shows which networks already have a link. The fields stay mounted,
 // so what is typed is saved even while it is folded.
-export const GroupSocialLinksSection = ({
+export const SocialLinksSection = ({
   prefix,
   disabled = false,
-}: GroupSocialLinksSectionProps) => {
+}: SocialLinksSectionProps) => {
   const [userOpen, setUserOpen] = React.useState(false);
   const {
     formState: { errors },

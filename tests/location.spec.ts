@@ -49,7 +49,9 @@ test.describe("Editar Sede", () => {
     ).toHaveValue("Av. Siempre Viva 123");
 
     await nameInput.fill("Sede Norte");
-    await page.getByText(/Otras opciones/).click();
+    await page
+      .getByRole("button", { name: /Redes sociales y sitio web/ })
+      .click();
     await page
       .getByRole("textbox", { name: "Facebook" })
       .fill("https://facebook.com/sedenorte");
