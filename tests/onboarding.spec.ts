@@ -13,6 +13,9 @@ test.describe("Alta de iglesia", () => {
   test("un usuario sin iglesias crea la suya con su primera sede, sus cargos con sus permisos y su propio cargo", async ({
     page,
   }) => {
+    // The first visit to the location compiles its page in the dev server,
+    // which takes longer than the default 10 s of an assertion.
+    test.setTimeout(60_000);
     let created = false;
     await page.route("**/v1/me/organizations", (route) =>
       route.fulfill(
@@ -96,7 +99,9 @@ test.describe("Alta de iglesia", () => {
       ],
       creator: { firstName: "Ana", lastName: "Diaz", positionName: "Pastor" },
     });
-    await expect(page).toHaveURL(new RegExp(`/portal/${locationId}$`));
+    await expect(page).toHaveURL(new RegExp(`/portal/${locationId}$`), {
+      timeout: 30_000,
+    });
     await expect(
       page.getByText(/Iglesia registrada\. Está en la sede "Sede Centro"/),
     ).toBeVisible();

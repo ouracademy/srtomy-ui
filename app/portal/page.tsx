@@ -49,7 +49,11 @@ export default function PortalHome() {
   const wantsNewChurch =
     typeof window !== "undefined" &&
     new URLSearchParams(window.location.search).has("nueva");
-  const goToMySpace = !wantsNewChurch && nodes.some((node) => node.accessible);
+  // Once the church is created the list refreshes with the new location; that
+  // must not send the user to "Mi espacio" before the push to the location.
+  const [created, setCreated] = React.useState(false);
+  const goToMySpace =
+    !wantsNewChurch && !created && nodes.some((node) => node.accessible);
 
   React.useEffect(() => {
     if (goToMySpace) router.replace("/portal/me");
@@ -63,6 +67,7 @@ export default function PortalHome() {
   ) => {
     const church = await postOrganizations(toCreateChurchRequest(values));
     const [location] = await getOrganizationsByIdChilds(church.id ?? "");
+    setCreated(true);
     await mutateOrganizations();
     alert.showMessage(
       `Iglesia registrada. Está en la sede "${location?.name ?? "principal"}"; puede cambiar de iglesia, sede o grupo desde el selector de arriba.`,
