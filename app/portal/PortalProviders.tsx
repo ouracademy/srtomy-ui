@@ -10,6 +10,7 @@ import { apiClient } from "../(api)/client";
 import { AxiosRequestConfig } from "axios";
 import { SnackbarContext } from "../(components)/SnackbarContext";
 import { AssistantButton } from "./assistant/AssistantButton";
+import { PlanLimitNotice } from "./PlanLimitNotice";
 import { RequireAuth } from "./RequireAuth";
 
 export const PortalProviders = ({
@@ -38,6 +39,7 @@ export const PortalProviders = ({
         adapterLocale={dateFnsEs}
       >
         <RequireAuth>
+          <PlanLimitNotice />
           {children}
           {/* Hidden until srtomy-agent is deployed (NEXT_PUBLIC_AGENT_URL). */}
           {agentUrl && <AssistantButton />}

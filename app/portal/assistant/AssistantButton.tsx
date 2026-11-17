@@ -54,6 +54,11 @@ export const AssistantButton = () => {
         assistant={assistant}
         nodeName={node?.name}
         suggestions={suggestionsFor(context, can)}
+        billingHref={
+          can("billing.manage")
+            ? `/portal/${context.nodeId}/billing`
+            : undefined
+        }
       />
     </>
   );

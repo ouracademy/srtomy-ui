@@ -2,13 +2,15 @@ import Box from "@mui/material/Box";
 import Link from "@mui/material/Link";
 import Typography from "@mui/material/Typography";
 import { CheckBadge } from "./CheckBadge";
-import { contact, formatPrice, plans, type Plan } from "./content";
+import { contact, plans, type Plan } from "./content";
+import { PriceCalculator } from "./PriceCalculator";
 import { LinkButton } from "./LinkButton";
 import { Section, SectionTitle } from "./Section";
 import { landingColors } from "./theme";
 
 function PlanCard({ plan }: Readonly<{ plan: Plan }>) {
-  const { name, tagline, price, features, cta, href, highlighted } = plan;
+  const { name, tagline, price, priceNote, features, cta, href, highlighted } =
+    plan;
   const mutedColor = highlighted ? landingColors.inkMuted : "text.secondary";
   return (
     <Box
@@ -67,10 +69,10 @@ function PlanCard({ plan }: Readonly<{ plan: Plan }>) {
             lineHeight: 1,
           }}
         >
-          {formatPrice(price)}
+          {price}
         </Typography>
         <Typography component="span" sx={{ color: mutedColor }}>
-          al mes
+          {priceNote}
         </Typography>
       </Box>
       <Box
@@ -119,8 +121,9 @@ export function Pricing() {
       <Typography
         sx={{ mt: 2.5, maxWidth: 620, fontSize: 18, color: "text.secondary" }}
       >
-        Tres planes por iglesia, en soles. Sin cobros por instalación y con 2
-        meses gratis si pagas al año.
+        Dos planes por iglesia, en soles o en pesos colombianos. El precio sube
+        con las personas que tienes, sin cobros por instalación, y un año cuesta
+        10 meses.
       </Typography>
       <Box
         sx={{
@@ -135,6 +138,7 @@ export function Pricing() {
           <PlanCard key={plan.name} plan={plan} />
         ))}
       </Box>
+      <PriceCalculator />
       <Typography sx={{ mt: 3, fontSize: 15, color: "text.secondary" }}>
         ¿Necesitas algo distinto? Escríbenos a{" "}
         <Link href={`mailto:${contact.email}`} color="inherit">

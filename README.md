@@ -41,7 +41,6 @@ Todas son públicas (`NEXT_PUBLIC_*`): Next las incrusta en el bundle **al compi
 | `NEXT_PUBLIC_AUTH0_CLIENT_ID` | Sí          | Client ID de la aplicación SPA en Auth0.                                                                                   |
 | `NEXT_PUBLIC_AUTH0_AUDIENCE`  | No          | Audience de la API; sin él Auth0 no emite un token para srtomy-api.                                                        |
 | `NEXT_PUBLIC_SITE_URL`        | No          | Origen público (sin `/` final) para canonical, sitemap y vistas previas; por defecto `https://srtommy-ui-test.vercel.app`. |
-| `NEXT_PUBLIC_CULQI_API_KEY`   | No          | Llave pública de Culqi (pagos, aún no conectados al backend).                                                              |
 | `NEXT_PUBLIC_AGENT_URL`       | No          | Origen de srtomy-agent (sin `/chat`). Sin él, el botón del asistente de IA del portal no aparece.                          |
 
 Solo `.env.example` se versiona. `.env` y `.env.local` están en `.gitignore`.

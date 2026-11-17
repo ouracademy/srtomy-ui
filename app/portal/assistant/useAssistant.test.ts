@@ -4,7 +4,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { AssistantRequestError } from "@/app/(api)/assistantError";
 import { scriptedTransport, textReply } from "./chatStream.test-utils";
 import * as dataChanged from "@/app/(hooks)/dataChanged";
-import { problemOf, useAssistant } from "./useAssistant";
+import { planLimitMessage, problemOf, useAssistant } from "./useAssistant";
 
 const swr = vi.hoisted(() => ({ mutate: vi.fn() }));
 vi.mock("swr", () => ({ useSWRConfig: () => swr }));
@@ -368,6 +368,19 @@ describe("problemOf", () => {
     [503, "failed"],
   ])("explains %i as %s", (status, problem) => {
     expect(problemOf(new AssistantRequestError(status))).toBe(problem);
+  });
+
+  it("explains a refusal of the plan, and only when it says why", () => {
+    const limit = { code: "ai.quota", message: "Sin cuota." };
+
+    expect(problemOf(new AssistantRequestError(402, undefined, limit))).toBe(
+      "plan-limit",
+    );
+    expect(problemOf(new AssistantRequestError(402))).toBe("failed");
+    expect(
+      planLimitMessage(new AssistantRequestError(402, undefined, limit)),
+    ).toBe("Sin cuota.");
+    expect(planLimitMessage(new TypeError("x"))).toBeUndefined();
   });
 
   it("treats any other error as a failure to retry", () => {

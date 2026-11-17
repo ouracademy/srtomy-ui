@@ -10,6 +10,7 @@ const resourceLabels: Record<string, string> = {
   positions: "Cargos",
   iam: "Accesos",
   invitations: "Invitaciones",
+  billing: "Plan y pagos",
 };
 
 const permissionLabels: Record<string, string> = {
@@ -32,6 +33,7 @@ const permissionLabels: Record<string, string> = {
   "iam.read": "Ver quién tiene acceso",
   "iam.manage": "Dar y quitar acceso a otras personas",
   "invitations.send": "Invitar a usar la aplicación",
+  "billing.manage": "Gestionar el plan y los pagos",
 };
 
 export const resourceLabel = (resource: string) =>

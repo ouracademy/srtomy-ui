@@ -22,7 +22,12 @@ export type AssistantProblem =
   | "session" // 401: sign in again; what was written stays
   | "forbidden" // 403: no access to the open node
   | "rate-limit" // 429: wait until Retry-After
+  | "plan-limit" // 402: the plan has no more messages (or no plan for it)
   | "failed"; // anything else: retry
+
+// The text of the plan's refusal, to show as the API words it.
+export const planLimitMessage = (error: Error | undefined) =>
+  error instanceof AssistantRequestError ? error.limit?.message : undefined;
 
 export const problemOf = (
   error: Error | undefined,
@@ -32,6 +37,7 @@ export const problemOf = (
   if (error.status === 401) return "session";
   if (error.status === 403) return "forbidden";
   if (error.status === 429) return "rate-limit";
+  if (error.status === 402 && error.limit) return "plan-limit";
   return "failed";
 };
 
@@ -177,6 +183,7 @@ export const useAssistant = (context: ScreenContext | undefined) => {
     blocked,
     canSend,
     problem: problemOf(error),
+    planLimitMessage: planLimitMessage(error),
     send,
     stop,
     retry,

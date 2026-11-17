@@ -21,6 +21,10 @@ const hooks = vi.hoisted(() => ({
   search: "",
 }));
 
+vi.mock("@/app/(components)/PlanUsageNotice", () => ({
+  PlanUsageNotice: () => null,
+}));
+
 vi.mock("next/navigation", () => ({
   useSearchParams: () => new URLSearchParams(hooks.search),
 }));

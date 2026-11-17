@@ -130,3 +130,78 @@ describe("getAccessToken", () => {
     await expect(getAccessToken()).rejects.toThrow("login_required");
   });
 });
+
+describe("a refusal of the plan (402)", () => {
+  beforeEach(() => vi.unstubAllEnvs());
+  afterEach(() => vi.unstubAllEnvs());
+
+  const refusing = (
+    client: Awaited<ReturnType<typeof load>>["apiClient"],
+    status: number,
+    data: unknown,
+  ) => {
+    client.defaults.adapter = async (config) => {
+      const response = { data, status, statusText: "", headers: {}, config };
+      const { AxiosError } = await import("axios");
+      throw new AxiosError(
+        "failed",
+        String(status),
+        config,
+        undefined,
+        response,
+      );
+    };
+  };
+
+  it("tells the handler the code and the text of the API, and still fails the call", async () => {
+    const { apiClient, setPlanLimitHandler } = await load();
+    const handler = vi.fn();
+    setPlanLimitHandler(handler);
+    refusing(apiClient, 402, {
+      code: "limit.people",
+      detail: "Tu plan permite 50 personas.",
+    });
+
+    await expect(apiClient.post("/people", {})).rejects.toMatchObject({
+      response: { status: 402 },
+    });
+
+    expect(handler).toHaveBeenCalledExactlyOnceWith({
+      code: "limit.people",
+      message: "Tu plan permite 50 personas.",
+    });
+  });
+
+  it("words a refusal that came without a text", async () => {
+    const { apiClient, setPlanLimitHandler } = await load();
+    const handler = vi.fn();
+    setPlanLimitHandler(handler);
+    refusing(apiClient, 402, {});
+
+    await expect(apiClient.post("/people", {})).rejects.toBeDefined();
+
+    expect(handler).toHaveBeenCalledWith({
+      code: "",
+      message: expect.stringContaining("plan Iglesia"),
+    });
+  });
+
+  it("ignores every other error", async () => {
+    const { apiClient, setPlanLimitHandler } = await load();
+    const handler = vi.fn();
+    setPlanLimitHandler(handler);
+    refusing(apiClient, 403, { detail: "No." });
+
+    await expect(apiClient.get("/people")).rejects.toBeDefined();
+
+    expect(handler).not.toHaveBeenCalled();
+  });
+
+  it("fails the call all the same when nobody listens", async () => {
+    const { apiClient, setPlanLimitHandler } = await load();
+    setPlanLimitHandler(undefined);
+    refusing(apiClient, 402, { code: "feature.finances" });
+
+    await expect(apiClient.get("/people")).rejects.toBeDefined();
+  });
+});

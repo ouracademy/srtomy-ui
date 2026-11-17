@@ -4,6 +4,7 @@ import AddCommentOutlinedIcon from "@mui/icons-material/AddCommentOutlined";
 import CloseIcon from "@mui/icons-material/Close";
 import SendIcon from "@mui/icons-material/Send";
 import StopIcon from "@mui/icons-material/Stop";
+import NextLink from "next/link";
 import {
   Alert,
   Box,
@@ -33,7 +34,7 @@ type PanelAssistant = Pick<
   | "signInAgain"
   | "newConversation"
   | "respondToApproval"
->;
+> & { planLimitMessage?: string };
 
 type AssistantPanelProps = Readonly<{
   open: boolean;
@@ -42,6 +43,8 @@ type AssistantPanelProps = Readonly<{
   // Name of the open node, so the user sees what the assistant works on.
   nodeName?: string;
   suggestions: readonly string[];
+  // Where to pay or change the plan; only for whoever can (billing.manage).
+  billingHref?: string;
 }>;
 
 const EmptyState = ({
@@ -89,7 +92,12 @@ const EmptyState = ({
 const Problem = ({
   assistant,
   nodeName,
-}: Readonly<{ assistant: PanelAssistant; nodeName?: string }>) => {
+  billingHref,
+}: Readonly<{
+  assistant: PanelAssistant;
+  nodeName?: string;
+  billingHref?: string;
+}>) => {
   const retry = (
     <Button color="inherit" size="small" onClick={() => assistant.retry()}>
       Reintentar
@@ -128,6 +136,27 @@ const Problem = ({
             : "Ya puedes volver a enviar tu mensaje."}
         </Alert>
       );
+    case "plan-limit":
+      return (
+        <Alert
+          severity="warning"
+          action={
+            billingHref ? (
+              <Button
+                color="inherit"
+                size="small"
+                component={NextLink}
+                href={billingHref}
+              >
+                Ver plan
+              </Button>
+            ) : undefined
+          }
+        >
+          {assistant.planLimitMessage ??
+            "El asistente llegó al límite del plan de tu iglesia."}
+        </Alert>
+      );
     case "failed":
       return (
         <Alert severity="error" action={retry}>
@@ -148,6 +177,7 @@ export const AssistantPanel = ({
   assistant,
   nodeName,
   suggestions,
+  billingHref,
 }: AssistantPanelProps) => {
   const titleId = React.useId();
   // Lives here, not inside the drawer, so a closed panel keeps the draft.
@@ -241,7 +271,11 @@ export const AssistantPanel = ({
               onApproval={assistant.respondToApproval}
             />
           )}
-          <Problem assistant={assistant} nodeName={nodeName} />
+          <Problem
+            assistant={assistant}
+            nodeName={nodeName}
+            billingHref={billingHref}
+          />
         </Stack>
       </Box>
 

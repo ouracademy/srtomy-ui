@@ -1,6 +1,10 @@
 import { DefaultChatTransport, type UIMessage } from "ai";
 import { env } from "../env";
-import { AssistantRequestError, parseRetryAfter } from "./assistantError";
+import {
+  AssistantRequestError,
+  parseRetryAfter,
+  planLimitFrom,
+} from "./assistantError";
 import { getAccessToken } from "./client";
 
 // srtomy-agent is the portal's second backend: the AI assistant. Its contract
@@ -52,9 +56,20 @@ export const createAssistantTransport = ({
     fetch: async (input, init) => {
       const response = await fetch(input, init);
       if (!response.ok) {
+        // 402: the plan says no (quota of messages, spending cap, or no plan).
+        const limit =
+          response.status === 402 || response.status === 503
+            ? planLimitFrom(
+                await response
+                  .clone()
+                  .json()
+                  .catch(() => null),
+              )
+            : undefined;
         throw new AssistantRequestError(
           response.status,
           parseRetryAfter(response.headers.get("retry-after")),
+          limit,
         );
       }
       return response;

@@ -38,7 +38,7 @@ app/
     CreateChurchForm.tsx       Alta de iglesia con su primera sede, sus cargos con nivel y su propio cargo (página /portal)
     UserMenu.tsx               Perfil y cerrar sesión (lo usa MenuDrawer)
     [nodeId]/                  Un nodo: iglesia, sede, grupo o ministerio (anidables)
-      person/ location/ event/ positions/ whatsapp/
+      person/ location/ event/ positions/ whatsapp/ billing/
                                Una carpeta por sección, con sus componentes, formularios y tablas
 
   error.tsx global-error.tsx not-found.tsx    Límites de error de Next
@@ -198,7 +198,6 @@ Si cambia un endpoint, cambian dos cosas: la especificación (`pnpm api:sync`) y
 Cosas que el código hoy **no** hace; no son errores nuevos, conviene saberlas:
 
 - Guardar la edición de un grupo no hace nada: el formulario existe, pero su _handler_ está vacío (con un comentario). El formulario de un evento ya creado es de solo lectura. La API aún no está conectada para esa acción.
-- El pago con Culqi (`ProfileForm`) abre el checkout pero no envía el token a la API.
 - Google Tag Manager se carga sin pedir consentimiento (`app/layout.tsx`).
 - Solo hay una Content-Security-Policy mínima (`frame-ancestors 'none'`) y `X-Frame-Options`; falta una CSP completa de scripts y estilos.
 - No hay reporte de errores en producción (Sentry u otro); los límites de error solo hacen `console.error`.

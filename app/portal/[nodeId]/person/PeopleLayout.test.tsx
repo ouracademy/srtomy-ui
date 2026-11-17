@@ -6,6 +6,10 @@ import { PeopleLayout } from "./PeopleLayout";
 const replace = vi.fn();
 let search = "";
 
+vi.mock("@/app/(components)/PlanUsageNotice", () => ({
+  PlanUsageNotice: () => null,
+}));
+
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ replace, push: vi.fn() }),
   usePathname: () => "/portal/n1/person",

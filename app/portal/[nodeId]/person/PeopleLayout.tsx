@@ -13,6 +13,7 @@ import SearchIcon from "@mui/icons-material/Search";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { useDebounce } from "use-debounce";
 import { DEBOUNCE_WAIT_MS } from "@/app/(components)/helpers/debouncing";
+import { PlanUsageNotice } from "@/app/(components)/PlanUsageNotice";
 import { RButton } from "@/app/(components)/RButton";
 import {
   memberStateFromParam,
@@ -61,6 +62,7 @@ export function PeopleLayout({
 
   return (
     <Stack direction="column" spacing={2}>
+      <PlanUsageNotice nodeId={nodeId} kind="people" />
       <Box
         sx={{
           display: "flex",

@@ -1796,6 +1796,84 @@
         }
       }
     },
+    "/v1/organizations/{id}/billing/sync": {
+      "post": {
+        "tags": [
+          "billing"
+        ],
+        "summary": "Checks the pending payments of the church with the payment provider and answers with the plan as it is after that.",
+        "description": "Checks the pending payments of the church with the payment provider and answers with the plan as it is after that. Called when the pastor comes back from the checkout. Needs `billing.manage`.",
+        "operationId": "sync",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Id of the node: a church, location, group or ministry. The plan is the church's.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BillingResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/organizations/{id}/billing/checkout": {
+      "post": {
+        "tags": [
+          "billing"
+        ],
+        "summary": "Starts paying the CHURCH plan for one month or one year, priced for the people the church has today, and answers with the link of the checkout where the pastor pays.",
+        "description": "Starts paying the CHURCH plan for one month or one year, priced for the people the church has today, and answers with the link of the checkout where the pastor pays. Nothing changes until the payment is confirmed. Needs `billing.manage`.",
+        "operationId": "checkout",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Id of the node: a church, location, group or ministry. The plan is the church's.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CheckoutRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/CheckoutResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/organizations/locations": {
       "post": {
         "tags": [
@@ -2901,6 +2979,77 @@
                   "type": "array",
                   "items": {
                     "$ref": "#/components/schemas/OrganizationResponse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/organizations/{id}/billing": {
+      "get": {
+        "tags": [
+          "billing"
+        ],
+        "summary": "The plan of the church: FREE or CHURCH, its status, until when it is paid, how many people and locations it uses against the maximum of the plan, which features it includes, the end of the WhatsApp trial and what the paid plan costs today in each country.",
+        "description": "The plan of the church: FREE or CHURCH, its status, until when it is paid, how many people and locations it uses against the maximum of the plan, which features it includes, the end of the WhatsApp trial and what the paid plan costs today in each country. Needs `org.read`.",
+        "operationId": "get_2",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Id of the node: a church, location, group or ministry. The plan is the church's.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BillingResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/organizations/{id}/billing/invoices": {
+      "get": {
+        "tags": [
+          "billing"
+        ],
+        "summary": "The payments of the church, the newest first, with the period each one paid for.",
+        "description": "The payments of the church, the newest first, with the period each one paid for. Needs `billing.manage`.",
+        "operationId": "invoices",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Id of the node: a church, location, group or ministry. The plan is the church's.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/InvoiceResponse"
                   }
                 }
               }
@@ -4985,6 +5134,200 @@
           }
         }
       },
+      "AiResponse": {
+        "type": "object",
+        "properties": {
+          "month": {
+            "type": "string",
+            "format": "date"
+          },
+          "used": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "limit": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "costUsd": {
+            "type": "number"
+          },
+          "maxCostUsd": {
+            "type": "number"
+          }
+        }
+      },
+      "BillingResponse": {
+        "type": "object",
+        "properties": {
+          "churchId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "plan": {
+            "type": "string",
+            "enum": [
+              "FREE",
+              "CHURCH"
+            ]
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "FREE",
+              "ACTIVE",
+              "GRACE",
+              "EXPIRED"
+            ]
+          },
+          "paidUntil": {
+            "type": "string",
+            "format": "date"
+          },
+          "country": {
+            "type": "string",
+            "enum": [
+              "PE",
+              "CO"
+            ]
+          },
+          "people": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "locations": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "maxPeople": {
+            "type": "integer",
+            "format": "int32",
+            "description": "null when the plan has no maximum (and so for `maxLocations`)"
+          },
+          "maxLocations": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "features": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FeatureResponse"
+            }
+          },
+          "whatsappTrialEndsAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "whatsappTrialDays": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "includedPeople": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "blockSize": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "prices": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PriceResponse"
+            }
+          },
+          "ai": {
+            "$ref": "#/components/schemas/AiResponse",
+            "description": "what the AI assistant used this month: messages against the limit of the plan, and the estimated cost in dollars against the cap at which it stops"
+          }
+        }
+      },
+      "FeatureResponse": {
+        "type": "object",
+        "properties": {
+          "feature": {
+            "type": "string",
+            "enum": [
+              "WHATSAPP",
+              "MASS_EMAIL",
+              "FINANCES",
+              "VOLUNTEERS",
+              "EXCEL_EXPORT"
+            ]
+          },
+          "label": {
+            "type": "string"
+          },
+          "enabled": {
+            "type": "boolean"
+          }
+        }
+      },
+      "PriceResponse": {
+        "type": "object",
+        "properties": {
+          "country": {
+            "type": "string",
+            "enum": [
+              "PE",
+              "CO"
+            ]
+          },
+          "currency": {
+            "type": "string"
+          },
+          "monthly": {
+            "type": "number"
+          },
+          "yearly": {
+            "type": "number"
+          },
+          "extraBlock": {
+            "type": "number"
+          }
+        }
+      },
+      "CheckoutRequest": {
+        "type": "object",
+        "description": "What to pay.",
+        "properties": {
+          "country": {
+            "type": "string",
+            "description": "Where the church pays from: PE (soles) or CO (Colombian pesos).",
+            "enum": [
+              "PE",
+              "CO"
+            ]
+          },
+          "months": {
+            "type": "integer",
+            "format": "int32",
+            "description": "1 for one month or 12 for one year (a year costs ten months)."
+          }
+        },
+        "required": [
+          "country",
+          "months"
+        ]
+      },
+      "CheckoutResponse": {
+        "type": "object",
+        "properties": {
+          "invoiceId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "checkoutUrl": {
+            "type": "string"
+          },
+          "amount": {
+            "type": "number"
+          },
+          "currency": {
+            "type": "string"
+          }
+        }
+      },
       "CreateLocationRequest": {
         "type": "object",
         "description": "A location under the church `parentId`.",
@@ -6348,6 +6691,58 @@
             "items": {
               "$ref": "#/components/schemas/BucketResponse"
             }
+          }
+        }
+      },
+      "InvoiceResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "PENDING",
+              "PAID",
+              "REJECTED",
+              "CANCELLED",
+              "EXPIRED"
+            ]
+          },
+          "amount": {
+            "type": "number"
+          },
+          "currency": {
+            "type": "string"
+          },
+          "months": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "people": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "periodStart": {
+            "type": "string",
+            "format": "date"
+          },
+          "periodEnd": {
+            "type": "string",
+            "format": "date"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "paidAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "checkoutUrl": {
+            "type": "string"
           }
         }
       },

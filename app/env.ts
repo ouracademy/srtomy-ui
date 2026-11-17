@@ -5,7 +5,6 @@ const schema = z.object({
   NEXT_PUBLIC_AUTH0_CLIENT_ID: z.string().min(1),
   NEXT_PUBLIC_AUTH0_AUDIENCE: z.string().optional(),
   NEXT_PUBLIC_API_URL: z.string(),
-  NEXT_PUBLIC_CULQI_API_KEY: z.string().optional(),
   // Origin of srtomy-agent (without /chat). Without it the AI assistant is
   // hidden, so the portal can ship before the agent is deployed.
   NEXT_PUBLIC_AGENT_URL: z.url({ protocol: /^https?$/ }).optional(),
@@ -18,7 +17,6 @@ const parsed = schema.safeParse({
   NEXT_PUBLIC_AUTH0_CLIENT_ID: process.env.NEXT_PUBLIC_AUTH0_CLIENT_ID,
   NEXT_PUBLIC_AUTH0_AUDIENCE: process.env.NEXT_PUBLIC_AUTH0_AUDIENCE,
   NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL,
-  NEXT_PUBLIC_CULQI_API_KEY: process.env.NEXT_PUBLIC_CULQI_API_KEY,
   // An empty value (a blank line in .env) means "not set", not an invalid URL.
   NEXT_PUBLIC_AGENT_URL: process.env.NEXT_PUBLIC_AGENT_URL || undefined,
 });

@@ -20,7 +20,8 @@ export type Permission =
   | "positions.manage"
   | "iam.read"
   | "iam.manage"
-  | "invitations.send";
+  | "invitations.send"
+  | "billing.manage";
 
 export const usePermissions = (organizationId: string | undefined) => {
   const { data, isLoading } = useGetMePermissions(

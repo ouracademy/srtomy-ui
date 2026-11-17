@@ -1,4 +1,4 @@
-import axios, { type AxiosRequestConfig } from "axios";
+import axios, { isAxiosError, type AxiosRequestConfig } from "axios";
 import { env } from "../env";
 import { handleDates } from "./date";
 
@@ -36,10 +36,45 @@ apiClient.interceptors.request.use(async (config) => {
   return config;
 });
 
-apiClient.interceptors.response.use((response) => {
-  handleDates(response.data);
-  return response;
-});
+// A 402 is the plan saying no (limit.people, limit.locations, feature.<name>):
+// the API sends the reason in Spanish (problem+json `detail`) and a `code`.
+export type PlanLimitNotice = { code: string; message: string };
+
+type PlanLimitHandler = (notice: PlanLimitNotice) => void;
+
+let planLimitHandler: PlanLimitHandler | undefined;
+
+// Registered by PlanLimitNotice once the portal is on screen, so every screen
+// explains a refusal of the plan the same way, with a way to see the plans.
+export const setPlanLimitHandler = (handler?: PlanLimitHandler) => {
+  planLimitHandler = handler;
+};
+
+const planLimitOf = (error: unknown): PlanLimitNotice | undefined => {
+  if (!isAxiosError(error) || error.response?.status !== 402) return undefined;
+  const data = error.response.data as
+    { code?: unknown; detail?: unknown } | undefined;
+  return {
+    code: typeof data?.code === "string" ? data.code : "",
+    message:
+      typeof data?.detail === "string" && data.detail.trim()
+        ? data.detail
+        : "Tu plan no incluye esto. Pasa al plan Iglesia para seguir.",
+  };
+};
+
+apiClient.interceptors.response.use(
+  (response) => {
+    handleDates(response.data);
+    return response;
+  },
+  (error: unknown) => {
+    const notice = planLimitOf(error);
+    if (notice) planLimitHandler?.(notice);
+    // Whoever made the call still sees the failure (and stops its spinner).
+    return Promise.reject(error);
+  },
+);
 
 // Mutator for the generated code (orval.config.ts). Generated functions call
 // it with a fetch-style (url, init) pair and get back only the body.

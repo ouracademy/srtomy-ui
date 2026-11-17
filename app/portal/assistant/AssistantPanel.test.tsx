@@ -249,6 +249,39 @@ describe("AssistantPanel", () => {
     expect(screen.getByRole("button", { name: "Reintentar" })).toBeEnabled();
   });
 
+  it("tells the plan has no more messages, with a link to the plan for whoever can pay", () => {
+    renderPanel(
+      fakeAssistant({
+        messages: conversation.slice(0, 1),
+        problem: "plan-limit",
+        planLimitMessage: "Tu iglesia usó los 30 mensajes gratis de este mes.",
+      }),
+      { billingHref: "/portal/n1/billing" },
+    );
+
+    expect(screen.getByRole("alert")).toHaveTextContent(
+      "Tu iglesia usó los 30 mensajes gratis de este mes.",
+    );
+    expect(screen.getByRole("link", { name: "Ver plan" })).toHaveAttribute(
+      "href",
+      "/portal/n1/billing",
+    );
+  });
+
+  it("does not offer the plan to someone who cannot pay it", () => {
+    renderPanel(
+      fakeAssistant({
+        messages: conversation.slice(0, 1),
+        problem: "plan-limit",
+      }),
+    );
+
+    expect(screen.getByRole("alert")).toHaveTextContent("límite del plan");
+    expect(
+      screen.queryByRole("link", { name: "Ver plan" }),
+    ).not.toBeInTheDocument();
+  });
+
   it("says when the user has no access to the node", () => {
     renderPanel(
       fakeAssistant({

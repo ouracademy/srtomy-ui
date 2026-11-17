@@ -30,9 +30,16 @@ describe("permission labels", () => {
     ]);
   });
 
+  it("names the permission to manage the plan and the payments", () => {
+    expect(permissionLabel("billing.manage")).toBe(
+      "Gestionar el plan y los pagos",
+    );
+    expect(resourceLabel("billing")).toBe("Plan y pagos");
+  });
+
   it("falls back to the raw value for unknown ones", () => {
     expect(permissionLabel("billing.read")).toBe("billing.read");
-    expect(resourceLabel("billing")).toBe("billing");
+    expect(resourceLabel("reports")).toBe("reports");
   });
 
   it("words the node permissions for any kind of node", () => {

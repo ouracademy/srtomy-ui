@@ -143,6 +143,35 @@ describe("createAssistantTransport", () => {
     ).rejects.toMatchObject({ status: 429, retryAfterSeconds: 30 });
   });
 
+  it("keeps why the plan said no when the agent answers 402", async () => {
+    const { createAssistantTransport, setAccessTokenProvider } = await load();
+    setAccessTokenProvider(async () => "token-123");
+    const fetch = vi.fn(
+      async () =>
+        new Response(
+          JSON.stringify({ error: "Sin mensajes este mes.", code: "ai.quota" }),
+          { status: 402, headers: { "content-type": "application/json" } },
+        ),
+    );
+
+    await expect(
+      send(createAssistantTransport({ fetch })),
+    ).rejects.toMatchObject({
+      status: 402,
+      limit: { code: "ai.quota", message: "Sin mensajes este mes." },
+    });
+  });
+
+  it("does not fail to explain a 402 whose body is not JSON", async () => {
+    const { createAssistantTransport, setAccessTokenProvider } = await load();
+    setAccessTokenProvider(async () => "token-123");
+    const fetch = vi.fn(async () => new Response("pay", { status: 402 }));
+
+    await expect(
+      send(createAssistantTransport({ fetch })),
+    ).rejects.toMatchObject({ status: 402, limit: undefined });
+  });
+
   it("keeps the status of other errors", async () => {
     const { createAssistantTransport, setAccessTokenProvider } = await load();
     setAccessTokenProvider(async () => "token-123");

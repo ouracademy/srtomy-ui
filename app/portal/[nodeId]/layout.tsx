@@ -8,6 +8,7 @@ import EventOutlinedIcon from "@mui/icons-material/EventOutlined";
 import BadgeOutlinedIcon from "@mui/icons-material/BadgeOutlined";
 import HomeOutlinedIcon from "@mui/icons-material/HomeOutlined";
 import PersonOutlinedIcon from "@mui/icons-material/PersonOutlined";
+import PaymentsOutlinedIcon from "@mui/icons-material/PaymentsOutlined";
 import WhatsAppIcon from "@mui/icons-material/WhatsApp";
 import * as React from "react";
 import MenuDrawer from "../MenuDrawer";
@@ -68,6 +69,13 @@ const menuItems = (type: string | undefined) => [
   { label: "Directorio", path: "/directory", Icon: ContactsOutlinedIcon },
   // Any member can link their own WhatsApp; connecting the church's is inside.
   { label: "WhatsApp", path: "/whatsapp", Icon: WhatsAppIcon },
+  // The plan is the church's: the screen is the same from any of its nodes.
+  {
+    label: "Plan y pagos",
+    path: "/billing",
+    Icon: PaymentsOutlinedIcon,
+    needs: ["billing.manage"] as Permission[],
+  },
 ];
 
 export default function NodeLayout(props: {

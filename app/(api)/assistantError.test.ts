@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { AssistantRequestError, parseRetryAfter } from "./assistantError";
+import {
+  AssistantRequestError,
+  parseRetryAfter,
+  planLimitFrom,
+} from "./assistantError";
 
 describe("parseRetryAfter", () => {
   it("reads seconds", () => {
@@ -27,4 +31,24 @@ describe("AssistantRequestError", () => {
     expect(error.status).toBe(429);
     expect(error.retryAfterSeconds).toBe(10);
   });
+});
+
+describe("planLimitFrom", () => {
+  it("reads the code and the text of a refusal of the plan", () => {
+    expect(planLimitFrom({ error: "Sin cuota.", code: "ai.quota" })).toEqual({
+      code: "ai.quota",
+      message: "Sin cuota.",
+    });
+  });
+
+  it("falls back to a text when the agent sends none", () => {
+    expect(planLimitFrom({ code: "ai.plan" })?.message).toContain("límite");
+  });
+
+  it.each([null, "text", 42, {}, { code: "rate.limit", error: "x" }])(
+    "ignores %j, which is not a refusal of the plan",
+    (body) => {
+      expect(planLimitFrom(body)).toBeUndefined();
+    },
+  );
 });

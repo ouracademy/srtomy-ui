@@ -9,6 +9,7 @@ vi.mock("../(api)/assistant", () => ({
   },
 }));
 vi.mock("../(api)/client", () => ({ apiClient: { get: vi.fn() } }));
+vi.mock("./PlanLimitNotice", () => ({ PlanLimitNotice: () => null }));
 vi.mock("./RequireAuth", () => ({
   RequireAuth: ({ children }: { children: React.ReactNode }) => <>{children}</>,
 }));

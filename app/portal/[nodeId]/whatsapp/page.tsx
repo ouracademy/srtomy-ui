@@ -15,6 +15,7 @@ import {
 } from "@/app/(api)/generated";
 import { apiErrorMessage } from "@/app/(components)/apiErrorMessage";
 import Loading from "@/app/(components)/Loading";
+import { PlanUsageNotice } from "@/app/(components)/PlanUsageNotice";
 import { ResourceError } from "@/app/(components)/ResourceError";
 import { SnackbarContext } from "@/app/(components)/SnackbarContext";
 import { usePermissions } from "@/app/(hooks)/usePermissions";
@@ -78,6 +79,7 @@ export default function WhatsAppPage(props: {
       <Typography component="h1" variant="h5">
         WhatsApp
       </Typography>
+      <PlanUsageNotice nodeId={nodeId} kind="whatsapp" />
 
       {canConnect && returned === "fallida" && (
         <Alert severity="error">

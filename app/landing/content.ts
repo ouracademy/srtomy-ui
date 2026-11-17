@@ -105,67 +105,83 @@ export const roles = [
 export type Plan = Readonly<{
   name: string;
   tagline: string;
-  /** Monthly price in soles. */
-  price: number;
+  /** What the big price says: "S/ 0", "S/ 75". */
+  price: string;
+  /** What goes after it: "al mes", "al mes con 150 personas". */
+  priceNote: string;
   features: readonly string[];
   cta: string;
   href: string;
   highlighted?: boolean;
 }>;
 
-// Paid plans are not self-service yet (billing is not connected), so their
-// buttons open a WhatsApp chat with the plan already named.
-const planInterest = (name: string) =>
-  whatsappLink(`Hola, quiero el plan ${name} de ${brandName}`);
-
+// The two plans of the API (srtomy-api, `billing.*`): the numbers here only
+// tell the story, the plan screen of the portal («Plan y pagos») shows the
+// real price for the people a church has and takes the payment.
 export const plans: readonly Plan[] = [
   {
-    name: "Semilla",
+    name: "Gratis",
     tagline: "Para iglesias que recién empiezan.",
-    price: 0,
+    price: "S/ 0",
+    priceNote: "siempre",
     features: [
-      "Hasta 50 personas",
-      "1 sede",
-      "Eventos y cursos con asistencia desde el celular",
-      "Enlace público para compartir tus eventos",
-      "Soporte por correo",
+      "Hasta 50 personas y 1 sede",
+      "Grupos, ministerios, eventos y cursos",
+      "Asistencia desde el celular con código QR",
+      "Inscripciones y páginas públicas para compartir",
+      "Roles y accesos por sede, grupo y ministerio",
+      "Asistente de IA: 30 mensajes al mes",
+      "WhatsApp de la iglesia: prueba de 15 días",
     ],
     cta: "Empezar gratis",
     href: "/portal",
   },
   {
-    name: "Crecimiento",
-    tagline: "Para iglesias con varios equipos y líderes.",
-    price: 69,
+    name: "Iglesia",
+    tagline: "Para iglesias que ya no caben en el plan Gratis.",
+    price: "S/ 75",
+    priceNote: "al mes con 150 personas · COP 85.000 en Colombia",
     features: [
-      "Todo lo de Semilla",
-      "Hasta 250 personas",
-      "Hasta 3 sedes",
-      "Grupos y ministerios sin límite",
-      "Roles y permisos heredados",
-      "Invitaciones por correo para tu equipo",
+      "Todo lo del plan Gratis, sin máximo de personas ni de sedes",
+      "S/ 35 más al mes (COP 40.000) por cada 100 personas que sumes",
+      "WhatsApp de la iglesia sin límite de tiempo",
+      "Asistente de IA: 300 mensajes al mes y 100 más por cada 100 personas sobre 150",
+      "Correos a grupos, ofrendas, turnos y exportar a Excel, a medida que llegan",
+      "Pagas con tarjeta, Yape o PSE; un año cuesta 10 meses",
     ],
-    cta: "Elegir Crecimiento",
-    href: planInterest("Crecimiento"),
+    cta: "Pasar al plan Iglesia",
+    href: "/portal",
     highlighted: true,
-  },
-  {
-    name: "Red",
-    tagline: "Para iglesias con varias sedes.",
-    price: 149,
-    features: [
-      "Todo lo de Crecimiento",
-      "Personas ilimitadas",
-      "Sedes ilimitadas",
-      "Visibilidad configurable por sede, grupo y ministerio",
-      "Soporte prioritario por WhatsApp",
-    ],
-    cta: "Elegir Red",
-    href: planInterest("Red"),
   },
 ];
 
-export const formatPrice = (price: number) => `S/ ${price}`;
+export type PriceCountry = "PE" | "CO";
+
+// What each country pays: the base for `includedPeople`, and the extra for
+// every `blockSize` people (or part of it) above. Same numbers as the API.
+export const priceList = {
+  includedPeople: 150,
+  blockSize: 100,
+  PE: { currency: "PEN", locale: "es-PE", base: 75, extraBlock: 35 },
+  CO: { currency: "COP", locale: "es-CO", base: 85000, extraBlock: 40000 },
+} as const;
+
+export const monthlyPrice = (country: PriceCountry, people: number) => {
+  const { includedPeople, blockSize } = priceList;
+  const extraBlocks =
+    people <= includedPeople
+      ? 0
+      : Math.ceil((people - includedPeople) / blockSize);
+  const { base, extraBlock } = priceList[country];
+  return base + extraBlock * extraBlocks;
+};
+
+export const formatMoney = (country: PriceCountry, amount: number) =>
+  new Intl.NumberFormat(priceList[country].locale, {
+    style: "currency",
+    currency: priceList[country].currency,
+    maximumFractionDigits: country === "CO" ? 0 : 2,
+  }).format(amount);
 
 export const legalLinks = [
   { href: "/terms-conditions", text: "Términos y condiciones" },
