@@ -42,7 +42,7 @@ describe("PeopleLayout", () => {
         <p>x</p>
       </PeopleLayout>,
     );
-    await user.type(screen.getByPlaceholderText("Buscar"), "ana");
+    await user.type(screen.getByPlaceholderText("Buscar por nombre"), "ana");
     await vi.waitFor(() =>
       expect(replace).toHaveBeenCalledWith("/portal/n1/person?search=ana"),
     );

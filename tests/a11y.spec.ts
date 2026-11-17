@@ -1,4 +1,5 @@
 import AxeBuilder from "@axe-core/playwright";
+import type { Page } from "@playwright/test";
 import { CHAT_URL, eventsThisWeek, fulfillChat } from "./chatStream";
 import { test, expect } from "./fixtures";
 
@@ -9,6 +10,18 @@ const json = (body: unknown) => ({
   contentType: "application/json",
   body: JSON.stringify(body),
 });
+
+const seriousViolations = async (page: Page) => {
+  const { violations } = await new AxeBuilder({ page })
+    .withTags(["wcag2a", "wcag2aa"])
+    .analyze();
+
+  return violations
+    .filter((v) => ["serious", "critical"].includes(v.impact ?? ""))
+    .map(
+      (v) => `${v.id}: ${v.nodes.map((n) => n.target.join(" ")).join(" | ")}`,
+    );
+};
 
 test.describe("Accesibilidad", () => {
   test.beforeEach(async ({ page }) => {
@@ -41,21 +54,37 @@ test.describe("Accesibilidad", () => {
       await page.goto(path);
       await page.getByRole("main").waitFor();
 
-      const { violations } = await new AxeBuilder({ page })
-        .withTags(["wcag2a", "wcag2aa"])
-        .analyze();
-
-      const serious = violations.filter((v) =>
-        ["serious", "critical"].includes(v.impact ?? ""),
-      );
-      expect(
-        serious.map(
-          (v) =>
-            `${v.id}: ${v.nodes.map((n) => n.target.join(" ")).join(" | ")}`,
-        ),
-      ).toEqual([]);
+      expect(await seriousViolations(page)).toEqual([]);
     });
   }
+
+  test("Lista de personas no tiene violaciones graves", async ({ page }) => {
+    await page.route("**/people?*", (route) =>
+      route.fulfill(
+        json({
+          content: [
+            {
+              id: "p1",
+              fullName: "Ana Diaz",
+              email: "ana@mail.com",
+              memberState: "MEMBER",
+            },
+            { id: "p2", fullName: "Beto Ruiz", memberState: "VISITOR" },
+            {
+              id: "p3",
+              fullName: "Carla Paz",
+              memberState: "MEMBERSHIP_IN_PROGRESS",
+            },
+          ],
+          totalElements: 40,
+        }),
+      ),
+    );
+    await page.goto(`/portal/${nodeId}/person`);
+    await expect(page.getByText("Beto Ruiz")).toBeVisible();
+
+    expect(await seriousViolations(page)).toEqual([]);
+  });
 
   test("El panel del asistente no tiene violaciones graves", async ({
     page,

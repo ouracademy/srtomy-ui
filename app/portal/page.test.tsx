@@ -1,10 +1,13 @@
-import { cleanup, render, screen } from "@testing-library/react";
+import { cleanup, render, screen, waitFor } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import React from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import PortalHome from "./page";
 
 const replace = vi.fn();
+const push = vi.fn();
 vi.mock("next/navigation", () => ({
-  useRouter: () => ({ replace, push: vi.fn() }),
+  useRouter: () => ({ replace, push }),
 }));
 
 const hooks = vi.hoisted(() => ({
@@ -25,8 +28,31 @@ vi.mock("./MenuDrawer", () => ({
   default: ({ children }: { children: React.ReactNode }) => <>{children}</>,
 }));
 vi.mock("./CreateChurchForm", () => ({
-  CreateChurchForm: () => <p>Formulario de iglesia</p>,
+  CreateChurchForm: ({ submit }: { submit: (values: object) => void }) => (
+    <>
+      <p>Formulario de iglesia</p>
+      <button onClick={() => submit({})}>Crear iglesia</button>
+    </>
+  ),
 }));
+vi.mock("./CreateChurchSchema", () => ({
+  toCreateChurchRequest: (values: object) => values,
+}));
+
+// Like SWR after creating a church: the list starts empty and refreshing it
+// brings the new, accessible location.
+const useOrganizationsThatGrow = () => {
+  const [organizations, setOrganizations] = React.useState<object[]>([]);
+  return {
+    data: organizations,
+    error: undefined,
+    isLoading: false,
+    mutate: async () =>
+      setOrganizations([
+        { id: "loc1", name: "Sede", type: "LOCATION", accessible: true },
+      ]),
+  };
+};
 
 const ok = (data: unknown) => ({
   data,
@@ -73,6 +99,21 @@ describe("portal landing", () => {
 
     render(<PortalHome />);
 
+    expect(replace).not.toHaveBeenCalled();
+  });
+
+  it("opens the new location after creating the church, not Mi espacio", async () => {
+    hooks.useGetMeOrganizations.mockImplementation(useOrganizationsThatGrow);
+    hooks.postOrganizations.mockResolvedValue({ id: "ch1" });
+    hooks.getOrganizationsByIdChilds.mockResolvedValue([
+      { id: "loc1", name: "Sede" },
+    ]);
+    const user = userEvent.setup();
+    render(<PortalHome />);
+
+    await user.click(screen.getByRole("button", { name: "Crear iglesia" }));
+
+    await waitFor(() => expect(push).toHaveBeenCalledWith("/portal/loc1"));
     expect(replace).not.toHaveBeenCalled();
   });
 });

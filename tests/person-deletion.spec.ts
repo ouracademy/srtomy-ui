@@ -1,3 +1,4 @@
+import type { Page } from "@playwright/test";
 import { test, expect } from "./fixtures";
 import { NODE_ID } from "./e2e-env";
 
@@ -6,6 +7,11 @@ const json = (body: unknown) => ({
   contentType: "application/json",
   body: JSON.stringify(body),
 });
+
+const openDeleteMenu = async (page: Page) => {
+  await page.getByRole("button", { name: "Acciones para Ana Diaz" }).click();
+  await page.getByRole("menuitem", { name: "Eliminar" }).click();
+};
 
 test.describe("Eliminar una persona", () => {
   let deleteStatus = 204;
@@ -42,7 +48,7 @@ test.describe("Eliminar una persona", () => {
 
   test("confirma y quita a la persona de la sede", async ({ page }) => {
     await page.goto(`/portal/${NODE_ID}/person`);
-    await page.getByRole("button", { name: "Eliminar" }).click();
+    await openDeleteMenu(page);
 
     const dialog = page.getByRole("dialog", {
       name: "Quitar a Ana Diaz de esta sede",
@@ -67,7 +73,7 @@ test.describe("Eliminar una persona", () => {
       detail: "La persona tiene una cuenta.",
     };
     await page.goto(`/portal/${NODE_ID}/person`);
-    await page.getByRole("button", { name: "Eliminar" }).click();
+    await openDeleteMenu(page);
     await page
       .getByRole("dialog")
       .getByRole("button", { name: "Quitar" })
@@ -95,7 +101,7 @@ test.describe("Eliminar una persona", () => {
     deleteStatus = 403;
     deleteBody = { detail: "La persona no pertenece a este grupo" };
     await page.goto(`/portal/${NODE_ID}/person`);
-    await page.getByRole("button", { name: "Eliminar" }).click();
+    await openDeleteMenu(page);
     await page
       .getByRole("dialog")
       .getByRole("button", { name: "Quitar" })
@@ -113,7 +119,12 @@ test.describe("Eliminar una persona", () => {
     await page.goto(`/portal/${NODE_ID}/person`);
 
     await expect(page.getByText("Ana Diaz")).toBeVisible();
-    await expect(page.getByRole("button", { name: "Ver" })).toBeVisible();
-    await expect(page.getByRole("button", { name: "Eliminar" })).toHaveCount(0);
+    await page.getByRole("button", { name: "Acciones para Ana Diaz" }).click();
+    await expect(
+      page.getByRole("menuitem", { name: "Ver persona" }),
+    ).toBeVisible();
+    await expect(page.getByRole("menuitem", { name: "Eliminar" })).toHaveCount(
+      0,
+    );
   });
 });
