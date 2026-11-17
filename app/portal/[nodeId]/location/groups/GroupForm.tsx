@@ -137,7 +137,7 @@ export const GroupForm = ({
           <Box
             sx={{
               display: "flex",
-              justifyContent: "flex-end",
+              justifyContent: "flex-start",
               borderTop: 1,
               borderColor: "divider",
               pt: 2,
