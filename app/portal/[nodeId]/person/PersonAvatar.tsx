@@ -38,9 +38,13 @@ export const toneFor = (key: string): string => {
 };
 
 // The photo of a person is not in the API yet: their initials stand in for it.
+// The signed-in user gets the background of their avatar in the header
+// (UserMenu), so they look the same in both places. White initials on that
+// light blue are under the 4.5:1 contrast of WCAG AA, so these are dark.
 export const PersonAvatar = ({
   person,
-}: Readonly<{ person: PersonResponse }>) => (
+  isYou = false,
+}: Readonly<{ person: PersonResponse; isYou?: boolean }>) => (
   <Avatar
     aria-hidden
     sx={{
@@ -48,8 +52,10 @@ export const PersonAvatar = ({
       height: 44,
       fontSize: 15,
       fontWeight: 500,
-      bgcolor: toneFor(person.id ?? person.fullName ?? ""),
-      color: "#ffffff",
+      bgcolor: isYou
+        ? "primary.light"
+        : toneFor(person.id ?? person.fullName ?? ""),
+      color: isYou ? "text.primary" : "#ffffff",
     }}
   >
     {personInitials(person)}

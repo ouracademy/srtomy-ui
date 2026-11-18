@@ -8,6 +8,7 @@ const api = vi.hoisted(() => ({
   mutate: vi.fn(),
   canDelete: true,
   search: "",
+  userName: "",
   people: undefined as unknown,
   error: undefined as unknown,
   loading: false,
@@ -33,6 +34,9 @@ vi.mock("@/app/(api)/generated", () => ({
   useGetOrganizationsById: () => ({ data: { type: "GROUP" } }),
   deletePeopleById: api.deletePeopleById,
 }));
+vi.mock("@auth0/auth0-react", () => ({
+  useAuth0: () => ({ user: { name: api.userName } }),
+}));
 vi.mock("@/app/(hooks)/usePermissions", () => ({
   usePermissions: () => ({
     can: (permission: string) =>
@@ -49,6 +53,7 @@ describe("PersonTable", () => {
     api.mutate.mockReset();
     api.canDelete = true;
     api.search = "";
+    api.userName = "";
     api.people = undefined;
     api.error = undefined;
     api.loading = false;
@@ -101,6 +106,32 @@ describe("PersonTable", () => {
     expect(
       screen.getByRole("menuitem", { name: "Ver persona" }),
     ).toHaveAttribute("href", "/portal/n1/person/p1");
+  });
+
+  it("gives the signed-in user the color of their avatar in the header", async () => {
+    api.userName = "Ana Diaz";
+    api.people = {
+      content: [
+        { id: "p1", fullName: "Ana Diaz", firstName: "Ana", lastName: "Diaz" },
+        {
+          id: "p2",
+          fullName: "Beto Ruiz",
+          firstName: "Beto",
+          lastName: "Ruiz",
+        },
+      ],
+      totalElements: 2,
+    };
+    render(<PersonTable nodeId="n1" />);
+
+    const own = (await screen.findByText("AD")).closest(".MuiAvatar-root");
+    const other = screen.getByText("BR").closest(".MuiAvatar-root");
+    expect(own && getComputedStyle(own).backgroundColor).toBe(
+      "rgb(66, 165, 245)",
+    );
+    expect(other && getComputedStyle(other).backgroundColor).not.toBe(
+      "rgb(66, 165, 245)",
+    );
   });
 
   it("shows the email, or says there is none", async () => {

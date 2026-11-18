@@ -32,4 +32,21 @@ describe("PersonAvatar", () => {
 
     expect(screen.getByText("AD")).toBeInTheDocument();
   });
+
+  it("gives the signed-in user the color of the header avatar", () => {
+    render(
+      <>
+        <PersonAvatar person={{ id: "p1", fullName: "Ana Diaz" }} isYou />
+        <PersonAvatar person={{ id: "p2", fullName: "Beto Ruiz" }} />
+      </>,
+    );
+
+    // primary.light of the default theme, as in the header menu.
+    expect(getComputedStyle(screen.getByText("AD")).backgroundColor).toBe(
+      "rgb(66, 165, 245)",
+    );
+    expect(getComputedStyle(screen.getByText("BR")).backgroundColor).not.toBe(
+      "rgb(66, 165, 245)",
+    );
+  });
 });
