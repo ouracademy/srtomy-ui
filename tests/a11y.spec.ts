@@ -70,6 +70,8 @@ test.describe("Accesibilidad", () => {
               memberState: "MEMBER",
             },
             { id: "p2", fullName: "Beto Ruiz", memberState: "VISITOR" },
+            // The signed-in user of tests/fixtures.ts: shows the header color.
+            { id: "p4", fullName: "E2E User", memberState: "MEMBER" },
             {
               id: "p3",
               fullName: "Carla Paz",

@@ -1,5 +1,6 @@
 "use client";
 import React from "react";
+import { useAuth0 } from "@auth0/auth0-react";
 import { Box, Button, List, Typography } from "@mui/material";
 import { useGetOrganizationsById, useGetPeople } from "@/app/(api)/generated";
 import type { PersonResponse } from "@/app/(api)/generated/aPIOvejafiel.schemas";
@@ -10,6 +11,7 @@ import { memberStateFromParam } from "@/app/(components)/memberState";
 import { STATE_PARAM } from "./PeopleLayout";
 import { usePermissions } from "@/app/(hooks)/usePermissions";
 import { DeletePersonDialog, type PersonToDelete } from "./DeletePersonDialog";
+import { isCurrentUser } from "./isCurrentUser";
 import { PersonRow } from "./PersonRow";
 
 // People shown at first and added by each "Ver más".
@@ -24,6 +26,7 @@ export type PersonTableProps = Readonly<{
 // whole.
 export const PersonTable = ({ nodeId }: PersonTableProps) => {
   const searchParams = useSearchParams();
+  const { user } = useAuth0();
   const searchParamQuery = searchParams.get("search") || "";
   const stateFilter = memberStateFromParam(searchParams.get(STATE_PARAM));
 
@@ -86,6 +89,7 @@ export const PersonTable = ({ nodeId }: PersonTableProps) => {
               person={person}
               nodeId={nodeId}
               canDelete={canDelete}
+              isYou={isCurrentUser(person, user)}
               onDelete={setPersonToDelete}
             />
           ))}

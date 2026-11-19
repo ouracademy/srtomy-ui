@@ -32,6 +32,8 @@ type PersonRowProps = Readonly<{
   nodeId: string;
   // Without the permission the menu only offers to see the person.
   canDelete: boolean;
+  // The signed-in user: their avatar has the color of the one in the header.
+  isYou?: boolean;
   onDelete: (person: PersonToDelete) => void;
 }>;
 
@@ -41,6 +43,7 @@ export const PersonRow = ({
   person,
   nodeId,
   canDelete,
+  isYou = false,
   onDelete,
 }: PersonRowProps) => {
   const [anchor, setAnchor] = React.useState<HTMLElement | null>(null);
@@ -59,7 +62,7 @@ export const PersonRow = ({
         href={href}
         sx={{ flex: 1, minWidth: 0, gap: 1.75, borderRadius: 3, py: 1.25 }}
       >
-        <PersonAvatar person={person} />
+        <PersonAvatar person={person} isYou={isYou} />
         <ListItemText
           primary={name}
           secondary={email || "Sin correo registrado"}
