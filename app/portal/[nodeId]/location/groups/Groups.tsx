@@ -1,35 +1,36 @@
 "use client";
 
+import AddIcon from "@mui/icons-material/Add";
+import SearchIcon from "@mui/icons-material/Search";
 import {
   Box,
+  Button,
+  Chip,
   InputAdornment,
+  List,
+  Paper,
   Stack,
   TextField,
-  Tooltip,
   Typography,
 } from "@mui/material";
-import { DataGrid, GridActionsCellItem, GridColDef } from "@mui/x-data-grid";
-import { esES } from "@mui/x-data-grid/locales";
-import SearchIcon from "@mui/icons-material/Search";
-import React from "react";
-import { withOutSorting } from "@/app/(components)/helpers/withOutSorting";
+import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import React from "react";
 import { useDebounce } from "use-debounce";
-import { DEBOUNCE_WAIT_MS } from "@/app/(components)/helpers/debouncing";
-import { searchQueryFor } from "../../person/searchQuery";
 import {
   deleteOrganizationsById,
   useGetOrganizationsByIdChilds,
 } from "@/app/(api)/generated";
-import type { OrganizationResponse } from "@/app/(api)/generated/aPIOvejafiel.schemas";
-import { nodeTypeLabels } from "@/app/portal/organizationTree";
-import DeleteIcon from "@mui/icons-material/Delete";
 import { DialogDeleteConfirmation } from "@/app/(components)/DialogDeleteConfirmation";
+import Loading from "@/app/(components)/Loading";
+import { ResourceError } from "@/app/(components)/ResourceError";
 import { SnackbarContext } from "@/app/(components)/SnackbarContext";
-import { pink } from "@mui/material/colors";
-import { RButton } from "@/app/(components)/RButton";
+import { apiErrorMessage } from "@/app/(components)/apiErrorMessage";
+import { DEBOUNCE_WAIT_MS } from "@/app/(components)/helpers/debouncing";
+import { searchQueryFor } from "../../person/searchQuery";
 import { childrenLabels } from "./childrenLabels";
 import { filterByName } from "./filterByName";
+import { GroupRow, type GroupToDelete } from "./GroupRow";
 
 type GroupsProps = {
   nodeId: string;
@@ -41,6 +42,14 @@ type GroupsProps = {
   canDelete?: boolean;
 };
 
+type TypeFilter = "" | "GROUP" | "MINISTRY";
+
+const typeFilters: { value: TypeFilter; label: string }[] = [
+  { value: "", label: "Todos" },
+  { value: "GROUP", label: "Grupos" },
+  { value: "MINISTRY", label: "Ministerios" },
+];
+
 // Children of a node. Opening a child makes it the current node, so groups
 // and ministries can nest as deep as the church needs.
 export function Groups({
@@ -50,9 +59,9 @@ export function Groups({
   canCreate = false,
   canDelete = false,
 }: GroupsProps) {
-  const [groupToDeleteId, setGroupToDeleteId] = React.useState<string | null>(
-    null,
-  );
+  const [groupToDelete, setGroupToDelete] =
+    React.useState<GroupToDelete | null>(null);
+  const [typeFilter, setTypeFilter] = React.useState<TypeFilter>("");
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -70,155 +79,175 @@ export function Groups({
 
   const {
     data: groups,
+    error,
     isLoading,
     mutate,
   } = useGetOrganizationsByIdChilds(nodeId);
   const alert = React.useContext(SnackbarContext);
+  const labels = childrenLabels(isChurch, insideGroup);
+  // Groups and ministries come mixed only in a sede.
+  const canFilterByType = !isChurch && !insideGroup;
 
-  const deleteGroup = async (id: string | null) => {
-    if (!id) return;
-    await deleteOrganizationsById(id);
-    setGroupToDeleteId(null);
+  const deleteGroup = async () => {
+    if (!groupToDelete) return;
+    try {
+      await deleteOrganizationsById(groupToDelete.id);
+    } catch (failure) {
+      alert.showMessage(
+        apiErrorMessage(failure, "No se pudo eliminar. Intenta de nuevo."),
+      );
+      setGroupToDelete(null);
+      return;
+    }
+    setGroupToDelete(null);
     alert.showMessage("Eliminado exitosamente");
     mutate();
   };
 
-  const columns = React.useMemo(
-    () =>
-      (
-        [
-          { field: "name", headerName: "Nombre", flex: 2, minWidth: 130 },
-          {
-            field: "type",
-            headerName: "Tipo",
-            flex: 1,
-            minWidth: 110,
-            valueGetter: (value) => nodeTypeLabels[value ?? ""] ?? "",
-          },
-          {
-            field: "actions",
-            type: "actions",
-            width: 80,
-            getActions: (params) => {
-              const actions = [
-                <Tooltip title="Abrir" key="see">
-                  <GridActionsCellItem
-                    label="Abrir"
-                    icon={
-                      <SearchIcon sx={{ "&:hover": { color: "#1976D2" } }} />
-                    }
-                    onClick={() =>
-                      router.push(`/portal/${params.row.id}/location`)
-                    }
-                  />
-                </Tooltip>,
-              ];
-              if (!canDelete || isChurch) return actions;
-              return [
-                ...actions,
-                <Tooltip title="Eliminar" key="delete">
-                  <GridActionsCellItem
-                    label="Eliminar"
-                    icon={
-                      <DeleteIcon sx={{ "&:hover": { color: pink[500] } }} />
-                    }
-                    onClick={() => setGroupToDeleteId(params.row.id ?? null)}
-                  />
-                </Tooltip>,
-              ];
-            },
-          },
-        ] as GridColDef<OrganizationResponse>[]
-      ).map(withOutSorting),
-    [router, canDelete, isChurch],
-  );
+  if (isLoading && !groups) return <Loading />;
+  if (!groups) return <ResourceError error={error} onRetry={() => mutate()} />;
+
+  const matching = filterByName(groups, searchDebounced);
+  const countOf = (type: TypeFilter) =>
+    type
+      ? matching.filter((group) => group.type === type).length
+      : matching.length;
+  const rows = typeFilter
+    ? matching.filter((group) => group.type === typeFilter)
+    : matching;
+  const filtered = Boolean(searchDebounced.trim() || typeFilter);
 
   return (
-    <Stack direction="column" spacing={2}>
+    <Stack spacing={2.5} sx={{ maxWidth: 760 }}>
       <Box
         sx={{
           display: "flex",
           justifyContent: "space-between",
-          alignItems: "center",
+          alignItems: "flex-end",
           flexWrap: "wrap",
-          gap: 2,
+          gap: 1.5,
         }}
       >
-        <Typography variant="h6">
-          {childrenLabels(isChurch, insideGroup).title}
-        </Typography>
-        <Box sx={{ display: "flex", width: { xs: "100%", sm: "auto" } }}>
-          {canCreate && (
-            <RButton
-              name={childrenLabels(isChurch, insideGroup).create}
-              href={`/portal/${nodeId}/location/${isChurch ? "new" : "groups/create"}`}
-            />
-          )}
+        <Box>
+          <Typography variant="h4" component="h1">
+            {labels.title}
+          </Typography>
+          <Typography sx={{ color: "text.secondary" }}>
+            {labels.subtitle}
+          </Typography>
+        </Box>
+        {canCreate && (
+          <Button
+            variant="contained"
+            component={Link}
+            href={`/portal/${nodeId}/location/${isChurch ? "new" : "groups/create"}`}
+            startIcon={<AddIcon />}
+            sx={{
+              borderRadius: 999,
+              px: 2.5,
+              width: { xs: "100%", sm: "auto" },
+            }}
+          >
+            {labels.create}
+          </Button>
+        )}
+      </Box>
+
+      <Paper variant="outlined" sx={{ borderRadius: 5, overflow: "hidden" }}>
+        <Stack spacing={1.75} sx={{ p: 2.25, pb: 1.75 }}>
           <TextField
-            sx={{ minWidth: 0 }}
-            placeholder="Buscar"
-            variant="outlined"
+            hiddenLabel
+            variant="filled"
+            placeholder="Buscar por nombre"
+            fullWidth
+            value={search}
+            onChange={(event) => setSearch(event.target.value)}
             slotProps={{
               input: {
+                disableUnderline: true,
+                sx: { borderRadius: 3 },
                 startAdornment: (
                   <InputAdornment position="start">
                     <SearchIcon />
                   </InputAdornment>
                 ),
               },
-              htmlInput: {
-                "aria-label": "Buscar por nombre",
-                style: { padding: "12px 10px 12px 10px" },
-              },
+              htmlInput: { "aria-label": "Buscar por nombre" },
             }}
-            fullWidth
-            value={search}
-            onChange={(event) => setSearch(event.target.value)}
           />
-        </Box>
-      </Box>
-      <div style={{ width: "100%", height: "70vh" }}>
-        <DataGrid
-          sx={{
-            "& .MuiDataGrid-columnHeaders": {
-              borderBottom: "1px solid #dbdbdb !important",
-              borderRadius: 0,
-            },
-            "& .MuiDataGrid-row": {
-              borderBottom: "1px solid #efefef",
-
-              "&:hover": {
-                background: "#fafafa",
-              },
-            },
-            "& .MuiDataGrid-columnHeaderTitle": {
-              fontWeight: "700",
-              color: "#8e8e8e",
-              textTransform: "uppercase",
-              fontSize: "0.8rem",
-              letterSpacing: "0.5px",
-            },
-
-            "& .MuiDataGrid-columnSeparator": {
-              display: "none",
-            },
-            "& .MuiDataGrid-cell:focus": {
-              outline: "none",
-            },
-            "& .MuiDataGrid-footerContainer": {
-              borderTop: "none",
-            },
-          }}
-          loading={isLoading}
-          columns={columns}
-          rows={filterByName(groups ?? [], searchDebounced)}
-          localeText={esES.components.MuiDataGrid.defaultProps.localeText}
-        />
-      </div>
+          {canFilterByType && (
+            <Stack
+              direction="row"
+              role="group"
+              aria-label="Filtrar por tipo"
+              sx={{ flexWrap: "wrap", gap: 1 }}
+            >
+              {typeFilters.map(({ value, label }) => {
+                const selected = typeFilter === value;
+                return (
+                  <Chip
+                    key={value}
+                    label={`${label} ${countOf(value)}`}
+                    clickable
+                    aria-pressed={selected}
+                    color={selected ? "primary" : "default"}
+                    variant={selected ? "filled" : "outlined"}
+                    onClick={() => setTypeFilter(value)}
+                  />
+                );
+              })}
+            </Stack>
+          )}
+        </Stack>
+        {rows.length === 0 ? (
+          <Box sx={{ px: 2, py: 5, textAlign: "center" }}>
+            <Typography variant="subtitle1" sx={{ fontWeight: 500 }}>
+              {filtered ? "No encontramos ninguno" : "Aún no hay nada aquí"}
+            </Typography>
+            <Typography sx={{ color: "text.secondary" }}>
+              {filtered
+                ? "Pruebe con otro nombre o quite el filtro de tipo."
+                : canCreate
+                  ? "Agregue el primero con el botón de arriba."
+                  : "Todavía no se ha agregado ninguno."}
+            </Typography>
+          </Box>
+        ) : (
+          <>
+            <List
+              aria-label={labels.title}
+              sx={{ px: 1, pb: 1, pt: 0, display: "grid", gap: 0.25 }}
+            >
+              {rows.map((group) => (
+                <GroupRow
+                  key={group.id}
+                  group={group}
+                  canDelete={canDelete && !isChurch}
+                  onDelete={setGroupToDelete}
+                />
+              ))}
+            </List>
+            <Typography
+              variant="body2"
+              sx={{
+                color: "text.secondary",
+                px: 2.25,
+                py: 1.5,
+                borderTop: 1,
+                borderColor: "divider",
+              }}
+            >
+              Mostrando {rows.length} de {groups.length}
+            </Typography>
+          </>
+        )}
+      </Paper>
       <DialogDeleteConfirmation
-        open={groupToDeleteId !== null}
-        close={() => setGroupToDeleteId(null)}
-        onDelete={() => deleteGroup(groupToDeleteId)}
+        open={groupToDelete !== null}
+        close={() => setGroupToDelete(null)}
+        onDelete={deleteGroup}
+        title={`¿Eliminar ${groupToDelete?.name ?? ""}?`}
+        message="Esta acción no se puede deshacer."
       />
     </Stack>
   );

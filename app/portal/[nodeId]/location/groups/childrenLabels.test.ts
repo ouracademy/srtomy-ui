@@ -5,6 +5,7 @@ describe("childrenLabels", () => {
   it("lists sedes in a church", () => {
     expect(childrenLabels(true, false)).toEqual({
       title: "Sedes",
+      subtitle: "Las sedes de esta iglesia.",
       create: "Agregar sede",
     });
   });
@@ -12,6 +13,7 @@ describe("childrenLabels", () => {
   it("says just grupos inside a group or ministry", () => {
     expect(childrenLabels(false, true)).toEqual({
       title: "Grupos",
+      subtitle: "Los grupos de este grupo o ministerio.",
       create: "Agregar grupo",
     });
   });
@@ -19,6 +21,7 @@ describe("childrenLabels", () => {
   it("keeps grupos y ministerios in a sede", () => {
     expect(childrenLabels(false, false)).toEqual({
       title: "Grupos y ministerios",
+      subtitle: "Los grupos y ministerios de esta sede.",
       create: "Agregar",
     });
   });

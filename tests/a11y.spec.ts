@@ -88,6 +88,28 @@ test.describe("Accesibilidad", () => {
     expect(await seriousViolations(page)).toEqual([]);
   });
 
+  test("Lista de grupos y ministerios no tiene violaciones graves", async ({
+    page,
+  }) => {
+    await page.route(`**/organizations/${nodeId}/childs**`, (route) =>
+      route.fulfill(
+        json([
+          {
+            id: "g1",
+            name: "Jóvenes",
+            type: "GROUP",
+            schedule: "Sábados 5 pm",
+          },
+          { id: "g2", name: "Alabanza", type: "MINISTRY" },
+        ]),
+      ),
+    );
+    await page.goto(`/portal/${nodeId}/groups`);
+    await expect(page.getByText("Alabanza")).toBeVisible();
+
+    expect(await seriousViolations(page)).toEqual([]);
+  });
+
   test("El panel del asistente no tiene violaciones graves", async ({
     page,
   }) => {
