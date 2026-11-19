@@ -55,7 +55,7 @@ export const PersonAvatar = ({
       bgcolor: isYou
         ? "primary.light"
         : toneFor(person.id ?? person.fullName ?? ""),
-      color: isYou ? "text.primary" : "#ffffff",
+      // color: isYou ? "#ffffff" : "text.primary",
     }}
   >
     {personInitials(person)}
