@@ -43,10 +43,10 @@ describe("PersonAvatar", () => {
 
     // primary.light of the default theme, as in the header menu.
     expect(getComputedStyle(screen.getByText("AD")).backgroundColor).toBe(
-      "rgb(66, 165, 245)",
+      "rgb(25, 118, 210)",
     );
     expect(getComputedStyle(screen.getByText("BR")).backgroundColor).not.toBe(
-      "rgb(66, 165, 245)",
+      "rgb(25, 118, 210)",
     );
   });
 });

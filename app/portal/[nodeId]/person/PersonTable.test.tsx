@@ -127,10 +127,10 @@ describe("PersonTable", () => {
     const own = (await screen.findByText("AD")).closest(".MuiAvatar-root");
     const other = screen.getByText("BR").closest(".MuiAvatar-root");
     expect(own && getComputedStyle(own).backgroundColor).toBe(
-      "rgb(66, 165, 245)",
+      "rgb(25, 118, 210)",
     );
     expect(other && getComputedStyle(other).backgroundColor).not.toBe(
-      "rgb(66, 165, 245)",
+      "rgb(25, 118, 210)",
     );
   });
 
