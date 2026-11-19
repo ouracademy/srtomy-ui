@@ -45,7 +45,7 @@ export const PersonHeader = ({
             height: 88,
             fontSize: 32,
             fontWeight: 700,
-            bgcolor: "primary.light",
+            bgcolor: "#1976d2",
             color: "primary.contrastText",
           }}
           alt={name}
