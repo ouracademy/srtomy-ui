@@ -15,6 +15,7 @@ import {
   formatDay,
   formatMoney,
   invoiceStatusLabels,
+  planName,
   plural,
 } from "@/app/(components)/billingFormat";
 
@@ -43,6 +44,8 @@ export const InvoiceHistory = ({
             {invoices.map((invoice) => (
               <TableRow key={invoice.id}>
                 <TableCell>
+                  Plan {planName(invoice.plan)}
+                  {invoice.ownNumber ? " con número propio" : ""} ·{" "}
                   {plural(invoice.months ?? 0, "mes", "meses")} ·{" "}
                   {plural(invoice.people ?? 0, "persona", "personas")}
                 </TableCell>

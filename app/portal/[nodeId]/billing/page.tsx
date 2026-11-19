@@ -9,6 +9,7 @@ import {
   useGetOrganizationsByIdBillingInvoices,
 } from "@/app/(api)/generated";
 import { apiErrorMessage } from "@/app/(components)/apiErrorMessage";
+import { planName } from "@/app/(components)/billingFormat";
 import Loading from "@/app/(components)/Loading";
 import { ResourceError } from "@/app/(components)/ResourceError";
 import { SnackbarContext } from "@/app/(components)/SnackbarContext";
@@ -52,7 +53,7 @@ export default function BillingPage(props: {
         await refreshInvoices();
         alert.showMessage(
           plan.status === "ACTIVE"
-            ? "¡Listo! El plan Iglesia está activo."
+            ? `¡Listo! El plan ${planName(plan.plan)} está activo.`
             : "Estamos esperando la confirmación del pago. Vuelve en unos minutos.",
         );
       })

@@ -22,7 +22,7 @@ Quedan fuera por ahora (el benchmark los marca «Después»): cobro online de la
 
 - Lee el `AGENTS.md` de srtomy-api y de srtomy-ui. Spec-kit (`speckit-specify`, `speckit-plan`, `speckit-tasks`) en `specs/<NNN-nombre>/` de srtomy-api, con el número libre siguiente.
 - **Cada spec trae su `quickstart.md`**: cómo se usa la función, para la iglesia y para quien programa.
-- Si la función es del plan Iglesia, protégela en la API con `CheckFeatureQueryHandler` (`billing.domain.Feature`), que responde 402 con `code`. Si el módulo 1 aún no está en `main`, parte de su rama `claude/church-features-pricing-plan-masj76`.
+- Si la función es de un plan de pago (Básico, Iglesia o Red), protégela en la API con `CheckFeatureQueryHandler` (`billing.domain.Feature`), que responde 402 con `code`. Si el módulo 1 aún no está en `main`, parte de su rama `claude/church-features-pricing-plan-masj76`.
 - Envíos (correo, WhatsApp) siempre por el **outbox** y trabajo en calendario con **Cloud Scheduler**, nunca `@Scheduled`.
 - Las tablas grandes del portal usan MUI X DataGrid; las llamadas, `app/(api)/services`.
 - Un permiso nuevo va en `iam.domain.Permission`, en una migración para los roles predefinidos y en `app/(components)/permissionLabels.ts`.

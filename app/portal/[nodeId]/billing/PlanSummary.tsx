@@ -17,10 +17,11 @@ import type { BillingResponse } from "@/app/(api)/generated/aPIOvejafiel.schemas
 import {
   formatDay,
   isNearLimit,
+  nextPlan,
   plural,
+  planName,
   statusLabels,
   usageRatio,
-  whatsappTrial,
 } from "@/app/(components)/billingFormat";
 
 type UsageBarProps = Readonly<{
@@ -57,16 +58,16 @@ const UsageBar = ({ label, used, max, unit }: UsageBarProps) => {
 // includes. The API decides all of it; this only shows it.
 export const PlanSummary = ({
   billing,
-  now = new Date(),
-}: Readonly<{ billing: BillingResponse; now?: Date }>) => {
-  const trial = whatsappTrial(billing, now);
+}: Readonly<{ billing: BillingResponse }>) => {
   const ai = billing.ai;
+  const reminders = billing.reminders;
+  const next = nextPlan(billing);
   return (
     <Paper variant="outlined" sx={{ p: 2 }}>
       <Stack spacing={2}>
         <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
           <Typography component="h2" variant="h6">
-            {billing.plan === "CHURCH" ? "Plan Iglesia" : "Plan Gratis"}
+            {`Plan ${planName(billing.plan)}`}
           </Typography>
           {billing.status && (
             <Chip
@@ -116,14 +117,26 @@ export const PlanSummary = ({
               unit={["mensaje", "mensajes"]}
             />
           )}
+          {reminders && (
+            <UsageBar
+              label="Recordatorios por WhatsApp este mes"
+              used={reminders.used ?? 0}
+              max={reminders.limit}
+              unit={["recordatorio", "recordatorios"]}
+            />
+          )}
         </Stack>
 
-        {trial && (
-          <Alert severity={trial.over ? "warning" : "info"}>
-            {trial.over
-              ? "Terminó la prueba gratuita de WhatsApp. Pasa al plan Iglesia para seguir usándolo."
-              : `Te quedan ${plural(trial.daysLeft, "día", "días")} de prueba gratuita de WhatsApp.`}
-          </Alert>
+        <Typography variant="body2">
+          {billing.ownNumber
+            ? "Tu iglesia usa su propio número de WhatsApp."
+            : "WhatsApp sale por el número de Sr. Tommy. Un número propio es parte del plan Red o un extra de los planes Básico e Iglesia."}
+        </Typography>
+
+        {next && (
+          <Typography variant="body2">
+            El siguiente plan es el {planName(next.plan)}.
+          </Typography>
         )}
 
         <List dense aria-label="Funciones del plan" disablePadding>
@@ -139,13 +152,13 @@ export const PlanSummary = ({
               ) : (
                 <LockOutlinedIcon
                   fontSize="small"
-                  titleAccess="Solo en el plan Iglesia"
+                  titleAccess="Solo en un plan superior"
                   sx={{ mr: 1 }}
                 />
               )}
               <ListItemText
                 primary={feature.label}
-                secondary={feature.enabled ? undefined : "Plan Iglesia"}
+                secondary={feature.enabled ? undefined : "En un plan superior"}
               />
             </ListItem>
           ))}

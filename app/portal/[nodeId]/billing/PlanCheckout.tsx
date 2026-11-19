@@ -2,7 +2,13 @@
 
 import {
   Alert,
+  Checkbox,
+  FormControl,
+  FormControlLabel,
+  FormLabel,
   Paper,
+  Radio,
+  RadioGroup,
   Stack,
   ToggleButton,
   ToggleButtonGroup,
@@ -13,24 +19,29 @@ import { postOrganizationsByIdBillingCheckout } from "@/app/(api)/generated";
 import type {
   BillingResponse,
   CheckoutRequestCountry,
+  CheckoutRequestPlan,
 } from "@/app/(api)/generated/aPIOvejafiel.schemas";
 import { apiErrorMessage } from "@/app/(components)/apiErrorMessage";
-import { SaveButton } from "@/app/(components)/SaveButton";
-import { SnackbarContext } from "@/app/(components)/SnackbarContext";
 import {
   countryLabels,
   formatMoney,
   plural,
+  planName,
+  planTotal,
   priceOf,
+  suggestedPlan,
 } from "@/app/(components)/billingFormat";
+import { SaveButton } from "@/app/(components)/SaveButton";
+import { SnackbarContext } from "@/app/(components)/SnackbarContext";
 
 // Sends the browser to the checkout of the payment provider. A prop, so the
 // tests do not navigate.
 const goTo = (url: string) => window.location.assign(url);
 
-// Pay the paid plan for one month or one year, in soles or pesos. The price is
-// the API's (it depends on the people the church has today); nothing changes
-// until the payment is confirmed.
+// Choose a plan, a country and a month or a year, and pay. The prices are the
+// API's; a plan the church already outgrew (`fits`) cannot be chosen, and
+// nothing changes until the payment is confirmed. The own WhatsApp number is
+// an extra of the plans that do not include it.
 export const PlanCheckout = ({
   nodeId,
   billing,
@@ -41,15 +52,32 @@ export const PlanCheckout = ({
   redirect?: (url: string) => void;
 }>) => {
   const alert = React.useContext(SnackbarContext);
-  const countries = (billing.prices ?? []).flatMap((price) =>
+  const paidPlans = (billing.plans ?? []).filter(
+    (plan) => plan.plan !== "FREE",
+  );
+  const countries = (paidPlans[0]?.prices ?? []).flatMap((price) =>
     price.country ? [price.country] : [],
   );
-  const [chosen, setChosen] = React.useState<string | undefined>();
-  const country = chosen ?? billing.country ?? countries[0];
-  const price = country ? priceOf(billing, country) : undefined;
+  const [chosenPlan, setChosenPlan] = React.useState<string | undefined>();
+  const [chosenCountry, setChosenCountry] = React.useState<
+    string | undefined
+  >();
+  const [ownNumber, setOwnNumber] = React.useState(false);
   const [paying, setPaying] = React.useState<number | null>(null);
 
-  if (!price || !country) return null;
+  const plan =
+    paidPlans.find((candidate) => candidate.plan === chosenPlan) ??
+    suggestedPlan(billing);
+  const country = chosenCountry ?? billing.country ?? countries[0];
+  const price = plan && country ? priceOf(plan, country) : undefined;
+  if (!plan?.plan || !country || !price) return null;
+
+  // The extra only exists where the plan sells it.
+  const withExtra = ownNumber && Boolean(plan.ownNumberExtra);
+  const currency = price.currency ?? "";
+  const month = planTotal(plan, country, 1, withExtra);
+  const year = planTotal(plan, country, 12, withExtra);
+  const renewing = billing.plan === plan.plan;
 
   const pay = async (months: 1 | 12) => {
     // One checkout at a time: a second click must not make a second payment.
@@ -57,8 +85,10 @@ export const PlanCheckout = ({
     setPaying(months);
     try {
       const checkout = await postOrganizationsByIdBillingCheckout(nodeId, {
+        plan: plan.plan as CheckoutRequestPlan,
         country: country as CheckoutRequestCountry,
         months,
+        ownNumber: withExtra,
       });
       if (!checkout.checkoutUrl) throw new Error("No checkout url");
       redirect(checkout.checkoutUrl);
@@ -70,22 +100,75 @@ export const PlanCheckout = ({
     }
   };
 
-  const currency = price.currency ?? "";
-  const renewing = billing.plan === "CHURCH";
-
   return (
     <Paper variant="outlined" sx={{ p: 2 }}>
       <Stack spacing={2}>
         <Typography component="h2" variant="h6">
-          {renewing ? "Renovar el plan Iglesia" : "Pasar al plan Iglesia"}
+          {renewing ? "Renovar o cambiar de plan" : "Elegir un plan"}
         </Typography>
-        <Typography variant="body2">
-          Con las {plural(billing.people ?? 0, "persona", "personas")} de tu
-          iglesia hoy. Incluye {billing.includedPeople} personas; cada{" "}
-          {billing.blockSize} más suman{" "}
-          {formatMoney(price.extraBlock ?? 0, currency)} al mes. Un año cuesta
-          10 meses.
-        </Typography>
+
+        <FormControl>
+          <FormLabel id="plan-choice">Plan</FormLabel>
+          <RadioGroup
+            aria-labelledby="plan-choice"
+            value={plan.plan}
+            onChange={(_event, value) => setChosenPlan(value)}
+          >
+            {paidPlans.map((candidate) => {
+              const monthly = priceOf(candidate, country)?.monthly ?? 0;
+              return (
+                <FormControlLabel
+                  key={candidate.plan}
+                  value={candidate.plan}
+                  disabled={!candidate.fits}
+                  control={<Radio />}
+                  label={
+                    <Stack>
+                      <Typography>
+                        {`${planName(candidate.plan)} · ${formatMoney(monthly, currency)} al mes`}
+                      </Typography>
+                      <Typography variant="body2" color="text.secondary">
+                        {candidate.maxPeople
+                          ? `Hasta ${plural(candidate.maxPeople, "persona", "personas")}`
+                          : "Personas sin límite"}
+                        {" · "}
+                        {candidate.maxLocations
+                          ? plural(candidate.maxLocations, "sede", "sedes")
+                          : "sedes sin límite"}
+                        {" · "}
+                        {plural(
+                          candidate.aiMessages ?? 0,
+                          "mensaje de IA",
+                          "mensajes de IA",
+                        )}
+                        {candidate.fits
+                          ? ""
+                          : " · Tu iglesia ya tiene más de lo que incluye"}
+                      </Typography>
+                    </Stack>
+                  }
+                />
+              );
+            })}
+          </RadioGroup>
+        </FormControl>
+
+        {plan.ownNumberExtra && (
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={ownNumber}
+                onChange={(_event, checked) => setOwnNumber(checked)}
+              />
+            }
+            label={`Número de WhatsApp propio (+${formatMoney(price.ownNumberMonthly ?? 0, currency)} al mes)`}
+          />
+        )}
+        {plan.ownNumberIncluded && (
+          <Typography variant="body2">
+            Este plan incluye el número de WhatsApp propio.
+          </Typography>
+        )}
 
         {countries.length > 1 && (
           <ToggleButtonGroup
@@ -94,7 +177,7 @@ export const PlanCheckout = ({
             value={country}
             aria-label="País desde el que pagas"
             onChange={(_event, value: string | null) => {
-              if (value) setChosen(value);
+              if (value) setChosenCountry(value);
             }}
           >
             {countries.map((code) => (
@@ -108,8 +191,7 @@ export const PlanCheckout = ({
         <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
           <Stack spacing={1}>
             <Typography>
-              <strong>{formatMoney(price.monthly ?? 0, currency)}</strong> por 1
-              mes
+              <strong>{formatMoney(month ?? 0, currency)}</strong> por 1 mes
             </Typography>
             <SaveButton
               name="Pagar 1 mes"
@@ -119,8 +201,7 @@ export const PlanCheckout = ({
           </Stack>
           <Stack spacing={1}>
             <Typography>
-              <strong>{formatMoney(price.yearly ?? 0, currency)}</strong> por 1
-              año
+              <strong>{formatMoney(year ?? 0, currency)}</strong> por 1 año
             </Typography>
             <SaveButton
               name="Pagar 1 año"
@@ -131,8 +212,9 @@ export const PlanCheckout = ({
         </Stack>
 
         <Alert severity="info">
-          Pagas con tarjeta, Yape o PSE en la página segura de dLocal Go. El
-          pago no se renueva solo: te avisaremos por correo antes de que venza.
+          Los precios incluyen impuestos; un año cuesta 10 meses. Pagas con
+          tarjeta, Yape o PSE en la página segura de dLocal Go. El pago no se
+          renueva solo: te avisaremos por correo antes de que venza.
         </Alert>
       </Stack>
     </Paper>

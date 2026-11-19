@@ -19,6 +19,8 @@ describe("InvoiceHistory", () => {
           {
             id: "i2",
             status: "PENDING",
+            plan: "CHURCH",
+            ownNumber: true,
             amount: 750,
             currency: "PEN",
             months: 12,
@@ -27,6 +29,7 @@ describe("InvoiceHistory", () => {
           {
             id: "i1",
             status: "PAID",
+            plan: "BASIC",
             amount: 75,
             currency: "PEN",
             months: 1,
@@ -43,10 +46,12 @@ describe("InvoiceHistory", () => {
     ).getAllByRole("row");
     // The header and one row per payment, newest first as the API sends them.
     expect(rows).toHaveLength(3);
-    expect(rows[1]).toHaveTextContent("12 meses · 120 personas");
+    expect(rows[1]).toHaveTextContent(
+      "Plan Iglesia con número propio · 12 meses · 120 personas",
+    );
     expect(rows[1]).toHaveTextContent("—");
     expect(rows[1]).toHaveTextContent("Pendiente");
-    expect(rows[2]).toHaveTextContent("1 mes · 100 personas");
+    expect(rows[2]).toHaveTextContent("Plan Básico · 1 mes · 100 personas");
     expect(rows[2]).toHaveTextContent(
       "16 de noviembre de 2026 al 15 de diciembre de 2026",
     );

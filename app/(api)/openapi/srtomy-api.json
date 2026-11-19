@@ -1835,8 +1835,8 @@
         "tags": [
           "billing"
         ],
-        "summary": "Starts paying the CHURCH plan for one month or one year, priced for the people the church has today, and answers with the link of the checkout where the pastor pays.",
-        "description": "Starts paying the CHURCH plan for one month or one year, priced for the people the church has today, and answers with the link of the checkout where the pastor pays. Nothing changes until the payment is confirmed. Needs `billing.manage`.",
+        "summary": "Starts paying a plan (BASIC, CHURCH or NETWORK) for one month or one year, with the own WhatsApp number as an extra if asked, and answers with the link of the checkout where the pastor pays.",
+        "description": "Starts paying a plan (BASIC, CHURCH or NETWORK) for one month or one year, with the own WhatsApp number as an extra if asked, and answers with the link of the checkout where the pastor pays. Refuses a plan that does not include the people and locations the church has today. Nothing changes until the payment is confirmed. Needs `billing.manage`.",
         "operationId": "checkout",
         "parameters": [
           {
@@ -5159,6 +5159,7 @@
       },
       "BillingResponse": {
         "type": "object",
+        "description": "The plan of a church.",
         "properties": {
           "churchId": {
             "type": "string",
@@ -5166,9 +5167,12 @@
           },
           "plan": {
             "type": "string",
+            "description": "the plan in force today: FREE, BASIC, CHURCH or NETWORK (FREE again once the paid time and its grace days ran out)",
             "enum": [
               "FREE",
-              "CHURCH"
+              "BASIC",
+              "CHURCH",
+              "NETWORK"
             ]
           },
           "status": {
@@ -5190,6 +5194,10 @@
               "PE",
               "CO"
             ]
+          },
+          "ownNumber": {
+            "type": "boolean",
+            "description": "the own WhatsApp number is in force (bought as an extra, or included)"
           },
           "people": {
             "type": "integer",
@@ -5214,31 +5222,20 @@
               "$ref": "#/components/schemas/FeatureResponse"
             }
           },
-          "whatsappTrialEndsAt": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "whatsappTrialDays": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "includedPeople": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "blockSize": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "prices": {
+          "plans": {
             "type": "array",
+            "description": "every plan with what it includes and what it costs, to choose one",
             "items": {
-              "$ref": "#/components/schemas/PriceResponse"
+              "$ref": "#/components/schemas/PlanResponse"
             }
           },
           "ai": {
             "$ref": "#/components/schemas/AiResponse",
             "description": "what the AI assistant used this month: messages against the limit of the plan, and the estimated cost in dollars against the cap at which it stops"
+          },
+          "reminders": {
+            "$ref": "#/components/schemas/RemindersResponse",
+            "description": "the WhatsApp reminders (Meta templates) queued this month against the plan"
           }
         }
       },
@@ -5248,11 +5245,12 @@
           "feature": {
             "type": "string",
             "enum": [
-              "WHATSAPP",
               "MASS_EMAIL",
               "FINANCES",
               "VOLUNTEERS",
-              "EXCEL_EXPORT"
+              "EXCEL_EXPORT",
+              "CUSTOM_ROLES",
+              "OWN_NUMBER"
             ]
           },
           "label": {
@@ -5260,6 +5258,65 @@
           },
           "enabled": {
             "type": "boolean"
+          }
+        }
+      },
+      "PlanResponse": {
+        "type": "object",
+        "properties": {
+          "plan": {
+            "type": "string",
+            "enum": [
+              "FREE",
+              "BASIC",
+              "CHURCH",
+              "NETWORK"
+            ]
+          },
+          "label": {
+            "type": "string"
+          },
+          "maxPeople": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "maxLocations": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "aiMessages": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "whatsappReminders": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "ownNumberIncluded": {
+            "type": "boolean"
+          },
+          "ownNumberExtra": {
+            "type": "boolean"
+          },
+          "customRoles": {
+            "type": "boolean"
+          },
+          "excelExport": {
+            "type": "boolean"
+          },
+          "churchFeatures": {
+            "type": "boolean"
+          },
+          "fits": {
+            "type": "boolean",
+            "description": "whether the plan includes the people and locations the church has today"
+          },
+          "prices": {
+            "type": "array",
+            "description": "empty for the free plan",
+            "items": {
+              "$ref": "#/components/schemas/PriceResponse"
+            }
           }
         }
       },
@@ -5282,8 +5339,26 @@
           "yearly": {
             "type": "number"
           },
-          "extraBlock": {
-            "type": "number"
+          "ownNumberMonthly": {
+            "type": "number",
+            "description": "what the extra own number adds to a month"
+          },
+          "ownNumberYearly": {
+            "type": "number",
+            "description": "what it adds to a year"
+          }
+        }
+      },
+      "RemindersResponse": {
+        "type": "object",
+        "properties": {
+          "used": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "limit": {
+            "type": "integer",
+            "format": "int32"
           }
         }
       },
@@ -5291,6 +5366,16 @@
         "type": "object",
         "description": "What to pay.",
         "properties": {
+          "plan": {
+            "type": "string",
+            "description": "The plan to pay: BASIC, CHURCH or NETWORK. It must include the people and locations the church has today.",
+            "enum": [
+              "FREE",
+              "BASIC",
+              "CHURCH",
+              "NETWORK"
+            ]
+          },
           "country": {
             "type": "string",
             "description": "Where the church pays from: PE (soles) or CO (Colombian pesos).",
@@ -5303,11 +5388,16 @@
             "type": "integer",
             "format": "int32",
             "description": "1 for one month or 12 for one year (a year costs ten months)."
+          },
+          "ownNumber": {
+            "type": "boolean",
+            "description": "True to add the own WhatsApp number as an extra (BASIC and CHURCH only: NETWORK includes it). Omitted means false."
           }
         },
         "required": [
           "country",
-          "months"
+          "months",
+          "plan"
         ]
       },
       "CheckoutResponse": {
@@ -6710,6 +6800,18 @@
               "CANCELLED",
               "EXPIRED"
             ]
+          },
+          "plan": {
+            "type": "string",
+            "enum": [
+              "FREE",
+              "BASIC",
+              "CHURCH",
+              "NETWORK"
+            ]
+          },
+          "ownNumber": {
+            "type": "boolean"
           },
           "amount": {
             "type": "number"

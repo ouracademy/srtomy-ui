@@ -59,7 +59,7 @@ const planLimitOf = (error: unknown): PlanLimitNotice | undefined => {
     message:
       typeof data?.detail === "string" && data.detail.trim()
         ? data.detail
-        : "Tu plan no incluye esto. Pasa al plan Iglesia para seguir.",
+        : "Tu plan no incluye esto. Pasa a un plan superior para seguir.",
   };
 };
 

@@ -79,7 +79,7 @@ export default function WhatsAppPage(props: {
       <Typography component="h1" variant="h5">
         WhatsApp
       </Typography>
-      <PlanUsageNotice nodeId={nodeId} kind="whatsapp" />
+      <PlanUsageNotice nodeId={nodeId} kind="ownNumber" />
 
       {canConnect && returned === "fallida" && (
         <Alert severity="error">

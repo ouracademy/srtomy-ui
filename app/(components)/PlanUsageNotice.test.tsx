@@ -14,50 +14,58 @@ vi.mock("@/app/(hooks)/usePermissions", () => ({
   usePermissions: () => ({ can: (p: string) => state.permissions.has(p) }),
 }));
 
-const now = new Date("2026-11-16T12:00:00Z");
+const plans = ["FREE", "BASIC", "CHURCH", "NETWORK"].map((plan) => ({ plan }));
 
 beforeEach(() => {
-  state.billing = { plan: "FREE", people: 10, maxPeople: 50 };
+  state.billing = { plan: "FREE", plans, people: 10, maxPeople: 50 };
   state.permissions = new Set();
 });
 afterEach(cleanup);
 
 describe("PlanUsageNotice for people", () => {
   it("says nothing while the church is far from the maximum", () => {
-    render(<PlanUsageNotice nodeId="n1" kind="people" now={now} />);
+    render(<PlanUsageNotice nodeId="n1" kind="people" />);
 
     expect(screen.queryByRole("alert")).toBeNull();
   });
 
-  it("warns at 80 % of the maximum", () => {
-    state.billing = { plan: "FREE", people: 40, maxPeople: 50 };
+  it("warns at 80 % of the maximum of the plan", () => {
+    state.billing = { plan: "FREE", plans, people: 40, maxPeople: 50 };
 
-    render(<PlanUsageNotice nodeId="n1" kind="people" now={now} />);
+    render(<PlanUsageNotice nodeId="n1" kind="people" />);
 
     expect(screen.getByRole("alert")).toHaveTextContent(
       "Tu iglesia usa 40 de 50 personas del plan Gratis.",
     );
   });
 
-  it("says no more can be added at the maximum", () => {
-    state.billing = { plan: "FREE", people: 50, maxPeople: 50 };
+  it("uses the maximum of any plan, not only the free one", () => {
+    state.billing = { plan: "BASIC", plans, people: 125, maxPeople: 150 };
 
-    render(<PlanUsageNotice nodeId="n1" kind="people" now={now} />);
+    render(<PlanUsageNotice nodeId="n1" kind="people" />);
 
     expect(screen.getByRole("alert")).toHaveTextContent(
-      "llegó al máximo de 50 personas",
+      "125 de 150 personas del plan Básico",
+    );
+  });
+
+  it("says no more can be added at the maximum and names the next plan", () => {
+    state.billing = { plan: "CHURCH", plans, people: 400, maxPeople: 400 };
+
+    render(<PlanUsageNotice nodeId="n1" kind="people" />);
+
+    expect(screen.getByRole("alert")).toHaveTextContent(
+      "llegó al máximo de 400 personas del plan Iglesia: no podrás agregar más hasta pasar al plan Red",
     );
   });
 
   it("offers the plans only to whoever can pay them", () => {
-    state.billing = { plan: "FREE", people: 45, maxPeople: 50 };
-    const { rerender } = render(
-      <PlanUsageNotice nodeId="n1" kind="people" now={now} />,
-    );
+    state.billing = { plan: "FREE", plans, people: 45, maxPeople: 50 };
+    const { rerender } = render(<PlanUsageNotice nodeId="n1" kind="people" />);
     expect(screen.queryByRole("link", { name: "Ver planes" })).toBeNull();
 
     state.permissions = new Set(["billing.manage"]);
-    rerender(<PlanUsageNotice nodeId="n1" kind="people" now={now} />);
+    rerender(<PlanUsageNotice nodeId="n1" kind="people" />);
 
     expect(screen.getByRole("link", { name: "Ver planes" })).toHaveAttribute(
       "href",
@@ -65,58 +73,35 @@ describe("PlanUsageNotice for people", () => {
     );
   });
 
-  it("says nothing on the paid plan or while the plan is unknown", () => {
-    state.billing = { plan: "CHURCH", people: 900 };
-    const { rerender } = render(
-      <PlanUsageNotice nodeId="n1" kind="people" now={now} />,
-    );
+  it("says nothing on a plan without a maximum or while the plan is unknown", () => {
+    state.billing = { plan: "NETWORK", plans, people: 9000 };
+    const { rerender } = render(<PlanUsageNotice nodeId="n1" kind="people" />);
     expect(screen.queryByRole("alert")).toBeNull();
 
     state.billing = undefined;
-    rerender(<PlanUsageNotice nodeId="n1" kind="people" now={now} />);
+    rerender(<PlanUsageNotice nodeId="n1" kind="people" />);
     expect(screen.queryByRole("alert")).toBeNull();
   });
 });
 
-describe("PlanUsageNotice for WhatsApp", () => {
-  it("counts the days left of the trial", () => {
-    state.billing = {
-      plan: "FREE",
-      whatsappTrialEndsAt: new Date("2026-11-19T12:00:00Z"),
-    };
+describe("PlanUsageNotice for the own WhatsApp number", () => {
+  it("tells who has no number of its own that it uses the one of Sr. Tommy", () => {
+    state.billing = { plan: "CHURCH", plans, ownNumber: false };
 
-    render(<PlanUsageNotice nodeId="n1" kind="whatsapp" now={now} />);
+    render(<PlanUsageNotice nodeId="n1" kind="ownNumber" />);
 
     expect(screen.getByRole("alert")).toHaveTextContent(
-      "Te quedan 3 días de prueba gratuita de WhatsApp.",
+      "usa el número de WhatsApp de Sr. Tommy",
     );
+    expect(screen.getByRole("alert")).toHaveTextContent("plan Red");
+    expect(screen.getByRole("alert")).toHaveTextContent("extra");
   });
 
-  it("says the trial is over", () => {
-    state.billing = {
-      plan: "FREE",
-      whatsappTrialEndsAt: new Date("2026-11-01T12:00:00Z"),
-    };
+  it("says nothing once the church has its own number", () => {
+    state.billing = { plan: "NETWORK", plans, ownNumber: true };
 
-    render(<PlanUsageNotice nodeId="n1" kind="whatsapp" now={now} />);
+    render(<PlanUsageNotice nodeId="n1" kind="ownNumber" />);
 
-    expect(screen.getByRole("alert")).toHaveTextContent(
-      "Terminó la prueba gratuita",
-    );
-  });
-
-  it("says nothing when the trial never started or the plan is paid", () => {
-    state.billing = { plan: "FREE" };
-    const { rerender } = render(
-      <PlanUsageNotice nodeId="n1" kind="whatsapp" now={now} />,
-    );
-    expect(screen.queryByRole("alert")).toBeNull();
-
-    state.billing = {
-      plan: "CHURCH",
-      whatsappTrialEndsAt: new Date("2026-11-19T12:00:00Z"),
-    };
-    rerender(<PlanUsageNotice nodeId="n1" kind="whatsapp" now={now} />);
     expect(screen.queryByRole("alert")).toBeNull();
   });
 });

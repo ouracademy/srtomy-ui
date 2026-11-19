@@ -3,7 +3,6 @@ import Link from "@mui/material/Link";
 import Typography from "@mui/material/Typography";
 import { CheckBadge } from "./CheckBadge";
 import { contact, plans, type Plan } from "./content";
-import { PriceCalculator } from "./PriceCalculator";
 import { LinkButton } from "./LinkButton";
 import { Section, SectionTitle } from "./Section";
 import { landingColors } from "./theme";
@@ -121,9 +120,9 @@ export function Pricing() {
       <Typography
         sx={{ mt: 2.5, maxWidth: 620, fontSize: 18, color: "text.secondary" }}
       >
-        Dos planes por iglesia, en soles o en pesos colombianos. El precio sube
-        con las personas que tienes, sin cobros por instalación, y un año cuesta
-        10 meses.
+        Cuatro planes por iglesia, en soles o en pesos colombianos, con IGV e
+        IVA incluidos. Cada plan tiene su tope de personas: al llegar, pasas al
+        siguiente. Sin cobros por instalación, y un año cuesta 10 meses.
       </Typography>
       <Box
         sx={{
@@ -138,8 +137,12 @@ export function Pricing() {
           <PlanCard key={plan.name} plan={plan} />
         ))}
       </Box>
-      <PriceCalculator />
       <Typography sx={{ mt: 3, fontSize: 15, color: "text.secondary" }}>
+        WhatsApp sale por el número de Sr. Tommy. Si quieres uno propio, es un
+        extra de S/ 49 al mes (COP 49.000) en los planes Básico e Iglesia, y
+        viene incluido en el plan Red.
+      </Typography>
+      <Typography sx={{ mt: 1.5, fontSize: 15, color: "text.secondary" }}>
         ¿Necesitas algo distinto? Escríbenos a{" "}
         <Link href={`mailto:${contact.email}`} color="inherit">
           {contact.email}

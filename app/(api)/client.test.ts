@@ -182,7 +182,7 @@ describe("a refusal of the plan (402)", () => {
 
     expect(handler).toHaveBeenCalledWith({
       code: "",
-      message: expect.stringContaining("plan Iglesia"),
+      message: expect.stringContaining("plan superior"),
     });
   });
 

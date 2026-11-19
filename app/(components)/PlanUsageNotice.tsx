@@ -6,22 +6,22 @@ import { useGetOrganizationsByIdBilling } from "@/app/(api)/generated";
 import { usePermissions } from "@/app/(hooks)/usePermissions";
 import {
   isNearLimit,
+  nextPlan,
+  planName,
   plural,
-  whatsappTrial,
 } from "@/app/(components)/billingFormat";
 
-// A heads-up before the plan says no: the free plan is near its people
-// maximum, or its WhatsApp trial is running out. Best effort: if the plan
-// cannot be read it shows nothing (the API still refuses what the plan does
-// not allow, and the screen of the plan shows the real state).
+// A heads-up before the plan says no: the church is near the people maximum
+// of its plan, or it has no number of its own for WhatsApp yet. Best effort:
+// if the plan cannot be read it shows nothing (the API still refuses what the
+// plan does not allow, and the screen of the plan shows the real state).
 export const PlanUsageNotice = ({
   nodeId,
   kind,
-  now = new Date(),
-}: Readonly<{ nodeId: string; kind: "people" | "whatsapp"; now?: Date }>) => {
+}: Readonly<{ nodeId: string; kind: "people" | "ownNumber" }>) => {
   const { data: billing } = useGetOrganizationsByIdBilling(nodeId);
   const { can } = usePermissions(nodeId);
-  if (!billing || billing.plan === "CHURCH") return null;
+  if (!billing) return null;
 
   // Whoever pays gets the way there; the rest are told who to ask.
   const action = can("billing.manage") ? (
@@ -37,23 +37,24 @@ export const PlanUsageNotice = ({
 
   if (kind === "people") {
     if (!isNearLimit(billing.people, billing.maxPeople)) return null;
-    const full = (billing.people ?? 0) >= (billing.maxPeople ?? Infinity);
+    const max = billing.maxPeople ?? 0;
+    const plan = planName(billing.plan);
+    const next = nextPlan(billing);
+    const full = (billing.people ?? 0) >= max;
     return (
       <Alert severity={full ? "warning" : "info"} action={action}>
         {full
-          ? `Tu iglesia llegó al máximo de ${plural(billing.maxPeople ?? 0, "persona", "personas")} del plan Gratis: no podrás agregar más hasta pasar al plan Iglesia.`
-          : `Tu iglesia usa ${billing.people} de ${plural(billing.maxPeople ?? 0, "persona", "personas")} del plan Gratis.`}
+          ? `Tu iglesia llegó al máximo de ${plural(max, "persona", "personas")} del plan ${plan}: no podrás agregar más${next ? ` hasta pasar al plan ${planName(next.plan)}` : ""}.`
+          : `Tu iglesia usa ${billing.people} de ${plural(max, "persona", "personas")} del plan ${plan}.`}
       </Alert>
     );
   }
 
-  const trial = whatsappTrial(billing, now);
-  if (!trial) return null;
+  if (billing.ownNumber) return null;
   return (
-    <Alert severity={trial.over ? "warning" : "info"} action={action}>
-      {trial.over
-        ? "Terminó la prueba gratuita de WhatsApp. Pasa al plan Iglesia para seguir usándolo."
-        : `Te quedan ${plural(trial.daysLeft, "día", "días")} de prueba gratuita de WhatsApp.`}
+    <Alert severity="info" action={action}>
+      Tu iglesia usa el número de WhatsApp de Sr. Tommy. Conectar un número
+      propio es parte del plan Red, o un extra de los planes Básico e Iglesia.
     </Alert>
   );
 };

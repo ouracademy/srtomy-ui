@@ -2,6 +2,7 @@ import { act, cleanup, render, screen, waitFor } from "@testing-library/react";
 import { Suspense } from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { SnackbarContext } from "@/app/(components)/SnackbarContext";
+import { freeBilling } from "./billingFixtures";
 import BillingPage from "./page";
 
 const hooks = vi.hoisted(() => ({
@@ -47,26 +48,7 @@ vi.mock("@/app/(components)/ResourceError", () => ({
   ResourceError: () => <p>Error al cargar</p>,
 }));
 
-const free = {
-  plan: "FREE",
-  status: "FREE",
-  people: 10,
-  locations: 1,
-  maxPeople: 50,
-  maxLocations: 1,
-  features: [],
-  prices: [
-    {
-      country: "PE",
-      currency: "PEN",
-      monthly: 75,
-      yearly: 750,
-      extraBlock: 35,
-    },
-  ],
-  includedPeople: 150,
-  blockSize: 100,
-};
+const free = freeBilling;
 
 const showMessage = vi.fn();
 const renderPage = async () => {
@@ -127,13 +109,13 @@ describe("the plan and payments page", () => {
   it("asks the provider once when the pastor comes back from the checkout, and welcomes the plan", async () => {
     hooks.permissions = new Set(["billing.manage"]);
     hooks.search = "pago=completado";
-    hooks.sync.mockResolvedValue({ ...free, plan: "CHURCH", status: "ACTIVE" });
+    hooks.sync.mockResolvedValue({ ...free, plan: "BASIC", status: "ACTIVE" });
 
     await renderPage();
 
     await waitFor(() =>
       expect(showMessage).toHaveBeenCalledWith(
-        "¡Listo! El plan Iglesia está activo.",
+        "¡Listo! El plan Básico está activo.",
       ),
     );
     expect(hooks.sync).toHaveBeenCalledExactlyOnceWith("n1");
