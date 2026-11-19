@@ -52,9 +52,7 @@ export const PersonAvatar = ({
       height: 44,
       fontSize: 15,
       fontWeight: 500,
-      bgcolor: isYou
-        ? "#1976d2"
-        : toneFor(person.id ?? person.fullName ?? ""),
+      bgcolor: isYou ? "#1976d2" : toneFor(person.id ?? person.fullName ?? ""),
       // color: isYou ? "#ffffff" : "text.primary",
     }}
   >
