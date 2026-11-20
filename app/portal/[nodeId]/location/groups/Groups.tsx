@@ -92,9 +92,9 @@ export function Groups({
     if (!groupToDelete) return;
     try {
       await deleteOrganizationsById(groupToDelete.id);
-    } catch (failure) {
+    } catch (error_) {
       alert.showMessage(
-        apiErrorMessage(failure, "No se pudo eliminar. Intenta de nuevo."),
+        apiErrorMessage(error_, "No se pudo eliminar. Intenta de nuevo."),
       );
       setGroupToDelete(null);
       return;
@@ -116,6 +116,13 @@ export function Groups({
     ? matching.filter((group) => group.type === typeFilter)
     : matching;
   const filtered = Boolean(searchDebounced.trim() || typeFilter);
+
+  const emptyCreateHint = canCreate
+    ? "Agregue el primero con el botón de arriba."
+    : "Todavía no se ha agregado ninguno.";
+  const emptyDescription = filtered
+    ? "Pruebe con otro nombre o quite el filtro de tipo."
+    : emptyCreateHint;
 
   return (
     <Stack spacing={2.5} sx={{ maxWidth: 760 }}>
@@ -157,14 +164,13 @@ export function Groups({
         <Stack spacing={1.75} sx={{ p: 2.25, pb: 1.75 }}>
           <TextField
             hiddenLabel
-            variant="filled"
+            variant="outlined"
             placeholder="Buscar por nombre"
             fullWidth
             value={search}
             onChange={(event) => setSearch(event.target.value)}
             slotProps={{
               input: {
-                disableUnderline: true,
                 sx: { borderRadius: 3 },
                 startAdornment: (
                   <InputAdornment position="start">
@@ -205,11 +211,7 @@ export function Groups({
               {filtered ? "No encontramos ninguno" : "Aún no hay nada aquí"}
             </Typography>
             <Typography sx={{ color: "text.secondary" }}>
-              {filtered
-                ? "Pruebe con otro nombre o quite el filtro de tipo."
-                : canCreate
-                  ? "Agregue el primero con el botón de arriba."
-                  : "Todavía no se ha agregado ninguno."}
+              {emptyDescription}
             </Typography>
           </Box>
         ) : (
