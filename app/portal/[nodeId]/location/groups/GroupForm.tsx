@@ -1,13 +1,8 @@
 import { Alert, Box, Grid, Stack } from "@mui/material";
-import {
-  FormContainer,
-  TextFieldElement,
-  ToggleButtonGroupElement,
-  useForm,
-} from "react-hook-form-mui";
+import { FormContainer, TextFieldElement, useForm } from "react-hook-form-mui";
 import React from "react";
-import { GroupTypeLabels } from "./Group";
 import { GroupHeader } from "./GroupHeader";
+import { GroupTypeHint, GroupTypeSelector } from "./GroupTypeSelector";
 import { SocialLinksSection } from "@/app/(components)/SocialLinksSection";
 import { GroupVisibilitySection } from "./GroupVisibilitySection";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -77,34 +72,10 @@ export const GroupForm = ({
               />
             </Grid>
             <Grid size={{ xs: 12, sm: "auto" }}>
-              <ToggleButtonGroupElement
-                name="type"
-                aria-label="Tipo"
-                exclusive
-                enforceAtLeastOneSelected
-                disabled={!canSave}
-                sx={{
-                  height: 56,
-                  // The default selected look (primary text on a pale wash)
-                  // is under the 4.5:1 contrast of WCAG AA.
-                  // "& .MuiToggleButton-root.Mui-selected": {
-                  //   bgcolor: "primary.dark",
-                  //   color: "primary.contrastText",
-                  //   "&:hover": { bgcolor: "primary.dark" },
-                  // },
-                  "&& .MuiToggleButton-root.Mui-selected": {
-                    bgcolor: "primary.dark",
-                    color: "#ffffff",
-                    "&:hover": {
-                      bgcolor: "primary.dark",
-                    },
-                  },
-                }}
-                options={[
-                  { id: "GROUP", label: GroupTypeLabels.GROUP },
-                  { id: "MINISTRY", label: GroupTypeLabels.MINISTRY },
-                ]}
-              />
+              <GroupTypeSelector disabled={!canSave} />
+            </Grid>
+            <Grid size={12} sx={{ mt: -1 }}>
+              <GroupTypeHint />
             </Grid>
             <Grid size={12}>
               <TextFieldElement
