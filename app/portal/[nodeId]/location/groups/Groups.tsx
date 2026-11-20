@@ -92,9 +92,9 @@ export function Groups({
     if (!groupToDelete) return;
     try {
       await deleteOrganizationsById(groupToDelete.id);
-    } catch (failure) {
+    } catch (error_) {
       alert.showMessage(
-        apiErrorMessage(failure, "No se pudo eliminar. Intenta de nuevo."),
+        apiErrorMessage(error_, "No se pudo eliminar. Intenta de nuevo."),
       );
       setGroupToDelete(null);
       return;
@@ -116,6 +116,14 @@ export function Groups({
     ? matching.filter((group) => group.type === typeFilter)
     : matching;
   const filtered = Boolean(searchDebounced.trim() || typeFilter);
+
+  const emptyCreateHint = canCreate
+    ? "Agregue el primero con el botón de arriba."
+    : "Todavía no se ha agregado ninguno.";
+  const emptyDescription = filtered
+    ? "Pruebe con otro nombre o quite el filtro de tipo."
+    : emptyCreateHint;
+
 
   return (
     <Stack spacing={2.5} sx={{ maxWidth: 760 }}>
@@ -204,11 +212,7 @@ export function Groups({
               {filtered ? "No encontramos ninguno" : "Aún no hay nada aquí"}
             </Typography>
             <Typography sx={{ color: "text.secondary" }}>
-              {filtered
-                ? "Pruebe con otro nombre o quite el filtro de tipo."
-                : canCreate
-                  ? "Agregue el primero con el botón de arriba."
-                  : "Todavía no se ha agregado ninguno."}
+              {emptyDescription}
             </Typography>
           </Box>
         ) : (
