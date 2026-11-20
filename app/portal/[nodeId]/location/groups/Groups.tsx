@@ -124,7 +124,6 @@ export function Groups({
     ? "Pruebe con otro nombre o quite el filtro de tipo."
     : emptyCreateHint;
 
-
   return (
     <Stack spacing={2.5} sx={{ maxWidth: 760 }}>
       <Box
