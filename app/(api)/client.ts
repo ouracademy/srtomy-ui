@@ -22,7 +22,7 @@ export const getAccessToken = async (): Promise<string | undefined> =>
   accessTokenProvider?.();
 
 // The only HTTP client of the app. Components never use it directly: they go
-// through the functions and hooks in ./services.
+// through the functions and hooks generated in ./generated.
 export const apiClient = axios.create({ baseURL: apiUrl });
 
 apiClient.interceptors.request.use(async (config) => {
@@ -56,3 +56,13 @@ export const customInstance = <T>(
       signal: signal ?? undefined,
     })
     .then(({ data }) => data);
+
+// SWR key of a read: the URL, or the URL and the axios config (query params).
+export type SwrKey = string | readonly [string, AxiosRequestConfig];
+
+// Default fetcher of the portal's SWRConfig: reads through the same client, so
+// hand-written SWR keys get the token and the date conversion too.
+export const fetchSwrKey = async (key: SwrKey) => {
+  const [url, config] = typeof key === "string" ? [key] : key;
+  return (await apiClient.get(url, config)).data;
+};

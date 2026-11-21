@@ -130,3 +130,26 @@ describe("getAccessToken", () => {
     await expect(getAccessToken()).rejects.toThrow("login_required");
   });
 });
+
+describe("fetchSwrKey", () => {
+  beforeEach(() => vi.unstubAllEnvs());
+  afterEach(() => vi.unstubAllEnvs());
+
+  it("reads a plain URL key and returns only the body", async () => {
+    const { apiClient, fetchSwrKey } = await load();
+    const requests = fakeNetwork(apiClient, { id: 7 });
+
+    await expect(fetchSwrKey("/people/7")).resolves.toEqual({ id: 7 });
+    expect(requests[0]?.url).toBe("/people/7");
+  });
+
+  it("passes the config of a [url, config] key", async () => {
+    const { apiClient, fetchSwrKey } = await load();
+    const requests = fakeNetwork(apiClient, []);
+
+    await fetchSwrKey(["/people", { params: { page: 2 } }]);
+
+    expect(requests[0]?.url).toBe("/people");
+    expect(requests[0]?.params).toEqual({ page: 2 });
+  });
+});

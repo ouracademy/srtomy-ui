@@ -8,7 +8,7 @@ import {
   AcceptNameFields,
   hasBothNames,
 } from "@/app/(components)/AcceptNameFields";
-import type { PersonName } from "@/app/portal/userNames";
+import type { PersonName } from "@/app/(components)/userNames";
 import type { InvitationPreviewResponse } from "@/app/(api)/generated/aPIOvejafiel.schemas";
 
 type InvitationAcceptProps = Readonly<{

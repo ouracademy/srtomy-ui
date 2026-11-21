@@ -9,7 +9,7 @@ Node >= 22 and pnpm (see `.nvmrc` and `packageManager`). Run `nvm use` and `pnpm
 ## Checks
 
 - `pnpm check:fast` (typecheck, lint, architecture, format, unit tests) after editing. Run it before you consider a task done.
-- `pnpm check:arch` checks the import rules of [docs/architecture.md](./docs/architecture.md) with dependency-cruiser (`.dependency-cruiser.cjs`). Violations that already existed are listed in `.dependency-cruiser-known-violations.json`; only new ones fail. Never add to that file to make a change pass: fix the import, or explain to the product owner why the rule does not fit.
+- `pnpm check:arch` checks the import rules of [docs/architecture.md](./docs/architecture.md) with dependency-cruiser (`.dependency-cruiser.cjs`). The baseline `.dependency-cruiser-known-violations.json` is empty: the code follows every rule. Never add to it to make a change pass: fix the import, or explain to the product owner why the rule does not fit.
 - `pnpm test:e2e` (Playwright) needs the app's env vars and a backend; see the Playwright workflow.
 - Never weaken a check to make a change pass: no new `@ts-ignore`/`eslint-disable`, no skipped tests, no lowered thresholds.
 

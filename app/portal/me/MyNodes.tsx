@@ -11,7 +11,7 @@ import {
 } from "@mui/material";
 import NextLink from "next/link";
 import type { MyNodeResponse } from "@/app/(api)/generated/aPIOvejafiel.schemas";
-import { nodeTypeLabels } from "../organizationTree";
+import { nodeTypeLabels } from "../../(components)/organizationTree";
 
 // The locations, groups and ministries where the user's own person is a member
 // or holds a position, with the positions held there.

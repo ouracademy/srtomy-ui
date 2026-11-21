@@ -22,7 +22,7 @@ import { PendingInvitations } from "../PendingInvitations";
 import { PortalMenu } from "../PortalMenu";
 import { SharedWithMe } from "../SharedWithMe";
 import { useAcceptInvitation } from "../useAcceptInvitation";
-import { suggestedNames } from "../userNames";
+import { suggestedNames } from "../../(components)/userNames";
 import { MyEvents } from "./MyEvents";
 import { MyNodes } from "./MyNodes";
 

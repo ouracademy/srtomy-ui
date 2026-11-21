@@ -22,7 +22,7 @@ import {
   flatten,
   nodeTypeLabels,
   type OrganizationNode,
-} from "./organizationTree";
+} from "../(components)/organizationTree";
 
 type OrganizationPickerProps = Readonly<{
   open: boolean;

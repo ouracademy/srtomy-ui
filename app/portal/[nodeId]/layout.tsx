@@ -14,8 +14,8 @@ import MenuDrawer from "../MenuDrawer";
 import { PortalMenu } from "../PortalMenu";
 import { useGetOrganizationsById } from "@/app/(api)/generated";
 import { usePermissions, type Permission } from "@/app/(hooks)/usePermissions";
-import { nodeTypeLabels } from "../organizationTree";
-import { childrenLabels } from "./location/groups/childrenLabels";
+import { nodeTypeLabels } from "../../(components)/organizationTree";
+import { childrenLabels } from "./childrenLabels";
 
 // `needs` hides an item unless the user holds one of those permissions on this
 // node (so a plain member sees no administration); the API still rejects the

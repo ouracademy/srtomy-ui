@@ -4,7 +4,7 @@ import { isBefore, isSameDay, startOfDay } from "date-fns";
 import { useEffect, useRef } from "react";
 import { useFormContext } from "react-hook-form-mui";
 import { DatePickerElement } from "react-hook-form-mui/date-pickers";
-import type { EventDetailFormData } from "./EventForm";
+import type { EventDetailFormData } from "./eventFormSchema";
 import { lastsSeveralDays } from "./eventRange";
 import { noRecurrence } from "./recurrence";
 

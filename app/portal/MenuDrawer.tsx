@@ -15,7 +15,7 @@ import * as React from "react";
 import { useGetMeOrganizations } from "@/app/(api)/generated";
 import { EventsBell } from "./EventsBell";
 import { OrganizationPicker } from "./OrganizationPicker";
-import { pathTo, withIds } from "./organizationTree";
+import { pathTo, withIds } from "../(components)/organizationTree";
 import { UserMenu } from "./UserMenu";
 
 const drawerWidth = 240;

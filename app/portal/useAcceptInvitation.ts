@@ -8,7 +8,7 @@ import {
 import type { InvitationResponse } from "@/app/(api)/generated/aPIOvejafiel.schemas";
 import { SnackbarContext } from "../(components)/SnackbarContext";
 import { apiErrorMessage } from "../(components)/apiErrorMessage";
-import type { PersonName } from "./userNames";
+import type { PersonName } from "../(components)/userNames";
 
 type Joined = Awaited<ReturnType<typeof postMeInvitationsByIdAccept>>;
 

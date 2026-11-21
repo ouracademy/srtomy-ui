@@ -13,7 +13,7 @@ import Loading from "@/app/(components)/Loading";
 import { ResourceError } from "@/app/(components)/ResourceError";
 import { SnackbarContext } from "@/app/(components)/SnackbarContext";
 import { usePermissions } from "@/app/(hooks)/usePermissions";
-import { churchOf, withIds } from "../../../organizationTree";
+import { churchOf, withIds } from "../../../../(components)/organizationTree";
 import { apiErrorMessage } from "@/app/(components)/apiErrorMessage";
 import { RolesManager } from "./RolesManager";
 

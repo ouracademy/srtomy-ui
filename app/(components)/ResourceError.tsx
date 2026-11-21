@@ -1,6 +1,6 @@
 "use client";
 
-import { isAxiosError } from "axios";
+import { apiErrorStatus } from "@/app/(api)/apiError";
 import { useSWRConfig } from "swr";
 import { ErrorMessage } from "./ErrorMessage";
 import { NotFoundMessage } from "./NotFoundMessage";
@@ -17,7 +17,7 @@ export const ResourceError = ({ error, onRetry }: ResourceErrorProps) => {
   // Without a custom retry, revalidate every SWR key of the page.
   const retry = onRetry ?? (() => mutate(() => true));
 
-  if (isAxiosError(error) && error.response?.status === 404) {
+  if (apiErrorStatus(error) === 404) {
     return (
       <NotFoundMessage
         title="No encontrado"

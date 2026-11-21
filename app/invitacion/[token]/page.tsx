@@ -14,7 +14,7 @@ import { apiErrorMessage } from "@/app/(components)/apiErrorMessage";
 import Loading from "@/app/(components)/Loading";
 import { ResourceError } from "@/app/(components)/ResourceError";
 import { SnackbarContext } from "@/app/(components)/SnackbarContext";
-import { suggestedNames, type PersonName } from "@/app/portal/userNames";
+import { suggestedNames, type PersonName } from "@/app/(components)/userNames";
 import { InvitationAccept } from "./InvitationAccept";
 
 // Public page of an invitation link (/invitacion/{token}). Anyone can read
