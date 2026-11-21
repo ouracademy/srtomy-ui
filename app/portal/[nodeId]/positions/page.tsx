@@ -26,8 +26,8 @@ import Loading from "@/app/(components)/Loading";
 import { ResourceError } from "@/app/(components)/ResourceError";
 import { SnackbarContext } from "@/app/(components)/SnackbarContext";
 import { usePermissions } from "@/app/(hooks)/usePermissions";
-import { churchOf, withIds } from "../../organizationTree";
-import { AccessList, OwnersPanel } from "../access/AccessManager";
+import { churchOf, withIds } from "../../../(components)/organizationTree";
+import { AccessList, OwnersPanel } from "./access/AccessManager";
 import { InvitationsPanel } from "./InvitationsPanel";
 import { PositionsManager } from "./PositionsManager";
 

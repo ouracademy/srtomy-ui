@@ -5,7 +5,7 @@ import React from "react";
 import { useGetMeOrganizations } from "@/app/(api)/generated";
 import { ChurchDirectory } from "@/app/(components)/directory/ChurchDirectory";
 import Loading from "@/app/(components)/Loading";
-import { churchOf, withIds } from "../../organizationTree";
+import { churchOf, withIds } from "../../../(components)/organizationTree";
 
 // Directory of the church of the current node: what each group, ministry and
 // location is, when it meets and who leads it. The people of a node show up

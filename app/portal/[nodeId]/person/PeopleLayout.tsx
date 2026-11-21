@@ -20,7 +20,7 @@ import {
   memberStateFromParam,
   memberStates,
 } from "@/app/(components)/memberState";
-import { queryWith, searchQueryFor } from "./searchQuery";
+import { queryWith, searchQueryFor } from "../../../(components)/searchQuery";
 
 // The URL parameter that holds the state filter.
 export const STATE_PARAM = "estado";

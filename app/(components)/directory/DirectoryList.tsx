@@ -14,7 +14,7 @@ import {
 } from "@mui/material";
 import React from "react";
 import { memberVisibilityLabels } from "@/app/(components)/visibility";
-import { nodeTypeLabels } from "@/app/portal/organizationTree";
+import { nodeTypeLabels } from "@/app/(components)/organizationTree";
 import type { DirectoryTreeNode } from "./directoryTree";
 
 type DirectoryListProps = Readonly<{

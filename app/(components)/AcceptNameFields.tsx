@@ -1,7 +1,7 @@
 "use client";
 
 import { Stack, TextField } from "@mui/material";
-import type { PersonName } from "@/app/portal/userNames";
+import type { PersonName } from "@/app/(components)/userNames";
 
 type AcceptNameFieldsProps = Readonly<{
   value: PersonName;

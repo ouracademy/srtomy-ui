@@ -17,61 +17,17 @@ import { useGetPeople } from "@/app/(api)/generated";
 import { DEBOUNCE_WAIT_MS } from "./helpers/debouncing";
 import PlaceOutlinedIcon from "@mui/icons-material/PlaceOutlined";
 import { RecurrenceFields } from "./RecurrenceFields";
-import { recurrenceSchema } from "./recurrence";
 import { ToggleButton } from "./ToggleButton";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
 import { SaveButton } from "./SaveButton";
 import { RegistrationFields } from "./RegistrationFields";
-import { registrationErrors, type RegistrationFormData } from "./registration";
-import { eventRange, lastsSeveralDays } from "./eventRange";
+import { registrationErrors } from "./registration";
+import { lastsSeveralDays } from "./eventRange";
+import { eventFormSchema, type EventDetailFormData } from "./eventFormSchema";
 import { EndDateField } from "./EndDateField";
 import { RegistrationModeField } from "./RegistrationModeField";
 
-const fields = z.object({
-  name: z.string().trim().min(1, { message: "Por favor ingrese el título" }),
-  date: z.date(),
-  // The day the event ends: the same as `date` unless it lasts several days.
-  endDate: z.date(),
-  startTime: z.date(),
-  endTime: z.date(),
-  address: z.string().optional(),
-  description: z.string().optional(),
-  recurrence: recurrenceSchema,
-  type: z.number(),
-  speakers: z.array(
-    z.object({
-      id: z.string(),
-      label: z.string(),
-    }),
-  ),
-  // How the event takes sign-ups. Only new events that do not repeat set it
-  // here; for an existing event it is set from the event itself.
-  // How a sub-event is entered; only a sub-event has it.
-  registrationMode: z.enum(["INHERIT", "OWN", "OPEN"]).optional(),
-  // A sub-event with its own sign-up asks for a place in its event first.
-  requiresContainerRegistration: z.boolean().optional(),
-  registration: z
-    .custom<RegistrationFormData>()
-    .superRefine((value, context) => {
-      for (const message of registrationErrors(value)) {
-        context.addIssue({ code: "custom", message });
-      }
-    }),
-});
-
-const schema = fields.superRefine((values, context) => {
-  const { start, end } = eventRange(values);
-  if (end <= start) {
-    context.addIssue({
-      code: "custom",
-      path: ["endTime"],
-      message: "El evento debe terminar después de empezar",
-    });
-  }
-});
-
-export type EventDetailFormData = z.infer<typeof schema>;
+export type { EventDetailFormData };
 
 type EventFormProps = {
   nodeId: string;
@@ -102,7 +58,7 @@ export const EventForm = ({
 
   const formContext = useForm({
     defaultValues: initialValues,
-    resolver: zodResolver(schema),
+    resolver: zodResolver(eventFormSchema),
   });
 
   const watch = formContext.watch;

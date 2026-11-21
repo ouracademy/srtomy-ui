@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { isAxiosError } from "axios";
+import { apiErrorBody, apiErrorStatus } from "@/app/(api)/apiError";
 import { deletePeopleById } from "@/app/(api)/generated";
 import type { OrganizationResponseType } from "@/app/(api)/generated/aPIOvejafiel.schemas";
 import { DialogDeleteConfirmation } from "@/app/(components)/DialogDeleteConfirmation";
@@ -31,10 +31,8 @@ const nodeNames: Record<OrganizationResponseType, string> = {
 
 // The API asks for a confirmation before removing someone who has an account.
 const hasAccount = (error: unknown) =>
-  isAxiosError(error) &&
-  error.response?.status === 409 &&
-  (error.response.data as { code?: unknown } | undefined)?.code ===
-    "PERSON_HAS_ACCOUNT";
+  apiErrorStatus(error) === 409 &&
+  apiErrorBody(error)?.code === "PERSON_HAS_ACCOUNT";
 
 // Render it with `key={person?.id}` so each person starts at the first step.
 export const DeletePersonDialog = ({

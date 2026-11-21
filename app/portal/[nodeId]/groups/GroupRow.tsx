@@ -20,7 +20,7 @@ import {
 import Link from "next/link";
 import type { OrganizationResponse } from "@/app/(api)/generated/aPIOvejafiel.schemas";
 import { PlaceIcon } from "@/app/(components)/placeIcon";
-import { nodeTypeLabels } from "@/app/portal/organizationTree";
+import { nodeTypeLabels } from "@/app/(components)/organizationTree";
 
 type Tone = "info" | "secondary" | "neutral";
 

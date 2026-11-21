@@ -18,7 +18,7 @@ import type {
 } from "@/app/(api)/generated/aPIOvejafiel.schemas";
 import { socialLinkFields } from "@/app/(components)/SocialLinks";
 import { publicPagePath } from "@/app/(components)/visibility";
-import { nodeTypeLabels } from "@/app/portal/organizationTree";
+import { nodeTypeLabels } from "@/app/(components)/organizationTree";
 
 // The public page of a node: what it is, when it meets, who runs it and, for
 // a church or location, its ministerial positions and org chart. The API only

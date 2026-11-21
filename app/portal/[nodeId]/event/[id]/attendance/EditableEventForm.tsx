@@ -12,7 +12,7 @@ import { noRegistration } from "@/app/(components)/registration";
 import { SnackbarContext } from "@/app/(components)/SnackbarContext";
 import { Alert, Box } from "@mui/material";
 import { useContext, useMemo, useState } from "react";
-import { fullName } from "../../../person/PersonTable";
+import { fullName } from "@/app/(components)/fullName";
 import { EditEventDialog } from "./EditEventDialog";
 import {
   describeChange,

@@ -27,8 +27,8 @@ import { ResourceError } from "@/app/(components)/ResourceError";
 import { SnackbarContext } from "@/app/(components)/SnackbarContext";
 import { apiErrorMessage } from "@/app/(components)/apiErrorMessage";
 import { DEBOUNCE_WAIT_MS } from "@/app/(components)/helpers/debouncing";
-import { searchQueryFor } from "../../person/searchQuery";
-import { childrenLabels } from "./childrenLabels";
+import { searchQueryFor } from "../../../(components)/searchQuery";
+import { childrenLabels } from "../childrenLabels";
 import { filterByName } from "./filterByName";
 import { GroupRow, type GroupToDelete } from "./GroupRow";
 

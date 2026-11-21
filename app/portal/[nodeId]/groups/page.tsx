@@ -5,7 +5,7 @@ import { useGetOrganizationsById } from "@/app/(api)/generated";
 import Loading from "@/app/(components)/Loading";
 import { ResourceError } from "@/app/(components)/ResourceError";
 import { usePermissions } from "@/app/(hooks)/usePermissions";
-import { Groups } from "../location/groups/Groups";
+import { Groups } from "./Groups";
 
 // The nodes under the current one: the locations of a church, the groups and
 // ministries of a location or of another group.

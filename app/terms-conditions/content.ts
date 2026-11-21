@@ -1,4 +1,4 @@
-import type { LegalContent } from "../(components)/LegalDocument";
+import type { LegalContent } from "../landing/LegalDocument";
 
 // Text exported verbatim from the Builder.io page of the same path.
 export const termsContent: LegalContent = {

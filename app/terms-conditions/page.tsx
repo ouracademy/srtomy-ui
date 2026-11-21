@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { LegalDocument } from "../(components)/LegalDocument";
+import { LegalDocument } from "../landing/LegalDocument";
 import { LegalLayout } from "../landing/LegalLayout";
 import { termsContent } from "./content";
 

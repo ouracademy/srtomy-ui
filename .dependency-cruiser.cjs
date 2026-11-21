@@ -1,7 +1,8 @@
 // Architecture rules, taken from docs/architecture.md and the constitution
 // (.specify/memory/constitution.md, "Technical Constraints"). `pnpm check:arch`
-// runs them; violations that already existed when a rule was added live in
-// .dependency-cruiser-known-violations.json, so only new ones fail.
+// runs them. .dependency-cruiser-known-violations.json is the baseline for
+// violations a new rule finds in existing code: it stays empty unless the
+// product owner accepts one, and it is never extended to let a change pass.
 //
 // Vocabulary used below:
 //   - api layer:   app/(api)/        everything that talks to srtomy-api or srtomy-agent
@@ -68,7 +69,7 @@ module.exports = {
       name: "route-trees-do-not-import-each-other",
       severity: "error",
       comment:
-        "Screens must not know each other (architecture.md): a route tree (portal, landing, e, g, ...) does not import another one. Shared code goes in app/(components)/ or app/(hooks)/. The legal pages may use the landing frame (LegalLayout, LandingFooter), as the architecture documents.",
+        "Screens must not know each other (architecture.md): a route tree (portal, landing, e, g, ...) does not import another one. Shared code goes in app/(components)/ or app/(hooks)/. The legal pages may use the landing frame (LegalLayout, LegalDocument, LandingFooter), as the architecture documents.",
       from: {
         path: "^app/([^(/][^/]*)/",
         pathNot: [
@@ -93,7 +94,8 @@ module.exports = {
       },
       to: {
         path: "^app/landing/",
-        pathNot: "^app/landing/(LegalLayout|LandingFooter)\\.tsx$",
+        pathNot:
+          "^app/landing/(LegalLayout|LegalDocument|LandingFooter)\\.tsx$",
       },
     },
     {

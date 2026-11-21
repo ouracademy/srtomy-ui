@@ -8,7 +8,7 @@ vi.mock("../(api)/assistant", () => ({
     return agent.url;
   },
 }));
-vi.mock("../(api)/client", () => ({ apiClient: { get: vi.fn() } }));
+vi.mock("../(api)/client", () => ({ fetchSwrKey: vi.fn() }));
 vi.mock("./RequireAuth", () => ({
   RequireAuth: ({ children }: { children: React.ReactNode }) => <>{children}</>,
 }));

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import type { OrganizationNode } from "@/app/portal/organizationTree";
+import type { OrganizationNode } from "@/app/(components)/organizationTree";
 import { addableNodes } from "./addableNodes";
 
 const node = (

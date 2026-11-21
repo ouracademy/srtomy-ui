@@ -4,7 +4,7 @@ import { MenuItem, TextField, Typography } from "@mui/material";
 import { useState } from "react";
 import { useFormContext } from "react-hook-form-mui";
 import { CustomRecurrenceDialog } from "./CustomRecurrenceDialog";
-import type { EventDetailFormData } from "./EventForm";
+import type { EventDetailFormData } from "./eventFormSchema";
 import {
   describeRecurrence,
   noRecurrence,

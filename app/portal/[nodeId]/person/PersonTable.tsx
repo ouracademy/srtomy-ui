@@ -136,7 +136,3 @@ export const PersonTable = ({ nodeId }: PersonTableProps) => {
     </>
   );
 };
-
-export const fullName = (person: PersonResponse) => {
-  return person.firstName + " " + person.lastName;
-};

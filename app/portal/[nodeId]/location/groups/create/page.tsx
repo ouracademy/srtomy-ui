@@ -16,7 +16,7 @@ import {
   toVisibilityRequest,
 } from "@/app/(components)/visibility";
 import { SnackbarContext } from "@/app/(components)/SnackbarContext";
-import { nodeTypeLabels } from "@/app/portal/organizationTree";
+import { nodeTypeLabels } from "@/app/(components)/organizationTree";
 import { GroupForm } from "../GroupForm";
 
 // A group or ministry under the current node (a location, group or ministry).

@@ -20,9 +20,9 @@ import { toCreateChurchRequest } from "./CreateChurchSchema";
 import MenuDrawer from "./MenuDrawer";
 import { PendingInvitations } from "./PendingInvitations";
 import { SharedWithMe } from "./SharedWithMe";
-import { withIds } from "./organizationTree";
+import { withIds } from "../(components)/organizationTree";
 import { useAcceptInvitation } from "./useAcceptInvitation";
-import { suggestedNames } from "./userNames";
+import { suggestedNames } from "../(components)/userNames";
 
 // Entry point of the portal. Someone who already belongs to a church lands on
 // "Mi espacio", from where they open any of their nodes; someone new creates

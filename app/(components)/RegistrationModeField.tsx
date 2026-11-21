@@ -2,7 +2,7 @@
 
 import { Typography } from "@mui/material";
 import { SelectElement, useFormContext } from "react-hook-form-mui";
-import type { EventDetailFormData } from "./EventForm";
+import type { EventDetailFormData } from "./eventFormSchema";
 import {
   describeRegistrationMode,
   REGISTRATION_MODES,

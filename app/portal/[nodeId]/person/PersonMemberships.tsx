@@ -35,7 +35,7 @@ import {
   memberStates,
   type MemberState,
 } from "@/app/(components)/memberState";
-import { nodeTypeLabels, withIds } from "@/app/portal/organizationTree";
+import { nodeTypeLabels, withIds } from "@/app/(components)/organizationTree";
 import { AddToNodeDialog } from "./AddToNodeDialog";
 import { DeletePersonDialog } from "./DeletePersonDialog";
 import { addableNodes } from "./addableNodes";

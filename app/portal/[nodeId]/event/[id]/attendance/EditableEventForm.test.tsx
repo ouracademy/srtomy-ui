@@ -19,7 +19,7 @@ vi.mock("@/app/(api)/generated", () => ({
   useGetOrganizationsById: () => ({ data: undefined }),
   useGetPeople: () => ({ data: undefined }),
 }));
-vi.mock("../../../person/PersonTable", () => ({
+vi.mock("@/app/(components)/fullName", () => ({
   fullName: (person: { firstName?: string; lastName?: string }) =>
     `${person.firstName} ${person.lastName}`,
 }));

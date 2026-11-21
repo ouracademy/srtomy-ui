@@ -25,7 +25,7 @@ app/
   (components)/                Compartidos por 2+ pantallas: Loading, ErrorMessage,
                                NotFoundMessage, ResourceError, SaveButton, ...
   (hooks)/                     Hooks de interfaz compartidos: useDebounce, usePagination, ...
-  landing/                     Landing pública (/): secciones, contenido (`content.ts`) y tema propio (`theme.ts`); `LandingPage` es su frontera de cliente; `LegalLayout` y `LandingFooter` enmarcan también términos, privacidad y el libro de reclamaciones (cuyo texto vive en `content.ts` de cada página)
+  landing/                     Landing pública (/): secciones, contenido (`content.ts`) y tema propio (`theme.ts`); `LandingPage` es su frontera de cliente; `LegalLayout`, `LegalDocument` y `LandingFooter` enmarcan también términos, privacidad y el libro de reclamaciones (cuyo texto vive en `content.ts` de cada página)
   e/[slug]/                    Página del enlace de un evento o curso (ver e inscribirse)
   g/[slug]/                    Página pública de un nodo (iglesia, sede, grupo o ministerio)
   invitacion/[token]/          Página pública de una invitación (aceptarla); returnTo.ts decide a dónde volver tras el login
@@ -34,7 +34,6 @@ app/
     layout.tsx                 PortalProviders (SWR, fechas en español, RequireAuth)
     MenuDrawer.tsx             Marco: barra superior, menú lateral y contenido
     OrganizationPicker.tsx     Cambiar de iglesia, sede o grupo (lo usa MenuDrawer)
-    organizationTree.ts        Árbol de nodos del usuario (GET /me/organizations): ruta, iglesia, nodo inicial
     CreateChurchForm.tsx       Alta de iglesia con su primera sede, sus cargos con nivel y su propio cargo (página /portal)
     UserMenu.tsx               Perfil y cerrar sesión (lo usa MenuDrawer)
     [nodeId]/                  Un nodo: iglesia, sede, grupo o ministerio (anidables)
@@ -113,7 +112,7 @@ El panel del asistente (`app/portal/assistant/`, botón flotante montado en `Por
 2. `app/portal/layout.tsx` envuelve el portal en `PortalProviders`, que incluye `RequireAuth`: si no hay sesión redirige a Auth0 y **no renderiza** las páginas ni sus peticiones hasta tenerla.
 3. El guard del frontend mejora la experiencia, no es seguridad: **la API es quien autoriza**.
 
-Las iglesias del usuario **no** vienen en el token: `GET /me/organizations` devuelve los nodos a los que tiene acceso (iglesias, sedes, grupos y ministerios, con su `parentId`) y `organizationTree.ts` arma el árbol, la ruta de la barra superior y el nodo al que entra (`lastNode.ts` recuerda el último). Un usuario sin iglesias ve el alta de iglesia en `/portal`.
+Las iglesias del usuario **no** vienen en el token: `GET /me/organizations` devuelve los nodos a los que tiene acceso (iglesias, sedes, grupos y ministerios, con su `parentId`) y `organizationTree.ts` (en `(components)/`, porque también lo usan el directorio y la página pública) arma el árbol, la ruta de la barra superior y el nodo al que entra (`lastNode.ts` recuerda el último). Un usuario sin iglesias ve el alta de iglesia en `/portal`.
 
 ### Permisos
 
@@ -124,7 +123,7 @@ Los accesos funcionan como IAM de GCP, pero **nacen del cargo**: cada cargo de l
 Una sola pantalla, **Cargos y accesos** (`positions/`), con pestañas:
 
 - **Cargos**: la tabla de cargos con cuántos permisos dan y cuántas personas los tienen. Cada fila se abre y muestra sus permisos por módulo (`PermissionPicker`, en `app/(components)/`, el mismo del alta de iglesia) y las personas que lo tienen, con su correo o «sin cuenta». Avisa antes de cambiar los permisos o borrar un cargo que da acceso a personas con cuenta. Un cargo nuevo puede nacer de un nombre sugerido (trae sus permisos habituales, una copia) o copiando los permisos de otro cargo.
-- **Personas con acceso** (`access/AccessManager.tsx`, `AccessList`): solo lectura y con filtro, con el origen de cada acceso (cargo y nodo, liderazgo de grupo o Propietario). Hace falta `iam.read`.
+- **Personas con acceso** (`positions/access/AccessManager.tsx`, `AccessList`): solo lectura y con filtro, con el origen de cada acceso (cargo y nodo, liderazgo de grupo o Propietario). Hace falta `iam.read`.
 - **Propietarios** (`OwnersPanel`): solo en la iglesia; se agregan y quitan por correo.
 
 El formulario de persona muestra, al elegir un cargo, cuántos permisos da.
@@ -165,21 +164,21 @@ Solo existe una persona por iglesia; lo que cambia es dónde está y cómo está
 
 `pnpm check:arch` (en `check:fast`, en CI y en el hook de cierre de Claude Code) usa [dependency-cruiser](https://github.com/sverweij/dependency-cruiser) para revisar los `import` contra las reglas de este documento. Están en `.dependency-cruiser.cjs`:
 
-| Regla                                              | Qué impide                                                                                                       |
-| -------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
-| `no-circular`                                      | Ciclos de imports (A importa B y B importa A).                                                                   |
-| `axios-only-in-api-layer`                          | Usar `axios` fuera de `app/(api)/`: los componentes no usan el cliente HTTP.                                     |
-| `api-layer-is-ui-free`                             | Que `app/(api)/` importe componentes, hooks de interfaz o pantallas.                                             |
-| `shared-does-not-import-screens`                   | Que `(components)/` o `(hooks)/` dependan de una pantalla concreta.                                              |
-| `portal-sections-do-not-import-each-other`         | Que una sección de `portal/[nodeId]/` (person, event, positions...) importe otra; lo común va a `(components)/`. |
-| `route-trees-do-not-import-each-other`             | Que un árbol de rutas (`portal`, `landing`, `e`, `g`...) importe otro.                                           |
-| `only-legal-pages-use-the-landing-frame`           | Excepción acotada a la anterior: las páginas legales solo usan `LegalLayout` y `LandingFooter` de `landing/`.    |
-| `no-features-or-utils-folders`                     | Carpetas `features/` o `utils/`.                                                                                 |
-| `production-code-does-not-import-tests`            | Que el código de la app importe pruebas o sus utilidades (`*.test.ts(x)`, `*.test-utils.ts(x)`, `tests/`).       |
-| `production-code-does-not-import-dev-dependencies` | Que el código de la app use un paquete de `devDependencies`, que no existe en el build de producción.            |
-| `not-to-unresolvable`                              | Imports que no apuntan a ningún archivo ni paquete.                                                              |
+| Regla                                              | Qué impide                                                                                                                     |
+| -------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
+| `no-circular`                                      | Ciclos de imports (A importa B y B importa A).                                                                                 |
+| `axios-only-in-api-layer`                          | Usar `axios` fuera de `app/(api)/`: los componentes no usan el cliente HTTP.                                                   |
+| `api-layer-is-ui-free`                             | Que `app/(api)/` importe componentes, hooks de interfaz o pantallas.                                                           |
+| `shared-does-not-import-screens`                   | Que `(components)/` o `(hooks)/` dependan de una pantalla concreta.                                                            |
+| `portal-sections-do-not-import-each-other`         | Que una sección de `portal/[nodeId]/` (person, event, positions...) importe otra; lo común va a `(components)/`.               |
+| `route-trees-do-not-import-each-other`             | Que un árbol de rutas (`portal`, `landing`, `e`, `g`...) importe otro.                                                         |
+| `only-legal-pages-use-the-landing-frame`           | Excepción acotada a la anterior: las páginas legales solo usan `LegalLayout`, `LegalDocument` y `LandingFooter` de `landing/`. |
+| `no-features-or-utils-folders`                     | Carpetas `features/` o `utils/`.                                                                                               |
+| `production-code-does-not-import-tests`            | Que el código de la app importe pruebas o sus utilidades (`*.test.ts(x)`, `*.test-utils.ts(x)`, `tests/`).                     |
+| `production-code-does-not-import-dev-dependencies` | Que el código de la app use un paquete de `devDependencies`, que no existe en el build de producción.                          |
+| `not-to-unresolvable`                              | Imports que no apuntan a ningún archivo ni paquete.                                                                            |
 
-Las violaciones que ya existían al agregar las reglas están en `.dependency-cruiser-known-violations.json` y no fallan; las nuevas sí. Ver el ítem 35 de [tech-debt-and-future-work.md](tech-debt-and-future-work.md). Si cambias una regla de este documento, cambia también `.dependency-cruiser.cjs` en el mismo PR.
+`.dependency-cruiser-known-violations.json` es el baseline de dependency-cruiser y hoy está vacío: el código cumple todas las reglas. Solo se agrega una violación ahí si el dueño del producto la acepta (con el motivo en un ADR), nunca para que pase un cambio. Si cambias una regla de este documento, cambia también `.dependency-cruiser.cjs` en el mismo PR.
 
 ## Carga, vacío y error
 

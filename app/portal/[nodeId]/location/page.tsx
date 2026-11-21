@@ -15,7 +15,7 @@ import { ResourceError } from "@/app/(components)/ResourceError";
 import { copyLink } from "@/app/(components)/copyLink";
 import { SnackbarContext } from "@/app/(components)/SnackbarContext";
 import { usePermissions } from "@/app/(hooks)/usePermissions";
-import { nodeTypeLabels } from "@/app/portal/organizationTree";
+import { nodeTypeLabels } from "@/app/(components)/organizationTree";
 import { LocationForm } from "./LocationForm";
 import { toOrganizationForm, toOrganizationPayload } from "./LocationSchema";
 import { GroupForm } from "./groups/GroupForm";

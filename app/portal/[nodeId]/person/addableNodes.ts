@@ -3,7 +3,7 @@ import {
   flatten,
   buildForest,
   type OrganizationNode,
-} from "@/app/portal/organizationTree";
+} from "@/app/(components)/organizationTree";
 
 /**
  * The nodes of the church of `nodeId` where a person could still be added:
