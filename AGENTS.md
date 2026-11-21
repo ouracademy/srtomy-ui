@@ -8,7 +8,8 @@ Node >= 22 and pnpm (see `.nvmrc` and `packageManager`). Run `nvm use` and `pnpm
 
 ## Checks
 
-- `pnpm check:fast` (typecheck, lint, format) after editing. Run it before you consider a task done.
+- `pnpm check:fast` (typecheck, lint, architecture, format, unit tests) after editing. Run it before you consider a task done.
+- `pnpm check:arch` checks the import rules of [docs/architecture.md](./docs/architecture.md) with dependency-cruiser (`.dependency-cruiser.cjs`). Violations that already existed are listed in `.dependency-cruiser-known-violations.json`; only new ones fail. Never add to that file to make a change pass: fix the import, or explain to the product owner why the rule does not fit.
 - `pnpm test:e2e` (Playwright) needs the app's env vars and a backend; see the Playwright workflow.
 - Never weaken a check to make a change pass: no new `@ts-ignore`/`eslint-disable`, no skipped tests, no lowered thresholds.
 
@@ -49,6 +50,11 @@ Work on a branch, never push directly to `main`. Open a PR with `gh pr create`; 
 ## Auto-format
 
 Claude Code runs Prettier and ESLint `--fix` on every file it edits (`.claude/hooks/format-on-edit.sh`). Do not fight the formatter.
+
+Two more hooks keep the agent honest (`.claude/settings.json`):
+
+- `post-edit.sh` lints each edited `.ts`/`.tsx` file under `app/` or `tests/` and hands the remaining ESLint errors back to the agent, which has to fix them before going on.
+- `stop-check.sh` runs typecheck, lint and `check:arch` when a turn ends with uncommitted changes, and keeps the agent working until they pass. CI runs the same commands.
 
 ## Pending work and cleanup
 

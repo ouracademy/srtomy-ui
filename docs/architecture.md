@@ -161,6 +161,26 @@ Solo existe una persona por iglesia; lo que cambia es dónde está y cómo está
 - **Resumen** (`dashboard/`): tarjetas por estado y crecimiento mes a mes de `GET /organizations/{id}/growth`. Lo ven quienes tienen `members.read` en el nodo.
 - **Se quitó el tablero de estados** (`person/board`, su API y `@hello-pangea/dnd`): la lista ya muestra y filtra por estado.
 
+## Reglas que se comprueban
+
+`pnpm check:arch` (en `check:fast`, en CI y en el hook de cierre de Claude Code) usa [dependency-cruiser](https://github.com/sverweij/dependency-cruiser) para revisar los `import` contra las reglas de este documento. Están en `.dependency-cruiser.cjs`:
+
+| Regla                                              | Qué impide                                                                                                       |
+| -------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| `no-circular`                                      | Ciclos de imports (A importa B y B importa A).                                                                   |
+| `axios-only-in-api-layer`                          | Usar `axios` fuera de `app/(api)/`: los componentes no usan el cliente HTTP.                                     |
+| `api-layer-is-ui-free`                             | Que `app/(api)/` importe componentes, hooks de interfaz o pantallas.                                             |
+| `shared-does-not-import-screens`                   | Que `(components)/` o `(hooks)/` dependan de una pantalla concreta.                                              |
+| `portal-sections-do-not-import-each-other`         | Que una sección de `portal/[nodeId]/` (person, event, positions...) importe otra; lo común va a `(components)/`. |
+| `route-trees-do-not-import-each-other`             | Que un árbol de rutas (`portal`, `landing`, `e`, `g`...) importe otro.                                           |
+| `only-legal-pages-use-the-landing-frame`           | Excepción acotada a la anterior: las páginas legales solo usan `LegalLayout` y `LandingFooter` de `landing/`.    |
+| `no-features-or-utils-folders`                     | Carpetas `features/` o `utils/`.                                                                                 |
+| `production-code-does-not-import-tests`            | Que el código de la app importe pruebas o sus utilidades (`*.test.ts(x)`, `*.test-utils.ts(x)`, `tests/`).       |
+| `production-code-does-not-import-dev-dependencies` | Que el código de la app use un paquete de `devDependencies`, que no existe en el build de producción.            |
+| `not-to-unresolvable`                              | Imports que no apuntan a ningún archivo ni paquete.                                                              |
+
+Las violaciones que ya existían al agregar las reglas están en `.dependency-cruiser-known-violations.json` y no fallan; las nuevas sí. Ver el ítem 35 de [tech-debt-and-future-work.md](tech-debt-and-future-work.md). Si cambias una regla de este documento, cambia también `.dependency-cruiser.cjs` en el mismo PR.
+
 ## Carga, vacío y error
 
 Toda pantalla que lee datos trata los tres estados:

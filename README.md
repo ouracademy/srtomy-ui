@@ -52,7 +52,8 @@ Solo `.env.example` se versiona. `.env` y `.env.local` están en `.gitignore`.
 | -------------------- | ------------------------------------------------------------------------------------------------------------ |
 | `pnpm dev`           | Servidor de desarrollo.                                                                                      |
 | `pnpm build`         | Compilación de producción (`pnpm start` la sirve).                                                           |
-| `pnpm check:fast`    | Tipos, lint, formato y pruebas unitarias. **Córrelo antes de terminar.**                                     |
+| `pnpm check:fast`    | Tipos, lint, arquitectura, formato y pruebas unitarias. **Córrelo antes de terminar.**                       |
+| `pnpm check:arch`    | Reglas de imports de `docs/architecture.md` (dependency-cruiser); solo fallan las violaciones nuevas.        |
 | `pnpm typecheck`     | `tsc --noEmit`.                                                                                              |
 | `pnpm lint`          | ESLint (config plana en `eslint.config.mjs`).                                                                |
 | `pnpm format`        | Prettier sobre todo el repo (`format:check` solo verifica).                                                  |
@@ -100,7 +101,7 @@ Guías para escribir código:
 Cada push y PR ejecuta (`.github/workflows`):
 
 - **commits**: mensajes en Conventional Commits (commitlint).
-- **tipos, lint, formato**: `pnpm check:fast` y la cobertura mínima.
+- **tipos, lint, arquitectura, formato**: `pnpm check:fast` y la cobertura mínima.
 - **build**: `pnpm build` con valores falsos de entorno.
 - **pnpm audit**: vulnerabilidades en dependencias de producción.
 - **Playwright**: e2e en Chromium (solo para ramas de este repo; usa el entorno `dev` de GitHub).
