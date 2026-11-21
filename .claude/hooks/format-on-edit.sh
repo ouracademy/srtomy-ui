@@ -23,9 +23,13 @@ if [ -z "$file_path" ] || [ ! -f "$file_path" ]; then
   exit 0
 fi
 
+# The tools are called by path, not through pnpm: hooks run with the PATH
+# Claude Code started with, where pnpm may not be (e.g. when pnpm lives inside
+# an fnm- or nvm-managed Node). A missing pnpm used to make this hook a silent
+# no-op.
 case "$file_path" in
   *.ts | *.tsx | *.js | *.jsx | *.mjs | *.cjs | *.json | *.css | *.md)
-    pnpm exec prettier --write "$file_path" >/dev/null 2>&1 || true
+    node node_modules/prettier/bin/prettier.cjs --write "$file_path" >/dev/null 2>&1 || true
     ;;
   *)
     exit 0
@@ -34,7 +38,7 @@ esac
 
 case "$file_path" in
   *.ts | *.tsx | *.js | *.jsx | *.mjs | *.cjs)
-    pnpm exec eslint --fix "$file_path" >/dev/null 2>&1 || true
+    node node_modules/eslint/bin/eslint.js --fix "$file_path" >/dev/null 2>&1 || true
     ;;
 esac
 
