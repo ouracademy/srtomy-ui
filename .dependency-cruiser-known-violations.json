@@ -1,0 +1,251 @@
+[
+  {
+    "type": "dependency",
+    "from": "app/(components)/apiErrorMessage.ts",
+    "to": "node_modules/.pnpm/axios@1.21.0/node_modules/axios/index.d.cts",
+    "unresolvedTo": "axios",
+    "dependencyTypes": ["npm", "import"],
+    "rule": {
+      "severity": "error",
+      "name": "axios-only-in-api-layer"
+    }
+  },
+  {
+    "type": "dependency",
+    "from": "app/(components)/ResourceError.tsx",
+    "to": "node_modules/.pnpm/axios@1.21.0/node_modules/axios/index.d.cts",
+    "unresolvedTo": "axios",
+    "dependencyTypes": ["npm", "import"],
+    "rule": {
+      "severity": "error",
+      "name": "axios-only-in-api-layer"
+    }
+  },
+  {
+    "type": "dependency",
+    "from": "app/portal/[nodeId]/person/DeletePersonDialog.tsx",
+    "to": "node_modules/.pnpm/axios@1.21.0/node_modules/axios/index.d.cts",
+    "unresolvedTo": "axios",
+    "dependencyTypes": ["npm", "import"],
+    "rule": {
+      "severity": "error",
+      "name": "axios-only-in-api-layer"
+    }
+  },
+  {
+    "type": "dependency",
+    "from": "app/portal/PortalProviders.tsx",
+    "to": "node_modules/.pnpm/axios@1.21.0/node_modules/axios/index.d.cts",
+    "unresolvedTo": "axios",
+    "dependencyTypes": ["npm", "import"],
+    "rule": {
+      "severity": "error",
+      "name": "axios-only-in-api-layer"
+    }
+  },
+  {
+    "type": "cycle",
+    "from": "app/(components)/EndDateField.tsx",
+    "to": "app/(components)/EventForm.tsx",
+    "unresolvedTo": "./EventForm",
+    "dependencyTypes": ["local", "type-only", "import"],
+    "rule": {
+      "severity": "error",
+      "name": "no-circular"
+    },
+    "cycle": [
+      {
+        "name": "app/(components)/EventForm.tsx",
+        "dependencyTypes": ["local", "type-only", "import"]
+      },
+      {
+        "name": "app/(components)/EndDateField.tsx",
+        "dependencyTypes": ["local", "import"]
+      }
+    ]
+  },
+  {
+    "type": "cycle",
+    "from": "app/(components)/EventForm.tsx",
+    "to": "app/(components)/RecurrenceFields.tsx",
+    "unresolvedTo": "./RecurrenceFields",
+    "dependencyTypes": ["local", "import"],
+    "rule": {
+      "severity": "error",
+      "name": "no-circular"
+    },
+    "cycle": [
+      {
+        "name": "app/(components)/RecurrenceFields.tsx",
+        "dependencyTypes": ["local", "import"]
+      },
+      {
+        "name": "app/(components)/EventForm.tsx",
+        "dependencyTypes": ["local", "type-only", "import"]
+      }
+    ]
+  },
+  {
+    "type": "cycle",
+    "from": "app/(components)/EventForm.tsx",
+    "to": "app/(components)/RegistrationModeField.tsx",
+    "unresolvedTo": "./RegistrationModeField",
+    "dependencyTypes": ["local", "import"],
+    "rule": {
+      "severity": "error",
+      "name": "no-circular"
+    },
+    "cycle": [
+      {
+        "name": "app/(components)/RegistrationModeField.tsx",
+        "dependencyTypes": ["local", "import"]
+      },
+      {
+        "name": "app/(components)/EventForm.tsx",
+        "dependencyTypes": ["local", "type-only", "import"]
+      }
+    ]
+  },
+  {
+    "type": "dependency",
+    "from": "app/portal/[nodeId]/event/[id]/attendance/EditableEventForm.tsx",
+    "to": "app/portal/[nodeId]/person/PersonTable.tsx",
+    "unresolvedTo": "../../../person/PersonTable",
+    "dependencyTypes": ["local", "import"],
+    "rule": {
+      "severity": "error",
+      "name": "portal-sections-do-not-import-each-other"
+    }
+  },
+  {
+    "type": "dependency",
+    "from": "app/portal/[nodeId]/groups/page.tsx",
+    "to": "app/portal/[nodeId]/location/groups/Groups.tsx",
+    "unresolvedTo": "../location/groups/Groups",
+    "dependencyTypes": ["local", "import"],
+    "rule": {
+      "severity": "error",
+      "name": "portal-sections-do-not-import-each-other"
+    }
+  },
+  {
+    "type": "dependency",
+    "from": "app/portal/[nodeId]/location/groups/Groups.tsx",
+    "to": "app/portal/[nodeId]/person/searchQuery.ts",
+    "unresolvedTo": "../../person/searchQuery",
+    "dependencyTypes": ["local", "import"],
+    "rule": {
+      "severity": "error",
+      "name": "portal-sections-do-not-import-each-other"
+    }
+  },
+  {
+    "type": "dependency",
+    "from": "app/portal/[nodeId]/positions/page.tsx",
+    "to": "app/portal/[nodeId]/access/AccessManager.tsx",
+    "unresolvedTo": "../access/AccessManager",
+    "dependencyTypes": ["local", "import"],
+    "rule": {
+      "severity": "error",
+      "name": "portal-sections-do-not-import-each-other"
+    }
+  },
+  {
+    "type": "dependency",
+    "from": "app/g/[slug]/PublicPage.tsx",
+    "to": "app/portal/organizationTree.ts",
+    "unresolvedTo": "@/app/portal/organizationTree",
+    "dependencyTypes": [
+      "aliased",
+      "aliased-tsconfig",
+      "aliased-tsconfig-paths",
+      "local",
+      "import"
+    ],
+    "rule": {
+      "severity": "error",
+      "name": "route-trees-do-not-import-each-other"
+    }
+  },
+  {
+    "type": "dependency",
+    "from": "app/invitacion/[token]/InvitationAccept.tsx",
+    "to": "app/portal/userNames.ts",
+    "unresolvedTo": "@/app/portal/userNames",
+    "dependencyTypes": [
+      "aliased",
+      "aliased-tsconfig",
+      "aliased-tsconfig-paths",
+      "local",
+      "type-only",
+      "import"
+    ],
+    "rule": {
+      "severity": "error",
+      "name": "route-trees-do-not-import-each-other"
+    }
+  },
+  {
+    "type": "dependency",
+    "from": "app/invitacion/[token]/page.tsx",
+    "to": "app/portal/userNames.ts",
+    "unresolvedTo": "@/app/portal/userNames",
+    "dependencyTypes": [
+      "aliased",
+      "aliased-tsconfig",
+      "aliased-tsconfig-paths",
+      "local",
+      "import"
+    ],
+    "rule": {
+      "severity": "error",
+      "name": "route-trees-do-not-import-each-other"
+    }
+  },
+  {
+    "type": "dependency",
+    "from": "app/(components)/AcceptNameFields.tsx",
+    "to": "app/portal/userNames.ts",
+    "unresolvedTo": "@/app/portal/userNames",
+    "dependencyTypes": [
+      "aliased",
+      "aliased-tsconfig",
+      "aliased-tsconfig-paths",
+      "local",
+      "type-only",
+      "import"
+    ],
+    "rule": {
+      "severity": "error",
+      "name": "shared-does-not-import-screens"
+    }
+  },
+  {
+    "type": "dependency",
+    "from": "app/(components)/directory/DirectoryList.tsx",
+    "to": "app/portal/organizationTree.ts",
+    "unresolvedTo": "@/app/portal/organizationTree",
+    "dependencyTypes": [
+      "aliased",
+      "aliased-tsconfig",
+      "aliased-tsconfig-paths",
+      "local",
+      "import"
+    ],
+    "rule": {
+      "severity": "error",
+      "name": "shared-does-not-import-screens"
+    }
+  },
+  {
+    "type": "dependency",
+    "from": "app/(components)/LegalDocument.tsx",
+    "to": "app/landing/Section.tsx",
+    "unresolvedTo": "../landing/Section",
+    "dependencyTypes": ["local", "import"],
+    "rule": {
+      "severity": "error",
+      "name": "shared-does-not-import-screens"
+    }
+  }
+]

@@ -51,6 +51,12 @@ jobs:
         run: pnpm exec tsc --noEmit
       - name: lint
         run: pnpm exec eslint .
+      # dependency-cruiser (.dependency-cruiser.cjs): the rules of
+      # docs/architecture.md. Known violations live in
+      # .dependency-cruiser-known-violations.json; only new ones fail. Same
+      # command as the Claude Code Stop hook.
+      - name: arquitectura
+        run: pnpm check:arch
       - name: formato
         run: pnpm format:check
 
