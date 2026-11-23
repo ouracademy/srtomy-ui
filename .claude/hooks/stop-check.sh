@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # Stop hook: before the agent may finish a turn with uncommitted changes, the
-# whole project must pass types, lint and architecture. On failure it exits 2,
+# whole project must pass types, lint, architecture and the levels of the e2e
+# tests, and the changed code must come with a changed test. On failure it exits 2,
 # which keeps the agent working with the report in front of it. CI runs the
 # same three commands, so whatever slips past here is stopped there.
 set -uo pipefail
@@ -44,6 +45,9 @@ run_check() {
 run_check "tipos (tsc --noEmit)" node node_modules/typescript/bin/tsc --noEmit
 run_check "lint (eslint .)" node node_modules/eslint/bin/eslint.js . --max-warnings=0
 run_check "arquitectura (dependency-cruiser)" bash scripts/check-arch.sh
+run_check "niveles de las pruebas e2e (check:tests)" node scripts/test-levels.mts
+# Asked once: when a change truly needs no test, the agent says why and the next stop passes.
+run_check "prueba acompañante" node scripts/test-levels.mts --changed
 
 [ "$failed" -eq 0 ] && exit 0
 
