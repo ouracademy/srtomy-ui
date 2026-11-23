@@ -1,5 +1,8 @@
-import { cleanup, render, screen } from "@testing-library/react";
+import { cleanup, render, screen, waitFor } from "@testing-library/react";
+import useSWR from "swr";
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { SnackbarContext } from "../(components)/SnackbarContext";
+import { apiClient } from "../(api)/client";
 import { PortalProviders } from "./PortalProviders";
 
 const agent = vi.hoisted(() => ({ url: undefined as string | undefined }));
@@ -37,5 +40,28 @@ describe("PortalProviders", () => {
     expect(
       screen.queryByRole("button", { name: "Abrir asistente" }),
     ).not.toBeInTheDocument();
+  });
+
+  it("tells the user when a request of the portal fails", async () => {
+    vi.mocked(apiClient.get).mockRejectedValueOnce(new Error("500"));
+    const showMessage = vi.fn();
+    const Reader = () => {
+      useSWR("/organizations/n1/positions");
+      return null;
+    };
+
+    render(
+      <SnackbarContext.Provider value={{ message: "", showMessage }}>
+        <PortalProviders>
+          <Reader />
+        </PortalProviders>
+      </SnackbarContext.Provider>,
+    );
+
+    await waitFor(() =>
+      expect(showMessage).toHaveBeenCalledWith(
+        "No se pudo cargar la información",
+      ),
+    );
   });
 });
