@@ -29,7 +29,7 @@ Node >= 22 and pnpm (see `.nvmrc` and `packageManager`). Run `nvm use` and `pnpm
   - The environment delivers events directly to specific elements, such as React Native, with no sequence of human interactions.
 - Don't mix both for the same interaction.
 - The choice depends on the interaction, not the test level: a unit test and an integration test both use `user-event` for user actions.
-- The repo does not have `user-event` yet. Add it as a devDependency, with `@testing-library/dom` as its peer, in the PR that first needs it.
+- `@testing-library/user-event` is a devDependency, with `@testing-library/dom` as its peer.
 - Mock `@/app/(api)/generated` when a component calls the API, so unit tests make no network calls.
 
 ## Dependencies
