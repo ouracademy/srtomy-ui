@@ -1,6 +1,6 @@
 import { expect, test } from "./fixtures";
 
-test.describe("Editar Grupos y ministerios", () => {
+test.describe("Editar Grupos y ministerios", { tag: "@story" }, () => {
   const nodeId = "11111111-1111-1111-1111-111111111111";
   const groupId = "33333333-3333-3333-3333-333333333333";
 

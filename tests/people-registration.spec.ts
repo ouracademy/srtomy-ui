@@ -1,7 +1,7 @@
 import { test, expect } from "./fixtures";
 // import {faker } from "@faker-js/faker";
 
-test.describe("Registro de persona", () => {
+test.describe("Registro de persona", { tag: "@story" }, () => {
   const mLocId = "11111111-1111-1111-1111-111111111111";
 
   test("formulario de registro", async ({ page }) => {

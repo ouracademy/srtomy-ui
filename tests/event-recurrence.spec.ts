@@ -1,7 +1,16 @@
 import { test, expect } from "./fixtures";
 import { firstCalendarSlot } from "./calendar";
 
-test.describe("Eventos recurrentes", () => {
+/** Level of the test pyramid and the spec it checks (the `test-pyramid` skill). */
+const story = {
+  tag: "@story",
+  annotation: {
+    type: "spec",
+    description: "specs/010-recurring-events-calendar-sync",
+  },
+};
+
+test.describe("Eventos recurrentes", story, () => {
   const nodeId = "11111111-1111-1111-1111-111111111111";
 
   test("crea un evento que se repite cada 2 semanas, 5 veces", async ({

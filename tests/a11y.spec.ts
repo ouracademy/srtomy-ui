@@ -23,7 +23,7 @@ const seriousViolations = async (page: Page) => {
     );
 };
 
-test.describe("Accesibilidad", () => {
+test.describe("Accesibilidad", { tag: "@story" }, () => {
   test.beforeEach(async ({ page }) => {
     await page.route("**/organizations/*/positions**", (route) =>
       route.fulfill(json([])),

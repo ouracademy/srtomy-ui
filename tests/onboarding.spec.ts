@@ -1,5 +1,10 @@
 import { test, expect } from "./fixtures";
 
+/** The spec these tests check; each test says its level in its title (the `test-pyramid` skill). */
+const spec = {
+  annotation: { type: "spec", description: "specs/003-identity-iam" },
+};
+
 const churchId = "aaaaaaaa-0000-0000-0000-000000000001";
 const locationId = "aaaaaaaa-0000-0000-0000-000000000002";
 
@@ -9,8 +14,8 @@ const json = (body: unknown, status = 200) => ({
   body: JSON.stringify(body),
 });
 
-test.describe("Alta de iglesia", () => {
-  test("un usuario sin iglesias crea la suya con su primera sede, sus cargos con sus permisos y su propio cargo", async ({
+test.describe("Alta de iglesia", spec, () => {
+  test("un usuario sin iglesias crea la suya con su primera sede, sus cargos con sus permisos y su propio cargo @journey", async ({
     page,
   }) => {
     // The first visit to the location compiles its page in the dev server,
@@ -107,7 +112,7 @@ test.describe("Alta de iglesia", () => {
     ).toBeVisible();
   });
 
-  test("quien ya tiene iglesia entra a Mi espacio", async ({ page }) => {
+  test("quien ya tiene iglesia entra a Mi espacio @story", async ({ page }) => {
     await page.goto("/portal");
 
     await expect(page).toHaveURL(/\/portal\/me$/);

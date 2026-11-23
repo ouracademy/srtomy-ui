@@ -2,6 +2,12 @@ import AxeBuilder from "@axe-core/playwright";
 import { test, expect } from "./fixtures";
 import { CHURCH_ID, NODE_ID } from "./e2e-env";
 
+/** Level of the test pyramid and the spec it checks (the `test-pyramid` skill). */
+const story = {
+  tag: "@story",
+  annotation: { type: "spec", description: "specs/008-my-space" },
+};
+
 const json = (body: unknown, status = 200) => ({
   status,
   contentType: "application/json",
@@ -84,7 +90,7 @@ async function asMember(page: import("@playwright/test").Page) {
   );
 }
 
-test.describe("Mi espacio", () => {
+test.describe("Mi espacio", story, () => {
   test("un miembro sin cargo aterriza en Mi espacio y ve sus secciones", async ({
     page,
   }) => {

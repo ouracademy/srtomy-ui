@@ -1,7 +1,7 @@
 import { test, expect } from "./fixtures";
 import { CHURCH_ID, NODE_ID } from "./e2e-env";
 
-test.describe("Editar Sede", () => {
+test.describe("Editar Sede", { tag: "@story" }, () => {
   const nodeId = NODE_ID;
 
   test.beforeEach(async ({ page }) => {

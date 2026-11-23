@@ -1,13 +1,19 @@
 import { test, expect } from "./fixtures";
 import { CHURCH_ID, NODE_ID } from "./e2e-env";
 
+/** Level of the test pyramid and the spec it checks (the `test-pyramid` skill). */
+const story = {
+  tag: "@story",
+  annotation: { type: "spec", description: "specs/006-visibility" },
+};
+
 const json = (body: unknown, status = 200) => ({
   status,
   contentType: "application/json",
   body: JSON.stringify(body),
 });
 
-test.describe("Visibilidad", () => {
+test.describe("Visibilidad", story, () => {
   test("elige quién ve la lista de personas y el horario de la sede", async ({
     page,
   }) => {

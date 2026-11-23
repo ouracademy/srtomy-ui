@@ -1,6 +1,12 @@
 import { test, expect } from "./fixtures";
 import { firstCalendarSlot } from "./calendar";
 
+/** Level of the test pyramid and the spec it checks (the `test-pyramid` skill). */
+const story = {
+  tag: "@story",
+  annotation: { type: "spec", description: "specs/012-composite-events" },
+};
+
 // The other endpoints under an event answer lists (notices, sign-ups) or counts.
 const sideEndpoint = (url: string): string | undefined => {
   if (url.endsWith("/notices") || url.endsWith("/registrations")) return "[]";
@@ -10,7 +16,7 @@ const sideEndpoint = (url: string): string | undefined => {
   return undefined;
 };
 
-test.describe("Eventos compuestos", () => {
+test.describe("Eventos compuestos", story, () => {
   const nodeId = "11111111-1111-1111-1111-111111111111";
   const megaId = "55555555-5555-5555-5555-555555555555";
   const childId = "66666666-6666-6666-6666-666666666666";

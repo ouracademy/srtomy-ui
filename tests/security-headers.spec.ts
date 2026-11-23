@@ -1,6 +1,6 @@
 import { test, expect } from "./fixtures";
 
-test.describe("Cabeceras de seguridad", () => {
+test.describe("Cabeceras de seguridad", { tag: "@smoke" }, () => {
   test("el sitio deja usar la cámara para escanear tickets, pero no el micrófono ni la ubicación", async ({
     request,
   }) => {

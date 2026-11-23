@@ -10,6 +10,12 @@ import {
 import { NODE_ID } from "./e2e-env";
 import { expect, test } from "./fixtures";
 
+/** Level of the test pyramid and the spec it checks (the `test-pyramid` skill). */
+const story = {
+  tag: "@story",
+  annotation: { type: "spec", description: "specs/017-ai-assistant-chat" },
+};
+
 // The portal assistant against a simulated srtomy-agent: every POST /chat is
 // answered here with a recorded UI message stream.
 
@@ -43,7 +49,7 @@ const lastQuestion = (request: Request) => {
   return messages.at(-1)?.parts[0]?.text;
 };
 
-test.describe("Asistente del portal", () => {
+test.describe("Asistente del portal", story, () => {
   test.beforeEach(async ({ page }) => {
     await mockNode(page);
   });

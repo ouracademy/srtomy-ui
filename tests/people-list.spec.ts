@@ -7,7 +7,7 @@ const json = (body: unknown) => ({
   body: JSON.stringify(body),
 });
 
-test.describe("Lista de personas", () => {
+test.describe("Lista de personas", { tag: "@smoke" }, () => {
   test("carga una vez, sin navegar en bucle", async ({ page }) => {
     let calls = 0;
     await page.route("**/v1/people?*", (route) => {

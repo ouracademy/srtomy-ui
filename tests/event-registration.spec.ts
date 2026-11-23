@@ -1,9 +1,11 @@
 import { test, expect } from "./fixtures";
 import { firstCalendarSlot } from "./calendar";
 
-test.describe("Registro de eventos", () => {
+test.describe("Registro de eventos", { tag: "@story" }, () => {
   const nodeId = "11111111-1111-1111-1111-111111111111";
-  test("abc", async ({ page }) => {
+  test("crea un evento desde el calendario con un ponente de la iglesia", async ({
+    page,
+  }) => {
     const { faker } = await import("@faker-js/faker");
 
     //1 Mock para obtener locación

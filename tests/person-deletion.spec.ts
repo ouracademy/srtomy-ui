@@ -13,7 +13,7 @@ const openDeleteMenu = async (page: Page) => {
   await page.getByRole("menuitem", { name: "Eliminar" }).click();
 };
 
-test.describe("Eliminar una persona", () => {
+test.describe("Eliminar una persona", { tag: "@story" }, () => {
   let deleteStatus = 204;
   let deleteBody: unknown = undefined;
   const deletes: URLSearchParams[] = [];

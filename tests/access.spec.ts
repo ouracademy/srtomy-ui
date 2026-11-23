@@ -1,13 +1,19 @@
 import { test, expect } from "./fixtures";
 import { CHURCH_ID, NODE_ID } from "./e2e-env";
 
+/** Level of the test pyramid and the spec it checks (the `test-pyramid` skill). */
+const story = {
+  tag: "@story",
+  annotation: { type: "spec", description: "specs/004-access-management" },
+};
+
 const json = (body: unknown, status = 200) => ({
   status,
   contentType: "application/json",
   body: JSON.stringify(body),
 });
 
-test.describe("Cargos y accesos", () => {
+test.describe("Cargos y accesos", story, () => {
   test.beforeEach(async ({ page }) => {
     await page.route(`**/organizations/${NODE_ID}`, (route) =>
       route.fulfill(

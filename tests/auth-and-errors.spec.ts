@@ -3,7 +3,7 @@ import { AUTH0_DOMAIN } from "./e2e-env";
 
 const nodeId = "11111111-1111-1111-1111-111111111111";
 
-test.describe("Sesión", () => {
+test.describe("Sesión", { tag: "@smoke" }, () => {
   test("un visitante anónimo es enviado a Auth0 sin llamar a la API", async ({
     page,
   }) => {
@@ -30,7 +30,7 @@ test.describe("Sesión", () => {
   });
 });
 
-test.describe("Errores de carga", () => {
+test.describe("Errores de carga", { tag: "@story" }, () => {
   test("muestra un mensaje cuando falla una petición", async ({ page }) => {
     await page.route("**/organizations/*/positions**", (route) =>
       route.fulfill({ status: 500, body: "{}" }),

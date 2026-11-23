@@ -2,6 +2,12 @@ import AxeBuilder from "@axe-core/playwright";
 import { test, expect } from "./fixtures";
 import { NODE_ID } from "./e2e-env";
 
+/** Level of the test pyramid and the spec it checks (the `test-pyramid` skill). */
+const story = {
+  tag: "@story",
+  annotation: { type: "spec", description: "specs/011-registration" },
+};
+
 const json = (body: unknown, status = 200) => ({
   status,
   contentType: "application/json",
@@ -34,7 +40,7 @@ async function mockService(page: import("@playwright/test").Page) {
   );
 }
 
-test.describe("Asistencia con QR y visitantes", () => {
+test.describe("Asistencia con QR y visitantes", story, () => {
   test("un culto sin inscripción: agregar un visitante y contar a quienes no dieron su nombre", async ({
     page,
   }) => {

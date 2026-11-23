@@ -9,7 +9,7 @@ const json = (body: unknown) => ({
   body: JSON.stringify(body),
 });
 
-test.describe("Menú en móvil", () => {
+test.describe("Menú en móvil", { tag: "@story" }, () => {
   test.use({ viewport: { width: 390, height: 844 } });
 
   test.beforeEach(async ({ page }) => {

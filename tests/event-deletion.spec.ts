@@ -1,6 +1,6 @@
 import { test, expect } from "./fixtures";
 
-test.describe("Eliminar un evento con asistencia", () => {
+test.describe("Eliminar un evento con asistencia", { tag: "@story" }, () => {
   const nodeId = "11111111-1111-1111-1111-111111111111";
   const eventId = "33333333-3333-3333-3333-333333333333";
   let deleteStatus = 200;
