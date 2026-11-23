@@ -75,9 +75,7 @@ Dos reglas: **proximidad** para lo que usa una sola pantalla, y **globales con n
 
 ## Pruebas
 
-- Lógica pura y hooks: prueba unitaria al lado del archivo (`foo.ts` y `foo.test.ts`). El código generado no se prueba; sí el mutator de `client.ts`.
-- Un flujo de usuario nuevo o modificado: prueba e2e en `tests/`, con la API interceptada.
-- Un bug corregido lleva una prueba que falla sin la corrección.
+Ver el skill `test-pyramid` (`.claude/skills/test-pyramid/SKILL.md`), el estándar de pruebas del repo.
 
 ## Dependencias
 

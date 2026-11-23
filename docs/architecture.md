@@ -206,12 +206,7 @@ El botón de envío muestra el estado de carga con `formState.isSubmitting`, que
 
 ## Pruebas
 
-| Qué                               | Cómo                                                                                            |
-| --------------------------------- | ----------------------------------------------------------------------------------------------- |
-| Lógica pura, hooks, mutator       | Vitest junto al archivo. Para la red se reemplaza el _adapter_ de axios (ver `client.test.ts`). |
-| Flujos de usuario y accesibilidad | Playwright en `tests/`, con Auth0 simulado y la API interceptada por prueba.                    |
-
-Si cambia un endpoint, cambian dos cosas: la especificación (`pnpm api:sync`) y los `page.route` de los e2e que lo simulan.
+El estándar de pruebas (niveles, nombres, dobles, herramientas y cómo escribirlas) está en el skill `test-pyramid` (`.claude/skills/test-pyramid/SKILL.md`).
 
 ## Deuda conocida
 
