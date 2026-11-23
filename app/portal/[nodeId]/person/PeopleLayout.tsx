@@ -98,14 +98,13 @@ export function PeopleLayout({
         <Stack spacing={1.75} sx={{ p: 2.25, pb: 1.75 }}>
           <TextField
             hiddenLabel
-            variant="filled"
+            variant="outlined"
             placeholder="Buscar por nombre"
             fullWidth
             value={searchText}
             onChange={(event) => setSearchText(event.target.value)}
             slotProps={{
               input: {
-                disableUnderline: true,
                 sx: { borderRadius: 3 },
                 startAdornment: (
                   <InputAdornment position="start">
