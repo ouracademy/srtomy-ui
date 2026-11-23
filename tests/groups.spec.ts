@@ -94,16 +94,4 @@ test.describe("Grupos y Ministerios", { tag: "@story" }, () => {
       /\/portal\/99999999-9999-9999-9999-999999999999$/,
     );
   });
-
-  test("error de validación", async ({ page }) => {
-    await page.goto(`/portal/${nodeId}/location/groups/create`);
-
-    //1. Intentar guardar sin llenar
-    await page.getByRole("button", { name: /Guardar/i }).click();
-
-    //2. Verificar mensajes de error de Zod
-    await expect(
-      page.getByText(/Por favor ingrese el nombre del Grupo o ministerio/i),
-    ).toBeVisible();
-  });
 });

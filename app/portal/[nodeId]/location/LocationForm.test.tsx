@@ -100,6 +100,16 @@ describe("LocationForm", () => {
     ).toBeTruthy();
   });
 
+  it("asks for a name before saving", async () => {
+    const { submit, user } = setup();
+
+    await user.clear(screen.getByRole("textbox", { name: "Nombre" }));
+    await user.click(screen.getByRole("button", { name: "Guardar" }));
+
+    expect(await screen.findByText("Por favor ingrese el nombre")).toBeTruthy();
+    expect(submit).not.toHaveBeenCalled();
+  });
+
   it("hides the save button without permission", () => {
     render(
       <LocationForm

@@ -70,20 +70,6 @@ test.describe("Editar Sede", { tag: "@story" }, () => {
     await expect(page.getByText(/Guardado exitosamente/i)).toBeVisible();
   });
 
-  test("error de validación", async ({ page }) => {
-    await page.goto(`/portal/${nodeId}/location`);
-    const nameInput = page.getByRole("textbox", {
-      name: "Nombre",
-      exact: true,
-    });
-    await expect(nameInput).toHaveValue("Sede Central Antigua");
-    await nameInput.fill("");
-
-    await page.getByRole("button", { name: /Guardar/i }).click();
-
-    await expect(page.getByText(/Por favor ingrese el nombre/i)).toBeVisible();
-  });
-
   test("sin permiso de edición no se muestra Guardar", async ({ page }) => {
     await page.route("**/v1/me/permissions**", (route) =>
       route.fulfill({
