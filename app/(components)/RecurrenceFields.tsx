@@ -1,10 +1,12 @@
 "use client";
 
-import { MenuItem, TextField, Typography } from "@mui/material";
+import RepeatIcon from "@mui/icons-material/Repeat";
+import { InputAdornment, MenuItem, TextField, Typography } from "@mui/material";
 import { useState } from "react";
 import { useFormContext } from "react-hook-form-mui";
 import { CustomRecurrenceDialog } from "./CustomRecurrenceDialog";
 import type { EventDetailFormData } from "./EventForm";
+import { filledTextFieldSx } from "./filledField";
 import {
   describeRecurrence,
   noRecurrence,
@@ -76,7 +78,19 @@ export const RecurrenceFields = ({
     <>
       <TextField
         select
+        fullWidth
+        variant="filled"
         label="Se repite"
+        sx={filledTextFieldSx}
+        slotProps={{
+          input: {
+            startAdornment: (
+              <InputAdornment position="start">
+                <RepeatIcon />
+              </InputAdornment>
+            ),
+          },
+        }}
         value={preset}
         onChange={(event) => choose(event.target.value as Choice)}
       >

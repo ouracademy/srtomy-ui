@@ -6,6 +6,7 @@ import { useFormContext } from "react-hook-form-mui";
 import { DatePickerElement } from "react-hook-form-mui/date-pickers";
 import type { EventDetailFormData } from "./EventForm";
 import { lastsSeveralDays } from "./eventRange";
+import { filledPickerField, filledPickerSx } from "./filledField";
 import { noRecurrence } from "./recurrence";
 
 // The day the event ends, next to the day it starts: an event of several days
@@ -47,7 +48,8 @@ export const EndDateField = ({ maxDate }: EndDateFieldProps) => {
 
   return (
     <DatePickerElement
-      sx={{ width: "100%" }}
+      sx={filledPickerSx}
+      inputProps={filledPickerField}
       label="Hasta"
       name="endDate"
       minDate={date}
