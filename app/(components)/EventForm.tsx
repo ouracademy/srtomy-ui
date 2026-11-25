@@ -204,6 +204,55 @@ export const EventForm = ({
     </Typography>
   );
 
+  // How a sub-event is entered is rarely changed: it is the one of the event
+  // unless the organizers say otherwise.
+  const entryMode = watch("registrationMode");
+  let registrationBody: React.ReactNode = registrationFields;
+  if (container && entryMode === "INHERIT" && !changingEntry) {
+    registrationBody = (
+      <Stack
+        direction="row"
+        useFlexGap
+        spacing={1}
+        sx={{
+          alignItems: "center",
+          justifyContent: "space-between",
+          flexWrap: "wrap",
+        }}
+      >
+        <Typography variant="body2" sx={{ color: "text.secondary" }}>
+          <strong>Inscripción:</strong> la del evento. Quien se inscribe al
+          evento puede entrar a esta sesión.
+        </Typography>
+        {editable && (
+          <Button
+            size="small"
+            aria-label="Cambiar la inscripción"
+            onClick={() => setChangingEntry(true)}
+          >
+            Cambiar
+          </Button>
+        )}
+      </Stack>
+    );
+  } else if (container) {
+    registrationBody = (
+      <Stack spacing={2}>
+        <RegistrationModeField />
+        {entryMode === "OWN" && (
+          <CheckboxElement
+            name="requiresContainerRegistration"
+            label={`Solo para quienes ya se inscribieron a «${container.title}»`}
+          />
+        )}
+        {showRegistration &&
+          editable &&
+          entryMode === "OWN" &&
+          registrationFields}
+      </Stack>
+    );
+  }
+
   const ownRegistration =
     !container && showRegistration && editable && !repeats;
   const savedAddress = location?.address;
@@ -442,57 +491,7 @@ export const EventForm = ({
             <Stack spacing={1}>
               {caption("Inscripción")}
               <Paper variant="outlined" sx={{ p: 2, borderRadius: 5 }}>
-                {container ? (
-                  /* How a sub-event is entered is rarely changed: it is the
-                     one of the event unless the organizers say otherwise. */
-                  watch("registrationMode") === "INHERIT" && !changingEntry ? (
-                    <Stack
-                      direction="row"
-                      useFlexGap
-                      spacing={1}
-                      sx={{
-                        alignItems: "center",
-                        justifyContent: "space-between",
-                        flexWrap: "wrap",
-                      }}
-                    >
-                      <Typography
-                        variant="body2"
-                        sx={{
-                          color: "text.secondary",
-                        }}
-                      >
-                        <strong>Inscripción:</strong> la del evento. Quien se
-                        inscribe al evento puede entrar a esta sesión.
-                      </Typography>
-                      {editable && (
-                        <Button
-                          size="small"
-                          aria-label="Cambiar la inscripción"
-                          onClick={() => setChangingEntry(true)}
-                        >
-                          Cambiar
-                        </Button>
-                      )}
-                    </Stack>
-                  ) : (
-                    <Stack spacing={2}>
-                      <RegistrationModeField />
-                      {watch("registrationMode") === "OWN" && (
-                        <CheckboxElement
-                          name="requiresContainerRegistration"
-                          label={`Solo para quienes ya se inscribieron a «${container.title}»`}
-                        />
-                      )}
-                      {showRegistration &&
-                        editable &&
-                        watch("registrationMode") === "OWN" &&
-                        registrationFields}
-                    </Stack>
-                  )
-                ) : (
-                  registrationFields
-                )}
+                {registrationBody}
               </Paper>
             </Stack>
           )}
