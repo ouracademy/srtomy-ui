@@ -10,7 +10,7 @@ export const typeButtonsSx = (height: number) => ({
   "&&& .MuiToggleButton-root": {
     minWidth: 132,
     gap: 1,
-    px: 2.75,
+    px: 2.25,
     marginLeft: 0,
     border: 1.5,
     borderStyle: "solid",
