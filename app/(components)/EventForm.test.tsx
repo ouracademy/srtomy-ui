@@ -7,6 +7,7 @@ import {
   cleanup,
 } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import type { ComponentProps } from "react";
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { afterEach, describe, expect, it, vi } from "vitest";
@@ -14,12 +15,19 @@ import { EventForm, EventDetailFormData } from "./EventForm";
 import { noRecurrence } from "./recurrence";
 import { noRegistration } from "./registration";
 
+const api = vi.hoisted(() => ({ address: undefined as string | undefined }));
+
 vi.mock("@/app/(api)/generated", () => ({
-  useGetOrganizationsById: () => ({ data: undefined }),
+  useGetOrganizationsById: () => ({
+    data: api.address ? { address: api.address } : undefined,
+  }),
   useGetPeople: () => ({ data: undefined }),
 }));
 
-afterEach(cleanup);
+afterEach(() => {
+  cleanup();
+  api.address = undefined;
+});
 
 const initialValues: EventDetailFormData = {
   name: "",
@@ -35,22 +43,25 @@ const initialValues: EventDetailFormData = {
   registration: noRegistration(),
 };
 
-const renderForm = (
-  submit: (values: EventDetailFormData) => void,
-  showRegistration = false,
-  values: EventDetailFormData = initialValues,
-) =>
+// An editable form of a new event unless the props say otherwise.
+const renderWith = (props: Partial<ComponentProps<typeof EventForm>> = {}) =>
   render(
     <LocalizationProvider dateAdapter={AdapterDateFns}>
       <EventForm
         nodeId="11111111-1111-1111-1111-111111111111"
-        initialValues={values}
-        submit={submit}
+        initialValues={initialValues}
+        submit={vi.fn()}
         editable
-        showRegistration={showRegistration}
+        {...props}
       />
     </LocalizationProvider>,
   );
+
+const renderForm = (
+  submit: (values: EventDetailFormData) => void,
+  showRegistration = false,
+  values: EventDetailFormData = initialValues,
+) => renderWith({ submit, showRegistration, initialValues: values });
 
 describe("EventForm", () => {
   it("saves the end time the user changes in the end time picker", async () => {
@@ -129,19 +140,13 @@ describe("EventForm", () => {
   });
 
   it("only describes the repetition when the form is not editable", () => {
-    render(
-      <LocalizationProvider dateAdapter={AdapterDateFns}>
-        <EventForm
-          nodeId="11111111-1111-1111-1111-111111111111"
-          initialValues={{
-            ...initialValues,
-            recurrence: { ...noRecurrence(), frequency: "DAILY" },
-          }}
-          submit={vi.fn()}
-          editable={false}
-        />
-      </LocalizationProvider>,
-    );
+    renderWith({
+      initialValues: {
+        ...initialValues,
+        recurrence: { ...noRecurrence(), frequency: "DAILY" },
+      },
+      editable: false,
+    });
 
     expect(screen.getByLabelText("Repetición")).toHaveTextContent(
       "Todos los días",
@@ -292,16 +297,7 @@ describe("EventForm", () => {
   });
 
   it("cannot be typed into when it is not editable, and has no Guardar", () => {
-    render(
-      <LocalizationProvider dateAdapter={AdapterDateFns}>
-        <EventForm
-          nodeId="11111111-1111-1111-1111-111111111111"
-          initialValues={initialValues}
-          submit={vi.fn()}
-          editable={false}
-        />
-      </LocalizationProvider>,
-    );
+    renderWith({ editable: false });
 
     expect(
       screen.getByPlaceholderText("Agregar título").matches(":disabled"),
@@ -310,21 +306,123 @@ describe("EventForm", () => {
   });
 
   it("shows the kind as a value, not as buttons, when it is locked", () => {
-    render(
-      <LocalizationProvider dateAdapter={AdapterDateFns}>
-        <EventForm
-          nodeId="11111111-1111-1111-1111-111111111111"
-          initialValues={{ ...initialValues, type: 1 }}
-          submit={vi.fn()}
-          editable
-          lockType
-        />
-      </LocalizationProvider>,
-    );
+    renderWith({
+      initialValues: { ...initialValues, type: 1 },
+      lockType: true,
+    });
 
     expect(screen.getByText("Curso")).toBeTruthy();
     expect(screen.queryByRole("button", { name: "Curso" })).toBeNull();
     expect(screen.queryByRole("button", { name: "Evento" })).toBeNull();
+  });
+
+  it("says what is being created and what each kind is", async () => {
+    const user = userEvent.setup();
+    renderForm(vi.fn());
+
+    expect(screen.getByText("Nuevo evento")).toBeInTheDocument();
+    expect(
+      screen.getByText("Evento: una reunión o actividad con fecha y hora."),
+    ).toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: "Curso" }));
+
+    expect(screen.getByText("Nuevo curso")).toBeInTheDocument();
+    expect(
+      screen.getByText("Curso: enseñanza con varias sesiones y asistencia."),
+    ).toBeInTheDocument();
+  });
+
+  it("has the two kinds as buttons with no icon, one of them pressed", () => {
+    renderForm(vi.fn());
+
+    const event = screen.getByRole("button", { name: "Evento" });
+    const course = screen.getByRole("button", { name: "Curso" });
+    expect(event).toHaveAttribute("aria-pressed", "true");
+    expect(course).toHaveAttribute("aria-pressed", "false");
+    expect(event.querySelector("svg")).toBeNull();
+    expect(course.querySelector("svg")).toBeNull();
+  });
+
+  it("groups the start and the end, each with its day and its hour", () => {
+    renderForm(vi.fn());
+
+    expect(screen.getByText("Empieza")).toBeInTheDocument();
+    expect(screen.getByText("Termina")).toBeInTheDocument();
+    expect(screen.getByRole("group", { name: "Fecha" })).toBeInTheDocument();
+    expect(screen.getByRole("group", { name: "Hasta" })).toBeInTheDocument();
+    expect(
+      screen.getByRole("group", { name: "Hora de inicio" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("group", { name: "Hora de fin" }),
+    ).toBeInTheDocument();
+  });
+
+  it("offers the address of the sede and fills the place with it", async () => {
+    api.address = "Av. Lima 123";
+    const user = userEvent.setup();
+    const submit = vi.fn();
+    renderForm(submit, false, { ...initialValues, name: "Culto" });
+
+    await user.click(
+      screen.getByRole("button", {
+        name: "Usar la dirección de la sede: Av. Lima 123",
+      }),
+    );
+
+    expect(screen.getByLabelText("Lugar")).toHaveValue("Av. Lima 123");
+    expect(
+      screen.queryByRole("button", { name: /Usar la dirección de la sede/ }),
+    ).not.toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "Guardar" }));
+    await waitFor(() => expect(submit).toHaveBeenCalledOnce());
+    expect(submit.mock.calls[0]?.[0].address).toBe("Av. Lima 123");
+  });
+
+  it("does not offer the address of the sede when there is none or it is read only", () => {
+    renderForm(vi.fn());
+    expect(
+      screen.queryByRole("button", { name: /Usar la dirección de la sede/ }),
+    ).not.toBeInTheDocument();
+    cleanup();
+
+    api.address = "Av. Lima 123";
+    renderWith({ editable: false });
+    expect(
+      screen.queryByRole("button", { name: /Usar la dirección de la sede/ }),
+    ).not.toBeInTheDocument();
+  });
+
+  it("shows each speaker as a chip with their initials", () => {
+    renderForm(vi.fn(), false, {
+      ...initialValues,
+      speakers: [{ id: "p1", label: "María García" }],
+    });
+
+    expect(screen.getByLabelText("Ponentes")).toBeInTheDocument();
+    const chip = screen.getByText("María García").closest(".MuiChip-root");
+    expect(chip).toHaveTextContent("MG");
+  });
+
+  it("does not name a new event when the kind is locked", () => {
+    renderWith({ lockType: true });
+
+    expect(screen.queryByText("Nuevo evento")).not.toBeInTheDocument();
+  });
+
+  it("titles the sections of the form", () => {
+    renderForm(vi.fn(), true);
+
+    for (const name of [
+      "Tipo",
+      "Cuándo",
+      "Dónde y quién",
+      "Descripción",
+      "Inscripción",
+    ]) {
+      expect(screen.getByText(name, { selector: "p" })).toBeInTheDocument();
+    }
   });
 
   describe("as a sub-event", () => {
@@ -338,23 +436,17 @@ describe("EventForm", () => {
       submit: (values: EventDetailFormData) => void = vi.fn(),
       values: Partial<EventDetailFormData> = {},
     ) =>
-      render(
-        <LocalizationProvider dateAdapter={AdapterDateFns}>
-          <EventForm
-            nodeId="11111111-1111-1111-1111-111111111111"
-            initialValues={{
-              ...initialValues,
-              name: "Taller",
-              registrationMode: "INHERIT",
-              ...values,
-            }}
-            submit={submit}
-            editable
-            showRegistration
-            container={container}
-          />
-        </LocalizationProvider>,
-      );
+      renderWith({
+        initialValues: {
+          ...initialValues,
+          name: "Taller",
+          registrationMode: "INHERIT",
+          ...values,
+        },
+        submit,
+        showRegistration: true,
+        container,
+      });
 
     it("says which event it is part of and does not offer to repeat", () => {
       renderSubEvent();
