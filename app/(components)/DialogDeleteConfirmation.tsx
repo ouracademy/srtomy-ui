@@ -6,6 +6,7 @@ import {
   DialogTitle,
 } from "@mui/material";
 import { useState, type ReactNode } from "react";
+import { DialogCloseButton } from "./DialogCloseButton";
 
 type DialogDeleteConfirmationProps = Readonly<{
   open: boolean;
@@ -43,7 +44,8 @@ export const DialogDeleteConfirmation = ({
       onClose={close}
       sx={{ "& .MuiDialog-paper": { borderRadius: "30px" } }}
     >
-      <DialogTitle>{title}</DialogTitle>
+      <DialogCloseButton onClick={close} disabled={deleting} />
+      <DialogTitle sx={{ pr: 6 }}>{title}</DialogTitle>
       <DialogContent>{message}</DialogContent>
       <DialogActions sx={{ padding: "20px" }}>
         <Button onClick={close} disabled={deleting}>
