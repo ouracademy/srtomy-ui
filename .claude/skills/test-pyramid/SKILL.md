@@ -53,14 +53,14 @@ Muévela en vez de borrarla: escribe la prueba nueva abajo, comprueba que falla 
 
 ## En este repo
 
-| Nivel              | Herramienta                                                                                             | Dónde y cómo se marca                                |
-| ------------------ | ------------------------------------------------------------------------------------------------------- | ---------------------------------------------------- |
-| **unit**           | Vitest: lógica pura, hooks, servicios de `app/(api)/services`, el mutator de `client.ts`.               | `foo.test.ts` junto a `foo.ts`                       |
-| **component**      | Vitest + Testing Library + `@testing-library/user-event`, con `@/app/(api)/generated` simulado.         | `Foo.test.tsx` junto a `Foo.tsx`                     |
-| **integration**    | No hay en este repo: la UI no tiene infraestructura propia. La conexión con la API se prueba en la API. | —                                                    |
-| **smoke**          | Playwright: la app compila, arranca y las rutas principales cargan (login, portal, una pantalla).       | `tests/*.spec.ts` con la etiqueta `@smoke`           |
-| **e2e `@story`**   | Playwright, con la API interceptada (`page.route`): un criterio de aceptación de un spec.               | `tests/*.spec.ts` con `@story` y la anotación `spec` |
-| **e2e `@journey`** | Playwright, con la API interceptada: un recorrido por varias pantallas.                                 | `tests/*.spec.ts` con `@journey`                     |
+| Nivel              | Herramienta                                                                                                      | Dónde y cómo se marca                                |
+| ------------------ | ---------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------- |
+| **unit**           | Vitest: lógica pura, hooks, las transformaciones de `app/(api)/` (como `person.ts`) y el mutator de `client.ts`. | `foo.test.ts` junto a `foo.ts`                       |
+| **component**      | Vitest + Testing Library + `@testing-library/user-event`, con `@/app/(api)/generated` simulado.                  | `Foo.test.tsx` junto a `Foo.tsx`                     |
+| **integration**    | No hay en este repo: la UI no tiene infraestructura propia. La conexión con la API se prueba en la API.          | —                                                    |
+| **smoke**          | Playwright: la app compila, arranca y las rutas principales cargan (login, portal, una pantalla).                | `tests/*.spec.ts` con la etiqueta `@smoke`           |
+| **e2e `@story`**   | Playwright, con la API interceptada (`page.route`): un criterio de aceptación de un spec.                        | `tests/*.spec.ts` con `@story` y la anotación `spec` |
+| **e2e `@journey`** | Playwright, con la API interceptada: un recorrido por varias pantallas.                                          | `tests/*.spec.ts` con `@journey`                     |
 
 Las etiquetas son las de Playwright, en el `describe` o en cada `test`. Cuando un archivo mezcla niveles, la etiqueta puede ir al final del título (`test("… @journey", …)`), que Playwright también lee. `pnpm check:tests` falla si una prueba no tiene exactamente un nivel:
 

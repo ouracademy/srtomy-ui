@@ -75,7 +75,7 @@ La regla: **los componentes no construyen URLs ni usan axios**. Piden datos y mo
 
 SWR identifica cada lectura con una _clave_. En el código generado, la clave es la URL del endpoint (con sus parámetros), así que dos pantallas que piden lo mismo comparten caché y una sola petición. Para pausar una lectura hasta tener un dato, el hook acepta `null` como clave, igual que SWR.
 
-Los hooks devuelven lo de SWR (`data`, `error`, `isLoading`, `mutate`). El tipo de la respuesta sale de la especificación.
+Los hooks devuelven lo de SWR (`data`, `error`, `isLoading`, `mutate`). Una pantalla que lee datos maneja los tres estados: `Loading` mientras carga y `ResourceError` cuando no hay datos (muestra «No encontrado» con un 404 y «Reintentar» con cualquier otro error). El tipo de la respuesta sale de la especificación.
 
 ### Escrituras
 
@@ -113,7 +113,7 @@ El panel del asistente (`app/portal/assistant/`, botón flotante montado en `Por
 2. `app/portal/layout.tsx` envuelve el portal en `PortalProviders`, que incluye `RequireAuth`: si no hay sesión redirige a Auth0 y **no renderiza** las páginas ni sus peticiones hasta tenerla.
 3. El guard del frontend mejora la experiencia, no es seguridad: **la API es quien autoriza**.
 
-Las iglesias del usuario **no** vienen en el token: `GET /me/organizations` devuelve los nodos a los que tiene acceso (iglesias, sedes, grupos y ministerios, con su `parentId`) y `organizationTree.ts` arma el árbol, la ruta de la barra superior y el nodo al que entra (`lastNode.ts` recuerda el último). Un usuario sin iglesias ve el alta de iglesia en `/portal`.
+Las iglesias del usuario **no** vienen en el token: `GET /me/organizations` devuelve los nodos a los que tiene acceso (iglesias, sedes, grupos y ministerios, con su `parentId`) y `organizationTree.ts` arma el árbol y la ruta de la barra superior. Al iniciar sesión se entra siempre a Mi espacio. Un usuario sin iglesias ve el alta de iglesia en `/portal`.
 
 ### Permisos
 
@@ -129,7 +129,7 @@ Una sola pantalla, **Cargos y accesos** (`positions/`), con pestañas:
 
 El formulario de persona muestra, al elegir un cargo, cuántos permisos da.
 
-**Invitaciones.** Quien tiene `invitations.send` invita por correo desde la pestaña **Invitaciones** de «Cargos y accesos» (`InvitationsPanel`) y, al guardar un grupo o ministerio, a los líderes con correo (`leaderInvitations.ts`). El enlace del correo abre `/invitacion/{token}` (pública): quien lo abre inicia sesión con ese correo (Auth0 vuelve a la misma página gracias a `appState.returnTo`, que `returnToFrom` limita a rutas del sitio) y acepta; el API compara su correo **verificado** con el invitado. Quien ya tiene la sesión y un correo con invitaciones las ve en `/portal` (`PendingInvitations`).
+**Invitaciones.** Quien tiene `invitations.send` invita por correo desde la pestaña **Invitaciones** de «Cargos y accesos» (`InvitationsPanel`). El enlace del correo abre `/invitacion/{token}` (pública): quien lo abre inicia sesión con ese correo (Auth0 vuelve a la misma página gracias a `appState.returnTo`, que `returnToFrom` limita a rutas del sitio) y acepta; el API compara su correo **verificado** con el invitado. Quien ya tiene la sesión y un correo con invitaciones las ve en `/portal` (`PendingInvitations`).
 
 **Correos en cola.** El API no envía el correo dentro de la petición: lo guarda en una cola (outbox) junto con la invitación o el compartido y una tarea de Cloud Tasks lo envía a los pocos segundos, reintentando si el proveedor falla. Por eso la respuesta normal trae `emailStatus: PENDING` («En cola»), no un error; solo `FAILED` es un problema («No salió»). La tabla de invitaciones muestra su estado (Enviado, En cola, No salió), se refresca sola mientras haya alguno en cola y ofrece «Reenviar», que vuelve a invitar al mismo correo.
 
@@ -159,11 +159,12 @@ Solo existe una persona por iglesia; lo que cambia es dónde está y cómo está
 - **Liderar son cargos**: no hay marca de líder ni `LEADER`. Al crear una iglesia se sugiere un solo cargo, «Líder de grupo o ministerio», y un grupo puede tener los que quiera (tesorera, etc.). El directorio y la página pública muestran el «Equipo» (quien tiene un cargo en el nodo) y «Mis grupos» lista donde la persona está anotada o tiene un cargo.
 - **Menú del nodo**: «Resumen» (antes Dashboard), los datos del nodo, una pestaña «Sedes» o «Grupos», «Personas», «Eventos y cursos», «Cargos y accesos» y «Directorio».
 - **Resumen** (`dashboard/`): tarjetas por estado y crecimiento mes a mes de `GET /organizations/{id}/growth`. Lo ven quienes tienen `members.read` en el nodo.
-- **Se quitó el tablero de estados** (`person/board`, su API y `@hello-pangea/dnd`): la lista ya muestra y filtra por estado.
 
 ## Reglas que se comprueban
 
 `pnpm check:arch` (en `check:fast`, en CI y en el hook de cierre de Claude Code) usa [dependency-cruiser](https://github.com/sverweij/dependency-cruiser) para revisar los `import` contra las reglas de este documento. Están en `.dependency-cruiser.cjs`:
+
+<!-- check-docs ignore: features/, utils/ (folders the rules below forbid) -->
 
 | Regla                                              | Qué impide                                                                                                       |
 | -------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
@@ -217,7 +218,6 @@ Cosas que el código hoy **no** hace; no son errores nuevos, conviene saberlas:
 - Google Tag Manager se carga sin pedir consentimiento (`app/layout.tsx`).
 - Solo hay una Content-Security-Policy mínima (`frame-ancestors 'none'`) y `X-Frame-Options`; falta una CSP completa de scripts y estilos.
 - No hay reporte de errores en producción (Sentry u otro); los límites de error solo hacen `console.error`.
-- `react-hooks/refs` está desactivado para `app/portal/[nodeId]/person/board/**`: el tablero pasa los objetos `provided` de `@hello-pangea/dnd` a `ref`, un uso documentado de la librería que la regla marca como falso positivo.
 
 ## Evolución propuesta
 
