@@ -15,6 +15,12 @@ import {
   AcceptNameFields,
   hasBothNames,
 } from "@/app/(components)/AcceptNameFields";
+import {
+  acceptReducer,
+  initialAcceptFlow,
+  sendsRequest,
+  type AcceptEvent,
+} from "@/app/(components)/acceptFlow";
 import type { PersonName } from "@/app/portal/userNames";
 import type { InvitationResponse } from "@/app/(api)/generated/aPIOvejafiel.schemas";
 
@@ -40,30 +46,23 @@ export const PendingInvitations = ({
   accept,
   showEmpty = false,
 }: PendingInvitationsProps) => {
-  const [accepting, setAccepting] = React.useState<string | null>(null);
+  const [flow, dispatch] = React.useReducer(acceptReducer, initialAcceptFlow);
   const [refusal, setRefusal] = React.useState<string | null>(null);
-
-  const [asking, setAsking] = React.useState<string | null>(null);
   const [name, setName] = React.useState<PersonName | null>(null);
-  const [triedWithoutName, setTriedWithoutName] = React.useState(false);
   const typedName = name ?? suggestedName ?? { firstName: "", lastName: "" };
 
   if (invitations.length === 0 && !showEmpty) return null;
 
   const run = async (invitation: InvitationResponse) => {
-    if (invitation.needsName) {
-      // First click asks for the name; the next one accepts with it.
-      if (asking !== invitation.id) {
-        setAsking(invitation.id ?? null);
-        setTriedWithoutName(false);
-        return;
-      }
-      if (!hasBothNames(typedName)) {
-        setTriedWithoutName(true);
-        return;
-      }
-    }
-    setAccepting(invitation.id ?? "");
+    const event: AcceptEvent = {
+      type: "click",
+      id: invitation.id ?? "",
+      needsName: Boolean(invitation.needsName),
+      hasName: hasBothNames(typedName),
+    };
+    dispatch(event);
+    // The first click of an invitation that needs a name only opens the fields.
+    if (!sendsRequest(flow, event)) return;
     try {
       setRefusal(
         (await accept(
@@ -72,7 +71,7 @@ export const PendingInvitations = ({
         )) ?? null,
       );
     } finally {
-      setAccepting(null);
+      dispatch({ type: "answered" });
     }
   };
 
@@ -99,8 +98,8 @@ export const PendingInvitations = ({
               <LoadingButton
                 variant="contained"
                 sx={primaryButtonSx}
-                loading={accepting === invitation.id}
-                disabled={accepting !== null}
+                loading={flow.kind === "accepting" && flow.id === invitation.id}
+                disabled={flow.kind === "accepting"}
                 aria-label={`Aceptar la invitación a ${invitation.organizationName}`}
                 onClick={() => run(invitation)}
               >
@@ -116,13 +115,17 @@ export const PendingInvitations = ({
                   : "Para usar la aplicación"
               }
             />
-            {asking === invitation.id && (
-              <AcceptNameFields
-                value={typedName}
-                onChange={setName}
-                showErrors={triedWithoutName}
-              />
-            )}
+            {(flow.kind === "askingName" ||
+              (flow.kind === "accepting" && flow.askedName)) &&
+              flow.id === invitation.id && (
+                <AcceptNameFields
+                  value={typedName}
+                  onChange={setName}
+                  showErrors={
+                    flow.kind === "askingName" && flow.triedWithoutName
+                  }
+                />
+              )}
           </ListItem>
         ))}
       </List>
