@@ -10,13 +10,18 @@ or lowered thresholds to make a check pass. New code MUST NOT introduce `any`, `
 commented-out code.
 Rationale: gates only protect the codebase if they cannot be bypassed one exception at a time.
 
-### II. Test What Matters
+### II. Test at the Right Level
 
-Pure logic (date handling, reordering, schema validation, mappers, hooks) MUST have unit tests.
-User-facing flows (registration, groups, events, location) MUST have Playwright e2e tests that mock
-Auth0 and the backend. A bug fix MUST include a test that fails without the fix.
-Rationale: the product handles church members' data and attendance; regressions are costly and
-usually found by users first.
+Every test MUST sit at the lowest level of the test pyramid that can catch the failure, and its name
+or tag MUST say its level, so that CI runs the fast levels first and checks enforce the names. An
+e2e test is either the acceptance criterion of a spec (`@story`) or a journey across features
+(`@journey`); a validation, an error message or a loading state is never e2e. A bug fix MUST include
+a test that fails without the fix. The levels, names, test doubles and tools are the testing
+standard in the `test-pyramid` skill (`.claude/skills/test-pyramid/SKILL.md`); this principle does
+not repeat them.
+Rationale: the product handles church members' data and attendance, so regressions are costly; a
+test at a higher level than needed is slow and brittle, and failing on the fast tests first saves
+minutes and points at where the error is.
 
 ### III. Security and Privacy by Default
 
@@ -77,4 +82,4 @@ Versioning follows semantic versioning: MAJOR for removed or redefined principle
 principles or materially expanded guidance, PATCH for clarifications. Compliance is reviewed on every
 PR and revisited whenever a retrospective or incident shows a principle is missing or wrong.
 
-**Version**: 1.1.0 | **Ratified**: 2026-10-17 | **Last Amended**: 2026-10-20
+**Version**: 2.0.0 | **Ratified**: 2026-10-17 | **Last Amended**: 2026-11-23

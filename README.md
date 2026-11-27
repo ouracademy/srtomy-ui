@@ -75,9 +75,9 @@ El cliente HTTP y sus tipos **se generan** desde la especificación OpenAPI de s
 
 ## Pruebas
 
-- **Unitarias** (`*.test.ts(x)` junto al código): lógica pura, hooks y la capa de API. La cobertura se mide sobre los módulos que cargan las pruebas.
-- **e2e y accesibilidad** (`tests/`): Playwright contra el servidor de desarrollo. No usan Auth0 ni backend reales: `tests/fixtures.ts` simula el login y cada prueba intercepta las llamadas a la API. `tests/a11y.spec.ts` corre axe (WCAG A y AA, impacto serio o crítico).
-  - Si ya tienes `pnpm dev` en el puerto 3000, corre `E2E_PORT=3100 pnpm test:e2e` para que las pruebas levanten su propio servidor en lugar de reutilizar el tuyo (que usa valores reales).
+Qué prueba va en qué nivel, cómo se nombra y cómo se escribe está en el estándar de pruebas: el skill `test-pyramid` (`.claude/skills/test-pyramid/SKILL.md`). Los comandos están en «Scripts».
+
+Si ya tienes `pnpm dev` en el puerto 3000, corre `E2E_PORT=3100 pnpm test:e2e` para que los e2e levanten su propio servidor en lugar de reutilizar el tuyo (que usa valores reales).
 
 ## Estructura
 
