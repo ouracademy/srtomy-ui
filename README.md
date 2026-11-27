@@ -102,7 +102,6 @@ Cada push y PR ejecuta (`.github/workflows/ci.yml`), primero lo rápido y al fin
 - **build**: `pnpm build` con valores falsos de entorno.
 - **pnpm audit**: vulnerabilidades en dependencias de producción.
 - **e2e** (Playwright, Chromium): solo si pasaron los anteriores, y en orden `@smoke`, `@story` y `@journey`; si una etapa falla, las siguientes no corren. Solo para ramas de este repo; usa el entorno `dev` de GitHub.
-- Un PR que solo cambia documentación (archivos `*.md` o lo que esté bajo `docs/`) corre solo los commits y los chequeos de la documentación (formato y `check:docs`), y se salta los tipos, las pruebas, el build y los e2e (`scripts/only-docs-changed.sh`); un job saltado cuenta como aprobado. Un push a `main` corre todo.
 - **SonarCloud**: análisis de calidad; el Quality Gate exige calificación A en confiabilidad del código nuevo.
 
 Las acciones de GitHub están fijadas por SHA con un comentario de versión; Dependabot las actualiza junto con las dependencias npm (agrupadas, semanalmente).
