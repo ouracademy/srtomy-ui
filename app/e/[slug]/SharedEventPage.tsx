@@ -29,6 +29,7 @@ import { eventWhen } from "./eventWhen";
 import { EventNotices } from "./EventNotices";
 import { EventProgram } from "./EventProgram";
 import { ParentEventNotice } from "./ParentEventNotice";
+import { initialPhase, phaseReducer } from "./registrationPhase";
 
 export type SignUp = {
   ticketTypeId: string;
@@ -84,12 +85,7 @@ export const SharedEventPage = ({
     phoneNumber: defaults?.phoneNumber ?? "",
   });
   const [submitted, setSubmitted] = React.useState(false);
-  const [sending, setSending] = React.useState(false);
-  const [cancelling, setCancelling] = React.useState(false);
-  const [outcome, setOutcome] = React.useState<
-    RegistrationOutcomeResponse | string | null
-  >(null);
-  const [cancelled, setCancelled] = React.useState(false);
+  const [phase, dispatch] = React.useReducer(phaseReducer, initialPhase);
 
   const missing = {
     firstName: !values.firstName.trim(),
@@ -106,24 +102,34 @@ export const SharedEventPage = ({
     if (!ticketId || missing.firstName || missing.lastName || missing.email) {
       return;
     }
-    setSending(true);
+    dispatch({ type: "send" });
     try {
-      setOutcome(await onRegister({ ticketTypeId: ticketId, ...values }));
-    } finally {
-      setSending(false);
+      dispatch({
+        type: "answered",
+        answer: await onRegister({ ticketTypeId: ticketId, ...values }),
+      });
+    } catch (error) {
+      dispatch({ type: "abort" });
+      throw error;
     }
   };
 
   const cancel = async (cancelCode: string) => {
-    setCancelling(true);
+    dispatch({ type: "cancel" });
     try {
-      if (await onCancel(cancelCode)) setCancelled(true);
-    } finally {
-      setCancelling(false);
+      dispatch({ type: "cancelAnswered", worked: await onCancel(cancelCode) });
+    } catch (error) {
+      dispatch({ type: "abort" });
+      throw error;
     }
   };
 
-  const done = typeof outcome === "object" && outcome !== null;
+  const outcome = phase.kind === "registered" ? phase.outcome : undefined;
+  const cancelled = phase.kind === "cancelled";
+  const sending = phase.kind === "sending";
+  const cancelling = phase.kind === "registered" && phase.cancelling;
+  // They already hold a place, or just got one or gave it up: no form.
+  const done = phase.kind === "registered" || cancelled;
   const hasPlace = Boolean(event.registrationStatus) && !done;
   const kind = event.isACourse ? "curso" : "evento";
 
@@ -171,10 +177,10 @@ export const SharedEventPage = ({
         {registration && !registration.open && !done && !hasPlace && (
           <Alert severity="info">La inscripción está cerrada.</Alert>
         )}
-        {typeof outcome === "string" && (
-          <Alert severity="error">{outcome}</Alert>
+        {phase.kind === "failed" && (
+          <Alert severity="error">{phase.reason}</Alert>
         )}
-        {done && !cancelled && (
+        {outcome && (
           <Stack spacing={2}>
             <Alert severity="success">
               {outcome.alreadyRegistered
