@@ -99,13 +99,13 @@ Guías para escribir código:
 
 ## Integración continua
 
-Cada push y PR ejecuta (`.github/workflows`):
+Cada push y PR ejecuta (`.github/workflows/ci.yml`), primero lo rápido y al final lo lento (la pirámide de pruebas, skill `test-pyramid`):
 
 - **commits**: mensajes en Conventional Commits (commitlint).
-- **tipos, lint, arquitectura, formato**: `pnpm check:fast` y la cobertura mínima.
+- **tipos, lint, arquitectura, niveles de las pruebas, formato** y las **pruebas unitarias y de componente** con la cobertura mínima.
 - **build**: `pnpm build` con valores falsos de entorno.
 - **pnpm audit**: vulnerabilidades en dependencias de producción.
-- **Playwright**: e2e en Chromium (solo para ramas de este repo; usa el entorno `dev` de GitHub).
+- **e2e** (Playwright, Chromium): solo si pasaron los anteriores, y en orden `@smoke`, `@story` y `@journey`; si una etapa falla, las siguientes no corren. Solo para ramas de este repo; usa el entorno `dev` de GitHub.
 - **SonarCloud**: análisis de calidad; el Quality Gate exige calificación A en confiabilidad del código nuevo.
 
 Las acciones de GitHub están fijadas por SHA con un comentario de versión; Dependabot las actualiza junto con las dependencias npm (agrupadas, semanalmente).
