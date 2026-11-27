@@ -5,7 +5,7 @@ export default defineConfig({
   resolve: { tsconfigPaths: true },
   test: {
     environment: "jsdom",
-    include: ["app/**/*.test.{ts,tsx}"],
+    include: ["app/**/*.test.{ts,tsx}", "scripts/**/*.test.ts"],
     setupFiles: ["./vitest.setup.ts"],
     testTimeout: 15000,
     coverage: {

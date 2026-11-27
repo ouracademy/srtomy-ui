@@ -51,7 +51,7 @@ Muévela al nivel correcto en vez de borrarla: escribe la prueba nueva abajo, co
 | **e2e `@story`**   | Playwright, con la API interceptada (`page.route`): un criterio de aceptación de un spec.               | `tests/*.spec.ts` con `@story` y la anotación `spec` |
 | **e2e `@journey`** | Playwright, con la API interceptada: un recorrido por varias pantallas.                                 | `tests/*.spec.ts` con `@journey`                     |
 
-Las etiquetas son las de Playwright, en el `describe` o en cada `test`:
+Las etiquetas son las de Playwright, en el `describe` o en cada `test`. Cuando un archivo mezcla niveles, la etiqueta puede ir al final del título (`test("… @journey", …)`), que Playwright también lee. `pnpm check:tests` falla si una prueba no tiene exactamente un nivel:
 
 ```ts
 test.describe(

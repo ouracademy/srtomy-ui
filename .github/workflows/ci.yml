@@ -57,6 +57,9 @@ jobs:
       # command as the Claude Code Stop hook.
       - name: arquitectura
         run: pnpm check:arch
+      # Every Playwright test has exactly one level: @smoke, @story or @journey.
+      - name: niveles de las pruebas
+        run: pnpm check:tests
       - name: formato
         run: pnpm format:check
 

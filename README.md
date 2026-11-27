@@ -53,6 +53,7 @@ Solo `.env.example` se versiona. `.env` y `.env.local` están en `.gitignore`.
 | `pnpm dev`           | Servidor de desarrollo.                                                                                      |
 | `pnpm build`         | Compilación de producción (`pnpm start` la sirve).                                                           |
 | `pnpm check:fast`    | Tipos, lint, arquitectura, formato y pruebas unitarias. **Córrelo antes de terminar.**                       |
+| `pnpm check:tests`   | Que cada prueba e2e tenga su nivel: `@smoke`, `@story` o `@journey` (skill `test-pyramid`).                  |
 | `pnpm check:arch`    | Reglas de imports de `docs/architecture.md` (dependency-cruiser); solo fallan las violaciones nuevas.        |
 | `pnpm typecheck`     | `tsc --noEmit`.                                                                                              |
 | `pnpm lint`          | ESLint (config plana en `eslint.config.mjs`).                                                                |
