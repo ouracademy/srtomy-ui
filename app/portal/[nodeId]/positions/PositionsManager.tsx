@@ -58,6 +58,14 @@ type Confirmation = Readonly<{
   run: () => Promise<void>;
 }>;
 
+// The dialog that is open, if any. They are exclusive: renaming, deleting and
+// confirming never show at the same time, so they share one value.
+type Dialog =
+  | { kind: "none" }
+  | { kind: "rename"; position: PositionSummaryResponse }
+  | { kind: "delete"; position: PositionSummaryResponse }
+  | { kind: "confirm"; confirmation: Confirmation };
+
 export const permissionsText = (count: number) =>
   count === 0
     ? "Sin acceso a la app"
@@ -91,13 +99,8 @@ export const PositionsManager = ({
   const [newPermissions, setNewPermissions] = React.useState<string[]>([]);
   const [creating, setCreating] = React.useState(false);
   const [open, setOpen] = React.useState<string | null>(null);
-  const [renaming, setRenaming] =
-    React.useState<PositionSummaryResponse | null>(null);
-  const [deleting, setDeleting] =
-    React.useState<PositionSummaryResponse | null>(null);
-  const [confirmation, setConfirmation] = React.useState<Confirmation | null>(
-    null,
-  );
+  const [dialog, setDialog] = React.useState<Dialog>({ kind: "none" });
+  const closeDialog = () => setDialog({ kind: "none" });
 
   const taken = new Set(
     positions.map((p) => (p.name ?? "").toLocaleLowerCase("es")),
@@ -137,11 +140,14 @@ export const PositionsManager = ({
     const apply = () => onSetPermissions(position.id ?? "", permissions);
     const affected = withAccount(position);
     if (!affected) return apply();
-    setConfirmation({
-      title: "Cambiar permisos del cargo",
-      message: `${accounts(affected)} el cargo ${position.name}. Su acceso cambia de inmediato.`,
-      confirmLabel: "Cambiar permisos",
-      run: apply,
+    setDialog({
+      kind: "confirm",
+      confirmation: {
+        title: "Cambiar permisos del cargo",
+        message: `${accounts(affected)} el cargo ${position.name}. Su acceso cambia de inmediato.`,
+        confirmLabel: "Cambiar permisos",
+        run: apply,
+      },
     });
     return Promise.resolve();
   };
@@ -149,15 +155,18 @@ export const PositionsManager = ({
   const askDelete = (position: PositionSummaryResponse) => {
     const affected = withAccount(position);
     if ((position.effectivePermissions ?? []).length > 0 && affected) {
-      setConfirmation({
-        title: "Eliminar cargo",
-        message: `${accounts(affected)} el cargo ${position.name}. Al eliminarlo perderán el acceso que les da.`,
-        confirmLabel: "Eliminar",
-        run: () => onDelete(position.id ?? ""),
+      setDialog({
+        kind: "confirm",
+        confirmation: {
+          title: "Eliminar cargo",
+          message: `${accounts(affected)} el cargo ${position.name}. Al eliminarlo perderán el acceso que les da.`,
+          confirmLabel: "Eliminar",
+          run: () => onDelete(position.id ?? ""),
+        },
       });
       return;
     }
-    setDeleting(position);
+    setDialog({ kind: "delete", position });
   };
 
   return (
@@ -275,7 +284,9 @@ export const PositionsManager = ({
                         <Box>
                           <IconButton
                             aria-label={`Renombrar ${position.name}`}
-                            onClick={() => setRenaming(position)}
+                            onClick={() =>
+                              setDialog({ kind: "rename", position })
+                            }
                           >
                             <EditIcon />
                           </IconButton>
@@ -324,26 +335,24 @@ export const PositionsManager = ({
           Aún no hay cargos.
         </Typography>
       )}
-      {renaming && (
+      {dialog.kind === "rename" && (
         <RenameDialog
-          position={renaming}
-          close={() => setRenaming(null)}
-          rename={(name) => onRename(renaming.id ?? "", name)}
+          position={dialog.position}
+          close={closeDialog}
+          rename={(name) => onRename(dialog.position.id ?? "", name)}
         />
       )}
       <DialogDeleteConfirmation
-        open={deleting !== null}
-        close={() => setDeleting(null)}
+        open={dialog.kind === "delete"}
+        close={closeDialog}
         onDelete={async () => {
-          await onDelete(deleting?.id ?? "");
-          setDeleting(null);
+          if (dialog.kind !== "delete") return;
+          await onDelete(dialog.position.id ?? "");
+          closeDialog();
         }}
       />
-      {confirmation && (
-        <ConfirmDialog
-          confirmation={confirmation}
-          close={() => setConfirmation(null)}
-        />
+      {dialog.kind === "confirm" && (
+        <ConfirmDialog confirmation={dialog.confirmation} close={closeDialog} />
       )}
     </Stack>
   );
