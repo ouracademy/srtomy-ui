@@ -64,7 +64,7 @@ jobs:
         run: pnpm format:check
 
   # Separate job so it runs in parallel with the static checks. It replaces
-  # `pnpm test` inside check:fast, so the unit tests run once, with coverage.
+  # the unit tests of `pnpm check`, so they run once, with coverage.
   test:
     name: pruebas unitarias y cobertura (umbral 80%)
     runs-on: ubuntu-latest

@@ -1,4 +1,5 @@
-# The fast tier of the checks before anything leaves the laptop. CI runs the rest.
+# `pnpm check` before anything leaves the laptop: the static checks and the unit tests with
+# coverage, as CI. The build and the e2e tests (they need the app's env vars) stay in CI.
 #
 # Load nvm if it is around, so the hook does not fail just because the shell
 # git was launched from had an older Node than .nvmrc (see the commit-msg hook).
@@ -15,4 +16,4 @@ if [ "$major" -lt 22 ]; then
   exit 1
 fi
 
-pnpm check:fast
+pnpm check
