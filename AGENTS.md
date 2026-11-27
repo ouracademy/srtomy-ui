@@ -15,6 +15,7 @@ Node >= 22 and pnpm (see `.nvmrc` and `packageManager`). Run `nvm use` and `pnpm
 
 ## Tests
 
+- Choose the level of each test (unit, component, smoke, e2e `@story` or `@journey`) with the `test-pyramid` skill (`.claude/skills/test-pyramid/SKILL.md`): the lowest level that can catch the failure.
 - Every code change ships with unit tests. New or changed logic, hooks and components get a `*.test.ts(x)` next to the file; do not finish a task without them.
 - A bug fix includes a test that fails without the fix and passes with it.
 - Query elements by what the user sees: `getByRole`, `getByLabelText`, `getByText`. Use test ids only when nothing else works.
@@ -44,6 +45,8 @@ A `commit-msg` hook (husky + commitlint) rejects anything else. The hook needs N
 A `pre-push` hook runs `pnpm check:fast`. `git push --no-verify` skips it; CI does not.
 
 ## Pull requests
+
+Keep each PR short enough to review in one sitting, and stack PRs when a change does not fit in one: see the `small-prs` skill (`.claude/skills/small-prs/SKILL.md`).
 
 Work on a branch, never push directly to `main`. Open a PR with `gh pr create`; the title follows the same Conventional Commits format.
 
