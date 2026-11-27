@@ -30,7 +30,7 @@ Use [Conventional Commits](https://www.conventionalcommits.org/): `<type>: <subj
 Allowed types: `build`, `chore`, `ci`, `docs`, `feat`, `fix`, `perf`, `refactor`, `revert`, `style`, `test`.
 
 A `commit-msg` hook (husky + commitlint) rejects anything else. The hook needs Node >= 22.
-A `pre-push` hook runs `pnpm check` (only the format check when the branch changes nothing but docs, `*.md` files or anything under `docs/`; CI skips the same jobs then, see `scripts/only-docs-changed.sh`). `git push --no-verify` skips it; CI does not.
+A `pre-push` hook runs `pnpm check` (less on a docs-only branch, see `scripts/only-docs-changed.sh`). `git push --no-verify` skips it; CI does not.
 
 ## Pull requests
 
