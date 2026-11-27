@@ -1,6 +1,6 @@
 import { test, expect } from "./fixtures";
 
-test.describe("Grupos y Ministerios", () => {
+test.describe("Grupos y Ministerios", { tag: "@story" }, () => {
   const nodeId = "11111111-1111-1111-1111-111111111111";
 
   //1. Mocks

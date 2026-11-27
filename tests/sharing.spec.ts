@@ -1,6 +1,12 @@
 import { test, expect } from "./fixtures";
 import { NODE_ID } from "./e2e-env";
 
+/** Level of the test pyramid and the spec it checks (the `test-pyramid` skill). */
+const story = {
+  tag: "@story",
+  annotation: { type: "spec", description: "specs/007-sharing" },
+};
+
 const json = (body: unknown, status = 200) => ({
   status,
   contentType: "application/json",
@@ -9,7 +15,7 @@ const json = (body: unknown, status = 200) => ({
 
 const eventId = "33333333-3333-3333-3333-333333333333";
 
-test.describe("Compartir eventos y cursos", () => {
+test.describe("Compartir eventos y cursos", story, () => {
   test("compartir guarda solo al pulsar Guardar, sin selector de rol del enlace", async ({
     page,
   }) => {

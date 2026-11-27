@@ -3,6 +3,12 @@ import { test, expect } from "./fixtures";
 import { firstCalendarSlot } from "./calendar";
 import { NODE_ID } from "./e2e-env";
 
+/** Level of the test pyramid and the spec it checks (the `test-pyramid` skill). */
+const story = {
+  tag: "@story",
+  annotation: { type: "spec", description: "specs/011-registration" },
+};
+
 const json = (body: unknown, status = 200) => ({
   status,
   contentType: "application/json",
@@ -73,7 +79,7 @@ async function mockEvent(page: import("@playwright/test").Page) {
   );
 }
 
-test.describe("Inscripción a eventos y cursos", () => {
+test.describe("Inscripción a eventos y cursos", story, () => {
   test("al crear un curso se elige inscripción gratis con cupo", async ({
     page,
   }) => {

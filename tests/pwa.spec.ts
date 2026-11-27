@@ -1,6 +1,6 @@
 import { test, expect } from "./fixtures";
 
-test.describe("PWA", () => {
+test.describe("PWA", { tag: "@smoke" }, () => {
   test("sirve el manifest para poder instalar la app", async ({ request }) => {
     const response = await request.get("/manifest.webmanifest");
 

@@ -13,7 +13,7 @@ const groups = [
   { id: "g3", name: "Niños", type: "MINISTRY" },
 ];
 
-test.describe("Lista de grupos y ministerios", () => {
+test.describe("Lista de grupos y ministerios", { tag: "@story" }, () => {
   let remaining = groups;
   const deletes: string[] = [];
 

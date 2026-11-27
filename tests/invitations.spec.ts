@@ -1,13 +1,18 @@
 import { test, expect } from "./fixtures";
 import { NODE_ID } from "./e2e-env";
 
+/** The spec these tests check; each test says its level in its title (the `test-pyramid` skill). */
+const spec = {
+  annotation: { type: "spec", description: "specs/005-invitations" },
+};
+
 const json = (body: unknown, status = 200) => ({
   status,
   contentType: "application/json",
   body: JSON.stringify(body),
 });
 
-test.describe("Invitaciones", () => {
+test.describe("Invitaciones", spec, () => {
   test.beforeEach(async ({ page }) => {
     await page.route(`**/organizations/${NODE_ID}`, (route) =>
       route.fulfill(
@@ -16,7 +21,7 @@ test.describe("Invitaciones", () => {
     );
   });
 
-  test("invita por correo con un cargo y ve las pendientes", async ({
+  test("invita por correo con un cargo y ve las pendientes @story", async ({
     page,
   }) => {
     let sent: unknown;
@@ -62,7 +67,9 @@ test.describe("Invitaciones", () => {
     await expect(page.getByRole("cell", { name: "Beto Pérez" })).toBeVisible();
   });
 
-  test("muestra por qué la API rechazó la invitación", async ({ page }) => {
+  test("muestra por qué la API rechazó la invitación @story", async ({
+    page,
+  }) => {
     await page.route(
       `**/v1/organizations/${NODE_ID}/invitations`,
       async (route) => {
@@ -90,7 +97,7 @@ test.describe("Invitaciones", () => {
     );
   });
 
-  test("quien abre el enlace acepta la invitación y entra al nodo", async ({
+  test("quien abre el enlace acepta la invitación y entra al nodo @journey", async ({
     page,
   }) => {
     await page.route("**/v1/public/invitations/tok-123", (route) =>
@@ -121,7 +128,9 @@ test.describe("Invitaciones", () => {
     expect(accepted).toBe(true);
   });
 
-  test("avisa cuando la invitación es para otro correo", async ({ page }) => {
+  test("avisa cuando la invitación es para otro correo @story", async ({
+    page,
+  }) => {
     await page.route("**/v1/public/invitations/tok-9", (route) =>
       route.fulfill(
         json({

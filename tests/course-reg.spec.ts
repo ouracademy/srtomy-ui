@@ -1,7 +1,7 @@
 import { test, expect } from "./fixtures";
 import { firstCalendarSlot } from "./calendar";
 
-test.describe("Registro de Eventos y cursos", () => {
+test.describe("Registro de Eventos y cursos", { tag: "@story" }, () => {
   const nodeId = "11111111-1111-1111-1111-111111111111";
 
   const casos = [
