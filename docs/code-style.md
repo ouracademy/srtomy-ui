@@ -51,6 +51,10 @@ Dos reglas: **proximidad** para lo que usa una sola pantalla, y **globales con n
 - **Deriva en lugar de sincronizar.** Si un valor se calcula a partir de otro, calcúlalo durante el render (`useMemo` si es costoso); no lo copies a un `useState` desde un `useEffect`. Ejemplo: la selección de asistencia es «lo que el usuario eligió, o lo guardado en la API».
 - No leas ni escribas `ref.current` durante el render.
 - No mutes datos que vienen de SWR, de props ni constantes de módulo: copia primero.
+- **Un flujo con pasos es una unión, no varias banderas.** Si el estado de una pantalla es «editando, enviando, listo o con error», se guarda como un solo valor (`type Phase = { kind: "editing" } | { kind: "sending" } | …`) con `useReducer`, no como `sending`, `submitted`, `done` y `cancelled` sueltos: con banderas caben combinaciones imposibles. Las banderas que no dependen unas de otras (un menú abierto, un campo tocado) siguen siendo `useState`.
+- **Diálogos exclusivos comparten un valor.** Si dos diálogos de la misma pantalla no pueden estar abiertos a la vez (renombrar, borrar, confirmar), no tienen un `useState` nulable cada uno: viven en un solo `dialog` que dice cuál está abierto y con qué dato.
+- **«Petición en curso» sale de `isMutating`.** Un botón que solo lanza una escritura usa el hook generado (`usePost…`, `usePut…`, `useDelete…`: `trigger` e `isMutating`), no un `useState` con `try/finally`. Ver [el skill `api-submit-button`](../.claude/skills/api-submit-button/SKILL.md).
+- No se añaden librerías de máquinas de estado (`xstate`, `zag`): las uniones y `useReducer` bastan para estos tamaños. Cualquier otra se acuerda antes con el product owner.
 
 ## Datos
 
