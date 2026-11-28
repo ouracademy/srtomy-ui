@@ -4,8 +4,8 @@
 
 ## Cómo se probó
 
-- [ ] `pnpm check:fast` pasa (tipos, lint, formato, pruebas unitarias)
-- [ ] `pnpm test:e2e` pasa, si toca flujos de usuario
+- [ ] `pnpm check` pasa (tipos, lint, arquitectura, formato, pruebas unitarias con cobertura)
+- [ ] `pnpm test:smoke` y `pnpm test:e2e` pasan, si toca flujos de usuario
 - [ ] Probado a mano en el navegador, si toca la interfaz
 
 <!-- Para cambios visuales, agrega capturas de antes y después. -->

@@ -4,7 +4,7 @@
 
 ### I. Quality Gates Are Never Weakened
 
-Every change MUST pass `pnpm check:fast` (typecheck, lint, format) before it is considered done, and
+Every change MUST pass `pnpm check` (typecheck, lint, format, unit tests) before it is considered done, and
 CI MUST enforce the same gate. Changes MUST NOT add `@ts-ignore`, `eslint-disable`, skipped tests
 or lowered thresholds to make a check pass. New code MUST NOT introduce `any`, `console.*` calls or
 commented-out code.
@@ -69,8 +69,8 @@ Rationale: small reviewed changes are easier to verify, revert and explain.
 ## Development Workflow
 
 - Run `nvm use`, `pnpm install` and `pnpm dev` per the README.
-- Before opening a PR: `pnpm check:fast` passes and relevant tests (`pnpm test:e2e`) pass.
-- The pre-push hook runs `pnpm check:fast`; `--no-verify` MUST NOT be used to land a failing change.
+- Before opening a PR: `pnpm check` passes and relevant tests (`pnpm test:smoke`, `pnpm test:e2e`) pass.
+- The pre-push hook runs `pnpm check`; `--no-verify` MUST NOT be used to land a failing change.
 - Reviewers MUST verify compliance with this constitution; deviations MUST be justified in the PR.
 
 ## Governance

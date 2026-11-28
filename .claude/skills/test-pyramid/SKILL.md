@@ -66,21 +66,23 @@ Las etiquetas son las de Playwright, en el `describe` o en cada `test`. Cuando u
 
 ```ts
 test.describe(
-  'Inscripción a un evento',
+  "Inscripción a un evento",
   {
-    tag: '@story',
-    annotation: { type: 'spec', description: 'specs/011-registration' },
+    tag: "@story",
+    annotation: { type: "spec", description: "specs/011-registration" },
   },
   () => {
-    test('al agotarse los lugares la página lo dice y no deja inscribirse', async ({ page }) => {
+    test("al agotarse los lugares la página lo dice y no deja inscribirse", async ({
+      page,
+    }) => {
       /* … */
     });
   },
 );
 
 test(
-  'la iglesia crea un evento, alguien se inscribe y se marca su ingreso',
-  { tag: '@journey' },
+  "la iglesia crea un evento, alguien se inscribe y se marca su ingreso",
+  { tag: "@journey" },
   async ({ page }) => {
     /* … */
   },
@@ -109,8 +111,11 @@ test(
 ### Comandos
 
 ```sh
-pnpm test                                   # unit y component (Vitest)
+pnpm test:unit                              # unit y component (Vitest); test:coverage, con cobertura
 pnpm exec vitest run app/portal/foo         # solo una carpeta
-pnpm test:e2e --grep @smoke                 # solo los smoke
-pnpm test:e2e --grep @story                 # historias; --grep @journey para recorridos
+pnpm test:smoke                             # solo los @smoke
+pnpm test:e2e                               # @story y @journey; con --grep @story, solo historias
+pnpm test                                   # todos los niveles, en orden
+pnpm check:fast                             # lo rápido: estáticos + unit, mientras trabajas
+pnpm check                                  # estáticos + unit con cobertura, como el CI (lo corre el pre-push)
 ```

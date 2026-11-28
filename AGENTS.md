@@ -8,10 +8,11 @@ Node >= 22 and pnpm (see `.nvmrc` and `packageManager`). Run `nvm use` and `pnpm
 
 ## Checks
 
-- `pnpm check:fast` (typecheck, lint, architecture, format, unit tests) after editing. Run it before you consider a task done.
+- `pnpm check:fast` while you work: typecheck, lint, architecture, `check:tests`, format and the unit and component tests.
+- `pnpm check` before you consider a task done: the same, with the unit tests under the coverage threshold, as CI. The pre-push hook runs it. The build and the e2e tests stay in CI.
 - `pnpm check:arch` checks the import rules of [docs/architecture.md](./docs/architecture.md) with dependency-cruiser (`.dependency-cruiser.cjs`). Violations that already existed are listed in `.dependency-cruiser-known-violations.json`; only new ones fail. Never add to that file to make a change pass: fix the import, or explain to the product owner why the rule does not fit.
 - `pnpm check:tests` (`scripts/test-levels.mts`) checks that every Playwright test has exactly one level tag: `@smoke`, `@story` or `@journey`.
-- `pnpm test:e2e` (Playwright) needs the app's env vars and a backend; see the `e2e` job of `.github/workflows/ci.yml`, which runs `@smoke`, then `@story`, then `@journey`, only after the static checks, the unit tests and the build pass.
+- `pnpm test:smoke` (`@smoke`) and `pnpm test:e2e` (`@story` and `@journey`) are Playwright and need the app's env vars. CI runs them in the `e2e` job of `.github/workflows/ci.yml`, `@smoke` then `@story` then `@journey`, only after the static checks, the unit tests and the build pass.
 - Never weaken a check to make a change pass: no new `@ts-ignore`/`eslint-disable`, no skipped tests, no lowered thresholds.
 
 ## Tests
@@ -29,7 +30,7 @@ Use [Conventional Commits](https://www.conventionalcommits.org/): `<type>: <subj
 Allowed types: `build`, `chore`, `ci`, `docs`, `feat`, `fix`, `perf`, `refactor`, `revert`, `style`, `test`.
 
 A `commit-msg` hook (husky + commitlint) rejects anything else. The hook needs Node >= 22.
-A `pre-push` hook runs `pnpm check:fast`. `git push --no-verify` skips it; CI does not.
+A `pre-push` hook runs `pnpm check`. `git push --no-verify` skips it; CI does not.
 
 ## Pull requests
 
