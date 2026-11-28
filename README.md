@@ -47,6 +47,7 @@ Solo `.env.example` se versiona. `.env` y `.env.local` están en `.gitignore`.
 | `pnpm check:fast`    | Lo rápido, mientras trabajas: tipos, lint, arquitectura, formato y pruebas unitarias.                                            |
 | `pnpm check`         | Lo mismo con la cobertura, como el CI (lo corre el pre-push). **Córrelo antes de terminar.** El build y los e2e quedan en el CI. |
 | `pnpm check:tests`   | Que cada prueba e2e tenga su nivel: `@smoke`, `@story` o `@journey` (skill `test-pyramid`).                                      |
+| `pnpm check:docs`    | Que lo que nombran los `.md` exista y que no se repitan entre sí (`scripts/check-docs.py`).                                      |
 | `pnpm check:arch`    | Reglas de imports de `docs/architecture.md` (dependency-cruiser); solo fallan las violaciones nuevas.                            |
 | `pnpm typecheck`     | `tsc --noEmit`.                                                                                                                  |
 | `pnpm lint`          | ESLint (config plana en `eslint.config.mjs`).                                                                                    |

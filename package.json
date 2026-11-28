@@ -19,8 +19,9 @@
     "prepare": "husky",
     "check:arch": "bash scripts/check-arch.sh",
     "check:tests": "node scripts/test-levels.mts",
-    "check:fast": "pnpm typecheck && pnpm lint && pnpm check:arch && pnpm check:tests && pnpm format:check && pnpm test:unit",
-    "check": "pnpm typecheck && pnpm lint && pnpm check:arch && pnpm check:tests && pnpm format:check && pnpm test:coverage",
+    "check:docs": "python3 -B scripts/check-docs.py && python3 -B -m unittest discover -q -s scripts -p check_docs_test.py",
+    "check:fast": "pnpm typecheck && pnpm lint && pnpm check:arch && pnpm check:tests && pnpm check:docs && pnpm format:check && pnpm test:unit",
+    "check": "pnpm typecheck && pnpm lint && pnpm check:arch && pnpm check:tests && pnpm check:docs && pnpm format:check && pnpm test:coverage",
     "api:sync": "node scripts/sync-api-spec.mjs",
     "api:generate": "orval --config orval.config.ts",
     "postinstall": "pnpm api:generate"

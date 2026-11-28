@@ -13,6 +13,7 @@ Node >= 22 and pnpm (see `.nvmrc` and `packageManager`). Run `nvm use` and `pnpm
 - `pnpm check:arch` checks the import rules of [docs/architecture.md](./docs/architecture.md) with dependency-cruiser (`.dependency-cruiser.cjs`). Violations that already existed are listed in `.dependency-cruiser-known-violations.json`; only new ones fail. Never add to that file to make a change pass: fix the import, or explain to the product owner why the rule does not fit.
 - `pnpm check:tests` (`scripts/test-levels.mts`) checks that every Playwright test has exactly one level tag: `@smoke`, `@story` or `@journey`.
 - `pnpm test:smoke` (`@smoke`) and `pnpm test:e2e` (`@story` and `@journey`) are Playwright and need the app's env vars. CI runs them in the `e2e` job of `.github/workflows/ci.yml`, `@smoke` then `@story` then `@journey`, only after the static checks, the unit tests and the build pass.
+- `pnpm check:docs` (`scripts/check-docs.py`, the same script in srtomy-api and srtomy-agent) checks the Markdown docs: every path a doc names in `code` exists (or is ignored by git, or is a subpath of a dependency), every `@scope/package` is a dependency, and no sentence is repeated word for word across docs (see Docs). A name a doc mentions on purpose without it existing goes in a `check-docs ignore` comment in that doc, with the reason.
 - Never weaken a check to make a change pass: no new `@ts-ignore`/`eslint-disable`, no skipped tests, no lowered thresholds.
 
 ## Tests
@@ -22,6 +23,14 @@ Before writing, changing or reviewing a test, follow the `test-pyramid` skill (`
 ## Dependencies
 
 The product owner wants the latest versions at all times. When a dependency problem shows up (`pnpm audit` or Dependabot reports a vulnerability, a deprecation, a failing check caused by an old package), do not patch around it with an `overrides` entry or by pinning only the vulnerable package: update the dependency and its parents to the latest version, major ones included, and fix what breaks. Run `pnpm outdated` and update the rest while you are at it. Use an override only as a last resort when no released parent allows the fix, and write it in the technical debt table (see below) with when to remove it.
+
+## Docs
+
+- Each fact lives in one place. Before you write something in a doc, look for whether another doc or a file already says it; if one does, link to it instead of copying it.
+- Do not restate a config file (package.json, pom.xml, tsconfig.json, the CI workflows, the lint rules): name the file. A copy goes stale, and then two places disagree.
+- When you change behaviour, update the one doc that describes it, and remove what no longer exists.
+- In a review, a repeated or stale fact is a defect, like a bug.
+- `scripts/check-docs.py` catches what needs no judgement (a path that does not exist, a package that is not a dependency, a sentence copied word for word); the rest is this rule.
 
 ## Commit messages
 
@@ -45,7 +54,7 @@ Claude Code runs Prettier and ESLint `--fix` on every file it edits (`.claude/ho
 Two more hooks keep the agent honest (`.claude/settings.json`):
 
 - `post-edit.sh` lints each edited `.ts`/`.tsx` file under `app/` or `tests/` and hands the remaining ESLint errors back to the agent, which has to fix them before going on.
-- `stop-check.sh` runs typecheck, lint, `check:arch` and `check:tests` when a turn ends with uncommitted changes, asks once for a test when changed code under `app/` has no changed test that names or imports it (router screens such as `page.tsx` and the generated client are exempt), and keeps the agent working until they pass. CI runs the same commands.
+- `stop-check.sh` runs typecheck, lint, `check:arch`, `check:docs` and `check:tests` when a turn ends with uncommitted changes, asks once for a test when changed code under `app/` has no changed test that names or imports it (router screens such as `page.tsx` and the generated client are exempt), and keeps the agent working until they pass. CI runs the same commands.
 
 ## Pending work and cleanup
 

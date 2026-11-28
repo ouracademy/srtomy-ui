@@ -45,6 +45,7 @@ run_check() {
 run_check "tipos (tsc --noEmit)" node node_modules/typescript/bin/tsc --noEmit
 run_check "lint (eslint .)" node node_modules/eslint/bin/eslint.js . --max-warnings=0
 run_check "arquitectura (dependency-cruiser)" bash scripts/check-arch.sh
+run_check "documentación (check:docs)" python3 -B scripts/check-docs.py
 run_check "niveles de las pruebas e2e (check:tests)" node scripts/test-levels.mts
 # Asked once: when a change truly needs no test, the agent says why and the next stop passes.
 run_check "prueba acompañante" node scripts/test-levels.mts --changed
