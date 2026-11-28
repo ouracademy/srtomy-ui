@@ -1,4 +1,10 @@
-import { cleanup, render, screen, within } from "@testing-library/react";
+import {
+  cleanup,
+  render,
+  screen,
+  waitFor,
+  within,
+} from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { PositionsManager } from "./PositionsManager";
@@ -250,6 +256,19 @@ describe("PositionsManager", () => {
     await user.click(screen.getByRole("button", { name: "Eliminar" }));
 
     expect(onDelete).toHaveBeenCalledWith("p2");
+  });
+
+  it("closes the confirmation with the X without deleting", async () => {
+    const { user, onDelete } = setup();
+
+    await user.click(screen.getByRole("button", { name: "Eliminar Ujier" }));
+    await user.click(screen.getByRole("button", { name: "Cerrar" }));
+
+    // The dialog fades out before it leaves the page.
+    await waitFor(() =>
+      expect(screen.queryByRole("dialog")).not.toBeInTheDocument(),
+    );
+    expect(onDelete).not.toHaveBeenCalled();
   });
 
   it("warns that deleting a position that gives access takes it from people with an account", async () => {

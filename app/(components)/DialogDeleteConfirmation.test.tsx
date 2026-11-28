@@ -70,4 +70,39 @@ describe("DialogDeleteConfirmation", () => {
       screen.queryByRole("button", { name: "Eliminar" }),
     ).not.toBeInTheDocument();
   });
+  it("closes with the X without deleting", async () => {
+    const user = userEvent.setup();
+    const close = vi.fn();
+    const onDelete = vi.fn();
+    render(<DialogDeleteConfirmation open close={close} onDelete={onDelete} />);
+
+    await user.click(screen.getByRole("button", { name: "Cerrar" }));
+
+    expect(close).toHaveBeenCalledOnce();
+    expect(onDelete).not.toHaveBeenCalled();
+  });
+
+  it("cannot be closed with the X while it deletes", async () => {
+    const user = userEvent.setup();
+    let finishDelete: () => void = () => undefined;
+    render(
+      <DialogDeleteConfirmation
+        open
+        close={() => undefined}
+        onDelete={() =>
+          new Promise<void>((resolve) => {
+            finishDelete = resolve;
+          })
+        }
+      />,
+    );
+
+    await user.click(screen.getByRole("button", { name: "Eliminar" }));
+
+    expect(screen.getByRole("button", { name: "Cerrar" })).toBeDisabled();
+    finishDelete();
+    await waitFor(() =>
+      expect(screen.getByRole("button", { name: "Cerrar" })).toBeEnabled(),
+    );
+  });
 });

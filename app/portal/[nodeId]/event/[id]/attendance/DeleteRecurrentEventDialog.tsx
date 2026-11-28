@@ -12,6 +12,7 @@ import {
   Typography,
 } from "@mui/material";
 import { FormContainer, RadioButtonGroup, useForm } from "react-hook-form-mui";
+import { DialogCloseButton } from "@/app/(components)/DialogCloseButton";
 
 export type DeleteEventRecurrentForm = {
   option: DeleteEventOption;
@@ -38,7 +39,8 @@ export const DeleteRecurrentEventDialog = ({
   return (
     <Dialog open={open} onClose={close}>
       <FormContainer formContext={formContext} onSuccess={onDelete}>
-        <DialogTitle>Borrar el evento recurrente</DialogTitle>
+        <DialogCloseButton onClick={close} />
+        <DialogTitle sx={{ pr: 6 }}>Borrar el evento recurrente</DialogTitle>
         <DialogContent>
           <Typography>
             Para eliminar seleccione una de las siguientes opciones:

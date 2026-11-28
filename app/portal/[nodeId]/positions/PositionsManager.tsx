@@ -34,6 +34,7 @@ import type {
   PositionSuggestionResponse,
   PositionSummaryResponse,
 } from "@/app/(api)/generated/aPIOvejafiel.schemas";
+import { DialogCloseButton } from "@/app/(components)/DialogCloseButton";
 import { DialogDeleteConfirmation } from "@/app/(components)/DialogDeleteConfirmation";
 import { PermissionPicker } from "@/app/(components)/PermissionPicker";
 import { PermissionsInfo } from "@/app/(components)/PermissionsInfo";
@@ -453,7 +454,8 @@ const ConfirmDialog = ({
   const [working, setWorking] = React.useState(false);
   return (
     <Dialog open onClose={close} fullWidth>
-      <DialogTitle>{confirmation.title}</DialogTitle>
+      <DialogCloseButton onClick={close} disabled={working} />
+      <DialogTitle sx={{ pr: 6 }}>{confirmation.title}</DialogTitle>
       <DialogContent>
         <DialogContentText>{confirmation.message}</DialogContentText>
       </DialogContent>
