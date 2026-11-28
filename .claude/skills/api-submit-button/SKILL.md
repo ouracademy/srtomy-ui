@@ -33,31 +33,31 @@ No aplica a botones que solo navegan, abren un diálogo o cambian un filtro.
 
 ## Botón fuera de un formulario
 
-Usa estado local y `try`/`finally` para que el spinner se apague aunque la petición falle:
+Usa el hook de mutación que `orval` genera para esa operación y toma `isMutating` de él. No hace falta un `useState` ni un `try/finally` para apagar el spinner:
 
 ```tsx
-const [saving, setSaving] = React.useState(false);
+const { trigger: save, isMutating } = usePutEventsByIdAttendance(id);
 
 <SaveButton
   name="Registrar asistencias"
-  loading={saving}
+  loading={isMutating}
   onClick={async () => {
-    setSaving(true);
-    try {
-      await putEventsByIdAttendance(id, { personIds });
-      alert.showMessage("Asistencia guardada exitosamente");
-    } finally {
-      setSaving(false);
-    }
+    await save({ personIds });
+    alert.showMessage("Asistencia guardada exitosamente");
   }}
 />;
 ```
+
+`CalendarSyncCard` es un ejemplo en el repo. Dos límites:
+
+- El `id` de la ruta se fija al crear el hook. Si cada fila de una lista escribe sobre su propio `id`, la fila es un componente con su hook (no un `useState<string | null>` con el id que se está guardando).
+- Si la pantalla encadena varias escrituras en un paso (crear y luego asignar), `isMutating` de una sola no cubre el paso entero: ahí el paso es una fase del flujo (ver `docs/code-style.md`, «Estado y efectos»).
 
 ## Reglas
 
 - **No cambies el texto** del botón a «Guardando…». El spinner reemplaza el texto (`LoadingButton` oculta la etiqueta, que sigue en el DOM para lectores de pantalla).
 - **No uses `disabled` a mano** para simular carga: `loading` ya deshabilita el botón.
-- **No añadas `useSWRMutation` ni estados globales** solo para esto. Un `useState` o `isSubmitting` basta.
+- **No añadas estados globales** solo para esto: `isMutating` del hook, o `isSubmitting` en un formulario, bastan.
 - En un diálogo con petición en curso, **deshabilita «Cancelar»** para no cerrar a mitad de la operación (`DialogDeleteConfirmation` ya lo hace).
 - Los textos que ve el usuario van en español.
 

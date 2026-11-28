@@ -89,6 +89,8 @@ alert.showMessage("Guardado exitosamente");
 
 La conversión formulario → cuerpo (por ejemplo `toPersonPayload`) vive junto al formulario, que es quien conoce sus campos.
 
+Cuando la pantalla solo necesita lanzar la escritura y saber si sigue en curso, usa el hook de mutación que `orval` genera para cada operación (`usePutPositionsById(id)`: `trigger` y `isMutating`). El `id` de la ruta se fija al crear el hook, así que una fila de una lista que escribe sobre su propio `id` es un componente con su hook. Los flujos con varios pasos o varias escrituras siguen llamando a las funciones generadas.
+
 ### Cliente HTTP
 
 `app/(api)/client.ts` crea **un solo** cliente axios y es el mutator que usa el código generado:
