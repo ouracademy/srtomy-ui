@@ -16,6 +16,43 @@ env:
   NODE_VERSION: "22"
 
 jobs:
+  # A pull request that only changes docs (*.md, docs/) runs the commit and docs checks and skips
+  # the rest (scripts/only-docs-changed.sh); a skipped job counts as passed for a required check.
+  # A push to main always runs everything.
+  changes:
+    name: qué cambió
+    runs-on: ubuntu-latest
+    outputs:
+      code: ${{ steps.diff.outputs.code }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+      - id: diff
+        env:
+          EVENT: ${{ github.event_name }}
+          BASE: ${{ github.event.pull_request.base.sha }}
+        run: |
+          if [ "$EVENT" = "pull_request" ] && bash scripts/only-docs-changed.sh "$BASE"; then
+            echo "code=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "code=true" >> "$GITHUB_OUTPUT"
+          fi
+
+  docs:
+    name: documentación (formato)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: formato
+        run: pnpm format:check
+
   commits:
     name: commits (conventional)
     runs-on: ubuntu-latest
@@ -35,6 +72,8 @@ jobs:
 
   verify:
     name: tipos, lint, formato
+    needs: changes
+    if: needs.changes.outputs.code == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -67,6 +106,8 @@ jobs:
   # the unit tests of `pnpm check`, so they run once, with coverage.
   test:
     name: pruebas unitarias y cobertura (umbral 80%)
+    needs: changes
+    if: needs.changes.outputs.code == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -81,6 +122,8 @@ jobs:
 
   build:
     name: build
+    needs: changes
+    if: needs.changes.outputs.code == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1

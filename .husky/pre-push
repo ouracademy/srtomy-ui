@@ -16,4 +16,11 @@ if [ "$major" -lt 22 ]; then
   exit 1
 fi
 
+# A branch that only changes docs (*.md, docs/) since origin/main runs only the format check, as CI.
+base="$(git merge-base HEAD origin/main 2>/dev/null || true)"
+if [ -n "$base" ] && bash scripts/only-docs-changed.sh "$base"; then
+  echo "pre-push: only docs changed since origin/main; running the format check only."
+  exec pnpm format:check
+fi
+
 pnpm check
