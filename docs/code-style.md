@@ -1,5 +1,7 @@
 # Estilo de código
 
+<!-- check-docs ignore: utils/, features/, lib/ (folders this guide says not to create) -->
+
 Reglas para escribir código en este repo. Lo que una herramienta puede hacer cumplir (Prettier, ESLint, TypeScript) está en `pnpm check:fast`; aquí está lo demás y el porqué. Para saber **dónde** va el código, ver [architecture.md](architecture.md).
 
 ## Estructura

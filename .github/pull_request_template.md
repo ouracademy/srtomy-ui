@@ -14,7 +14,7 @@
 
 - [ ] El título sigue Conventional Commits (`tipo: asunto` en minúsculas)
 - [ ] Textos de la interfaz en español; identificadores y comentarios en inglés
-- [ ] Las llamadas nuevas a la API están en `app/(api)/services` y tienen prueba
+- [ ] Las llamadas nuevas a la API usan lo generado en `app/(api)/generated/` y tienen prueba
 - [ ] Hay estados de carga y de error donde se leen datos
 - [ ] No hay secretos, `console.log` ni código comentado
 - [ ] Documentación actualizada (`README.md` o `docs/architecture.md`) si cambia algo de lo que cuentan

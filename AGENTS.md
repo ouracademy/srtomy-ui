@@ -55,18 +55,15 @@ What the product owner decides **not** to do (a discarded item or idea) does not
 
 ## Specs and plans
 
+<!-- check-docs ignore: SPEC.md, tasks/plan.md (files this section says not to write) -->
+
 Use spec-kit (the `speckit-*` skills) for specs, plans and task lists. Do not use addy's `/spec` or `/planning` commands, the `spec-driven-development` and `planning-and-task-breakdown` skills, or write `SPEC.md` or `tasks/plan.md` at the repo root. Those write to a second place and split the plan.
 
 Other addy skills stay available for code review, TDD, security and performance.
 
 ## Architecture and code style
 
-Read [docs/architecture.md](./docs/architecture.md) (where code goes, data flow) and [docs/code-style.md](./docs/code-style.md) (how to write it) before adding code. The short version:
-
-- Code lives next to what uses it (by proximity). A component used by one screen goes beside its `page.tsx`; shared ones go in `app/(components)/`. No `features/` or `utils/` folders.
-- Every call to srtomy-api goes through `app/(api)/services` (typed functions and SWR hooks) and the single client in `app/(api)/client.ts`. Components never build URLs or use axios directly. Response types live in `app/(api)/types.ts`.
-- Screens that read data handle loading, not-found and error (`Loading`, `ResourceError`).
-- Unit tests sit next to the file they test; e2e tests are in `tests/`.
+Read [docs/architecture.md](./docs/architecture.md) (where code goes, how data is read and written) and [docs/code-style.md](./docs/code-style.md) (how to write it) before adding code.
 
 ## Language
 

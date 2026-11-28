@@ -6,15 +6,7 @@ Este repositorio es el frontend. Consume la API [srtomy-api](https://github.com/
 
 ## Stack
 
-| Capa          | Tecnología                                                          |
-| ------------- | ------------------------------------------------------------------- |
-| Framework     | Next.js 16 (App Router, Turbopack) y React 19                       |
-| Lenguaje      | TypeScript 6 en modo `strict`                                       |
-| UI            | MUI 7 y MUI X (DataGrid, DatePickers), FullCalendar                 |
-| Datos         | SWR para lecturas, axios para escrituras                            |
-| Formularios   | react-hook-form y zod                                               |
-| Autenticación | Auth0 (`@auth0/auth0-react`)                                        |
-| Pruebas       | Vitest y Testing Library (unitarias), Playwright y axe (e2e y a11y) |
+Next.js (App Router) con React y TypeScript, y Auth0 para entrar. Las librerías y sus versiones están en `package.json`.
 
 ## Puesta en marcha
 
@@ -114,6 +106,8 @@ Cada push y PR ejecuta (`.github/workflows/ci.yml`), primero lo rápido y al fin
 Las acciones de GitHub están fijadas por SHA con un comentario de versión; Dependabot las actualiza junto con las dependencias npm (agrupadas, semanalmente).
 
 ## Despliegue
+
+<!-- check-docs ignore: vercel.json (the file this repo does not have) -->
 
 Se despliega en **Vercel**, con integración directa con Git: cada push a `main` publica a producción. La configuración vive en Vercel, no en este repositorio (no hay `vercel.json`).
 
